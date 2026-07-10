@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#020B1F" />
+<title>Alsaiti Voice</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<style>
+  :root{
+    --bg:#020B1F; --secondary:#071735; --primary:#3AA6FF; --cyan:#59C7FF;
+    --glow:#1E90FF; --text:#F5F9FF; --muted:#93A8C7;
+    --glass:rgba(11,27,58,0.65); --border:rgba(83,167,255,0.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(1200px 600px at 80% -10%, rgba(30,144,255,.18), transparent 60%),
+                     radial-gradient(900px 500px at -10% 20%, rgba(58,166,255,.10), transparent 55%);
+  }
+  a{color:inherit;text-decoration:none}
+  .muted{color:var(--muted)}
+  .app{display:flex;min-height:100vh}
+
+  /* Sidebar (desktop) */
+  .sidebar{width:250px;flex-shrink:0;background:rgba(7,23,53,.75);border-right:1px solid var(--border);
+    padding:20px 14px;position:sticky;top:0;height:100vh;overflow:auto;backdrop-filter:blur(8px)}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;font-weight:700;font-size:18px}
+  .brand .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--glow));
+    display:grid;place-items:center;font-size:16px;box-shadow:0 0 18px rgba(58,166,255,.55)}
+  .navsec{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 10px 6px}
+  .navlink{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;color:var(--muted);
+    font-size:14px;cursor:pointer;transition:.15s}
+  .navlink svg{width:18px;height:18px;flex-shrink:0}
+  .navlink:hover{background:rgba(58,166,255,.10);color:var(--text)}
+  .navlink.active{background:linear-gradient(90deg,rgba(58,166,255,.22),rgba(58,166,255,.05));
+    color:var(--text);box-shadow:inset 0 0 0 1px var(--border)}
+
+  /* Main */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;
+    padding:14px 20px;background:rgba(2,11,31,.7);border-bottom:1px solid var(--border);backdrop-filter:blur(10px)}
+  .hamb{display:none;background:none;border:1px solid var(--border);color:var(--text);border-radius:9px;
+    width:38px;height:38px;font-size:18px;cursor:pointer}
+  .search{flex:1;max-width:420px;display:flex;align-items:center;gap:8px;background:var(--glass);
+    border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--muted)}
+  .search input{background:none;border:none;outline:none;color:var(--text);width:100%;font-size:14px}
+  .topbar .spacer{flex:1}
+  .iconbtn{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--glass);
+    display:grid;place-items:center;cursor:pointer;color:var(--muted)}
+  .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--glow));
+    display:grid;place-items:center;font-weight:700;font-size:14px}
+  .content{padding:22px;max-width:1160px;width:100%;margin:0 auto}
+  .pagehead{margin-bottom:20px}
+  .pagehead h1{font-size:24px;font-weight:700}
+  .pagehead p{color:var(--muted);margin-top:4px;font-size:14px}
+
+  /* Cards / grid */
+  .grid{display:grid;gap:16px}
+  .cols-4{grid-template-columns:repeat(4,1fr)}
+  .cols-3{grid-template-columns:repeat(3,1fr)}
+  .cols-2{grid-template-columns:repeat(2,1fr)}
+  .card{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:18px;
+    backdrop-filter:blur(6px)}
+  .stat .label{font-size:13px;color:var(--muted)}
+  .stat .value{font-size:30px;font-weight:700;margin-top:6px}
+  .stat .delta{font-size:12px;margin-top:6px}
+  .up{color:#57E39A}.down{color:#FF7A8A}
+  .card h3{font-size:15px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+
+  /* Badges */
+  .badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 10px;border-radius:999px;
+    border:1px solid var(--border);white-space:nowrap}
+  .b-new{background:rgba(58,166,255,.16);color:var(--cyan);border-color:rgba(89,199,255,.4)}
+  .b-contacted{background:rgba(148,163,199,.14);color:#c3d3ea}
+  .b-qualified{background:rgba(126,111,239,.16);color:#b6a9ff}
+  .b-booked{background:rgba(87,227,154,.14);color:#7bf0b4}
+  .b-won{background:rgba(87,227,154,.2);color:#57E39A}
+  .b-lost{background:rgba(255,122,138,.14);color:#ff9aa6}
+  .b-spam{background:rgba(148,163,199,.1);color:#8ea0bd}
+
+  /* Table */
+  .tablewrap{overflow:auto;border-radius:16px;border:1px solid var(--border)}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
+  thead th{text-align:left;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);
+    padding:12px 14px;background:rgba(7,23,53,.6);position:sticky;top:0}
+  tbody td{padding:13px 14px;border-top:1px solid var(--border)}
+  tbody tr{cursor:pointer;transition:.12s}
+  tbody tr:hover{background:rgba(58,166,255,.07)}
+  .src{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px}
+  .score{font-weight:700}
+  .name{font-weight:600}
+
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:11px;font-size:14px;
+    font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--glass);color:var(--text);transition:.15s}
+  .btn:hover{border-color:var(--primary)}
+  .btn-primary{background:linear-gradient(135deg,var(--primary),var(--glow));border:none;
+    box-shadow:0 6px 22px rgba(30,144,255,.4)}
+  .btn-primary:hover{filter:brightness(1.08)}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .spacer{flex:1}
+
+  /* Bars */
+  .bar{height:9px;border-radius:999px;background:rgba(148,163,199,.18);overflow:hidden}
+  .bar>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--cyan))}
+  .legendrow{display:flex;align-items:center;justify-content:space-between;font-size:13px;margin:11px 0}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:8px}
+
+  /* Chat */
+  .msg{max-width:78%;padding:10px 13px;border-radius:14px;font-size:14px;margin-bottom:10px;line-height:1.45}
+  .msg.in{background:var(--glass);border:1px solid var(--border);border-bottom-left-radius:4px}
+  .msg.out{margin-left:auto;background:linear-gradient(135deg,rgba(58,166,255,.9),rgba(30,144,255,.9));
+    border-bottom-right-radius:4px}
+  .msgtime{font-size:11px;color:var(--muted);margin:2px 4px 12px}
+
+  /* Auth */
+  .auth{min-height:100vh;display:grid;place-items:center;padding:24px}
+  .authcard{width:100%;max-width:400px;background:var(--glass);border:1px solid var(--border);
+    border-radius:20px;padding:28px;backdrop-filter:blur(10px);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+  .field{margin:14px 0}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .field input,.field select{width:100%;padding:11px 13px;border-radius:11px;background:rgba(2,11,31,.6);
+    border:1px solid var(--border);color:var(--text);font-size:14px;outline:none}
+  .field input:focus{border-color:var(--primary)}
+
+  /* Pricing */
+  .price{font-size:34px;font-weight:800}
+  .price small{font-size:14px;font-weight:500;color:var(--muted)}
+  .plan.pop{border-color:var(--primary);box-shadow:0 0 0 1px var(--primary),0 14px 40px rgba(30,144,255,.25)}
+  .pill{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--primary),var(--glow));
+    font-size:11px;font-weight:700;padding:4px 12px;border-radius:999px}
+  ul.feat{list-style:none;margin-top:14px;font-size:14px}
+  ul.feat li{padding:7px 0;color:var(--muted);display:flex;gap:9px}
+  ul.feat li b{color:var(--text);font-weight:600}
+
+  /* Mobile bottom nav */
+  .mobnav{display:none}
+  .backdrop{display:none}
+
+  @media(max-width:900px){
+    .cols-4{grid-template-columns:repeat(2,1fr)}
+    .cols-3{grid-template-columns:1fr}
+    .cols-2{grid-template-columns:1fr}
+  }
+  @media(max-width:760px){
+    .sidebar{position:fixed;left:0;top:0;z-index:60;transform:translateX(-100%);transition:.25s}
+    .sidebar.open{transform:translateX(0)}
+    .backdrop.show{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50}
+    .hamb{display:grid;place-items:center}
+    .content{padding:16px 14px 96px}
+    .mobnav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:40;
+      background:rgba(7,23,53,.92);border-top:1px solid var(--border);backdrop-filter:blur(12px);
+      padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
+    .mobnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--muted);padding:4px}
+    .mobnav a svg{width:21px;height:21px}
+    .mobnav a.active{color:var(--cyan)}
+    .search{display:none}
+    .pagehead h1{font-size:20px}
+    .stat .value{font-size:26px}
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+/* ---------- Data (faithful to 01_MASTER_PRODUCT_SPEC.md) ---------- */
+const STATUSES=["New","Contacted","Qualified","Booked","Won","Lost","Spam"];
+const badgeClass={New:"b-new",Contacted:"b-contacted",Qualified:"b-qualified",Booked:"b-booked",Won:"b-won",Lost:"b-lost",Spam:"b-spam"};
+const SOURCES={ "Voice call":"phone","Website chat":"chat","Contact form":"form","Manual import":"import","API":"api","CRM":"crm" };
+
+const LEADS=[
+  {id:"LD-1042",name:"Sarah Whitfield",service:"Dental implant consult",urgency:"High",source:"Voice call",status:"New",score:92,time:"3m ago",phone:"+44 7700 900112",email:"sarah.w@example.com",callback:"Today 4:00pm",summary:"Caller asking about implant options after losing a molar. Wants earliest appointment; mentioned pain when chewing.",reasons:["High urgency (pain reported)","Clear service intent","Valid contact details"],notes:"Left voicemail confirming callback window.",assignee:"Front desk"},
+  {id:"LD-1041",name:"James Okoro",service:"Boiler not firing",urgency:"High",source:"Website chat",status:"New",score:88,time:"11m ago",phone:"+44 7700 900431",email:"j.okoro@example.com",callback:"ASAP",summary:"No hot water since morning, family with young child. Requesting same-day engineer visit.",reasons:["Emergency keyword detected","Address provided","Repeat visitor"],notes:"",assignee:"Unassigned"},
+  {id:"LD-1040",name:"Priya Nair",service:"2-bed flat viewing",urgency:"Medium",source:"Contact form",status:"Contacted",score:74,time:"42m ago",phone:"+44 7700 900677",email:"priya.n@example.com",callback:"Tomorrow AM",summary:"Interested in the Docklands 2-bed listing, asking about availability and pet policy.",reasons:["Budget in range","Specific listing referenced"],notes:"Sent listing brochure by email.",assignee:"Layla A."},
+  {id:"LD-1039",name:"Tom Bradley",service:"Botox consultation",urgency:"Low",source:"Website chat",status:"Qualified",score:69,time:"1h ago",phone:"+44 7700 900988",email:"tom.b@example.com",callback:"This week",summary:"First-time aesthetic client, comparing clinics, price-sensitive but ready to book a consult.",reasons:["Ready to book consult","Comparing providers"],notes:"Offered new-client consult slot.",assignee:"Reception"},
+  {id:"LD-1038",name:"Amelia Cross",service:"Kitchen leak repair",urgency:"High",source:"Voice call",status:"Booked",score:81,time:"2h ago",phone:"+44 7700 900233",email:"amelia.c@example.com",callback:"Booked Thu 9am",summary:"Under-sink leak, water contained. Booked engineer for Thursday morning.",reasons:["Slot confirmed","Deposit taken"],notes:"Engineer: Mike. Parts pre-ordered.",assignee:"Dispatch"},
+  {id:"LD-1037",name:"Daniel (unknown)",service:"—",urgency:"Low",source:"Contact form",status:"Spam",score:8,time:"3h ago",phone:"—",email:"promo@spammy.co",callback:"—",summary:"Bulk marketing submission with unrelated links. Auto-flagged.",reasons:["No service intent","Link spam pattern"],notes:"Auto-marked spam.",assignee:"—"},
+  {id:"LD-1036",name:"Grace Oduya",service:"Property valuation",urgency:"Medium",source:"API",status:"Won",score:77,time:"Yesterday",phone:"+44 7700 900555",email:"grace.o@example.com",callback:"Completed",summary:"Requested valuation for a semi-detached; instructed the agency to list.",reasons:["Signed instruction","High intent"],notes:"Listing agreement signed.",assignee:"Layla A."},
+  {id:"LD-1035",name:"Oliver Payne",service:"Invisalign quote",urgency:"Low",source:"Manual import",status:"Lost",score:41,time:"Yesterday",phone:"+44 7700 900744",email:"oliver.p@example.com",callback:"No answer",summary:"Requested quote, went with a competitor closer to home.",reasons:["Price objection","Location preference"],notes:"Marked lost after 3 attempts.",assignee:"Reception"},
+];
+
+const CONVERSATIONS=[
+  {name:"James Okoro",source:"Website chat",preview:"No hot water since this morning…",time:"11m",unread:true,
+    thread:[["in","Hi, my boiler won't fire and we've got no hot water at all.","09:14"],
+            ["out","Sorry to hear that, James. Is anyone vulnerable in the home right now?","09:14"],
+            ["in","Yes, we have a 2 year old. Can someone come today?","09:15"],
+            ["out","Understood — I'm flagging this as urgent and creating a priority lead. What's the postcode?","09:15"],
+            ["in","E14 9GE","09:16"],
+            ["out","Thanks. An engineer will call you within 20 minutes to confirm a same-day slot.","09:16"]]},
+  {name:"Sarah Whitfield",source:"Voice call",preview:"Transcript: implant consultation…",time:"3m",unread:true,
+    thread:[["in","(Call transcript) Hi, I lost a molar and it's painful to chew.","16:02"],
+            ["out","I can help with that. Are you an existing patient with us?","16:02"],
+            ["in","No, first time. How soon could I be seen?","16:03"],
+            ["out","We have implant consults this week. I'll book a callback for 4pm today to confirm.","16:03"]]},
+  {name:"Tom Bradley",source:"Website chat",preview:"Comparing a few clinics for Botox…",time:"1h",unread:false,
+    thread:[["in","Do you offer first-time consults for Botox?","15:01"],
+            ["out","We do — consultations are complimentary for new clients. Would you like a slot this week?","15:02"],
+            ["in","Yes please, something after work.","15:03"],
+            ["out","Great, I've noted an evening preference and created your lead.","15:03"]]},
+];
+
+const NAV=[
+  {sec:"Overview",items:[
+    ["dashboard","Dashboard",icon("grid")],
+    ["leads","Leads",icon("users")],
+    ["conversations","Conversations",icon("chat")],
+    ["analytics","Analytics",icon("chart")],
+  ]},
+  {sec:"Channels",items:[
+    ["chat-widget","Chat widget",icon("widget")],
+    ["voice-assistant","Voice assistant",icon("mic")],
+    ["phone-numbers","Phone numbers",icon("phone")],
+    ["integrations","Integrations",icon("plug")],
+  ]},
+  {sec:"Account",items:[
+    ["billing","Billing",icon("card")],
+    ["settings","Settings",icon("cog")],
+  ]},
+];
+const MOBNAV=[["dashboard","Home",icon("grid")],["leads","Leads",icon("users")],["conversations","Chat",icon("chat")],["analytics","Stats",icon("chart")],["settings","More",icon("cog")]];
+
+let state={route:"landing",lead:null,convo:0,menu:false};
+
+/* ---------- Icons ---------- */
+function icon(n){const p={
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  users:'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 5.2a3 3 0 0 1 0 5.6M17.5 20a5.2 5.2 0 0 0-3-4.7"/>',
+  chat:'<path d="M4 5h16v11H8l-4 4z"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  widget:'<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  phone:'<path d="M6 3h4l2 5-3 2a11 11 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 4 5a2 2 0 0 1 2-2z"/>',
+  plug:'<path d="M9 3v6M15 3v6M6 9h12v3a6 6 0 0 1-12 0zM12 18v3"/>',
+  card:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+  cog:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>',
+  bell:'<path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6zM10 20a2 2 0 0 0 4 0"/>',
+  phoneS:'<path d="M6 3h4l2 5-3 2a11 11 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 4 5a2 2 0 0 1 2-2z"/>',
+  form:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  api:'<path d="M8 3L3 12l5 9M16 3l5 9-5 9"/>',
+  crm:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 4v16"/>',
+  import:'<path d="M12 3v10M8 9l4 4 4-4M4 21h16"/>',
+  back:'<path d="M15 6l-6 6 6 6"/>',
+  check:'<path d="M20 6L9 17l-5-5"/>',
+  bolt:'<path d="M13 2L4 14h6l-1 8 9-12h-6z"/>'
+};
+return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(p[n]||'')+'</svg>';}
+
+function srcIcon(s){return '<span class="src">'+icon(SOURCES[s]==="chat"?"chat":SOURCES[s]==="phone"?"phoneS":SOURCES[s]==="form"?"form":SOURCES[s]==="api"?"api":SOURCES[s]==="crm"?"crm":"import")+s+'</span>';}
+
+/* ---------- Router ---------- */
+function go(route,extra){state.route=route;state.menu=false;if(extra)Object.assign(state,extra);window.scrollTo(0,0);render();}
+
+function render(){
+  const r=state.route;
+  if(["landing","login","signup","forgot"].includes(r)){document.getElementById("root").innerHTML=publicPage(r);bind();return;}
+  document.getElementById("root").innerHTML=shell(pageContent(r));
+  bind();
+}
+
+/* ---------- Public pages ---------- */
+function publicPage(r){
+  if(r==="landing")return landing();
+  const titles={login:["Welcome back","Sign in to your Alsaiti Voice workspace"],signup:["Create your account","Start capturing every enquiry"],forgot:["Reset password","We'll email you a secure reset link"]};
+  const t=titles[r];
+  return `<div class="auth"><div class="authcard">
+    <div class="brand" style="justify-content:center;padding-bottom:8px"><span class="logo">${icon("mic")}</span> Alsaiti Voice</div>
+    <h2 style="text-align:center;font-size:20px;margin-top:6px">${t[0]}</h2>
+    <p class="muted" style="text-align:center;font-size:13px;margin-top:4px">${t[1]}</p>
+    ${r==="signup"?`<div class="field"><label>Business name</label><input placeholder="Bright Smile Dental"/></div>`:""}
+    <div class="field"><label>Email</label><input placeholder="you@business.com" type="email"/></div>
+    ${r!=="forgot"?`<div class="field"><label>Password</label><input placeholder="••••••••" type="password"/></div>`:""}
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" onclick="go('${r==='signup'?'onboarding':'dashboard'}')">${r==="login"?"Sign in":r==="signup"?"Create account":"Send reset link"}</button>
+    <div class="row" style="justify-content:center;margin-top:16px;font-size:13px">
+      ${r==="login"?`<span class="muted">New here?</span><a onclick="go('signup')" style="color:var(--cyan);cursor:pointer">Create account</a> · <a onclick="go('forgot')" style="color:var(--cyan);cursor:pointer">Forgot?</a>`:""}
+      ${r==="signup"?`<span class="muted">Have an account?</span><a onclick="go('login')" style="color:var(--cyan);cursor:pointer">Sign in</a>`:""}
+      ${r==="forgot"?`<a onclick="go('login')" style="color:var(--cyan);cursor:pointer">Back to sign in</a>`:""}
+    </div>
+    <p class="muted" style="text-align:center;font-size:11px;margin-top:18px">Demo preview · no real auth yet</p>
+  </div></div>`;
+}
+
+function landing(){
+  return `<div style="max-width:1080px;margin:0 auto;padding:26px 20px 60px">
+    <div class="row"><div class="brand"><span class="logo">${icon("mic")}</span> Alsaiti Voice</div><div class="spacer"></div>
+      <button class="btn" onclick="go('login')">Sign in</button>
+      <button class="btn btn-primary" onclick="go('signup')">Get started</button></div>
+    <div style="text-align:center;padding:70px 10px 40px">
+      <div class="badge" style="margin-bottom:18px">${icon("bolt")} AI voice &amp; chat lead capture</div>
+      <h1 style="font-size:44px;line-height:1.1;font-weight:800;max-width:760px;margin:0 auto">Never lose another enquiry.</h1>
+      <p class="muted" style="max-width:560px;margin:16px auto 0;font-size:17px">Alsaiti Voice captures calls, website chats and forms, qualifies every enquiry, creates a lead, and alerts your team — so nothing slips through.</p>
+      <div class="row" style="justify-content:center;margin-top:26px">
+        <button class="btn btn-primary" onclick="go('signup')">Start free</button>
+        <button class="btn" onclick="go('dashboard')">View live demo</button>
+      </div>
+    </div>
+    <div class="grid cols-3" style="margin-top:20px">
+      ${[["phone","Answer every call","AI voice assistant greets callers, qualifies them and books or transfers — 24/7."],
+         ["chat","Website chat","An embeddable widget turns visitors into qualified leads while you sleep."],
+         ["chart","One clear dashboard","See new, urgent and callback leads, best sources and response times at a glance."]]
+        .map(c=>`<div class="card"><div style="width:42px;height:42px;border-radius:12px;background:rgba(58,166,255,.14);display:grid;place-items:center;color:var(--cyan);margin-bottom:12px">${icon(c[0])}</div><h3>${c[1]}</h3><p class="muted" style="font-size:14px">${c[2]}</p></div>`).join("")}
+    </div>
+    <div style="text-align:center;margin-top:56px">
+      <p class="muted" style="font-size:13px;text-transform:uppercase;letter-spacing:.1em">Built for service businesses</p>
+      <div class="row" style="justify-content:center;margin-top:14px;gap:22px;color:var(--muted);font-size:15px;flex-wrap:wrap">
+        <span>Dental clinics</span><span>Aesthetic clinics</span><span>Plumbers &amp; home services</span><span>Real estate</span><span>Letting agents</span><span>Consultants</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- App shell ---------- */
+function shell(inner){
+  const active=state.route;
+  const side=NAV.map(g=>`<div class="navsec">${g.sec}</div>`+g.items.map(it=>
+    `<div class="navlink ${it[0]===active?'active':''}" onclick="go('${it[0]}')">${it[2]}<span>${it[1]}</span></div>`).join("")).join("");
+  const mob=MOBNAV.map(it=>`<a class="${it[0]===active?'active':''}" onclick="go('${it[0]}')">${it[2]}<span>${it[1]}</span></a>`).join("");
+  return `<div class="backdrop ${state.menu?'show':''}" onclick="go('${active}')"></div>
+  <div class="app">
+    <aside class="sidebar ${state.menu?'open':''}">
+      <div class="brand"><span class="logo">${icon("mic")}</span> Alsaiti Voice</div>${side}
+      <div style="margin-top:24px" class="card">
+        <div style="font-size:13px;font-weight:600">Bright Smile Dental</div>
+        <div class="muted" style="font-size:12px;margin-top:2px">Growth plan · Owner</div>
+        <button class="btn" style="width:100%;justify-content:center;margin-top:12px;font-size:13px" onclick="go('landing')">Sign out</button>
+      </div>
+    </aside>
+    <div class="main">
+      <div class="topbar">
+        <button class="hamb" onclick="toggleMenu()">☰</button>
+        <div class="search">${icon("search")}<input placeholder="Search leads, conversations…"/></div>
+        <div class="spacer"></div>
+        <div class="iconbtn" style="position:relative">${icon("bell")}<span style="position:absolute;top:7px;right:7px;width:8px;height:8px;background:#57E39A;border-radius:50%"></span></div>
+        <div class="avatar">BS</div>
+      </div>
+      <div class="content">${inner}</div>
+    </div>
+  </div>
+  <nav class="mobnav">${mob}</nav>`;
+}
+
+/* ---------- Pages ---------- */
+function pageContent(r){
+  switch(r){
+    case"dashboard":return dashboard();
+    case"leads":return leadsPage();
+    case"lead-detail":return leadDetail();
+    case"conversations":return conversationsPage();
+    case"analytics":return analyticsPage();
+    case"billing":return billingPage();
+    case"settings":return settingsPage();
+    case"onboarding":return onboardingPage();
+    case"chat-widget":return placeholder("Chat widget","Embeddable website chat widget","Copy a snippet to your site and every visitor conversation becomes a qualified lead. Configuration UI arrives in Phase 3.");
+    case"voice-assistant":return placeholder("Voice assistant","AI voice assistant","Answers inbound calls, identifies the business, asks qualification questions, detects urgency, transfers to a human or offers a callback, and creates exactly one lead per call. Arrives in Phase 5.");
+    case"phone-numbers":return placeholder("Phone numbers","Numbers &amp; routing","Provision and route business numbers to the voice assistant. Arrives with the voice phase.");
+    case"integrations":return integrationsPage();
+    default:return placeholder("Alsaiti Voice","","");
+  }
+}
+
+function head(t,s){return `<div class="pagehead"><h1>${t}</h1>${s?`<p>${s}</p>`:""}</div>`;}
+
+function dashboard(){
+  const stats=[["Leads today","37","+12% vs yesterday","up"],["New / urgent","6","2 need callback now","up"],["Avg response","4m 12s","−38s faster","up"],["Won this week","14","£11,200 pipeline","up"]];
+  const bySource=[["Website chat",34,"var(--primary)"],["Voice call",28,"var(--cyan)"],["Contact form",21,"#7E6FEF"],["API / CRM",17,"#57E39A"]];
+  return head("Dashboard","How many leads arrived, who's urgent, and which channels perform best.")+
+  `<div class="grid cols-4">${stats.map(s=>`<div class="card stat"><div class="label">${s[0]}</div><div class="value">${s[1]}</div><div class="delta ${s[3]}">${s[2]}</div></div>`).join("")}</div>
+   <div class="grid cols-3" style="margin-top:16px">
+     <div class="card" style="grid-column:span 2">
+       <h3>Leads by status <span class="muted" style="font-weight:400;font-size:12px">this week</span></h3>
+       ${STATUSES.map(st=>{const n={New:18,Contacted:22,Qualified:15,Booked:9,Won:14,Lost:7,Spam:5}[st];return `<div class="legendrow"><span class="badge ${badgeClass[st]}">${st}</span><div style="flex:1;margin:0 14px"><div class="bar"><span style="width:${n*3}%"></span></div></div><b>${n}</b></div>`}).join("")}
+     </div>
+     <div class="card">
+       <h3>Top sources</h3>
+       ${bySource.map(s=>`<div class="legendrow"><span><span class="dot" style="background:${s[2]}"></span>${s[0]}</span><b>${s[1]}%</b></div><div class="bar" style="margin-bottom:6px"><span style="width:${s[1]}%;background:${s[2]}"></span></div>`).join("")}
+       <div class="row" style="margin-top:14px"><div class="badge b-booked">${icon("check")} All systems healthy</div></div>
+       <p class="muted" style="font-size:12px;margin-top:8px">Email, webhook, chat &amp; voice operational.</p>
+     </div>
+   </div>
+   <div class="card" style="margin-top:16px">
+     <h3>Needs attention now <a onclick="go('leads')" style="color:var(--cyan);cursor:pointer;font-size:13px;font-weight:500">View all leads →</a></h3>
+     ${leadTable(LEADS.filter(l=>["New","Qualified"].includes(l.status)).slice(0,4))}
+   </div>`;
+}
+
+function leadTable(list){
+  return `<div class="tablewrap"><table><thead><tr><th>Lead</th><th>Service</th><th>Source</th><th>Status</th><th>Score</th><th>When</th></tr></thead><tbody>
+    ${list.map(l=>`<tr onclick="openLead('${l.id}')">
+      <td><div class="name">${l.name}</div><div class="muted" style="font-size:12px">${l.id} · ${l.urgency} urgency</div></td>
+      <td>${l.service}</td>
+      <td>${srcIcon(l.source)}</td>
+      <td><span class="badge ${badgeClass[l.status]}">${l.status}</span></td>
+      <td><span class="score" style="color:${l.score>75?'#57E39A':l.score>50?'var(--cyan)':'#ff9aa6'}">${l.score}</span></td>
+      <td class="muted">${l.time}</td>
+    </tr>`).join("")}
+  </tbody></table></div>`;
+}
+
+function leadsPage(){
+  return head("Leads","Every enquiry from calls, chat, forms, API and CRM.")+
+  `<div class="row" style="margin-bottom:14px">
+     ${["All",...STATUSES].map((s,i)=>`<button class="btn" style="padding:7px 13px;font-size:13px;${i===0?'border-color:var(--primary)':''}">${s}</button>`).join("")}
+     <div class="spacer"></div><button class="btn btn-primary">+ New lead</button>
+   </div>
+   ${leadTable(LEADS)}`;
+}
+
+function openLead(id){state.lead=LEADS.find(l=>l.id===id);go("lead-detail");}
+
+function leadDetail(){
+  const l=state.lead||LEADS[0];
+  const info=[["Phone",l.phone],["Email",l.email],["Service",l.service],["Urgency",l.urgency],["Source",l.source],["Preferred callback",l.callback],["Assignee",l.assignee],["Consent","Given (recorded)"]];
+  return `<div class="row" style="margin-bottom:14px"><button class="btn" onclick="go('leads')" style="padding:8px 12px">${icon("back")} Back</button><div class="spacer"></div>
+     <span class="badge ${badgeClass[l.status]}">${l.status}</span></div>
+   <div class="pagehead"><h1>${l.name}</h1><p>${l.id} · lead score <b style="color:${l.score>75?'#57E39A':'var(--cyan)'}">${l.score}</b> · ${l.time}</p></div>
+   <div class="grid cols-3">
+     <div style="grid-column:span 2;display:flex;flex-direction:column;gap:16px">
+       <div class="card"><h3>Summary</h3><p style="font-size:14px;line-height:1.6">${l.summary}</p></div>
+       <div class="card"><h3>Why this score</h3>${l.reasons.map(x=>`<div class="row" style="margin:8px 0"><span style="color:#57E39A">${icon("check")}</span><span style="font-size:14px">${x}</span></div>`).join("")}</div>
+       <div class="card"><h3>Transcript / messages</h3>
+         <div class="msg in">Enquiry captured via ${l.source.toLowerCase()}.</div>
+         <div class="msg out">Qualification questions asked and answered.</div>
+         <div class="msg in">${l.summary}</div>
+       </div>
+       <div class="card"><h3>Internal notes</h3><p class="muted" style="font-size:14px">${l.notes||"No notes yet."}</p>
+         <div class="field" style="margin-top:10px"><input placeholder="Add a note…"/></div></div>
+     </div>
+     <div style="display:flex;flex-direction:column;gap:16px">
+       <div class="card"><h3>Move status</h3><div class="row">${STATUSES.map(s=>`<button class="btn" style="padding:6px 11px;font-size:12px;${s===l.status?'border-color:var(--primary)':''}">${s}</button>`).join("")}</div>
+         <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px">${icon("phoneS")} Call now</button></div>
+       <div class="card"><h3>Details</h3><table style="min-width:0"><tbody>${info.map(i=>`<tr><td class="muted" style="padding:7px 0;border:none">${i[0]}</td><td style="text-align:right;padding:7px 0;border:none">${i[1]}</td></tr>`).join("")}</tbody></table></div>
+       <div class="card"><h3>Notifications</h3>
+         <div class="legendrow"><span>Email alert</span><span class="badge b-booked">Sent</span></div>
+         <div class="legendrow"><span>Webhook</span><span class="badge b-booked">Delivered</span></div>
+         <div class="legendrow"><span>CRM sync</span><span class="badge b-contacted">Pending</span></div>
+       </div>
+     </div>
+   </div>`;
+}
+
+function conversationsPage(){
+  const c=CONVERSATIONS[state.convo]||CONVERSATIONS[0];
+  const list=CONVERSATIONS.map((x,i)=>`<div class="navlink ${i===state.convo?'active':''}" style="margin:2px 0" onclick="state.convo=${i};render()">
+     <div class="avatar" style="width:34px;height:34px;font-size:12px">${x.name.split(" ").map(n=>n[0]).join("")}</div>
+     <div style="min-width:0;flex:1"><div style="display:flex;justify-content:space-between"><b style="font-size:14px;color:var(--text)">${x.name}</b><span class="muted" style="font-size:11px">${x.time}</span></div>
+     <div class="muted" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.preview}</div></div>
+     ${x.unread?'<span style="width:8px;height:8px;background:var(--cyan);border-radius:50%"></span>':''}</div>`).join("");
+  return head("Conversations","Live chat and call transcripts across every channel.")+
+  `<div class="grid" style="grid-template-columns:300px 1fr;gap:16px" id="convgrid">
+     <div class="card" style="padding:10px">${list}</div>
+     <div class="card" style="display:flex;flex-direction:column">
+       <div class="row" style="border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:12px">
+         <div class="avatar" style="width:40px;height:40px">${c.name.split(" ").map(n=>n[0]).join("")}</div>
+         <div><b>${c.name}</b><div class="muted" style="font-size:12px">${srcIcon(c.source)}</div></div>
+         <div class="spacer"></div><button class="btn" style="padding:7px 12px;font-size:13px" onclick="alert('Opens the linked lead')">View lead</button>
+       </div>
+       <div style="flex:1;overflow:auto;max-height:420px">${c.thread.map(m=>`<div class="msg ${m[0]}">${m[1]}</div><div class="msgtime" style="text-align:${m[0]==='out'?'right':'left'}">${m[2]}</div>`).join("")}</div>
+       <div class="row" style="margin-top:10px"><div class="field" style="flex:1;margin:0"><input placeholder="Type a reply…"/></div><button class="btn btn-primary">Send</button></div>
+     </div>
+   </div>
+   <style>@media(max-width:760px){#convgrid{grid-template-columns:1fr!important}}</style>`;
+}
+
+function analyticsPage(){
+  const spark=(vals,color)=>{const w=260,h=70,max=Math.max(...vals);const pts=vals.map((v,i)=>`${(i/(vals.length-1))*w},${h-(v/max)*(h-8)-4}`).join(" ");
+    return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:80px"><polyline fill="none" stroke="${color}" stroke-width="2.5" points="${pts}"/></svg>`;};
+  return head("Analytics","Volume, conversion and response speed over time.")+
+  `<div class="grid cols-4">${[["Enquiries","1,284","+18%"],["Qualified rate","61%","+4pts"],["Booked","208","+22%"],["Won","96","+9%"]].map(s=>`<div class="card stat"><div class="label">${s[0]}</div><div class="value">${s[1]}</div><div class="delta up">${s[2]} vs last month</div></div>`).join("")}</div>
+   <div class="grid cols-2" style="margin-top:16px">
+     <div class="card"><h3>Enquiries per day</h3>${spark([12,18,15,22,19,28,24,31,27,34,30,37],"var(--cyan)")}</div>
+     <div class="card"><h3>Response time (mins)</h3>${spark([9,8,8,6,7,5,5,4,4,5,4,4],"#57E39A")}</div>
+   </div>
+   <div class="card" style="margin-top:16px"><h3>Conversion funnel</h3>
+     ${[["New",100],["Contacted",78],["Qualified",61],["Booked",34],["Won",23]].map(f=>`<div class="legendrow"><span style="width:90px">${f[0]}</span><div style="flex:1;margin:0 12px"><div class="bar"><span style="width:${f[1]}%"></span></div></div><b>${f[1]}%</b></div>`).join("")}
+   </div>`;
+}
+
+function integrationsPage(){
+  const apps=[["Resend","Email alerts","Connected","b-booked"],["Stripe","Billing","Connected","b-booked"],["Webhook","Signed events","Connected","b-booked"],["n8n","Automations","Available","b-contacted"],["HubSpot","CRM sync","Available","b-contacted"],["Salesforce","CRM sync","Available","b-contacted"]];
+  return head("Integrations","Send leads and events where your team already works.")+
+  `<div class="grid cols-3">${apps.map(a=>`<div class="card"><div class="row"><div style="width:40px;height:40px;border-radius:11px;background:rgba(58,166,255,.14);display:grid;place-items:center;color:var(--cyan)">${icon("plug")}</div><div><b>${a[0]}</b><div class="muted" style="font-size:12px">${a[1]}</div></div></div><div class="row" style="margin-top:14px"><span class="badge ${a[3]}">${a[2]}</span><div class="spacer"></div><button class="btn" style="padding:6px 12px;font-size:13px">${a[2]==='Connected'?'Manage':'Connect'}</button></div></div>`).join("")}</div>`;
+}
+
+function billingPage(){
+  const plans=[["Starter",149,1490,["500 leads / month","Website chat widget","Email alerts","1 team seat"],false],
+               ["Growth",299,2990,["2,000 leads / month","Everything in Starter","Voice assistant minutes","Webhook + CRM sync","5 team seats"],true],
+               ["Pro",499,4990,["Higher volume limits","Everything in Growth","Priority routing","Usage analytics","Unlimited seats"],false]];
+  return head("Billing","Simple monthly or annual plans. No setup fee.")+
+  `<div class="grid cols-3">${plans.map(p=>`<div class="card plan ${p[4]?'pop':''}" style="position:relative">${p[4]?'<span class="pill">Most popular</span>':''}
+     <h3 style="font-size:16px">${p[0]}</h3>
+     <div class="price">£${p[1]}<small>/mo</small></div>
+     <div class="muted" style="font-size:13px">or £${p[2].toLocaleString()}/year</div>
+     <ul class="feat">${p[3].map(f=>`<li>${icon("check")}<b>${f}</b></li>`).join("")}</ul>
+     <button class="btn ${p[4]?'btn-primary':''}" style="width:100%;justify-content:center;margin-top:16px">${p[0]==="Growth"?"Current plan":"Choose "+p[0]}</button>
+   </div>`).join("")}</div>
+   <p class="muted" style="font-size:12px;margin-top:14px">Voice usage has included minutes with warnings, hard limits or overages, and usage visibility — no unlimited voice promise.</p>
+   <div class="card" style="margin-top:16px"><h3>Payment method</h3><div class="row"><div style="width:44px;height:30px;border-radius:6px;background:rgba(58,166,255,.16);display:grid;place-items:center">${icon("card")}</div><span>Visa ending 4242</span><div class="spacer"></div><button class="btn" style="padding:7px 13px;font-size:13px">Update</button></div></div>`;
+}
+
+function onboardingPage(){
+  const steps=["Business details","Industry & services","Opening hours & time zone","Notifications","Channels"];
+  return head("Welcome — let's set up your workspace","A few quick questions to tailor Alsaiti Voice.")+
+  `<div class="card"><div class="row" style="margin-bottom:18px">${steps.map((s,i)=>`<div class="row" style="gap:8px"><div style="width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;${i===0?'background:linear-gradient(135deg,var(--primary),var(--glow))':'background:rgba(148,163,199,.16);color:var(--muted)'}">${i+1}</div><span style="font-size:13px;${i===0?'':'color:var(--muted)'}">${s}</span></div>${i<steps.length-1?'<div style="flex:1;height:1px;background:var(--border);min-width:14px"></div>':''}`).join("")}</div>
+    <div class="grid cols-2">
+      <div class="field"><label>Business name</label><input value="Bright Smile Dental"/></div>
+      <div class="field"><label>Industry</label><select><option>Dental clinic</option><option>Aesthetic clinic</option><option>Plumber / home services</option><option>Real estate</option><option>Letting agent</option><option>Consultant</option></select></div>
+      <div class="field"><label>Notification email</label><input value="reception@brightsmile.co.uk"/></div>
+      <div class="field"><label>Time zone</label><select><option>Europe/London (GMT)</option></select></div>
+    </div>
+    <div class="row" style="margin-top:8px"><div class="spacer"></div><button class="btn btn-primary" onclick="go('dashboard')">Finish setup →</button></div>
+  </div>`;
+}
+
+function settingsPage(){
+  return head("Settings","Workspace, team, notifications and security.")+
+  `<div class="grid cols-2">
+     <div class="card"><h3>Business profile</h3>
+       <div class="field"><label>Business name</label><input value="Bright Smile Dental"/></div>
+       <div class="field"><label>Industry</label><input value="Dental clinic"/></div>
+       <div class="field"><label>Time zone</label><input value="Europe/London"/></div>
+     </div>
+     <div class="card"><h3>Notifications</h3>
+       <div class="legendrow"><span>New lead email</span><span class="badge b-booked">On</span></div>
+       <div class="legendrow"><span>Urgent lead SMS</span><span class="badge b-booked">On</span></div>
+       <div class="legendrow"><span>Daily summary</span><span class="badge b-contacted">Off</span></div>
+       <div class="legendrow"><span>Webhook signing</span><span class="badge b-booked">Enabled</span></div>
+     </div>
+     <div class="card"><h3>Team</h3>
+       ${[["Layla A.","Owner"],["Reception","Agent"],["Dispatch","Agent"]].map(t=>`<div class="row" style="margin:9px 0"><div class="avatar" style="width:32px;height:32px;font-size:12px">${t[0].split(" ").map(n=>n[0]).join("")}</div><span>${t[0]}</span><div class="spacer"></div><span class="muted" style="font-size:13px">${t[1]}</span></div>`).join("")}
+       <button class="btn" style="width:100%;justify-content:center;margin-top:10px;font-size:13px">+ Invite teammate</button>
+     </div>
+     <div class="card"><h3>Security</h3>
+       <div class="legendrow"><span>Row-level security</span><span class="badge b-booked">Active</span></div>
+       <div class="legendrow"><span>Two-factor auth</span><span class="badge b-contacted">Set up</span></div>
+       <button class="btn" style="width:100%;justify-content:center;margin-top:10px;font-size:13px">Change password</button>
+     </div>
+   </div>`;
+}
+
+function placeholder(t,s,body){
+  return head(t,s)+`<div class="card" style="text-align:center;padding:48px 24px">
+    <div style="width:60px;height:60px;border-radius:16px;background:rgba(58,166,255,.14);display:grid;place-items:center;color:var(--cyan);margin:0 auto 16px">${icon("bolt")}</div>
+    <p class="muted" style="max-width:520px;margin:0 auto;font-size:15px">${body}</p></div>`;
+}
+
+/* ---------- helpers ---------- */
+function toggleMenu(){state.menu=!state.menu;render();}
+window.go=go;window.openLead=openLead;window.toggleMenu=toggleMenu;window.state=state;window.render=render;
+function bind(){}
+
+render();
+</script>
+</body>
+</html>

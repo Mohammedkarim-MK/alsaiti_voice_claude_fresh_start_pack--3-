@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Alsaiti Voice",
+    "slug": "alsaiti-voice",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#020B1F",
+    "splash": {
+      "backgroundColor": "#020B1F",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": { "supportsTablet": true },
+    "android": {
+      "adaptiveIcon": { "backgroundColor": "#020B1F" }
+    },
+    "web": {}
+  }
+}

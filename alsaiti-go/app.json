@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Alsaiti Growth",
+    "slug": "alsaiti-go",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#020B1F",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#020B1F"
+    },
+    "ios": { "supportsTablet": true },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#020B1F"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": { "favicon": "./assets/favicon.png" }
+  }
+}

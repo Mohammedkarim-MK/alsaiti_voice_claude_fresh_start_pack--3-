@@ -1,0 +1,13 @@
+{
+  "name": "Alsaiti Voice",
+  "short_name": "Alsaiti Voice",
+  "description": "AI voice and chat lead-generation platform for service businesses.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#020B1F",
+  "theme_color": "#020B1F",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

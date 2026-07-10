@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Expo / build output
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Environment (never commit real secrets — keep .env.example only)
+.env
+.env.local
+.env*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code — share project config (CLAUDE.md, .claude/settings.json),
+# but keep each person's personal/local files out
+**/.claude/settings.local.json
+**/claude-code-chat-images/
+
+# Backed-up nested git history (folded into this repo)
+.git_history_backup/
+**/.git_history_backup/
+
+# Native signing keys
+*.pem
+*.p12
+*.p8
+*.jks
+*.mobileprovision
