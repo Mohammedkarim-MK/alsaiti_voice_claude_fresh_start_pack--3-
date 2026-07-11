@@ -31,8 +31,8 @@ networks, use `npx expo start --tunnel`.
 
 ## Team
 
-- Owner: MK
-- Collaborator: @Abdelmalik20061
+- Owner: Malik
+- Collaborator: Karim
 
 ## Security
 
