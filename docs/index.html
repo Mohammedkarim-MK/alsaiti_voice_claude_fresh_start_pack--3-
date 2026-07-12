@@ -615,7 +615,7 @@ function saveProfile(e){e.preventDefault();var f=e.target;setProfile({biz:f.biz.
 function resetData(){if(!confirm('Replace your leads with the sample set?'))return;var s=AUTH.session();DB.del(leadsKey(s.email));seedIfNeeded(s.email);render();toast('Sample data restored')}
 
 /* ============================ Voice assistant (in-browser) ============================ */
-var VOICE={active:false,step:0,data:{},rec:null};
+var VOICE={active:false,step:0,data:{},rec:null,unlocked:false};
 var VQ=[
   {key:'name',    ask:'Hi, thanks for calling Alsaiti Voice. Who am I speaking with?'},
   {key:'service', ask:'Great to meet you. What can we help you with today?'},
@@ -623,7 +623,10 @@ var VQ=[
   {key:'phone',   ask:'And what is the best phone number to reach you on?'}
 ];
 function vRecAvailable(){return typeof window!=='undefined' && !!(window.SpeechRecognition||window.webkitSpeechRecognition)}
-function say(text){try{if(window.speechSynthesis){window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.rate=1;u.lang='en-GB';window.speechSynthesis.speak(u)}}catch(e){}}
+function vPickVoice(){try{if(!window.speechSynthesis)return null;var vs=window.speechSynthesis.getVoices()||[];var en=vs.filter(function(v){return /^en/i.test(v.lang)});var gb=en.filter(function(v){return /GB|United Kingdom|british/i.test((v.lang||'')+(v.name||''))});return gb[0]||en[0]||vs[0]||null}catch(e){return null}}
+function vUnlock(){try{if(window.speechSynthesis&&!VOICE.unlocked){var u=new SpeechSynthesisUtterance(' ');u.volume=0;window.speechSynthesis.speak(u);VOICE.unlocked=true}}catch(e){}}
+function say(text){try{if(!window.speechSynthesis)return;var sp=window.speechSynthesis;var u=new SpeechSynthesisUtterance(text);u.rate=1;u.pitch=1;u.volume=1;u.lang='en-GB';var v=vPickVoice();if(v)u.voice=v;sp.cancel();sp.speak(u)}catch(e){}}
+if(typeof window!=='undefined'&&window.speechSynthesis){try{window.speechSynthesis.onvoiceschanged=function(){vPickVoice()}}catch(e){}}
 function vSetStatus(s){var e=document.getElementById('vstatus');if(e)e.textContent=s}
 function vAddMsg(who,text){var t=document.getElementById('vtranscript');if(!t)return;var ph=t.querySelector('.ph');if(ph)t.innerHTML='';var d=document.createElement('div');d.className='vmsg '+who;d.textContent=text;t.appendChild(d);t.scrollTop=t.scrollHeight}
 function voicePage(){
@@ -635,11 +638,13 @@ function voicePage(){
         '<div class="row" style="margin-top:16px;justify-content:center"><button class="btn btn-sm btn-primary" onclick="voiceStart()">Start call</button><button class="btn btn-sm btn-danger" onclick="voiceEnd()">End call</button></div>'+
         '<div class="vreply"><input id="vinput" placeholder="Type your reply, then Send…" onkeydown="if(event.key===\'Enter\'){event.preventDefault();voiceSend()}"/><button class="btn btn-sm btn-primary" onclick="voiceSend()">Send</button></div>'+
         (vRecAvailable()?'<button class="btn btn-sm" style="margin-top:10px;width:100%;justify-content:center" onclick="voiceListen()">'+icon('mic')+' Speak your reply</button>':'<p class="muted" style="font-size:12px;margin-top:10px">Tip: tap the microphone on your phone keyboard to speak your reply.</p>')+
+        '<p class="muted" style="font-size:12px;margin-top:12px;text-align:center">🔊 To hear the assistant on iPhone: flip the side <b>silent switch off</b> and turn the volume up.</p>'+
       '</div>'+
       '<div class="card"><h3>Transcript</h3><div id="vtranscript" class="vtranscript"><p class="muted ph">The conversation will appear here once you start the call.</p></div></div>'+
     '</div>'
 }
 function voiceStart(){
+  vUnlock();
   VOICE.active=true;VOICE.step=0;VOICE.data={};
   var t=document.getElementById('vtranscript');if(t)t.innerHTML='';
   vAsk();var i=document.getElementById('vinput');if(i)i.focus();
