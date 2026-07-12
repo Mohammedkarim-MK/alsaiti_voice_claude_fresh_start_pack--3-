@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta name="theme-color" content="#020B1F"/>
-<meta name="description" content="Alsaiti Voice — AI voice and chat lead workspace."/>
+<meta name="description" content="Alsaiti Voice — AI voice and chat lead capture for service businesses."/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%25233AA6FF%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%3E%3Crect%20x%3D%229%22%20y%3D%223%22%20width%3D%226%22%20height%3D%2211%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22M5%2011a7%207%200%200%200%2014%200M12%2018v3%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
 <title>Alsaiti Voice — Lead workspace</title>
 <style>
@@ -202,6 +202,19 @@
   .vmsg.bot{background:var(--glass-hi);border:1px solid var(--border);border-bottom-left-radius:4px;align-self:flex-start}
   .vmsg.user{background:linear-gradient(135deg,rgba(58,166,255,.92),rgba(30,144,255,.92));color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
   @media(prefers-reduced-motion:reduce){.vmic.on{animation:none}}
+  /* landing */
+  .landing{max-width:1040px;margin:0 auto;padding:22px 20px 60px}
+  .lnav{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .hero{text-align:center;padding:60px 10px 38px}
+  .htitle{font-size:44px;line-height:1.1;font-weight:800;max-width:760px;margin:0 auto;text-wrap:balance;letter-spacing:-.5px}
+  .hsub{color:var(--muted);max-width:560px;margin:16px auto 0;font-size:17px;line-height:1.55}
+  .ficon{width:44px;height:44px;border-radius:12px;background:rgba(58,166,255,.14);display:grid;place-items:center;color:var(--cyan);margin-bottom:12px}
+  .ficon svg{width:22px;height:22px}
+  .landing .card h3{justify-content:flex-start}
+  .built{text-align:center;margin-top:54px}
+  .builtrow{display:flex;justify-content:center;flex-wrap:wrap;gap:12px 22px;color:var(--muted);font-size:15px;margin-top:14px}
+  .lfoot{text-align:center;color:var(--muted);font-size:12px;margin-top:48px}
+  @media(max-width:760px){.htitle{font-size:32px}.hsub{font-size:15px}.hero{padding:40px 6px 30px}}
 </style>
 </head>
 <body>
@@ -315,15 +328,46 @@ function openLead(id){UI.leadId=id;go('lead')}
 
 function render(){
   var s=AUTH.session();
-  var hash=location.hash.replace(/^#\/?/,'')||(s?'dashboard':'login');
-  var pub=['login','signup'];
-  if(!s && pub.indexOf(hash)<0){location.hash='#/login';return}
+  var hash=location.hash.replace(/^#\/?/,'')||(s?'dashboard':'landing');
+  var pub=['landing','login','signup'];
+  if(!s && pub.indexOf(hash)<0){location.hash='#/landing';return}
   if(s && pub.indexOf(hash)>=0){location.hash='#/dashboard';return}
   var root=document.getElementById('root');
+  if(hash==='landing'){root.innerHTML=landing();return}
   if(pub.indexOf(hash)>=0){root.innerHTML=authPage(hash);return}
   root.innerHTML=shell(hash,pageContent(hash))
 }
 window.addEventListener('hashchange',render);
+
+/* ============================ Landing (what clients see first) ============================ */
+function landing(){
+  var feats=[['phone','Answer every call','AI voice assistant greets callers, qualifies them and books or transfers — 24/7.'],
+    ['chat','Website chat','Turns website visitors into qualified leads, day and night.'],
+    ['chart','One clear dashboard','New, urgent and callback leads plus your best sources, at a glance.']];
+  var built=['Dental clinics','Aesthetic clinics','Plumbers &amp; home services','Real estate','Letting agents','Consultants'];
+  return '<div class="landing">'+
+    '<header class="lnav"><div class="brand"><span class="logo">'+icon('mic')+'</span> Alsaiti Voice</div><div class="spacer"></div>'+
+      '<button class="btn btn-sm" onclick="go(\'login\')">Sign in</button>'+
+      '<button class="btn btn-sm btn-primary" onclick="go(\'signup\')">Get started</button></header>'+
+    '<section class="hero">'+
+      '<span class="badge b-New" style="margin-bottom:16px">'+icon('bolt')+' AI voice &amp; chat lead capture</span>'+
+      '<h1 class="htitle">Never lose another enquiry.</h1>'+
+      '<p class="hsub">Alsaiti Voice answers your calls and website chats, qualifies every enquiry, creates a lead, and alerts your team — so nothing slips through.</p>'+
+      '<div class="row" style="justify-content:center;margin-top:26px">'+
+        '<button class="btn btn-primary" onclick="demoLogin()">'+icon('bolt')+' View live demo</button>'+
+        '<button class="btn" onclick="go(\'signup\')">Start free</button></div>'+
+    '</section>'+
+    '<section class="grid cols-3">'+feats.map(function(c){return '<div class="card"><div class="ficon">'+icon(c[0])+'</div><h3>'+c[1]+'</h3><p class="muted" style="font-size:14px">'+c[2]+'</p></div>'}).join('')+'</section>'+
+    '<section class="built"><p class="muted" style="text-transform:uppercase;letter-spacing:.1em;font-size:13px">Built for service businesses</p>'+
+      '<div class="builtrow">'+built.map(function(x){return '<span>'+x+'</span>'}).join('')+'</div></section>'+
+    '<footer class="lfoot">Alsaiti Voice · AI voice &amp; chat lead generation</footer>'+
+  '</div>'
+}
+function demoLogin(){
+  try{AUTH.login('demo@alsaiti.app','demo1234')}
+  catch(e){try{AUTH.signup('Demo User','Bright Smile Dental','demo@alsaiti.app','demo1234')}catch(e2){}}
+  location.hash='#/dashboard';toast('Welcome to the live demo')
+}
 
 /* ============================ Auth pages ============================ */
 function authPage(mode){
@@ -386,7 +430,7 @@ function shell(active,inner){
   '<nav class="mobnav">'+mob+'</nav>'
 }
 function toggleMenu(){UI.menu=!UI.menu;render()}
-function doLogout(){AUTH.logout();UI.menu=false;location.hash='#/login';toast('Signed out')}
+function doLogout(){AUTH.logout();UI.menu=false;location.hash='#/landing';toast('Signed out')}
 function liveSearch(v){UI.q=v;var el=document.getElementById('leadResults');if(el)el.innerHTML=leadResults()}
 
 /* ============================ Pages ============================ */
@@ -642,6 +686,7 @@ window.go=go;window.openLead=openLead;window.toggleMenu=toggleMenu;window.doLogo
 window.submitAuth=submitAuth;window.submitLead=submitLead;window.setFilter=setFilter;window.moveStatus=moveStatus;
 window.saveNote=saveNote;window.deleteLead=deleteLead;window.saveProfile=saveProfile;window.resetData=resetData;
 window.liveSearch=liveSearch;window.voiceToggle=voiceToggle;window.voiceStart=voiceStart;window.voiceEnd=voiceEnd;window.voiceTyped=voiceTyped;
+window.demoLogin=demoLogin;
 
 render();
 </script>
