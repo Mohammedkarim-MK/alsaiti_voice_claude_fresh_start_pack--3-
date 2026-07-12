@@ -178,6 +178,30 @@
     .pagehead h1{font-size:20px}
     .stat .value{font-size:26px}
   }
+  /* responsive lead list */
+  .leadlist{display:flex;flex-direction:column;gap:10px}
+  .leaditem{display:flex;gap:12px;align-items:center;text-align:left;width:100%;cursor:pointer;background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:12px 14px;color:var(--text);transition:.12s}
+  .leaditem:hover{border-color:var(--primary);background:rgba(58,166,255,.06)}
+  .leaditem .av{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;background:linear-gradient(135deg,var(--primary),var(--glow))}
+  .li-main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .li-top{display:flex;align-items:center;gap:8px;justify-content:space-between}
+  .li-sub{color:var(--muted);font-size:13px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .li-meta{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .searchbtn{cursor:pointer;text-align:left}
+  .searchbtn span{color:var(--muted);font-size:14px}
+  /* voice assistant */
+  .voicecard{text-align:center}
+  .vstatus{font-size:14px;color:var(--muted);margin-bottom:18px;min-height:20px}
+  .vmic{width:96px;height:96px;border-radius:50%;border:none;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--primary),var(--glow));box-shadow:0 10px 34px rgba(30,144,255,.5);display:grid;place-items:center;margin:0 auto}
+  .vmic svg{width:38px;height:38px}
+  .vmic.on{animation:vpulse 1.2s infinite}
+  @keyframes vpulse{0%{box-shadow:0 0 0 0 rgba(89,199,255,.55)}70%{box-shadow:0 0 0 22px rgba(89,199,255,0)}100%{box-shadow:0 0 0 0 rgba(89,199,255,0)}}
+  .vhint{font-size:12.5px;margin-top:16px}
+  .vtranscript{max-height:340px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+  .vmsg{max-width:85%;padding:9px 13px;border-radius:13px;font-size:14px;line-height:1.4}
+  .vmsg.bot{background:var(--glass-hi);border:1px solid var(--border);border-bottom-left-radius:4px;align-self:flex-start}
+  .vmsg.user{background:linear-gradient(135deg,rgba(58,166,255,.92),rgba(30,144,255,.92));color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+  @media(prefers-reduced-motion:reduce){.vmic.on{animation:none}}
 </style>
 </head>
 <body>
@@ -334,10 +358,10 @@ function submitAuth(e,mode){
 
 /* ============================ App shell ============================ */
 var NAV=[
-  ['Overview',[['dashboard','Dashboard','grid'],['leads','Leads','users'],['analytics','Analytics','chart']]],
+  ['Overview',[['dashboard','Dashboard','grid'],['leads','Leads','users'],['voice','Voice assistant','mic'],['analytics','Analytics','chart']]],
   ['Account',[['settings','Settings','cog']]]
 ];
-var MOBNAV=[['dashboard','Home','grid'],['leads','Leads','users'],['new','Add','plus'],['analytics','Stats','chart'],['settings','More','cog']];
+var MOBNAV=[['dashboard','Home','grid'],['leads','Leads','users'],['voice','Voice','mic'],['analytics','Stats','chart'],['settings','More','cog']];
 
 function shell(active,inner){
   var u=AUTH.current(), p=getProfile();
@@ -354,7 +378,7 @@ function shell(active,inner){
     '</div></aside>'+
     '<div class="main"><div class="topbar">'+
       '<button class="hamb" onclick="toggleMenu()">&#9776;</button>'+
-      '<div class="search">'+icon('search')+'<input placeholder="Search leads by name or service…" value="'+esc(UI.q)+'" oninput="onSearch(this.value)"/></div>'+
+      '<button class="search searchbtn" onclick="go(\'leads\')">'+icon('search')+'<span>'+(UI.q?esc(UI.q):'Search leads…')+'</span></button>'+
       '<div class="spacer"></div>'+
       '<button class="iconbtn" onclick="go(\'new\')" title="Add lead">'+icon('plus')+'</button>'+
       '<div class="avatar">'+initials(u.name)+'</div>'+
@@ -363,13 +387,14 @@ function shell(active,inner){
 }
 function toggleMenu(){UI.menu=!UI.menu;render()}
 function doLogout(){AUTH.logout();UI.menu=false;location.hash='#/login';toast('Signed out')}
-function onSearch(v){UI.q=v;if(location.hash.replace(/^#\/?/,'')!=='leads'){go('leads')}else{render();var i=document.querySelector('.search input');if(i){i.focus();i.value=v}}}
+function liveSearch(v){UI.q=v;var el=document.getElementById('leadResults');if(el)el.innerHTML=leadResults()}
 
 /* ============================ Pages ============================ */
 function pageContent(r){
   switch(r){
     case'dashboard':return dashboard();
     case'leads':return leadsPage();
+    case'voice':return voicePage();
     case'lead':return leadDetail();
     case'new':return newLeadPage();
     case'analytics':return analyticsPage();
@@ -403,7 +428,7 @@ function dashboard(){
         SOURCES.map(function(s){var pct=Math.round(bySource[s]/srcTotal*100);return '<div class="legendrow"><span style="font-size:13px">'+esc(s)+'</span><b>'+pct+'%</b></div><div class="bar" style="margin-bottom:8px"><span style="width:'+pct+'%"></span></div>'}).join('')+
       '</div></div>'+
     '<div class="card" style="margin-top:16px"><h3>Needs attention now <span class="link" style="font-size:13px;font-weight:600" onclick="go(\'leads\')">View all leads &rarr;</span></h3>'+
-      (attention.length?leadTable(attention):'<p class="muted" style="padding:8px 0">Nothing urgent right now — you\'re all caught up.</p>')+
+      (attention.length?leadList(attention):'<p class="muted" style="padding:8px 0">Nothing urgent right now — you\'re all caught up.</p>')+
     '</div>'
 }
 
@@ -418,20 +443,36 @@ function leadTable(list){
     '</tbody></table></div>'
 }
 
-function leadsPage(){
-  var leads=getLeads();
+function leadList(list){
+  return '<div class="leadlist">'+list.map(function(l){ return '<button class="leaditem" onclick="openLead(\''+l.id+'\')">'+
+      '<span class="av">'+initials(l.name)+'</span>'+
+      '<span class="li-main">'+
+        '<span class="li-top"><span class="name">'+esc(l.name)+'</span><span class="badge b-'+l.status+'">'+l.status+'</span></span>'+
+        '<span class="li-sub">'+esc(l.service||'—')+'</span>'+
+        '<span class="li-meta">'+srcIcon(l.source)+'<span>&middot; '+esc(l.urgency)+'</span><span>&middot; '+ago(l.at)+'</span><span class="score" style="color:'+scoreColor(l.score)+';margin-left:auto">'+l.score+'</span></span>'+
+      '</span>'+
+    '</button>'}).join('')+'</div>'
+}
+function chipsHtml(){
+  var chips=['All'].concat(STATUSES), leads=getLeads();
+  return chips.map(function(c){var on=UI.filter===c;
+    return '<button class="btn btn-sm" style="'+(on?'border-color:var(--primary);color:#fff':'')+'" onclick="setFilter(\''+c+'\')">'+c+(c!=='All'?' <span class="muted" style="margin-left:4px">'+leads.filter(function(l){return l.status===c}).length+'</span>':'')+'</button>'}).join('')
+}
+function leadResults(){
   var q=UI.q.toLowerCase().trim();
-  var list=leads.filter(function(l){return UI.filter==='All'||l.status===UI.filter})
-    .filter(function(l){return !q||(l.name+' '+l.service+' '+l.email).toLowerCase().indexOf(q)>=0})
+  var list=getLeads().filter(function(l){return UI.filter==='All'||l.status===UI.filter})
+    .filter(function(l){return !q||((l.name+' '+l.service+' '+(l.email||'')).toLowerCase().indexOf(q)>=0)})
     .sort(function(a,b){return b.at-a.at});
-  var chips=['All'].concat(STATUSES);
+  return list.length?leadList(list):emptyState('No matching leads','Try a different search or filter — or add a new lead.','Add a lead','go(\'new\')')
+}
+function leadsPage(){
   return head('Leads','Every enquiry from calls, chat, forms, API and CRM.',
       '<button class="btn btn-primary" onclick="go(\'new\')">'+icon('plus')+' New lead</button>')+
-    '<div class="row" style="margin-bottom:14px">'+chips.map(function(c){var on=UI.filter===c;
-      return '<button class="btn btn-sm" style="'+(on?'border-color:var(--primary);color:#fff':'')+'" onclick="setFilter(\''+c+'\')">'+c+(c!=='All'?' <span class="muted" style="margin-left:4px">'+leads.filter(function(l){return l.status===c}).length+'</span>':'')+'</button>'}).join('')+'</div>'+
-    (list.length?leadTable(list):emptyState('No leads here yet','Add your first lead or adjust the filter.','Add a lead','go(\'new\')'))
+    '<div class="field" style="margin:0 0 12px"><input id="leadSearch" placeholder="Search by name, service or email…" value="'+esc(UI.q)+'" oninput="liveSearch(this.value)"/></div>'+
+    '<div class="row" id="leadChips" style="margin-bottom:14px">'+chipsHtml()+'</div>'+
+    '<div id="leadResults">'+leadResults()+'</div>'
 }
-function setFilter(f){UI.filter=f;render()}
+function setFilter(f){UI.filter=f;var r=document.getElementById('leadResults');var c=document.getElementById('leadChips');if(r){r.innerHTML=leadResults()}if(c){c.innerHTML=chipsHtml()}if(!r){render()}}
 
 function emptyState(t,s,btn,action){
   return '<div class="card"><div class="empty"><div class="ic">'+icon('users')+'</div><div style="font-weight:700;color:var(--text);font-size:16px">'+esc(t)+'</div><p style="margin-top:6px">'+esc(s)+'</p>'+
@@ -527,10 +568,80 @@ function settingsPage(){
 function saveProfile(e){e.preventDefault();var f=e.target;setProfile({biz:f.biz.value.trim(),industry:f.industry.value,tz:'Europe/London (GMT)',email:f.email.value.trim()});render();toast('Settings saved');return false}
 function resetData(){if(!confirm('Replace your leads with the sample set?'))return;var s=AUTH.session();DB.del(leadsKey(s.email));seedIfNeeded(s.email);render();toast('Sample data restored')}
 
+/* ============================ Voice assistant (in-browser) ============================ */
+var VOICE={active:false,step:0,data:{},rec:null};
+var VQ=[
+  {key:'name',    ask:'Hi, thanks for calling Alsaiti Voice. Who am I speaking with?'},
+  {key:'service', ask:'Great to meet you. What can we help you with today?'},
+  {key:'urgency', ask:'Understood. Is this urgent, or an enquiry for now?'},
+  {key:'phone',   ask:'And what is the best phone number to reach you on?'}
+];
+function vRecAvailable(){return typeof window!=='undefined' && !!(window.SpeechRecognition||window.webkitSpeechRecognition)}
+function say(text){try{if(window.speechSynthesis){window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.rate=1;u.lang='en-GB';window.speechSynthesis.speak(u)}}catch(e){}}
+function vSetStatus(s){var e=document.getElementById('vstatus');if(e)e.textContent=s}
+function vAddMsg(who,text){var t=document.getElementById('vtranscript');if(!t)return;var ph=t.querySelector('.ph');if(ph)t.innerHTML='';var d=document.createElement('div');d.className='vmsg '+who;d.textContent=text;t.appendChild(d);t.scrollTop=t.scrollHeight}
+function voicePage(){
+  return head('Voice assistant','Talk to your AI receptionist — it qualifies the caller and creates a lead you can see in Leads.')+
+    '<div class="grid cols-2" style="align-items:start">'+
+      '<div class="card voicecard">'+
+        '<div id="vstatus" class="vstatus">Tap the mic to start the call</div>'+
+        '<button id="vmic" class="vmic" onclick="voiceToggle()" aria-label="Talk to the assistant">'+icon('mic')+'</button>'+
+        '<div class="vhint muted" id="vhint">Allow the microphone when asked. The assistant greets you, asks a few questions, then saves a lead.</div>'+
+        '<div class="row" style="margin-top:16px;justify-content:center"><button class="btn btn-sm" onclick="voiceStart()">Start call</button><button class="btn btn-sm btn-danger" onclick="voiceEnd()">End call</button></div>'+
+        '<div id="vfallback" style="display:'+(vRecAvailable()?'none':'block')+';margin-top:14px"><div class="field" style="margin:0"><input id="vinput" placeholder="Type your reply, press Enter…" onkeydown="if(event.key===\'Enter\'){event.preventDefault();voiceTyped()}"/></div><p class="muted" style="font-size:12px;margin-top:6px">On iPhone, typing is the reliable way to reply.</p></div>'+
+      '</div>'+
+      '<div class="card"><h3>Transcript</h3><div id="vtranscript" class="vtranscript"><p class="muted ph">The conversation will appear here once you start the call.</p></div></div>'+
+    '</div>'
+}
+function voiceStart(){
+  VOICE.active=true;VOICE.step=0;VOICE.data={};
+  var t=document.getElementById('vtranscript');if(t)t.innerHTML='';
+  if(!vRecAvailable()){var fb=document.getElementById('vfallback');if(fb)fb.style.display='block'}
+  vAsk()
+}
+function vAsk(){
+  var q=VQ[VOICE.step];vSetStatus('Assistant is speaking…');vAddMsg('bot',q.ask);say(q.ask);
+  if(vRecAvailable()){setTimeout(vListen,900)}else{vSetStatus('Type your answer below');var i=document.getElementById('vinput');if(i)i.focus()}
+}
+function vListen(){
+  if(!vRecAvailable()||!VOICE.active)return;
+  try{
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=new SR();
+    VOICE.rec=rec;rec.lang='en-GB';rec.interimResults=false;rec.maxAlternatives=1;
+    var mic=document.getElementById('vmic');if(mic)mic.classList.add('on');vSetStatus('Listening… speak now');
+    rec.onresult=function(ev){vHandle(ev.results[0][0].transcript)};
+    rec.onerror=function(){vSetStatus('Didn\'t catch that — tap the mic again or type below');var fb=document.getElementById('vfallback');if(fb)fb.style.display='block';var m=document.getElementById('vmic');if(m)m.classList.remove('on')};
+    rec.onend=function(){var m=document.getElementById('vmic');if(m)m.classList.remove('on')};
+    rec.start()
+  }catch(e){var fb=document.getElementById('vfallback');if(fb)fb.style.display='block'}
+}
+function vHandle(text){
+  if(!VOICE.active)return;text=(text||'').trim();if(!text)return;
+  vAddMsg('user',text);VOICE.data[VQ[VOICE.step].key]=text;VOICE.step++;
+  if(VOICE.step<VQ.length)vAsk();else vFinish()
+}
+function voiceTyped(){var i=document.getElementById('vinput');if(!i)return;var v=i.value;i.value='';vHandle(v)}
+function vCap(s){s=(s||'').trim();return s?s.charAt(0).toUpperCase()+s.slice(1):s}
+function vUrgency(s){s=(s||'').toLowerCase();if(/urgent|asap|emergency|today|right now|straight away|leak|no hot water|broken|can't/.test(s))return 'High';if(/no|not|just|browsing|later|whenever|no rush|enquiry|quote/.test(s))return 'Low';return 'Medium'}
+function vFinish(){
+  VOICE.active=false;var d=VOICE.data;
+  var name=vCap(d.name||'Voice caller'),service=vCap(d.service||'General enquiry'),urgency=vUrgency(d.urgency),phone=(d.phone||'').replace(/[^0-9+ ]/g,'').trim();
+  var score=urgency==='High'?Math.floor(82+Math.random()*14):urgency==='Medium'?Math.floor(62+Math.random()*16):Math.floor(45+Math.random()*15);
+  var leads=getLeads();
+  leads.unshift({id:uid(),name:name,service:service,urgency:urgency,source:'Voice call',status:'New',score:score,at:Date.now(),phone:phone,email:'',summary:'Captured by the AI voice assistant. Caller: '+name+'. Needs: '+service+'. Urgency: '+urgency+'.',notes:'',assignee:'Unassigned'});
+  setLeads(leads);
+  var msg='Thank you '+name+'. I have logged your '+(urgency==='High'?'urgent ':'')+'request about '+service+' and the team will be in touch'+(phone?' on '+phone:'')+'. Goodbye!';
+  vAddMsg('bot',msg);say(msg);vSetStatus('Lead created — open Leads to see it');toast('Voice lead created');
+  var m=document.getElementById('vmic');if(m)m.classList.remove('on')
+}
+function voiceEnd(){VOICE.active=false;try{if(VOICE.rec)VOICE.rec.stop()}catch(e){}try{if(window.speechSynthesis)window.speechSynthesis.cancel()}catch(e){}vSetStatus('Call ended');var m=document.getElementById('vmic');if(m)m.classList.remove('on')}
+function voiceToggle(){if(!VOICE.active){voiceStart()}else{if(vRecAvailable())vListen();else{var i=document.getElementById('vinput');if(i)i.focus()}}}
+
 /* expose */
-window.go=go;window.openLead=openLead;window.toggleMenu=toggleMenu;window.doLogout=doLogout;window.onSearch=onSearch;
+window.go=go;window.openLead=openLead;window.toggleMenu=toggleMenu;window.doLogout=doLogout;
 window.submitAuth=submitAuth;window.submitLead=submitLead;window.setFilter=setFilter;window.moveStatus=moveStatus;
 window.saveNote=saveNote;window.deleteLead=deleteLead;window.saveProfile=saveProfile;window.resetData=resetData;
+window.liveSearch=liveSearch;window.voiceToggle=voiceToggle;window.voiceStart=voiceStart;window.voiceEnd=voiceEnd;window.voiceTyped=voiceTyped;
 
 render();
 </script>
