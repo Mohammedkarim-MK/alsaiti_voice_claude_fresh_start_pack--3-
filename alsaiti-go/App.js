@@ -78,7 +78,49 @@ const uid = () => 'LD-' + Math.random().toString(36).slice(2, 7).toUpperCase();
 const initials = (n) => String(n || '?').trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
 const cap = (s) => { s = (s || '').trim(); return s ? s[0].toUpperCase() + s.slice(1) : s; };
 const scoreColor = (v) => (v > 75 ? C.green : v > 50 ? C.cyan : '#ff9aa6');
-function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return String(h); }
+function legacyHash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return String(h); }
+/* Salted, iterated SHA-256 password hashing (replaces the old reversible/weak scheme) */
+function sha256hex(str) {
+  var ascii; try { ascii = unescape(encodeURIComponent(String(str))); } catch (e) { ascii = String(str); }
+  function rr(v, a) { return (v >>> a) | (v << (32 - a)); }
+  var maxWord = Math.pow(2, 32), result = '', i, j;
+  var words = [], asciiBitLength = ascii.length * 8;
+  var hash = sha256hex.h = sha256hex.h || [], k = sha256hex.k = sha256hex.k || [];
+  var primeCounter = k.length, isComposite = {};
+  for (var candidate = 2; primeCounter < 64; candidate++) {
+    if (!isComposite[candidate]) {
+      for (i = 0; i < 313; i += candidate) isComposite[i] = candidate;
+      hash[primeCounter] = (Math.pow(candidate, 0.5) * maxWord) | 0;
+      k[primeCounter++] = (Math.pow(candidate, 1 / 3) * maxWord) | 0;
+    }
+  }
+  ascii += '\x80';
+  while (ascii.length % 64 - 56) ascii += '\x00';
+  for (i = 0; i < ascii.length; i++) {
+    j = ascii.charCodeAt(i); if (j >> 8) return '';
+    words[i >> 2] |= j << ((3 - i) % 4) * 8;
+  }
+  words[words.length] = (asciiBitLength / maxWord) | 0;
+  words[words.length] = asciiBitLength;
+  for (j = 0; j < words.length;) {
+    var w = words.slice(j, j += 16), oldHash = hash;
+    hash = hash.slice(0, 8);
+    for (i = 0; i < 64; i++) {
+      var w15 = w[i - 15], w2 = w[i - 2], a = hash[0], e = hash[4];
+      var t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ ((~e) & hash[6])) + k[i]
+        + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);
+      var t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+      hash = [(t1 + t2) | 0].concat(hash); hash[4] = (hash[4] + t1) | 0;
+    }
+    for (i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;
+  }
+  for (i = 0; i < 8; i++) { for (j = 3; j + 1; j--) { var b = (hash[i] >> (j * 8)) & 255; result += ((b < 16) ? 0 : '') + b.toString(16); } }
+  return result;
+}
+const HASH_ITER = 1024;
+const hashPass = (pass, salt) => { let h = salt + '|' + pass; for (let i = 0; i < HASH_ITER; i++) h = sha256hex(h); return h; };
+const makeSalt = () => { let out = Date.now().toString(16); for (let i = 0; i < 4; i++) out += (Math.floor(Math.random() * 0xffffffff) >>> 0).toString(16).padStart(8, '0'); return out.slice(0, 32); };
+const passOK = (p) => typeof p === 'string' && p.length >= 8 && /[A-Za-z]/.test(p) && /[0-9]/.test(p);
 function ago(t) {
   const s = Math.floor((Date.now() - t) / 1000); if (s < 60) return 'just now';
   const m = Math.floor(s / 60); if (m < 60) return m + 'm ago';
@@ -227,7 +269,7 @@ function AuthScreen({ mode, error, onSubmit, onSwitch, onBack }) {
           {isSignup ? <Field label="Your name" value={name} onChangeText={setName} placeholder="Alex Carter" /> : null}
           {isSignup ? <Field label="Business name" value={biz} onChangeText={setBiz} placeholder="Bright Smile Dental" /> : null}
           <Field label="Email" value={email} onChangeText={setEmail} placeholder="you@business.com" autoCapitalize="none" keyboardType="email-address" />
-          <Field label="Password" value={pass} onChangeText={setPass} placeholder="At least 6 characters" secureTextEntry />
+          <Field label="Password" value={pass} onChangeText={setPass} placeholder="At least 8 characters (letters & numbers)" secureTextEntry />
           {error ? <Text style={{ color: '#ff9aa6', fontSize: 13, marginBottom: 8 }}>{error}</Text> : null}
           <GradientBtn label={isSignup ? 'Create account' : 'Sign in'} onPress={() => onSubmit({ name, biz, email, pass })} />
           <Pressable onPress={onSwitch} style={{ marginTop: 14, alignItems: 'center' }}>
@@ -425,25 +467,47 @@ const VT = {
 };
 const QORDER = ['greet', 'service', 'urgency', 'phone'];
 const QKEY = ['name', 'service', 'urgency', 'phone'];
+/* varied acknowledgements + natural close when no phone was given */
+const VACK_N = {
+  en: ['Of course — we can certainly help with that.', 'Absolutely, we handle that all the time.'],
+  es: ['Por supuesto, podemos ayudarle con eso.', 'Claro que sí, nos encargamos de ese tipo de solicitudes a diario.'],
+  ar: ['بالتأكيد، يمكننا مساعدتك في ذلك.', 'بكل تأكيد، نتعامل مع مثل هذه الطلبات يوميًا.'],
+};
+const VCLOSE_NP_N = {
+  en: { normal: 'Thank you, {name}. I have logged your enquiry about {service}, and our team will be in touch very soon. Have a wonderful day!', urgent: 'Thank you, {name}. I have logged this as an urgent enquiry about {service}, and our team will be in touch right away. Take care!' },
+  es: { normal: 'Gracias, {name}. He registrado su consulta sobre {service} y nuestro equipo se pondrá en contacto con usted muy pronto. ¡Que tenga un día estupendo!', urgent: 'Gracias, {name}. He registrado esto como una consulta urgente sobre {service} y nuestro equipo se pondrá en contacto de inmediato. ¡Cuídese!' },
+  ar: { normal: 'شكرًا لك، {name}. لقد سجّلتُ استفسارك بخصوص {service}، وسيتواصل معك فريقنا قريبًا جدًا. أتمنى لك يومًا رائعًا!', urgent: 'شكرًا لك، {name}. لقد سجّلتُ هذا كاستفسار عاجل بخصوص {service}، وسيتواصل معك فريقنا فورًا. اعتنِ بنفسك!' },
+};
 function VoiceScreen({ onCreateLead, showToast }) {
   const [lang, setLang] = useState('en');
   const T = VT[lang];
   const rtl = lang === 'ar';
-  const voice = useRef({ active: false, step: 0, data: {}, urgent: false }).current;
+  const voice = useRef({ active: false, step: 0, data: {}, urgent: false, timer: null }).current;
   const [transcript, setTranscript] = useState([]);
   const [status, setStatus] = useState(VT.en.intro);
   const [input, setInput] = useState('');
   const [active, setActive] = useState(false);
-  const speak = (txt) => { try { Speech.stop(); Speech.speak(speechClean(txt), { language: VTTS[lang], rate: lang === 'ar' ? 0.95 : 1.0 }); } catch (e) {} };
+  const speak = (txt) => { try { Speech.stop(); Speech.speak(speechClean(txt), { language: VTTS[lang], pitch: 1.03, rate: lang === 'ar' ? 0.92 : 0.98 }); } catch (e) {} };
   const add = (who, text) => setTranscript((p) => [...p, { who, text }]);
+  /* the receptionist pauses like a human: typing dots, then the reply */
+  const botSay = (txt) => {
+    if (voice.timer) { clearTimeout(voice.timer); voice.timer = null; }
+    setTranscript((p) => [...p.filter((m) => m.who !== 'typing'), { who: 'typing' }]);
+    voice.timer = setTimeout(() => {
+      voice.timer = null;
+      setTranscript((p) => [...p.filter((m) => m.who !== 'typing'), { who: 'bot', text: txt }]);
+      speak(txt);
+    }, 650 + Math.floor(Math.random() * 400));
+  };
   const askText = () => {
     const which = QORDER[voice.step];
     const name = cap(voice.data.name || '') || T.defName;
     let txt = fillTpl(T[which], { name });
+    if (which === 'urgency') { const acks = VACK_N[lang] || VACK_N.en; txt = acks[Math.floor(Math.random() * acks.length)] + ' ' + txt; }
     if (which === 'phone' && voice.urgent) txt = T.ack + ' ' + txt;
     return txt;
   };
-  const ask = () => { const txt = askText(); add('bot', txt); speak(txt); setStatus(T.yourTurn); };
+  const ask = () => { botSay(askText()); setStatus(T.yourTurn); };
   const start = () => { voice.active = true; voice.step = 0; voice.data = {}; voice.urgent = false; setActive(true); setTranscript([]); ask(); };
   const finish = () => {
     voice.active = false; setActive(false);
@@ -452,11 +516,14 @@ function VoiceScreen({ onCreateLead, showToast }) {
     const leadName = cap(d.name || '') || 'Voice caller';
     const service = (d.service || '').trim() || T.defService;
     const urgency = parseUrgency(d.urgency);
-    const phone = (d.phone || '').replace(/[^0-9+ ]/g, '').trim();
+    let phone = (d.phone || '').replace(/[^0-9+ ]/g, '').trim();
+    if (phone.replace(/[^0-9]/g, '').length < 6) phone = '';
     const score = urgency === 'High' ? Math.floor(82 + Math.random() * 14) : urgency === 'Medium' ? Math.floor(62 + Math.random() * 16) : Math.floor(45 + Math.random() * 15);
     onCreateLead({ id: uid(), name: leadName, service, urgency, source: 'Voice call', status: 'New', score, at: Date.now(), phone, email: '', summary: 'Captured by the Alsaiti Growth AI receptionist. Caller: ' + leadName + '. Needs: ' + service + '. Urgency: ' + urgency + '.', notes: '', assignee: 'Unassigned' });
-    const msg = fillTpl(urgency === 'High' ? T.closeUrgent : T.close, { name, service, phone: phone || '' });
-    add('bot', msg); speak(msg); setStatus(T.created); showToast(T.toast);
+    let msg;
+    if (phone) msg = fillTpl(urgency === 'High' ? T.closeUrgent : T.close, { name, service, phone });
+    else { const np = VCLOSE_NP_N[lang] || VCLOSE_NP_N.en; msg = fillTpl(urgency === 'High' ? np.urgent : np.normal, { name, service }); }
+    botSay(msg); setStatus(T.created); showToast(T.toast);
   };
   const send = () => {
     const v = input.trim(); if (!v || !voice.active) return; setInput(''); add('user', v);
@@ -465,8 +532,9 @@ function VoiceScreen({ onCreateLead, showToast }) {
     voice.step += 1;
     if (voice.step < QORDER.length) ask(); else finish();
   };
-  const end = () => { voice.active = false; setActive(false); try { Speech.stop(); } catch (e) {} setStatus(T.ended); };
+  const end = () => { voice.active = false; setActive(false); if (voice.timer) { clearTimeout(voice.timer); voice.timer = null; } setTranscript((p) => p.filter((m) => m.who !== 'typing')); try { Speech.stop(); } catch (e) {} setStatus(T.ended); };
   const switchLang = (l) => { if (voice.active) end(); setLang(l); setTranscript([]); setStatus(VT[l].intro); };
+  useEffect(() => () => { if (voice.timer) clearTimeout(voice.timer); try { Speech.stop(); } catch (e) {} }, []);
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
@@ -499,9 +567,11 @@ function VoiceScreen({ onCreateLead, showToast }) {
         <Card>
           {transcript.length === 0 ? <Text style={[s.body, { textAlign: rtl ? 'right' : 'left' }]}>{T.transcriptPh}</Text>
             : transcript.map((m, i) => (
-              <View key={i} style={[s.bubble, m.who === 'user' ? s.bubbleUser : s.bubbleBot]}>
-                <Text style={{ color: m.who === 'user' ? '#fff' : C.text, fontSize: 14, textAlign: rtl ? 'right' : 'left', writingDirection: rtl ? 'rtl' : 'ltr' }}>{m.text}</Text>
-              </View>
+              m.who === 'typing'
+                ? <View key={i} style={[s.bubble, s.bubbleBot]}><Text style={{ color: C.muted, fontSize: 14, letterSpacing: 2 }}>• • •</Text></View>
+                : <View key={i} style={[s.bubble, m.who === 'user' ? s.bubbleUser : s.bubbleBot]}>
+                    <Text style={{ color: m.who === 'user' ? '#fff' : C.text, fontSize: 14, textAlign: rtl ? 'right' : 'left', writingDirection: rtl ? 'rtl' : 'ltr' }}>{m.text}</Text>
+                  </View>
             ))}
         </Card>
       </ScrollView>
@@ -597,24 +667,51 @@ export default function App() {
     try {
       const em = (email || '').toLowerCase().trim();
       if (!name.trim() || !biz.trim() || !em) throw new Error('Please fill in every field.');
-      if ((pass || '').length < 6) throw new Error('Password must be at least 6 characters.');
+      if (!passOK(pass)) throw new Error('Password must be at least 8 characters and include a letter and a number.');
       const u = { ...usersRef.current };
       if (u[em]) throw new Error('An account with this email already exists.');
-      u[em] = { name: name.trim(), biz: biz.trim(), email: em, pass: hash(pass) };
+      const salt = makeSalt();
+      u[em] = { name: name.trim().slice(0, 60), biz: biz.trim().slice(0, 80), email: em, salt, pass: hashPass(pass, salt) };
       usersRef.current = u; await store.set('av_users', u); await store.set('av_session', em);
       setAuthErr(''); await loadUser(em, u); showToast('Welcome to Alsaiti Growth');
     } catch (e) { setAuthErr(e.message); }
   }
   async function doLogin({ email, pass }) {
     try {
-      const em = (email || '').toLowerCase().trim(); const acc = usersRef.current[em];
-      if (!acc || acc.pass !== hash(pass)) throw new Error('Incorrect email or password.');
+      const em = (email || '').toLowerCase().trim();
+      const lk = await store.get('av_lock', {});
+      const rec = lk[em];
+      if (rec && rec.until && rec.until > Date.now()) throw new Error('Too many failed attempts. Please try again in a few minutes.');
+      const acc = usersRef.current[em];
+      let ok = false;
+      if (acc) {
+        if (acc.salt) { ok = acc.pass === hashPass(pass, acc.salt); }
+        else if (acc.pass === legacyHash(pass)) {
+          // migrate legacy accounts to salted hashing on first successful login
+          ok = true;
+          const u = { ...usersRef.current };
+          const salt = makeSalt();
+          u[em] = { ...acc, salt, pass: hashPass(pass, salt) };
+          usersRef.current = u; await store.set('av_users', u);
+        }
+      }
+      if (!ok) {
+        const r = rec || { n: 0 }; r.n = (r.n || 0) + 1;
+        if (r.n >= 5) { r.until = Date.now() + 5 * 60000; r.n = 0; }
+        lk[em] = r; await store.set('av_lock', lk);
+        throw new Error('Incorrect email or password.');
+      }
+      if (lk[em]) { delete lk[em]; await store.set('av_lock', lk); }
       await store.set('av_session', em); setAuthErr(''); await loadUser(em, usersRef.current); showToast('Signed in');
     } catch (e) { setAuthErr(e.message); }
   }
   async function doDemo() {
     const em = 'demo@alsaiti.app'; const u = { ...usersRef.current };
-    if (!u[em]) { u[em] = { name: 'Demo User', biz: 'Bright Smile Dental', email: em, pass: hash('demo1234') }; usersRef.current = u; await store.set('av_users', u); }
+    if (!u[em] || !u[em].salt) {
+      const salt = makeSalt();
+      u[em] = { name: 'Demo User', biz: 'Bright Smile Dental', email: em, salt, pass: hashPass('demo1234', salt) };
+      usersRef.current = u; await store.set('av_users', u);
+    }
     await store.set('av_session', em); await loadUser(em, usersRef.current); showToast('Welcome to the live demo');
   }
   async function logout() { await store.del('av_session'); setSession(null); setProfile(null); setLeads([]); setScreen('landing'); showToast('Signed out'); }

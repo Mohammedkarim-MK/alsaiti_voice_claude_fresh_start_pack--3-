@@ -4,6 +4,11 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta name="theme-color" content="#020B1F"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'self'; object-src 'none'"/>
+<meta name="referrer" content="no-referrer"/>
+<meta name="description" content="Alsaiti Growth — AI receptionists &amp; lead systems that turn enquiries into booked clients. Live trilingual demo (EN / ES / AR)."/>
+<meta property="og:title" content="Alsaiti Growth — AI receptionist &amp; lead dashboard"/>
+<meta property="og:description" content="AI systems that answer calls, capture leads, follow up automatically, and show everything in a live dashboard."/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20rx%3D%226%22%20fill%3D%22%25233AA6FF%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%3E%3Crect%20x%3D%229%22%20y%3D%223%22%20width%3D%226%22%20height%3D%2211%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22M5%2011a7%207%200%200%200%2014%200M12%2018v3%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"/>
 <title>Alsaiti Growth — AI receptionist & lead dashboard</title>
 <style>
@@ -218,7 +223,13 @@
   .vreply{display:flex;gap:8px;margin-top:16px}
   .vreply input{flex:1;padding:11px 13px;border-radius:11px;background:rgba(2,11,31,.6);border:1px solid var(--border);color:var(--text);font-size:14px;outline:none}
   .vreply input:focus{border-color:var(--primary)}
-  @media(prefers-reduced-motion:reduce){.vmic.on{animation:none}}
+  .vtyping{display:flex;gap:4px;align-items:center;min-height:18px}
+  .vtyping span{width:7px;height:7px;border-radius:50%;background:var(--muted);opacity:.5;animation:vdot 1s infinite}
+  .vtyping span:nth-child(2){animation-delay:.18s}.vtyping span:nth-child(3){animation-delay:.36s}
+  @keyframes vdot{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+  .hero,.section{animation:fadeUp .55s ease both}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.vmic.on{animation:none}.vtyping span{animation:none}.hero,.section{animation:none}}
 
   /* landing */
   .landing{max-width:1120px;margin:0 auto;padding:20px 20px 60px}
@@ -290,10 +301,11 @@ var TR=/*__TR__*/{"en":{"nav_demos":"Live demos","nav_industries":"Industries","
 var LANGS=[["en","EN"],["es","ES"],["ar","عربي"]];
 var TTSLANG={en:"en-GB",es:"es-ES",ar:"ar-SA"};
 var LANG=DB.get('ag_lang','en');
-function setLang(l){LANG=l;DB.set('ag_lang',l);applyDir();render()}
+function setLang(l){try{if(VOICE&&VOICE.active)voiceEnd()}catch(e){}LANG=l;DB.set('ag_lang',l);applyDir();render()}
 function applyDir(){try{document.documentElement.lang=LANG;document.documentElement.dir=(LANG==='ar'?'rtl':'ltr')}catch(e){}}
 function t(k){var d=TR[LANG]||{};if(d[k]!=null)return d[k];if(TR.en[k]!=null)return TR.en[k];return k}
-function tf(k,p){var s=t(k);p=p||{};return String(s).replace(/\{(\w+)\}/g,function(m,n){return p[n]!=null?p[n]:m})}
+function fill(s,p){p=p||{};return String(s).replace(/\{(\w+)\}/g,function(m,n){return p[n]!=null?p[n]:m})}
+function tf(k,p){return fill(t(k),p)}
 function langSwitch(){return '<div class="langsw">'+LANGS.map(function(l){return '<button class="'+(l[0]===LANG?'on':'')+'" onclick="setLang(\''+l[0]+'\')">'+l[1]+'</button>'}).join('')+'</div>'}
 
 /* ============================ Constants ============================ */
@@ -301,23 +313,89 @@ var STATUSES=["New","Contacted","Qualified","Booked","Won","Lost","Spam"];
 var SOURCES=["Voice call","Website chat","Contact form","Manual import","API","CRM"];
 var URGENCIES=["High","Medium","Low"];
 
+/* ============================ Security (hashing, lockout, session expiry) ============================ */
+/*SHA*/
+function sha256hex(str){
+  var ascii;try{ascii=unescape(encodeURIComponent(String(str)))}catch(e){ascii=String(str)}
+  function rr(v,a){return (v>>>a)|(v<<(32-a))}
+  var maxWord=Math.pow(2,32),result='',i,j;
+  var words=[],asciiBitLength=ascii.length*8;
+  var hash=sha256hex.h=sha256hex.h||[],k=sha256hex.k=sha256hex.k||[];
+  var primeCounter=k.length,isComposite={};
+  for(var candidate=2;primeCounter<64;candidate++){
+    if(!isComposite[candidate]){
+      for(i=0;i<313;i+=candidate)isComposite[i]=candidate;
+      hash[primeCounter]=(Math.pow(candidate,.5)*maxWord)|0;
+      k[primeCounter++]=(Math.pow(candidate,1/3)*maxWord)|0;
+    }
+  }
+  ascii+='\x80';
+  while(ascii.length%64-56)ascii+='\x00';
+  for(i=0;i<ascii.length;i++){
+    j=ascii.charCodeAt(i);if(j>>8)return '';
+    words[i>>2]|=j<<((3-i)%4*8);
+  }
+  words[words.length]=(asciiBitLength/maxWord)|0;
+  words[words.length]=asciiBitLength;
+  for(j=0;j<words.length;){
+    var w=words.slice(j,j+=16),oldHash=hash;
+    hash=hash.slice(0,8);
+    for(i=0;i<64;i++){
+      var w15=w[i-15],w2=w[i-2],a=hash[0],e=hash[4];
+      var t1=hash[7]+(rr(e,6)^rr(e,11)^rr(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i]
+        +(w[i]=(i<16)?w[i]:(w[i-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i-7]+(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0);
+      var t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+      hash=[(t1+t2)|0].concat(hash);hash[4]=(hash[4]+t1)|0;
+    }
+    for(i=0;i<8;i++)hash[i]=(hash[i]+oldHash[i])|0;
+  }
+  for(i=0;i<8;i++){for(j=3;j+1;j--){var b=(hash[i]>>(j*8))&255;result+=((b<16)?0:'')+b.toString(16)}}
+  return result;
+}
+/*ENDSHA*/
+var HASH_ITER=2048;
+function hashPass(pass,salt){var h=salt+'|'+pass;for(var i=0;i<HASH_ITER;i++){h=sha256hex(h)}return h}
+function makeSalt(){
+  try{var a=new Uint8Array(16);(window.crypto||window.msCrypto).getRandomValues(a);
+    var s='';for(var i=0;i<a.length;i++){s+=('0'+a[i].toString(16)).slice(-2)}return s}
+  catch(e){return (Date.now().toString(36)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)).slice(0,32)}
+}
+function passOK(p){return typeof p==='string'&&p.length>=8&&/[A-Za-z]/.test(p)&&/[0-9]/.test(p)}
+var LOCK_MAX=5,LOCK_MS=5*60000,SESSION_MS=14*86400000;
+function lockCheck(email){var lk=DB.get('ag_lock',{}),r=lk[email];if(r&&r.until&&r.until>Date.now())throw new Error('Too many failed attempts. Please try again in a few minutes.')}
+function lockFail(email){var lk=DB.get('ag_lock',{}),r=lk[email]||{n:0};r.n=(r.n||0)+1;if(r.n>=LOCK_MAX){r.until=Date.now()+LOCK_MS;r.n=0}lk[email]=r;DB.set('ag_lock',lk)}
+function lockClear(email){var lk=DB.get('ag_lock',{});if(lk[email]){delete lk[email];DB.set('ag_lock',lk)}}
+
 /* ============================ Auth ============================ */
 var AUTH={
   users:function(){return DB.get('ag_users',{})},
-  session:function(){return DB.get('ag_session',null)},
+  session:function(){var s=DB.get('ag_session',null);if(s&&s.at&&(Date.now()-s.at)>SESSION_MS){DB.del('ag_session');return null}return s},
   current:function(){var s=AUTH.session();return s?AUTH.users()[s.email]:null},
   signup:function(name,biz,email,pass){
     email=(email||'').toLowerCase().trim();
+    if(!name||!name.trim()||!biz||!biz.trim()||!email) throw new Error('Please fill in every field.');
+    if(!passOK(pass)) throw new Error('Password must be at least 8 characters and include a letter and a number.');
     var users=AUTH.users();
     if(users[email]) throw new Error('An account with this email already exists.');
-    users[email]={name:name.trim(),biz:biz.trim(),email:email,pass:btoa(pass),created:Date.now()};
+    var salt=makeSalt();
+    users[email]={name:name.trim().slice(0,60),biz:biz.trim().slice(0,80),email:email,salt:salt,pass:hashPass(pass,salt),created:Date.now()};
     DB.set('ag_users',users);
     AUTH.login(email,pass);
   },
   login:function(email,pass){
     email=(email||'').toLowerCase().trim();
-    var u=AUTH.users()[email];
-    if(!u||u.pass!==btoa(pass)) throw new Error('Incorrect email or password.');
+    lockCheck(email);
+    var users=AUTH.users(),u=users[email],ok=false;
+    if(u){
+      if(u.salt){ok=(u.pass===hashPass(pass,u.salt))}
+      else{
+        var legacy=null;try{legacy=btoa(pass)}catch(e){}
+        ok=(legacy!=null&&u.pass===legacy);
+        if(ok){u.salt=makeSalt();u.pass=hashPass(pass,u.salt);users[email]=u;DB.set('ag_users',users)}
+      }
+    }
+    if(!ok){lockFail(email);throw new Error('Incorrect email or password.')}
+    lockClear(email);
     DB.set('ag_session',{email:email,at:Date.now()});
     seedIfNeeded(email);
   },
@@ -444,7 +522,7 @@ function landing(){
         '<a class="cinfo" href="mailto:contact@alsaitigrowth.com">'+icon('mail')+' contact@alsaitigrowth.com</a>'+
         '<a class="cinfo" href="tel:+447365331141">'+icon('phone')+' +44 7365 331141</a>'+
       '</div>'+
-      '<div class="row" style="justify-content:center;margin-top:22px"><button class="btn btn-primary btn-lg" onclick="demoLogin()">'+icon('bolt')+' '+esc(t('try_demo'))+'</button><a class="btn btn-lg" href="mailto:contact@alsaitigrowth.com">'+esc(t('contact_cta'))+'</a></div>'+
+      '<div class="row" style="justify-content:center;margin-top:22px"><button class="btn btn-primary btn-lg" onclick="demoLogin()">'+icon('bolt')+' '+esc(t('try_demo'))+'</button><a class="btn btn-lg" href="https://wa.me/447365331141" target="_blank" rel="noopener noreferrer">'+icon('chat')+' WhatsApp</a><a class="btn btn-lg" href="mailto:contact@alsaitigrowth.com">'+esc(t('contact_cta'))+'</a></div>'+
     '</div></section>'+
     '<footer class="lfoot"><div class="brand" style="justify-content:center">'+brandMark(26)+' Alsaiti Growth</div>'+
       '<p style="margin-top:8px">'+esc(t('footer_tag'))+'</p>'+
@@ -485,10 +563,10 @@ function authPage(mode){
     '<div style="display:flex;justify-content:center;margin:6px 0 4px">'+langSwitch()+'</div>'+
     '<h2>'+(isSignup?'Create your account':'Welcome back')+'</h2>'+
     '<p class="muted" style="text-align:center;font-size:13px;margin-top:4px">'+(isSignup?'Start capturing every enquiry.':'Sign in to your lead dashboard.')+'</p>'+
-    (isSignup?'<div class="field"><label>Your name</label><input name="name" placeholder="Alex Carter" required/></div>'+
-              '<div class="field"><label>Business name</label><input name="biz" placeholder="Bright Smile Dental" required/></div>':'')+
-    '<div class="field"><label>Email</label><input name="email" type="email" placeholder="you@business.com" required/></div>'+
-    '<div class="field"><label>Password</label><input name="pass" type="password" placeholder="At least 6 characters" minlength="6" required/></div>'+
+    (isSignup?'<div class="field"><label>Your name</label><input name="name" placeholder="Alex Carter" maxlength="60" autocomplete="name" required/></div>'+
+              '<div class="field"><label>Business name</label><input name="biz" placeholder="Bright Smile Dental" maxlength="80" autocomplete="organization" required/></div>':'')+
+    '<div class="field"><label>Email</label><input name="email" type="email" placeholder="you@business.com" maxlength="120" autocomplete="email" required/></div>'+
+    '<div class="field"><label>Password</label><input name="pass" type="password" placeholder="At least 8 characters (letters &amp; numbers)" minlength="8" maxlength="72" autocomplete="'+(isSignup?'new-password':'current-password')+'" required/></div>'+
     '<div class="field invalid" id="authErr" style="margin-top:-4px;display:none"><span class="err" style="display:block"></span></div>'+
     '<button class="btn btn-primary" style="width:100%;margin-top:6px">'+(isSignup?'Create account':'Sign in')+'</button>'+
     '<div class="row" style="justify-content:center;margin-top:14px"><button type="button" class="btn btn-sm" onclick="demoLogin()">'+icon('bolt')+' '+esc(t('try_demo'))+'</button></div>'+
@@ -610,7 +688,7 @@ function leadResults(){
 function leadsPage(){
   return head(t('leads_title'),t('leads_sub'),
       '<button class="btn btn-primary" onclick="go(\'new\')">'+icon('plus')+' '+esc(t('new_lead'))+'</button>')+
-    '<div class="field" style="margin:0 0 12px"><input id="leadSearch" placeholder="'+esc(t('search_leads'))+'" value="'+esc(UI.q)+'" oninput="liveSearch(this.value)"/></div>'+
+    '<div class="field" style="margin:0 0 12px"><input id="leadSearch" maxlength="80" placeholder="'+esc(t('search_leads'))+'" value="'+esc(UI.q)+'" oninput="liveSearch(this.value)"/></div>'+
     '<div class="row" id="leadChips" style="margin-bottom:14px">'+chipsHtml()+'</div>'+
     '<div id="leadResults">'+leadResults()+'</div>'
 }
@@ -625,10 +703,10 @@ function newLeadPage(){
   return head(t('new_lead'),'Manually add an enquiry to your workspace.')+
     '<form class="card" style="max-width:640px" onsubmit="return submitLead(event)">'+
       '<div class="grid cols-2" style="gap:0 16px">'+
-        '<div class="field"><label>Name *</label><input name="name" required placeholder="Full name"/></div>'+
-        '<div class="field"><label>Service / enquiry *</label><input name="service" required placeholder="e.g. Boiler repair quote"/></div>'+
-        '<div class="field"><label>Phone</label><input name="phone" placeholder="+44 …"/></div>'+
-        '<div class="field"><label>Email</label><input name="email" type="email" placeholder="name@example.com"/></div>'+
+        '<div class="field"><label>Name *</label><input name="name" required maxlength="80" placeholder="Full name"/></div>'+
+        '<div class="field"><label>Service / enquiry *</label><input name="service" required maxlength="120" placeholder="e.g. Boiler repair quote"/></div>'+
+        '<div class="field"><label>Phone</label><input name="phone" maxlength="25" placeholder="+44 …"/></div>'+
+        '<div class="field"><label>Email</label><input name="email" type="email" maxlength="120" placeholder="name@example.com"/></div>'+
         '<div class="field"><label>Urgency</label><select name="urgency">'+URGENCIES.map(function(u){return '<option>'+u+'</option>'}).join('')+'</select></div>'+
         '<div class="field"><label>Source</label><select name="source">'+SOURCES.map(function(s){return '<option'+(s==='Manual import'?' selected':'')+'>'+s+'</option>'}).join('')+'</select></div>'+
       '</div>'+
@@ -709,15 +787,51 @@ function saveProfile(e){e.preventDefault();var f=e.target;setProfile({biz:f.biz.
 function resetData(){if(!confirm('Replace your leads with the sample set?'))return;var s=AUTH.session();DB.del(leadsKey(s.email));seedIfNeeded(s.email);render();toast('Sample data restored')}
 
 /* ============================ AI receptionist (voice) ============================ */
-var VOICE={active:false,step:0,data:{},rec:null,unlocked:false,urgent:false};
+var VOICE={active:false,step:0,data:{},rec:null,unlocked:false,urgent:false,timer:null};
 var VQ=[{key:'name',ask:'vq_greet'},{key:'service',ask:'vq_service'},{key:'urgency',ask:'vq_urgency'},{key:'phone',ask:'vq_phone'}];
+/* small human touches: varied acknowledgements + a natural close when no phone was given */
+var VACK={
+  en:['Of course — we can certainly help with that.','Absolutely, we handle that all the time.'],
+  es:['Por supuesto, podemos ayudarle con eso.','Claro que sí, nos encargamos de ese tipo de solicitudes a diario.'],
+  ar:['بالتأكيد، يمكننا مساعدتك في ذلك.','بكل تأكيد، نتعامل مع مثل هذه الطلبات يوميًا.']
+};
+var VCLOSE_NP={
+  en:{normal:'Thank you, {name}. I have logged your enquiry about {service}, and our team will be in touch very soon. Have a wonderful day!',urgent:'Thank you, {name}. I have logged this as an urgent enquiry about {service}, and our team will be in touch right away. Take care!'},
+  es:{normal:'Gracias, {name}. He registrado su consulta sobre {service} y nuestro equipo se pondrá en contacto con usted muy pronto. ¡Que tenga un día estupendo!',urgent:'Gracias, {name}. He registrado esto como una consulta urgente sobre {service} y nuestro equipo se pondrá en contacto de inmediato. ¡Cuídese!'},
+  ar:{normal:'شكرًا لك، {name}. لقد سجّلتُ استفسارك بخصوص {service}، وسيتواصل معك فريقنا قريبًا جدًا. أتمنى لك يومًا رائعًا!',urgent:'شكرًا لك، {name}. لقد سجّلتُ هذا كاستفسار عاجل بخصوص {service}، وسيتواصل معك فريقنا فورًا. اعتنِ بنفسك!'}
+};
 function vRecAvailable(){return typeof window!=='undefined' && !!(window.SpeechRecognition||window.webkitSpeechRecognition)}
-function vPickVoice(code){try{if(!window.speechSynthesis)return null;var vs=window.speechSynthesis.getVoices()||[];var pre=(code||'en').slice(0,2);var m=vs.filter(function(v){return (v.lang||'').toLowerCase().indexOf(pre)===0});if(pre==='en'){var gb=m.filter(function(v){return /gb|united kingdom|british/i.test((v.lang||'')+(v.name||''))});if(gb[0])return gb[0]}return m[0]||null}catch(e){return null}}
+/* prefer the most natural-sounding voice the device has for the active language */
+function vPickVoice(code){
+  try{
+    if(!window.speechSynthesis)return null;
+    var vs=window.speechSynthesis.getVoices()||[];
+    var pre=(code||'en').slice(0,2).toLowerCase();
+    var m=vs.filter(function(v){return (v.lang||'').toLowerCase().indexOf(pre)===0});
+    var score=function(v){var n=((v.name||'')+' '+(v.lang||'')).toLowerCase();var s=0;
+      if(/natural|neural|premium|enhanced|siri/.test(n))s+=5;
+      if(/google/.test(n))s+=3;
+      if(pre==='en'&&/gb|united kingdom|british/.test(n))s+=2;
+      if(v.localService===false)s+=1;
+      return s};
+    m.sort(function(a,b){return score(b)-score(a)});
+    return m[0]||null
+  }catch(e){return null}
+}
 function vUnlock(){try{if(window.speechSynthesis&&!VOICE.unlocked){var u=new SpeechSynthesisUtterance(' ');u.volume=0;window.speechSynthesis.speak(u);VOICE.unlocked=true}}catch(e){}}
 /* read long digit runs (phone numbers) one digit at a time so TTS never says "million" */
 function speechClean(text){return String(text).replace(/[+]?\d[\d ]{3,}\d/g,function(m){return m.replace(/[^\d]/g,'').split('').join(' ')})}
-function say(text){try{if(!window.speechSynthesis)return;var sp=window.speechSynthesis;var u=new SpeechSynthesisUtterance(speechClean(text));u.rate=(LANG==='ar'?0.95:1);u.pitch=1;u.volume=1;u.lang=TTSLANG[LANG]||'en-GB';var v=vPickVoice(u.lang);if(v)u.voice=v;sp.cancel();sp.speak(u)}catch(e){}}
+function say(text){try{if(!window.speechSynthesis)return;var sp=window.speechSynthesis;var u=new SpeechSynthesisUtterance(speechClean(text));u.rate=(LANG==='ar'?0.92:0.98);u.pitch=1.03;u.volume=1;u.lang=TTSLANG[LANG]||'en-GB';var v=vPickVoice(u.lang);if(v)u.voice=v;sp.cancel();sp.speak(u)}catch(e){}}
 if(typeof window!=='undefined'&&window.speechSynthesis){try{window.speechSynthesis.onvoiceschanged=function(){}}catch(e){}}
+/* the receptionist "thinks" for a moment before answering — typing dots, then speech */
+function vTyping(on){var tr=document.getElementById('vtranscript');if(!tr)return;var ex=document.getElementById('vtyping');if(ex&&ex.parentNode)ex.parentNode.removeChild(ex);if(on){var d=document.createElement('div');d.id='vtyping';d.className='vmsg bot vtyping';d.innerHTML='<span></span><span></span><span></span>';tr.appendChild(d);tr.scrollTop=tr.scrollHeight}}
+function vBotSay(txt){
+  if(VOICE.timer){clearTimeout(VOICE.timer);VOICE.timer=null}
+  vTyping(true);
+  var base=(window.V_DELAY!=null?window.V_DELAY:700);
+  var dl=base?base+Math.floor(Math.random()*400):0;
+  VOICE.timer=setTimeout(function(){VOICE.timer=null;vTyping(false);vAddMsg('bot',txt);say(txt)},dl)
+}
 function vSetStatus(s){var e=document.getElementById('vstatus');if(e)e.textContent=s}
 function vAddMsg(who,text){var t=document.getElementById('vtranscript');if(!t)return;var ph=t.querySelector('.ph');if(ph)t.innerHTML='';var d=document.createElement('div');d.className='vmsg '+who;d.textContent=text;t.appendChild(d);t.scrollTop=t.scrollHeight}
 function voicePage(){
@@ -728,7 +842,7 @@ function voicePage(){
         '<div id="vstatus" class="vstatus">'+esc(t('v_intro'))+'</div>'+
         '<button id="vmic" class="vmic" onclick="voiceStart()" aria-label="Start the call">'+icon('mic')+'</button>'+
         '<div class="row" style="margin-top:16px;justify-content:center"><button class="btn btn-sm btn-primary" onclick="voiceStart()">'+esc(t('v_start'))+'</button><button class="btn btn-sm btn-danger" onclick="voiceEnd()">'+esc(t('v_end'))+'</button></div>'+
-        '<div class="vreply"><input id="vinput" placeholder="'+esc(t('v_reply_ph'))+'" onkeydown="if(event.key===\'Enter\'){event.preventDefault();voiceSend()}"/><button class="btn btn-sm btn-primary" onclick="voiceSend()">'+esc(t('v_send'))+'</button></div>'+
+        '<div class="vreply"><input id="vinput" maxlength="160" placeholder="'+esc(t('v_reply_ph'))+'" onkeydown="if(event.key===\'Enter\'){event.preventDefault();voiceSend()}"/><button class="btn btn-sm btn-primary" onclick="voiceSend()">'+esc(t('v_send'))+'</button></div>'+
         (vRecAvailable()?'<button class="btn btn-sm" style="margin-top:10px;width:100%;justify-content:center" onclick="voiceListen()">'+icon('mic')+' '+esc(t('v_speak'))+'</button>':'<p class="muted" style="font-size:12px;margin-top:10px">'+esc(t('v_keyboard_tip'))+'</p>')+
         '<p class="muted" style="font-size:12px;margin-top:12px;text-align:center">'+esc(t('v_sound_hint'))+'</p>'+
       '</div>'+
@@ -745,10 +859,11 @@ function vAskText(){
   var q=VQ[VOICE.step];
   var name=vCap(VOICE.data.name||'');
   var txt=tf(q.ask,{name:name||t('v_default_name')});
+  if(q.key==='urgency'){var acks=VACK[LANG]||VACK.en;txt=acks[Math.floor(Math.random()*acks.length)]+' '+txt}
   if(q.key==='phone'&&VOICE.urgent){txt=t('v_ack_urgent')+' '+txt}
   return txt;
 }
-function vAsk(){vSetStatus(t('v_your_turn'));var txt=vAskText();vAddMsg('bot',txt);say(txt)}
+function vAsk(){vSetStatus(t('v_your_turn'));vBotSay(vAskText())}
 function voiceSend(){
   if(!VOICE.active){vSetStatus(t('v_tap_start_first'));return}
   var i=document.getElementById('vinput');if(!i)return;var v=(i.value||'').trim();if(!v)return;i.value='';
@@ -774,17 +889,18 @@ function vUrgency(s){s=(s||'').toLowerCase();if(/urgent|asap|emergency|today|rig
 function vFinish(){
   VOICE.active=false;var d=VOICE.data;
   var name=vCap(d.name)||t('v_default_name'),service=(d.service||'').trim()||t('v_default_service'),urgency=vUrgency(d.urgency),phone=(d.phone||'').replace(/[^0-9+ ]/g,'').trim();
+  if(phone.replace(/[^0-9]/g,'').length<6)phone='';
   var score=urgency==='High'?Math.floor(82+Math.random()*14):urgency==='Medium'?Math.floor(62+Math.random()*16):Math.floor(45+Math.random()*15);
   var leads=getLeads();
   leads.unshift({id:uid(),name:vCap(d.name)||'Voice caller',service:service,urgency:urgency,source:'Voice call',status:'New',score:score,at:Date.now(),phone:phone,email:'',summary:'Captured by the Alsaiti Growth AI receptionist. Caller: '+(vCap(d.name)||'Unknown')+'. Needs: '+service+'. Urgency: '+urgency+'.',notes:'',assignee:'Unassigned'});
   setLeads(leads);
-  var closeKey=(urgency==='High')?'v_close_urgent':'v_close';
-  var msg=tf(closeKey,{name:name,service:service,phone:phone||''});
-  if(!phone){msg=msg.replace(/\s*[^.!؟]*\{?phone\}?/,'')}
-  vAddMsg('bot',msg);say(msg);vSetStatus(t('v_lead_created'));toast(t('v_toast_lead'));
+  var msg;
+  if(phone){msg=tf(urgency==='High'?'v_close_urgent':'v_close',{name:name,service:service,phone:phone})}
+  else{var np=VCLOSE_NP[LANG]||VCLOSE_NP.en;msg=fill(urgency==='High'?np.urgent:np.normal,{name:name,service:service})}
+  vBotSay(msg);vSetStatus(t('v_lead_created'));toast(t('v_toast_lead'));
   var m=document.getElementById('vmic');if(m)m.classList.remove('on')
 }
-function voiceEnd(){VOICE.active=false;try{if(VOICE.rec)VOICE.rec.stop()}catch(e){}try{if(window.speechSynthesis)window.speechSynthesis.cancel()}catch(e){}vSetStatus(t('v_call_ended'));var m=document.getElementById('vmic');if(m)m.classList.remove('on')}
+function voiceEnd(){VOICE.active=false;if(VOICE.timer){clearTimeout(VOICE.timer);VOICE.timer=null}vTyping(false);try{if(VOICE.rec)VOICE.rec.stop()}catch(e){}try{if(window.speechSynthesis)window.speechSynthesis.cancel()}catch(e){}vSetStatus(t('v_call_ended'));var m=document.getElementById('vmic');if(m)m.classList.remove('on')}
 
 /* expose */
 window.go=go;window.openLead=openLead;window.toggleMenu=toggleMenu;window.doLogout=doLogout;
