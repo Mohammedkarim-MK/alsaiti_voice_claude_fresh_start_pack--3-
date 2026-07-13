@@ -237,11 +237,13 @@
 
   /* landing */
   .landing{max-width:1120px;margin:0 auto;padding:20px 20px 60px}
-  .lnav{display:flex;align-items:center;gap:14px;padding:9px 10px 9px 18px;position:sticky;top:14px;z-index:30;margin-bottom:6px;
-    border-radius:999px;border:1px solid var(--glassborder);
-    background:linear-gradient(150deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
-    -webkit-backdrop-filter:blur(20px) saturate(1.6);backdrop-filter:blur(20px) saturate(1.6);
-    box-shadow:0 14px 44px -16px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.16)}
+  .lnav{display:flex;align-items:center;gap:14px;padding:9px 10px 9px 18px;position:sticky;top:12px;z-index:30;margin-bottom:6px;
+    border-radius:999px;border:1px solid rgba(255,255,255,.16);isolation:isolate;
+    background:linear-gradient(155deg,rgba(255,255,255,.11),rgba(255,255,255,.035));
+    -webkit-backdrop-filter:blur(26px) saturate(1.9);backdrop-filter:blur(26px) saturate(1.9);
+    box-shadow:0 18px 50px -16px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(255,255,255,.06)}
+  .lnav::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:linear-gradient(180deg,rgba(255,255,255,.10),transparent 42%);z-index:-1}
   .lnav .links{display:flex;gap:22px;margin-left:10px}
   .lnav .links a{color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
   .lnav .links a:hover{color:var(--text)}
@@ -411,10 +413,13 @@
   /* phones: drop GPU-heavy blur + background motion for smoothness */
   @media(max-width:820px){
     #bgfx .blob{animation:none;filter:blur(46px);opacity:.32}
-    .glass,.landing .card,.dashprev,.step,.plan,.contactcard,.lnav{
+    .glass,.landing .card,.dashprev,.step,.plan,.contactcard{
       -webkit-backdrop-filter:none;backdrop-filter:none;
       background:linear-gradient(160deg,rgba(20,34,66,.94),rgba(10,22,46,.9))}
-    .topbar{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(4,14,34,.96)}
+    /* keep the top nav as true liquid glass (small area = cheap) */
+    .lnav{-webkit-backdrop-filter:blur(22px) saturate(1.8);backdrop-filter:blur(22px) saturate(1.8);
+      background:linear-gradient(155deg,rgba(255,255,255,.12),rgba(255,255,255,.04))}
+    .topbar{-webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);background:rgba(6,17,38,.66)}
     .sidebar,.mobnav{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(7,20,44,.98)}
   }
   /* coarse pointers (phones/tablets): lighter background even on larger tablets */
