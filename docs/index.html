@@ -526,6 +526,64 @@
   .syncrec .sm .d{font-size:11.5px;color:var(--muted);margin-top:2px;word-break:break-all}
   @media(max-width:900px){.crmsum{grid-template-columns:repeat(2,1fr)}.provgrid{grid-template-columns:1fr}.connmeta{grid-template-columns:1fr 1fr}}
   @media(max-width:560px){.crmsum{grid-template-columns:1fr 1fr}.wiznav{flex-wrap:wrap}}
+
+  /* ===================== Onboarding wizard ===================== */
+  .obwrap{min-height:100vh;max-width:760px;margin:0 auto;padding:20px 20px 60px}
+  .obtop{display:flex;align-items:center;gap:10px;padding:6px 0 16px}
+  .obtop .brand{font-size:16px}
+  .obprog{height:6px;border-radius:999px;background:rgba(148,163,199,.2);overflow:hidden;margin-bottom:6px}
+  .obprog>span{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--cyan));transition:width .3s;border-radius:999px}
+  .obstepno{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:16px}
+  .obcard{position:relative;border:1px solid var(--glassborder);border-radius:20px;padding:26px;
+    background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+    -webkit-backdrop-filter:blur(10px) saturate(1.3);backdrop-filter:blur(10px) saturate(1.3);
+    box-shadow:0 18px 50px -18px rgba(0,0,0,.55),inset 0 1px 0 var(--glasshi)}
+  .obh{font-size:24px;font-weight:800;text-wrap:balance}
+  .obsub{color:var(--muted);font-size:14.5px;line-height:1.55;margin-top:8px}
+  .obf{margin:15px 0}
+  .obf label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:600}
+  .obf input,.obf select,.obf textarea{width:100%;padding:12px 14px;border-radius:12px;background:rgba(2,11,31,.55);border:1px solid var(--border);color:var(--text);font-size:14px;outline:none;font-family:inherit}
+  .obf input:focus,.obf select:focus,.obf textarea:focus{border-color:var(--primary)}
+  .obf textarea{min-height:84px;resize:vertical}
+  .obgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+  .obtog{display:flex;align-items:center;gap:10px;font-size:14px;padding:9px 0;cursor:pointer;color:var(--text)}
+  html[dir="rtl"] .obtog{flex-direction:row-reverse;justify-content:flex-end}
+  .obtog input{width:18px;height:18px;accent-color:var(--primary)}
+  .obnav{display:flex;gap:10px;align-items:center;margin-top:22px}
+  .obmode{display:grid;gap:12px;margin-top:16px}
+  .obopt{border:1px solid var(--border);border-radius:16px;padding:15px 17px;cursor:pointer;transition:.15s;text-align:left;width:100%;background:rgba(2,11,31,.4);color:var(--text)}
+  html[dir="rtl"] .obopt{text-align:right}
+  .obopt:hover{border-color:var(--primary)}
+  .obopt.on{border-color:var(--border-hi);background:rgba(58,166,255,.1);box-shadow:0 0 0 3px rgba(58,166,255,.14)}
+  .obopt .ot{font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px}
+  .obopt .ot svg{width:17px;height:17px;flex-shrink:0}
+  .obopt .od{font-size:13px;color:var(--muted);margin-top:5px;line-height:1.5}
+  .obopt .obtag{font-size:11px;font-weight:700;color:var(--cyan);background:rgba(58,166,255,.14);border:1px solid var(--border);border-radius:999px;padding:2px 9px;margin-left:auto}
+  html[dir="rtl"] .obopt .obtag{margin-left:0;margin-right:auto}
+  .obsvc{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;background:rgba(2,11,31,.4)}
+  .obsvc .si{flex:1;min-width:0}
+  .obsvc .sn{font-weight:700;font-size:14px}
+  .obsvc .sd{font-size:12px;color:var(--muted);margin-top:1px}
+  .obreview{display:grid;gap:10px;margin-top:16px}
+  .obrev{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:rgba(2,11,31,.4)}
+  .obrev .rk{font-weight:700;font-size:14px;flex:1}
+  .obrev .rs{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px}
+  .rs-ok{color:var(--green);background:rgba(87,227,154,.12)}
+  .rs-skip{color:var(--muted);background:rgba(148,163,199,.12)}
+  .obcheck{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--border);font-size:14px;font-weight:600}
+  .obcheck:first-child{border-top:none}
+  .obcheck svg{width:18px;height:18px;flex-shrink:0}
+  .setupbanner{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(58,166,255,.16),rgba(126,111,239,.1));border:1px solid var(--border-hi);border-radius:16px;padding:15px 17px;margin-bottom:18px}
+  .setupbanner .sbi{width:42px;height:42px;border-radius:12px;background:rgba(58,166,255,.18);display:grid;place-items:center;color:var(--cyan);flex-shrink:0}
+  .setupbanner .sbi svg{width:22px;height:22px}
+  .quickacts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+  .qa{display:flex;flex-direction:column;gap:9px;align-items:flex-start;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--glass);cursor:pointer;text-align:left;color:var(--text);transition:.15s}
+  html[dir="rtl"] .qa{text-align:right}
+  .qa:hover{border-color:var(--primary);transform:translateY(-2px)}
+  .qa .qai{width:34px;height:34px;border-radius:10px;background:rgba(58,166,255,.14);display:grid;place-items:center;color:var(--cyan)}
+  .qa .qai svg{width:18px;height:18px}
+  .qa .qat{font-size:12.5px;font-weight:700}
+  @media(max-width:760px){.obgrid{grid-template-columns:1fr}.quickacts{grid-template-columns:1fr 1fr}.obcard{padding:20px}}
 </style>
 </head>
 <body>
@@ -561,6 +619,13 @@ var VOICE_TR={
  ar:{v_retry_name:"عذرًا، لم ألتقط اسمك جيدًا — هل لي أن أعرف اسمك، من فضلك؟",v_retry_service:"أريد تدوين ذلك بدقة — كيف يمكننا مساعدتك اليوم؟",v_retry_urgency:"فقط لأرتّب الأولوية بشكل صحيح: هل الأمر عاجل أم أنك تخطّط له مسبقًا؟",v_retry_phone:"يبدو أن هذا ليس رقم هاتف. ما أفضل رقم يمكننا التواصل معك عليه، مع رمز المنطقة؟",v_ack_name:"شكرًا لك، {name}.",v_ack_service:"تمام."}
 };
 (function(){for(var l in VOICE_TR){if(!TR[l])TR[l]={};for(var k in VOICE_TR[l]){if(TR[l][k]==null)TR[l][k]=VOICE_TR[l][k]}}})();
+/* ---- Onboarding / business setup i18n (framework + step titles + CRM choice + test lead) ---- */
+var OB_TR={
+ en:{ob_setup:"Setup",ob_step_of:"Step {n} of {total}",ob_next:"Next",ob_back:"Back",ob_skip:"Skip for now",ob_save_exit:"Save & exit",ob_finish:"Activate Alsaiti Voice",ob_activated:"Your workspace is live 🎉",ob_est_time:"About 3 minutes",ob_s0_t:"Welcome to Alsaiti Voice",ob_s0_s:"We will ask a few questions about your business so we can configure your lead dashboard, AI assistant and CRM.",ob_s1_t:"Tell us about your business",ob_s1_s:"The basics we will use across your dashboard and assistant.",ob_s2_t:"What does your company do?",ob_s2_s:"This helps your AI assistant qualify and answer callers accurately.",ob_s3_t:"Your services",ob_s3_s:"Add the services customers enquire about. Your assistant asks the right questions for each.",ob_s4_t:"Opening hours & availability",ob_s4_s:"When you are open, and what should happen after hours.",ob_s5_t:"How should we qualify leads?",ob_s5_s:"What to collect from every enquiry, and what makes a lead urgent.",ob_s6_t:"Your AI receptionist",ob_s6_s:"How the assistant sounds, greets callers and behaves.",ob_s7_t:"Website chat assistant",ob_s7_s:"Add an AI chat widget to your website (optional).",ob_s8_t:"Phone setup",ob_s8_s:"How the AI should answer your calls (optional).",ob_s9_t:"How do you want to manage leads?",ob_s9_s:"Use the built-in CRM, connect your own, or both.",ob_s10_t:"Notifications",ob_s10_s:"How and when we should alert your team.",ob_s11_t:"Review your setup",ob_s11_s:"Check everything before you go live. You can change anything later in Settings.",ob_s12_t:"Test lead & go live",ob_s12_s:"Send a test lead through the full pipeline, then activate your workspace.",ob_crm_int_t:"Built-in Alsaiti Voice CRM",ob_crm_int_d:"Manage leads, notes, tasks and pipeline right here. No external CRM needed.",ob_crm_ext_t:"Connect an existing CRM",ob_crm_ext_d:"Keep using your CRM — we send new leads, calls and updates into it automatically.",ob_crm_hyb_t:"Use both (recommended)",ob_crm_hyb_d:"Alsaiti Voice is your lead inbox and also syncs leads to your external CRM.",ob_crm_connect:"Connect your CRM",ob_crm_int_note:"You are all set — leads will live in the built-in CRM.",ob_st_complete:"Complete",ob_st_skipped:"Skipped",ob_run_test:"Run a test lead",ob_test_done:"Test lead created",ob_chk_created:"Lead created",ob_chk_dash:"Visible in dashboard",ob_chk_notif:"Notification sent",ob_chk_crm_ok:"CRM sync succeeded",ob_chk_crm_skip:"CRM sync skipped (internal CRM)",ob_chk_crm_none:"No CRM connected",ob_banner_t:"Finish setting up your workspace",ob_banner_s:"A guided 3-minute setup configures your assistant, services and CRM.",ob_continue_setup:"Continue setup",ob_send_test:"Send test lead",ob_connect_crm:"Connect CRM",ob_setup_tour:"Guided setup"},
+ es:{ob_setup:"Configuración",ob_step_of:"Paso {n} de {total}",ob_next:"Siguiente",ob_back:"Atrás",ob_skip:"Omitir por ahora",ob_save_exit:"Guardar y salir",ob_finish:"Activar Alsaiti Voice",ob_activated:"Su espacio ya está activo 🎉",ob_est_time:"Unos 3 minutos",ob_s0_t:"Bienvenido a Alsaiti Voice",ob_s0_s:"Le haremos unas preguntas sobre su negocio para configurar su panel de clientes potenciales, su asistente con IA y su CRM.",ob_s1_t:"Cuéntenos sobre su negocio",ob_s1_s:"Los datos básicos que usaremos en su panel y su asistente.",ob_s2_t:"¿A qué se dedica su empresa?",ob_s2_s:"Esto ayuda a su asistente con IA a cualificar y responder con precisión.",ob_s3_t:"Sus servicios",ob_s3_s:"Añada los servicios por los que preguntan los clientes. El asistente hará las preguntas adecuadas para cada uno.",ob_s4_t:"Horario y disponibilidad",ob_s4_s:"Cuándo abre y qué debe pasar fuera del horario.",ob_s5_t:"¿Cómo debemos cualificar los clientes?",ob_s5_s:"Qué recopilar de cada consulta y qué hace urgente a un cliente.",ob_s6_t:"Su recepcionista con IA",ob_s6_s:"Cómo suena el asistente, cómo saluda y cómo se comporta.",ob_s7_t:"Asistente de chat web",ob_s7_s:"Añada un chat con IA a su sitio web (opcional).",ob_s8_t:"Configuración del teléfono",ob_s8_s:"Cómo debe atender el AI sus llamadas (opcional).",ob_s9_t:"¿Cómo quiere gestionar los clientes?",ob_s9_s:"Use el CRM integrado, conecte el suyo o ambos.",ob_s10_t:"Notificaciones",ob_s10_s:"Cómo y cuándo debemos avisar a su equipo.",ob_s11_t:"Revise su configuración",ob_s11_s:"Compruébelo todo antes de activarlo. Puede cambiar cualquier cosa después en Ajustes.",ob_s12_t:"Cliente de prueba y activación",ob_s12_s:"Envíe un cliente de prueba por todo el proceso y active su espacio.",ob_crm_int_t:"CRM integrado de Alsaiti Voice",ob_crm_int_d:"Gestione clientes, notas, tareas y embudo aquí mismo. Sin CRM externo.",ob_crm_ext_t:"Conectar un CRM existente",ob_crm_ext_d:"Siga usando su CRM: le enviaremos nuevos clientes, llamadas y actualizaciones automáticamente.",ob_crm_hyb_t:"Usar ambos (recomendado)",ob_crm_hyb_d:"Alsaiti Voice es su bandeja de clientes y también los sincroniza con su CRM externo.",ob_crm_connect:"Conecte su CRM",ob_crm_int_note:"Todo listo: los clientes vivirán en el CRM integrado.",ob_st_complete:"Completo",ob_st_skipped:"Omitido",ob_run_test:"Enviar cliente de prueba",ob_test_done:"Cliente de prueba creado",ob_chk_created:"Cliente creado",ob_chk_dash:"Visible en el panel",ob_chk_notif:"Notificación enviada",ob_chk_crm_ok:"Sincronización con CRM correcta",ob_chk_crm_skip:"Sincronización omitida (CRM interno)",ob_chk_crm_none:"Ningún CRM conectado",ob_banner_t:"Termine de configurar su espacio",ob_banner_s:"Una configuración guiada de 3 minutos ajusta su asistente, servicios y CRM.",ob_continue_setup:"Continuar configuración",ob_send_test:"Enviar prueba",ob_connect_crm:"Conectar CRM",ob_setup_tour:"Configuración guiada"},
+ ar:{ob_setup:"الإعداد",ob_step_of:"الخطوة {n} من {total}",ob_next:"التالي",ob_back:"رجوع",ob_skip:"تخطٍّ الآن",ob_save_exit:"حفظ وخروج",ob_finish:"تفعيل Alsaiti Voice",ob_activated:"أصبحت مساحتك جاهزة 🎉",ob_est_time:"حوالي 3 دقائق",ob_s0_t:"مرحبًا بك في Alsaiti Voice",ob_s0_s:"سنطرح بعض الأسئلة عن نشاطك لإعداد لوحة العملاء المحتملين والمساعد الذكي ونظام CRM.",ob_s1_t:"أخبرنا عن نشاطك التجاري",ob_s1_s:"الأساسيات التي سنستخدمها في لوحتك ومساعدك.",ob_s2_t:"ماذا تقدّم شركتك؟",ob_s2_s:"يساعد ذلك مساعدك الذكي على تأهيل المتصلين والرد عليهم بدقة.",ob_s3_t:"خدماتك",ob_s3_s:"أضف الخدمات التي يسأل عنها العملاء. يطرح المساعد الأسئلة المناسبة لكل خدمة.",ob_s4_t:"ساعات العمل والتوفّر",ob_s4_s:"مواعيد عملك وما ينبغي أن يحدث بعد ساعات العمل.",ob_s5_t:"كيف نؤهّل العملاء المحتملين؟",ob_s5_s:"ما الذي نجمعه من كل استفسار، وما الذي يجعل العميل عاجلًا.",ob_s6_t:"موظف الاستقبال الذكي",ob_s6_s:"كيف يبدو المساعد، وكيف يرحّب ويتصرّف.",ob_s7_t:"مساعد الدردشة على الموقع",ob_s7_s:"أضِف أداة دردشة ذكية إلى موقعك (اختياري).",ob_s8_t:"إعداد الهاتف",ob_s8_s:"كيف يردّ الذكاء الاصطناعي على مكالماتك (اختياري).",ob_s9_t:"كيف تريد إدارة العملاء المحتملين؟",ob_s9_s:"استخدم CRM المدمج، أو اربط نظامك، أو كليهما.",ob_s10_t:"الإشعارات",ob_s10_s:"كيف ومتى ننبّه فريقك.",ob_s11_t:"راجع إعداداتك",ob_s11_s:"تحقّق من كل شيء قبل التفعيل. يمكنك تغيير أي شيء لاحقًا من الإعدادات.",ob_s12_t:"عميل تجريبي والانطلاق",ob_s12_s:"أرسل عميلًا تجريبيًا عبر المسار كاملًا ثم فعّل مساحتك.",ob_crm_int_t:"نظام CRM المدمج في Alsaiti Voice",ob_crm_int_d:"أدِر العملاء والملاحظات والمهام والمسار هنا مباشرة. دون الحاجة إلى CRM خارجي.",ob_crm_ext_t:"ربط نظام CRM حالي",ob_crm_ext_d:"واصل استخدام نظامك — سنرسل إليه العملاء الجدد والمكالمات والتحديثات تلقائيًا.",ob_crm_hyb_t:"استخدام كليهما (موصى به)",ob_crm_hyb_d:"يكون Alsaiti Voice صندوق عملائك ويُزامنهم أيضًا مع نظام CRM الخارجي.",ob_crm_connect:"اربط نظام CRM",ob_crm_int_note:"كل شيء جاهز — سيعيش العملاء في CRM المدمج.",ob_st_complete:"مكتمل",ob_st_skipped:"تم تخطّيه",ob_run_test:"إرسال عميل تجريبي",ob_test_done:"تم إنشاء عميل تجريبي",ob_chk_created:"تم إنشاء العميل",ob_chk_dash:"ظاهر في اللوحة",ob_chk_notif:"تم إرسال إشعار",ob_chk_crm_ok:"نجحت مزامنة CRM",ob_chk_crm_skip:"تم تخطّي المزامنة (CRM داخلي)",ob_chk_crm_none:"لا يوجد CRM متصل",ob_banner_t:"أكمل إعداد مساحتك",ob_banner_s:"إعداد موجَّه لمدة 3 دقائق يضبط مساعدك وخدماتك ونظام CRM.",ob_continue_setup:"متابعة الإعداد",ob_send_test:"إرسال تجريبي",ob_connect_crm:"ربط CRM",ob_setup_tour:"إعداد موجَّه"}
+};
+(function(){for(var l in OB_TR){if(!TR[l])TR[l]={};for(var k in OB_TR[l]){if(TR[l][k]==null)TR[l][k]=OB_TR[l][k]}}})();
 function setLang(l){try{if(VOICE&&(VOICE.active||VOICE.timer))voiceEnd()}catch(e){}LANG=l;DB.set('ag_lang',l);applyDir();render()}
 function applyDir(){try{document.documentElement.lang=LANG;document.documentElement.dir=(LANG==='ar'?'rtl':'ltr')}catch(e){}}
 function t(k){var d=TR[LANG]||{};if(d[k]!=null)return d[k];if(TR.en[k]!=null)return TR.en[k];return k}
@@ -763,6 +828,7 @@ function render(){
   var root=document.getElementById('root');
   if(hash==='landing'){root.innerHTML=landing();return}
   if(pub.indexOf(hash)>=0){root.innerHTML=authPage(hash);return}
+  if(hash==='onboarding'){root.innerHTML=obScreen();return}
   root.innerHTML=shell(hash,pageContent(hash))
 }
 window.addEventListener('hashchange',render);
@@ -880,6 +946,7 @@ function scrollToId(id){var e=document.getElementById(id);if(e)e.scrollIntoView(
 function demoLogin(dest){
   try{AUTH.login('demo@alsaiti.app','demo1234')}
   catch(e){try{AUTH.signup('Demo User','Bright Smile Dental','demo@alsaiti.app','demo1234')}catch(e2){}}
+  if(!onboardComplete()){setOnboard({status:'complete',step:12,completed:Date.now(),answers:{crm_mode:'hybrid',business_name:'Bright Smile Dental',public_display_name:'Bright Smile',industry:'Dental clinic',main_email:'demo@alsaiti.app',services:[{name:'Dental implant consult',category:'Implants',value:'High'},{name:'Invisalign consultation',category:'Orthodontics',value:'High'}],req_name:true,req_contact:true,req_service:true,ch_email:true,ev_new:true,ev_urgent:true}})}
   location.hash='#/'+(dest||'dashboard');toast(t('welcome_demo'))
 }
 
@@ -908,7 +975,8 @@ function submitAuth(e,mode){
   var f=e.target, el=f.elements, errBox=f.querySelector('#authErr'), err=errBox.querySelector('.err');
   errBox.style.display='none';
   try{
-    if(mode==='signup'){AUTH.signup(el['name'].value,el['biz'].value,el['email'].value,el['pass'].value);toast('Welcome to Alsaiti Growth')}
+    if(mode==='signup'){AUTH.signup(el['name'].value,el['biz'].value,el['email'].value,el['pass'].value);toast('Welcome to Alsaiti Growth');
+      setOnboard({status:'in_progress',step:0,answers:{crm_mode:'hybrid',services:[],business_name:el['biz'].value,main_email:el['email'].value}});location.hash='#/onboarding';return false}
     else{AUTH.login(el['email'].value,el['pass'].value);toast('Signed in')}
     location.hash='#/dashboard';
   }catch(ex){errBox.style.display='block';err.textContent=ex.message}
@@ -918,7 +986,7 @@ function submitAuth(e,mode){
 /* ============================ App shell ============================ */
 function navModel(){return [
   ['sec_overview',[['dashboard','nav_dashboard','grid'],['leads','nav_leads','users'],['voice','nav_voice','mic'],['analytics','nav_analytics','chart'],['integrations','nav_integrations','plug']]],
-  ['sec_account',[['settings','nav_settings','cog']]]
+  ['sec_account',[['onboarding','ob_setup','sliders'],['settings','nav_settings','cog']]]
 ]}
 function mobModel(){return [['dashboard','nav_dashboard','grid'],['leads','nav_leads','users'],['voice','nav_voice','mic'],['integrations','nav_integrations','plug'],['settings','nav_settings','cog']]}
 
@@ -978,6 +1046,13 @@ function dashboard(){
   var attention=leads.filter(function(l){return ['New','Qualified'].indexOf(l.status)>=0}).sort(function(a,b){return b.at-a.at}).slice(0,5);
   return head(t('dash_title'),t('dash_sub'),
       '<button class="btn btn-primary" onclick="go(\'new\')">'+icon('plus')+' '+esc(t('new_lead'))+'</button>')+
+    (onboardComplete()?'':'<div class="setupbanner"><span class="sbi">'+icon('bolt')+'</span><div style="flex:1"><div style="font-weight:800">'+esc(t('ob_banner_t'))+'</div><div class="muted" style="font-size:13px">'+esc(t('ob_banner_s'))+'</div></div><button class="btn btn-primary btn-sm" onclick="obLaunch()">'+esc(t('ob_continue_setup'))+'</button></div>')+
+    '<div class="quickacts">'+
+      '<button class="qa" onclick="go(\'new\')"><span class="qai">'+icon('plus')+'</span><span class="qat">'+esc(t('new_lead'))+'</span></button>'+
+      '<button class="qa" onclick="dashTestLead()"><span class="qai">'+icon('send')+'</span><span class="qat">'+esc(t('ob_send_test'))+'</span></button>'+
+      '<button class="qa" onclick="go(\'integrations\')"><span class="qai">'+icon('plug')+'</span><span class="qat">'+esc(t('ob_connect_crm'))+'</span></button>'+
+      '<button class="qa" onclick="obLaunch()"><span class="qai">'+icon('sliders')+'</span><span class="qat">'+esc(t('ob_setup_tour'))+'</span></button>'+
+    '</div>'+
     '<div class="grid cols-4">'+stats.map(function(s){return '<div class="card stat"><div class="label">'+esc(s[0])+'</div><div class="value">'+s[1]+'</div></div>'}).join('')+'</div>'+
     '<div class="grid cols-3" style="margin-top:16px">'+
       '<div class="card" style="grid-column:span 2">'+
@@ -1205,6 +1280,7 @@ function voiceStart(){
 function vAskText(){
   var q=VQ[VOICE.step];
   var name=vCap(VOICE.data.name||'');
+  if(q.key==='name'){var g=obGreeting();if(g)return g;}
   var txt=tf(q.ask,{name:name||t('v_default_name')});
   if(q.key==='urgency'){var acks=VACK[LANG]||VACK.en;txt=acks[Math.floor(Math.random()*acks.length)]+' '+txt}
   if(q.key==='phone'&&VOICE.urgent){txt=t('v_ack_urgent')+' '+txt}
@@ -1440,6 +1516,7 @@ function crmSeed(){
 function crmEmit(eventType,lead){
   try{
     if(!lead||!lead.id)return 0;
+    if(crmMode()==='internal')return 0;
     var st=crmState(),ts=Math.floor(Date.now()/1000);
     var routed=st.conns.filter(function(c){return c.sync_enabled&&c.status==='connected'&&(c.triggers||[]).indexOf(eventType)>=0});
     var env=crmEnvelope(eventType,lead,routed[0]);var body=JSON.stringify(env);
@@ -1707,8 +1784,119 @@ function crmLeadCard(lead){
   return '<div class="card"><h3>'+esc(t('crm_sync'))+'</h3>'+inner+'</div>';
 }
 
+/* ===================== Onboarding & business setup (main product functions) ===================== */
+var OB_TOTAL=13, OB=null;
+function onboardKey(e){return 'ag_onboard_'+e}
+function getOnboard(){var s=AUTH.session();if(!s)return null;return DB.get(onboardKey(s.email),null)}
+function setOnboard(o){var s=AUTH.session();if(s)DB.set(onboardKey(s.email),o)}
+function onboardComplete(){var o=getOnboard();return !!(o&&o.status==='complete')}
+function crmMode(){var o=getOnboard();return (o&&o.answers&&o.answers.crm_mode)||'hybrid'}
+function obLoad(){OB=getOnboard();if(!OB)OB={status:'in_progress',step:0,answers:{crm_mode:'hybrid',services:[]}};if(!OB.answers)OB.answers={};if(!OB.answers.services)OB.answers.services=[];if(OB.answers.crm_mode==null)OB.answers.crm_mode='hybrid';return OB}
+function obSave(){if(OB){OB.last_saved=Date.now();setOnboard(OB)}}
+function obSet(k,v){if(!OB)obLoad();OB.answers[k]=v;obSave()}
+function obSetChk(k,el){if(!OB)obLoad();OB.answers[k]=!!(el&&el.checked);obSave()}
+function obSetMode(m){if(!OB)obLoad();OB.answers.crm_mode=m;obSave();render()}
+function obGoStep(n){if(!OB)obLoad();OB.step=Math.max(0,Math.min(OB_TOTAL-1,n));if(OB.status!=='complete')OB.status='in_progress';obSave();try{window.scrollTo(0,0)}catch(e){}render()}
+function obNext(){if(!OB)obLoad();if(OB.step>=OB_TOTAL-1){obActivate();return}obGoStep(OB.step+1)}
+function obBack(){if(!OB)obLoad();obGoStep(OB.step-1)}
+function obSkip(){obNext()}
+function obExit(){obSave();location.hash='#/dashboard'}
+function obLaunch(){var o=getOnboard();if(!o){setOnboard({status:'in_progress',step:0,answers:{crm_mode:'hybrid',services:[]}})}else{if(o.status==='complete')o.step=0;setOnboard(o)}location.hash='#/onboarding'}
+function obActivate(){if(!OB)obLoad();OB.status='complete';OB.completed=Date.now();obSave();applyOnboarding();toast(t('ob_activated'));location.hash='#/dashboard'}
+function applyOnboarding(){try{var a=OB.answers,p=getProfile();if(a.business_name)p.biz=a.business_name;if(a.industry)p.industry=a.industry;if(a.main_email)p.email=a.main_email;setProfile(p)}catch(e){}}
+function obAddSvc(){if(!OB)obLoad();var n=document.getElementById('ob_sv_name'),c=document.getElementById('ob_sv_cat'),v=document.getElementById('ob_sv_val');if(!n||!n.value.trim())return;OB.answers.services.push({name:n.value.trim().slice(0,80),category:(c&&c.value.trim())||'General',value:(v&&v.value)||'Medium'});obSave();render()}
+function obRemoveSvc(i){if(!OB)obLoad();OB.answers.services.splice(i,1);obSave();render()}
+function obGreeting(){var o=getOnboard();return (o&&o.answers&&o.answers.assistant_greeting)?o.answers.assistant_greeting:''}
+function obVal(k){return (OB&&OB.answers[k]!=null)?OB.answers[k]:''}
+function obInput(label,name,ph,type){return '<div class="obf"><label>'+esc(label)+'</label><input type="'+(type||'text')+'" value="'+esc(obVal(name))+'" placeholder="'+esc(ph||'')+'" onchange="obSet(\''+name+'\',this.value)"/></div>'}
+function obArea(label,name,ph){return '<div class="obf"><label>'+esc(label)+'</label><textarea placeholder="'+esc(ph||'')+'" onchange="obSet(\''+name+'\',this.value)">'+esc(obVal(name))+'</textarea></div>'}
+function obSelF(label,name,opts){return '<div class="obf"><label>'+esc(label)+'</label><select onchange="obSet(\''+name+'\',this.value)">'+opts.map(function(o){return '<option'+(o===obVal(name)?' selected':'')+'>'+esc(o)+'</option>'}).join('')+'</select></div>'}
+function obTog(label,name){return '<label class="obtog"><input type="checkbox" '+(obVal(name)?'checked':'')+' onchange="obSetChk(\''+name+'\',this)"/> <span>'+esc(label)+'</span></label>'}
+function obStepHtml(i){
+  var a=OB.answers;
+  if(i===0)return '<div class="obh">'+esc(t('ob_s0_t'))+'</div><p class="obsub">'+esc(t('ob_s0_s'))+'</p><div style="margin-top:18px"><span class="badge b-New">'+icon('clock')+' '+esc(t('ob_est_time'))+'</span></div>';
+  if(i===1)return '<div class="obh">'+esc(t('ob_s1_t'))+'</div><p class="obsub">'+esc(t('ob_s1_s'))+'</p>'+
+    obInput('Company name','business_name','Bright Smile Dental')+obInput('Public display name (what callers hear)','public_display_name','Bright Smile')+obInput('Website URL','website_url','https://…')+
+    '<div class="obgrid">'+obInput('Country','country','United Kingdom')+obInput('Time zone','timezone','Europe/London (GMT)')+'</div>'+
+    '<div class="obgrid">'+obInput('Main phone','main_phone','+44 …')+obInput('Main email','main_email','you@business.com')+'</div>'+obTog('We have more than one location','has_multiple_locations');
+  if(i===2)return '<div class="obh">'+esc(t('ob_s2_t'))+'</div><p class="obsub">'+esc(t('ob_s2_s'))+'</p>'+
+    obSelF('Industry','industry',['Dental clinic','Aesthetic clinic','Plumber / home services','Real estate','Letting agent','Consultant','Other'])+
+    obArea('What does your company do?','business_description','We help patients with…')+obInput('Who are your customers?','customer_types','e.g. Local families, new patients')+
+    obArea('What makes you different?','unique_value_proposition','Same-day appointments, 5-star care…')+obInput('Service areas','service_areas','e.g. Central London')+obInput('Services you do NOT provide','excluded_services','e.g. Emergency surgery');
+  if(i===3)return '<div class="obh">'+esc(t('ob_s3_t'))+'</div><p class="obsub">'+esc(t('ob_s3_s'))+'</p>'+
+    (a.services.length?'<div style="margin:14px 0">'+a.services.map(function(sv,idx){return '<div class="obsvc"><div class="si"><div class="sn">'+esc(sv.name)+'</div><div class="sd">'+esc(sv.category)+' · '+esc(sv.value)+' value</div></div><button class="btn btn-sm btn-danger" onclick="obRemoveSvc('+idx+')">'+icon('trash')+'</button></div>'}).join('')+'</div>':'')+
+    '<div class="obf"><label>Add a service</label><input id="ob_sv_name" maxlength="80" placeholder="Service name (e.g. Invisalign consultation)"/></div>'+
+    '<div class="obgrid"><div class="obf"><input id="ob_sv_cat" maxlength="40" placeholder="Category"/></div><div class="obf"><select id="ob_sv_val"><option>High</option><option selected>Medium</option><option>Low</option></select></div></div>'+
+    '<button class="btn btn-sm" onclick="obAddSvc()">'+icon('plus')+' Add service</button>';
+  if(i===4)return '<div class="obh">'+esc(t('ob_s4_t'))+'</div><p class="obsub">'+esc(t('ob_s4_s'))+'</p>'+
+    obInput('Weekday opening hours','opening_hours','Mon–Fri 9:00–17:30')+obTog('Keep answering after hours','after_hours_enabled')+
+    obArea('After-hours message','after_hours_message','Thanks for calling — we are currently closed…')+obTog('Transfer urgent calls after hours','after_hours_transfer')+obInput('Expected response time (minutes)','expected_response_minutes','15');
+  if(i===5)return '<div class="obh">'+esc(t('ob_s5_t'))+'</div><p class="obsub">'+esc(t('ob_s5_s'))+'</p>'+
+    '<p class="obsub" style="margin-top:12px"><b style="color:var(--text)">Required from every lead</b></p>'+obTog('Name','req_name')+obTog('Phone or email','req_contact')+obTog('Service needed','req_service')+obTog('Preferred callback time','req_callback')+obTog('Consent','req_consent')+
+    obInput('What makes a lead urgent?','urgent_rules','e.g. leak, no hot water, pain')+obInput('What should disqualify a lead?','disqualify_rules','e.g. outside service area')+obArea('Consent message','consent_message','I agree to be contacted about my enquiry.');
+  if(i===6)return '<div class="obh">'+esc(t('ob_s6_t'))+'</div><p class="obsub">'+esc(t('ob_s6_s'))+'</p>'+
+    obInput('Assistant name','assistant_name','Alsaiti receptionist')+obArea('Greeting','assistant_greeting','Good day, thank you for calling…')+
+    obSelF('Tone','tone',['Friendly','Professional','Formal'])+obSelF('Primary language','primary_language',['English','Español','العربية'])+
+    obTog('Assistant discloses it is an AI','ai_disclosure')+obArea('What to say when it does not know','fallback_message','Let me take your details and a specialist will call you back.')+obInput('Transfer to a human on this number','transfer_number','+44 …');
+  if(i===7)return '<div class="obh">'+esc(t('ob_s7_t'))+'</div><p class="obsub">'+esc(t('ob_s7_s'))+'</p>'+
+    obTog('Add a chat assistant to my website','chat_enabled')+obInput('Allowed website domain','chat_domain','yourbusiness.com')+obInput('Welcome message','chat_welcome','Hi! How can we help?')+
+    '<div class="obgrid">'+obInput('Widget colour','chat_color','#3AA6FF')+obSelF('Position','chat_position',['Bottom right','Bottom left'])+'</div>'+obInput('Privacy policy URL','privacy_url','https://…/privacy')+
+    '<button class="btn btn-sm" onclick="toast(\'Install code copied\')">'+icon('code')+' Copy install code</button>';
+  if(i===8)return '<div class="obh">'+esc(t('ob_s8_t'))+'</div><p class="obsub">'+esc(t('ob_s8_s'))+'</p>'+
+    obSelF('How should we connect calls?','phone_option',['New AI number','Existing number — call forwarding','Port my number','SIP / BYOC','Skip for now'])+
+    obSelF('Which calls should the AI answer?','which_calls',['All calls','Missed calls only','After-hours only','Overflow only'])+obInput('Human transfer number','human_transfer','+44 …')+obInput('Urgent transfer number','urgent_transfer','+44 …');
+  if(i===9){
+    var mode=a.crm_mode||'hybrid';
+    var opt=function(m,tk,dk,tag){return '<button class="obopt '+(mode===m?'on':'')+'" onclick="obSetMode(\''+m+'\')"><div class="ot">'+(mode===m?icon('check'):icon('crm'))+' '+esc(t(tk))+(tag?'<span class="obtag">'+esc(t(tag))+'</span>':'')+'</div><div class="od">'+esc(t(dk))+'</div></button>'};
+    var conns=crmState().conns.filter(function(c){return c.status!=='disconnected'});
+    return '<div class="obh">'+esc(t('ob_s9_t'))+'</div><p class="obsub">'+esc(t('ob_s9_s'))+'</p>'+
+      '<div class="obmode">'+opt('internal','ob_crm_int_t','ob_crm_int_d','')+opt('external','ob_crm_ext_t','ob_crm_ext_d','')+opt('hybrid','ob_crm_hyb_t','ob_crm_hyb_d','most_popular')+'</div>'+
+      (mode!=='internal'?'<div style="margin-top:16px"><div class="obsub" style="margin-bottom:8px"><b style="color:var(--text)">'+esc(t('ob_crm_connect'))+'</b></div>'+
+        (conns.length?conns.map(function(c){var p=crmProvider(c.provider)||{name:c.provider,accent:'#3AA6FF',icon:'crm'};return '<div class="obsvc">'+crmLogo(p)+'<div class="si"><div class="sn">'+esc(p.name)+'</div><div class="sd">'+esc(c.account||'')+'</div></div><span class="cs cs-connected"><i></i>'+esc(t('st_connected'))+'</span></div>'}).join(''):'')+
+        '<div class="row" style="margin-top:8px">'+CRM_PROVIDERS.filter(function(p){return p.kind==='core'}).slice(0,4).map(function(p){return '<button class="btn btn-sm" onclick="crmOpenWizard(\''+p.id+'\')">'+icon('plug')+' '+esc(p.name)+'</button>'}).join('')+'</div></div>':'<p class="obsub" style="margin-top:12px">'+esc(t('ob_crm_int_note'))+'</p>');
+  }
+  if(i===10)return '<div class="obh">'+esc(t('ob_s10_t'))+'</div><p class="obsub">'+esc(t('ob_s10_s'))+'</p>'+
+    '<p class="obsub" style="margin-top:12px"><b style="color:var(--text)">Channels</b></p>'+obTog('Email','ch_email')+obTog('In-app','ch_inapp')+
+    '<p class="obsub" style="margin-top:12px"><b style="color:var(--text)">Notify me about</b></p>'+obTog('New lead','ev_new')+obTog('Urgent lead','ev_urgent')+obTog('Missed call captured','ev_missed')+obTog('CRM sync failed','ev_crmfail')+obTog('Daily summary','ev_daily');
+  if(i===11){
+    var sec=[['Business',['business_name']],['Description',['business_description']],['Services',['services']],['Opening hours',['opening_hours']],['Qualification',['req_name','urgent_rules']],['AI assistant',['assistant_name','assistant_greeting']],['Website chat',['chat_enabled']],['Phone',['phone_option']],['CRM',['crm_mode']],['Notifications',['ch_email','ev_new']]];
+    var stat=function(keys){var any=keys.some(function(k){var v=a[k];return Array.isArray(v)?v.length>0:(v!=null&&v!=='')});return any?['rs-ok',t('ob_st_complete')]:['rs-skip',t('ob_st_skipped')]};
+    return '<div class="obh">'+esc(t('ob_s11_t'))+'</div><p class="obsub">'+esc(t('ob_s11_s'))+'</p><div class="obreview">'+sec.map(function(x){var st=stat(x[1]);return '<div class="obrev"><span class="rk">'+esc(x[0])+'</span><span class="rs '+st[0]+'">'+esc(st[1])+'</span></div>'}).join('')+'</div>';
+  }
+  var test=OB.test, ic=function(ok){return ok==='ok'?'check':ok==='skipped'?'clock':'close'}, col=function(ok){return ok==='ok'?'var(--green)':ok==='skipped'?'var(--muted)':'#ff9aa6'};
+  var line=function(ok,label){return '<div class="obcheck"><span style="color:'+col(ok)+'">'+icon(ic(ok))+'</span> <span>'+esc(label)+'</span></div>'};
+  return '<div class="obh">'+esc(t('ob_s12_t'))+'</div><p class="obsub">'+esc(t('ob_s12_s'))+'</p>'+
+    (test?'<div class="card" style="margin-top:16px">'+line('ok',t('ob_chk_created'))+line('ok',t('ob_chk_dash'))+line('ok',t('ob_chk_notif'))+line(test.crm==='ok'?'ok':(test.crm==='skipped'?'skipped':'fail'),test.crm==='ok'?t('ob_chk_crm_ok'):(test.crm==='skipped'?t('ob_chk_crm_skip'):t('ob_chk_crm_none')))+'</div>':'')+
+    '<div class="row" style="margin-top:16px"><button class="btn" onclick="obRunTest()">'+icon('send')+' '+esc(t('ob_run_test'))+'</button></div>';
+}
+function obScreen(){
+  obLoad();
+  var i=OB.step, pct=Math.round(i/(OB_TOTAL-1)*100), isLast=(i===OB_TOTAL-1), optional=[3,4,5,7,8,10];
+  return '<div class="obwrap">'+
+    '<div class="obtop"><div class="brand">'+brandMark()+' Alsaiti Growth</div><div class="spacer"></div>'+langSwitch()+'<button class="btn btn-sm" style="margin-left:8px" onclick="obExit()">'+esc(t('ob_save_exit'))+'</button></div>'+
+    '<div class="obprog"><span style="width:'+pct+'%"></span></div><div class="obstepno">'+esc(tf('ob_step_of',{n:i+1,total:OB_TOTAL}))+'</div>'+
+    '<div class="obcard">'+obStepHtml(i)+
+      '<div class="obnav">'+(i>0?'<button class="btn" onclick="obBack()">'+icon('back')+' '+esc(t('ob_back'))+'</button>':'')+'<div class="spacer"></div>'+
+        (optional.indexOf(i)>=0?'<button class="btn btn-ghost" onclick="obSkip()">'+esc(t('ob_skip'))+'</button>':'')+
+        '<button class="btn btn-primary" onclick="obNext()">'+esc(isLast?t('ob_finish'):t('ob_next'))+' '+(isLast?icon('check'):icon('arrow'))+'</button>'+
+      '</div></div></div>';
+}
+function obRunTest(){
+  if(!OB)obLoad();
+  var leads=getLeads(), svc=(OB.answers.services[0]&&OB.answers.services[0].name)||'Test enquiry';
+  var lead={id:uid(),name:'Test Lead (setup)',service:svc,urgency:'Medium',source:'Manual import',status:'New',score:70,at:Date.now(),phone:'+44 7700 900000',email:'test@alsaitigrowth.com',summary:'Clearly-marked TEST lead created during setup. Safe to delete.',notes:'',assignee:'Unassigned',isTest:true};
+  leads.unshift(lead);setLeads(leads);
+  var mode=crmMode(), routed=(mode!=='internal')?crmEmit('lead.created',lead):0;
+  OB.test={crm:mode==='internal'?'skipped':(routed>0?'ok':'none'),at:Date.now()};obSave();toast(t('ob_test_done'));render();
+}
+function dashTestLead(){
+  var leads=getLeads(), lead={id:uid(),name:'Test Lead (setup)',service:'Test enquiry',urgency:'Medium',source:'Manual import',status:'New',score:70,at:Date.now(),phone:'+44 7700 900000',email:'test@alsaitigrowth.com',summary:'Clearly-marked TEST lead. Safe to delete.',notes:'',assignee:'Unassigned',isTest:true};
+  leads.unshift(lead);setLeads(leads);if(crmMode()!=='internal')crmEmit('lead.created',lead);toast(t('ob_test_done'));go('leads');
+}
+
 /* expose */
 window.go=go;window.openLead=openLead;window.toggleMenu=toggleMenu;window.doLogout=doLogout;
+window.obNext=obNext;window.obBack=obBack;window.obSkip=obSkip;window.obExit=obExit;window.obGoStep=obGoStep;window.obSet=obSet;window.obSetChk=obSetChk;window.obSetMode=obSetMode;window.obAddSvc=obAddSvc;window.obRemoveSvc=obRemoveSvc;window.obLaunch=obLaunch;window.obRunTest=obRunTest;window.dashTestLead=dashTestLead;
 window.crmOpenWizard=crmOpenWizard;window.crmConfigure=crmConfigure;window.crmCloseModal=crmCloseModal;window.crmWizNext=crmWizNext;window.crmWizBack=crmWizBack;
 window.crmSetDraft=crmSetDraft;window.crmSetMap=crmSetMap;window.crmToggleSet=crmToggleSet;window.crmSimAuth=crmSimAuth;window.crmTestLead=crmTestLead;window.crmViewEvent=crmViewEvent;
 window.crmTestConn=crmTestConn;window.crmPause=crmPause;window.crmResume=crmResume;window.crmDisconnect=crmDisconnect;window.crmRetry=crmRetry;
