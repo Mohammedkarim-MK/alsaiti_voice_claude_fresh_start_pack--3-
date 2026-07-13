@@ -489,7 +489,7 @@ function VoiceScreen({ onCreateLead, showToast }) {
   const [status, setStatus] = useState(VT.en.intro);
   const [input, setInput] = useState('');
   const [active, setActive] = useState(false);
-  const speak = (txt) => { try { Speech.stop(); Speech.speak(speechClean(txt), { language: VTTS[lang], pitch: 1.03, rate: lang === 'ar' ? 0.92 : 0.98 }); } catch (e) {} };
+  const speak = (txt) => { try { Speech.stop(); Speech.speak(speechClean(txt), { language: VTTS[lang], pitch: lang === 'ar' ? 1.0 : 1.06, rate: lang === 'ar' ? 0.9 : 0.95 }); } catch (e) {} };
   const add = (who, text) => setTranscript((p) => [...p, { who, text }]);
   /* the receptionist pauses like a human: typing dots, then the reply */
   const botSay = (txt) => {
