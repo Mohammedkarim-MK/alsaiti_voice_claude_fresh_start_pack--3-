@@ -426,12 +426,113 @@
   @media(hover:none) and (pointer:coarse){
     #bgfx .blob{animation:none}
   }
+
+  /* ===================== CRM Integrations ===================== */
+  .crmsum{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+  .provgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .provcard{display:flex;flex-direction:column;gap:12px}
+  .provhead{display:flex;align-items:center;gap:12px}
+  .provlogo{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;color:#fff;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 6px 16px -6px rgba(0,0,0,.6)}
+  .provlogo svg{width:24px;height:24px}
+  .provname{font-weight:700;font-size:15px}
+  .provmeta{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .provhead .spacer{flex:1}
+  .cs{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;border:1px solid var(--border);white-space:nowrap}
+  .cs i{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block;flex-shrink:0}
+  .cs-connected{color:var(--green);background:rgba(87,227,154,.12);border-color:rgba(87,227,154,.32)}
+  .cs-connecting{color:var(--cyan);background:rgba(89,199,255,.12);border-color:rgba(89,199,255,.32)}
+  .cs-paused{color:#c3d3ea;background:rgba(148,163,199,.14)}
+  .cs-attention{color:var(--amber);background:rgba(251,191,90,.12);border-color:rgba(251,191,90,.3)}
+  .cs-expired{color:#ffb27a;background:rgba(255,150,90,.12);border-color:rgba(255,150,90,.3)}
+  .cs-error{color:#ff9aa6;background:rgba(255,122,138,.12);border-color:rgba(255,122,138,.32)}
+  .cs-disabled,.cs-disconnected,.cs-none{color:var(--muted);background:rgba(148,163,199,.1)}
+  .cs-soon{color:#b6a9ff;background:rgba(126,111,239,.14);border-color:rgba(126,111,239,.3)}
+  .connmeta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 14px;margin:6px 0 2px}
+  .connmeta .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .connmeta .v{font-size:13.5px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+  .connactions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .taglist{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+  .tagpill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:rgba(58,166,255,.1);border:1px solid var(--border);color:var(--cyan)}
+  .archnote{display:flex;gap:13px;align-items:flex-start;font-size:13px;line-height:1.6}
+  .archnote .ai{width:38px;height:38px;border-radius:11px;background:rgba(58,166,255,.12);color:var(--cyan);display:grid;place-items:center;flex-shrink:0}
+  .archnote .ai svg{width:20px;height:20px}
+  .flowchips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;font-size:12px}
+  .flowchip{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;border:1px solid var(--border);background:rgba(2,11,31,.4);font-weight:600}
+  .flowchip svg{width:14px;height:14px;color:var(--cyan)}
+  .flowarr{color:var(--muted)}
+  html[dir="rtl"] .flowarr{transform:scaleX(-1)}
+
+  /* modal */
+  .modal{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:16px;background:rgba(2,8,22,.66);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:fadeUp .2s ease both}
+  .modalcard{width:100%;max-width:580px;max-height:90vh;overflow:auto;border-radius:20px;border:1px solid var(--border-hi);
+    background:linear-gradient(160deg,rgba(16,30,60,.99),rgba(9,20,42,.99));box-shadow:0 30px 90px -20px rgba(0,0,0,.75)}
+  .modalhead{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;
+    background:rgba(11,23,48,.94);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);z-index:2}
+  .modalhead h3{font-size:16px;font-weight:800;flex:1;min-width:0}
+  .modalx{width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;display:grid;place-items:center;flex-shrink:0}
+  .modalx:hover{color:var(--text);border-color:var(--primary)}
+  .modalx svg{width:16px;height:16px}
+  .modalbody{padding:20px}
+  .wizsteps{display:flex;gap:5px;padding:14px 20px 0}
+  .wizsteps .wd{flex:1;height:4px;border-radius:999px;background:rgba(148,163,199,.2)}
+  .wizsteps .wd.on{background:linear-gradient(90deg,var(--primary),var(--cyan))}
+  .wizsteps .wd.done{background:var(--green)}
+  .wizlabel{font-size:11.5px;color:var(--cyan);font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+  .wiztitle{font-size:18px;font-weight:800;margin:4px 0 6px;text-wrap:balance}
+  .wizsub{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px}
+  .checklist{display:flex;flex-direction:column;gap:8px}
+  .chk{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:.12s;background:rgba(2,11,31,.4);text-align:left;width:100%;color:var(--text)}
+  html[dir="rtl"] .chk{text-align:right}
+  .chk:hover{border-color:var(--primary)}
+  .chk.on{border-color:var(--primary);background:rgba(58,166,255,.1)}
+  .chk .box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border-hi);flex-shrink:0;display:grid;place-items:center;color:transparent;margin-top:1px}
+  .chk.on .box{background:linear-gradient(135deg,var(--primary),var(--glow));border-color:transparent;color:#fff}
+  .chk .box svg{width:13px;height:13px}
+  .chk .ct{font-size:13.5px;font-weight:700}
+  .chk .cd{font-size:12px;color:var(--muted);margin-top:2px;font-weight:400}
+  .maptable{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .maprow{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid var(--border);font-size:13px}
+  .maprow:first-child{border-top:none}
+  .maprow .mf{flex:1;font-weight:700;min-width:0}
+  .maprow .ma{color:var(--muted);flex-shrink:0}
+  .maprow .mto{flex:1.1;min-width:0}
+  .maprow input{width:100%;padding:8px 10px;border-radius:9px;background:rgba(2,11,31,.6);border:1px solid var(--border);color:var(--text);font-size:13px;outline:none;font-family:inherit}
+  .maprow input:focus{border-color:var(--primary)}
+  .wiznav{display:flex;gap:10px;align-items:center;margin-top:18px}
+  .authsim{text-align:center;padding:10px 0 4px}
+  .authsim .big{width:64px;height:64px;border-radius:16px;margin:0 auto 12px;display:grid;place-items:center;color:#fff;box-shadow:0 8px 22px -8px rgba(0,0,0,.6)}
+  .authsim .big svg{width:32px;height:32px}
+  .testcard{border:1px solid var(--border);border-radius:12px;padding:6px 14px;background:rgba(2,11,31,.4);font-size:13px}
+  .testcard .row2{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--border)}
+  .testcard .row2:first-child{border-top:none}
+  .testcard .row2 .k{color:var(--muted)}
+  .testcard .row2 .mono{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--cyan);word-break:break-all;text-align:right}
+  .okpill{display:inline-flex;align-items:center;gap:6px;color:var(--green);font-weight:700;font-size:13px}
+  .okpill svg{width:16px;height:16px}
+  .codebox{font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:1.55;background:rgba(2,8,22,.75);border:1px solid var(--border);border-radius:12px;padding:14px;overflow:auto;white-space:pre;color:#bfe0ff;max-height:300px}
+  html[dir="rtl"] .codebox,html[dir="rtl"] .testcard .row2 .mono{direction:ltr;text-align:left}
+  /* sync status badge on leads */
+  .syb{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid var(--border)}
+  .syb svg{width:11px;height:11px}
+  .sy-synced{color:var(--green);background:rgba(87,227,154,.1);border-color:rgba(87,227,154,.28)}
+  .sy-pending{color:var(--cyan);background:rgba(89,199,255,.1);border-color:rgba(89,199,255,.28)}
+  .sy-failed{color:#ff9aa6;background:rgba(255,122,138,.1);border-color:rgba(255,122,138,.3)}
+  .sy-none{color:var(--muted);background:rgba(148,163,199,.08)}
+  .syncrec{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border)}
+  .syncrec:first-child{border-top:none}
+  .syncrec .sm{flex:1;min-width:0}
+  .syncrec .sm .t{font-size:13px;font-weight:700}
+  .syncrec .sm .d{font-size:11.5px;color:var(--muted);margin-top:2px;word-break:break-all}
+  @media(max-width:900px){.crmsum{grid-template-columns:repeat(2,1fr)}.provgrid{grid-template-columns:1fr}.connmeta{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.crmsum{grid-template-columns:1fr 1fr}.wiznav{flex-wrap:wrap}}
 </style>
 </head>
 <body>
 <div id="bgfx" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="grid"></span></div>
 <div id="root"></div>
 <div id="toast"></div>
+<div id="crmmodal"></div>
 
 <script>
 /* ============================ Persistence ============================ */
@@ -446,6 +547,13 @@ var TR=/*__TR__*/{"en":{"nav_demos":"Live demos","nav_industries":"Industries","
 var LANGS=[["en","EN"],["es","ES"],["ar","عربي"]];
 var TTSLANG={en:"en-GB",es:"es-ES",ar:"ar-SA"};
 var LANG=DB.get('ag_lang','en');
+/* ---- Integrations i18n (merged so the giant TR line stays untouched) ---- */
+var CRM_TR={
+ en:{nav_integrations:'Integrations',integ_title:'CRM Integrations',integ_sub:'Sync every lead, call and conversation to your CRM — powered by a secure n8n automation layer.',integ_connected:'Connected',integ_available:'Available integrations',integ_activity:'Recent sync activity',integ_no_activity:'No sync activity yet. Connect a CRM, then create a lead to see events flow through.',sum_connected:'Active connections',sum_synced:'Leads synced',sum_success:'Success rate',sum_last:'Last sync',st_connected:'Connected',st_connecting:'Connecting',st_paused:'Paused',st_attention:'Attention required',st_expired:'Auth expired',st_error:'Error',st_disconnected:'Not connected',st_soon:'Coming soon',c_connect:'Connect',c_connect_api:'Connect API',c_configure:'Configure',c_test:'Test',c_logs:'View logs',c_pause:'Pause',c_resume:'Resume',c_disconnect:'Disconnect',c_retry:'Retry',c_view_event:'View event',c_test_lead:'Send test lead',cl_account:'Account',cl_synced:'Synced leads',cl_lastok:'Last success',cl_lastfail:'Last failure',cl_health:'Health',cl_pipeline:'Pipeline',cl_triggers:'Triggers',cl_actions:'Actions',cl_never:'Never',cl_healthy:'Healthy',cl_attn:'Needs attention',arch_title:'How your data stays safe',arch_body:'Supabase remains the source of truth for every lead. n8n is the automation engine that routes signed events to your CRM. If a CRM is offline, your leads stay safe and sync retries automatically.',flow_lead:'Lead created',flow_supabase:'Supabase',flow_n8n:'n8n router',flow_crm:'Your CRM',wiz_connect:'Connect {p}',wiz_configure:'Configure {p}',wz1:'Choose CRM',wz2:'Authenticate',wz3:'Account',wz4:'Sync triggers',wz5:'CRM actions',wz6:'Field mapping',wz7:'Pipeline & stage',wz8:'Test lead',wz9:'Activate',wz1s:'You are connecting {p} to Alsaiti Growth.',wz2s:'Authorise Alsaiti Growth to create and update records in {p}.',wz2btn:'Authorise {p}',wz2ok:'Authorised — {acct}',wz2hook:'We will POST signed JSON to this endpoint for every subscribed event.',wz_hook_url:'Webhook URL',wz_secret:'Signing secret',wz_secret_note:'Shown once. Store it safely — used to verify the HMAC signature.',wz3s:'Choose the {p} account or workspace to sync into.',wz4s:'Choose when Alsaiti Growth should send data to {p}.',wz5s:'Choose what records {p} should create or update.',wz6s:'Map Alsaiti Growth fields to {p} fields.',wz7s:'Choose the pipeline, stage and owner for new records.',wz7sheet:'Choose the spreadsheet and worksheet to append rows to.',wz8s:'Send a sample lead through the full pipeline to confirm everything works.',wz9s:'Review and activate. New leads will start syncing to {p} immediately.',wz_owner:'Owner',wz_stage:'Stage',wz_spreadsheet:'Spreadsheet',wz_worksheet:'Worksheet',wz_next:'Next',wz_back:'Back',wz_activate:'Activate',wz_save:'Save changes',wz_running:'Running test…',wz_test_ok:'Test lead synced successfully',test_contact:'Contact',test_deal:'Deal',test_status:'Status',test_time:'Sync time',lead_field_name:'Lead name',lead_field_phone:'Phone',lead_field_email:'Email',lead_field_service:'Service needed',lead_field_score:'Lead score',lead_field_urgency:'Urgency',lead_field_source:'Source',lead_field_summary:'Summary',lead_field_callback:'Preferred callback',tg_created:'When a lead is created',tg_qualified:'When a lead is qualified',tg_booked:'When a lead is booked',tg_won:'When a lead is won',tg_status:'When status changes',tg_call:'When a call completes',tg_chat:'When a chat completes',ac_contact:'Create / update contact',ac_company:'Create company / organisation',ac_deal:'Create deal / opportunity',ac_note:'Add note',ac_task:'Create task / activity',ac_tags:'Apply tags',ac_owner:'Assign owner',ac_workflow:'Trigger workflow',crm_sync:'CRM sync',sync_synced:'Synced',sync_pending:'Pending',sync_failed:'Failed',sync_none:'Not synced',crm_none_lead:'Not synced to any CRM yet.',ev_title:'Integration event',ev_headers:'Request headers',ev_payload:'Signed payload',toast_connected:'{p} connected',toast_disconnected:'{p} disconnected',toast_paused:'Sync paused',toast_resumed:'Sync resumed',toast_tested:'Connection healthy',toast_retried:'Sync retried — success',toast_synced:'Synced to {p}',confirm_disconnect:'Disconnect {p}? Leads stay safe in your dashboard; syncing will stop.',soon_note:'Native connector on the roadmap — available on request today via Custom API.'},
+ es:{nav_integrations:'Integraciones',integ_title:'Integraciones de CRM',integ_sub:'Sincronice cada cliente potencial, llamada y conversación con su CRM, mediante una capa de automatización segura con n8n.',integ_connected:'Conectadas',integ_available:'Integraciones disponibles',integ_activity:'Actividad de sincronización reciente',integ_no_activity:'Aún no hay actividad de sincronización. Conecte un CRM y cree un cliente potencial para ver el flujo de eventos.',sum_connected:'Conexiones activas',sum_synced:'Clientes sincronizados',sum_success:'Tasa de éxito',sum_last:'Última sincronización',st_connected:'Conectado',st_connecting:'Conectando',st_paused:'En pausa',st_attention:'Requiere atención',st_expired:'Autenticación caducada',st_error:'Error',st_disconnected:'No conectado',st_soon:'Próximamente',c_connect:'Conectar',c_connect_api:'Conectar API',c_configure:'Configurar',c_test:'Probar',c_logs:'Ver registros',c_pause:'Pausar',c_resume:'Reanudar',c_disconnect:'Desconectar',c_retry:'Reintentar',c_view_event:'Ver evento',c_test_lead:'Enviar cliente de prueba',cl_account:'Cuenta',cl_synced:'Clientes sincronizados',cl_lastok:'Último éxito',cl_lastfail:'Último fallo',cl_health:'Estado',cl_pipeline:'Embudo',cl_triggers:'Disparadores',cl_actions:'Acciones',cl_never:'Nunca',cl_healthy:'Correcto',cl_attn:'Requiere atención',arch_title:'Cómo se mantienen seguros sus datos',arch_body:'Supabase sigue siendo la fuente de verdad de cada cliente potencial. n8n es el motor de automatización que envía eventos firmados a su CRM. Si un CRM está fuera de línea, sus clientes potenciales permanecen seguros y la sincronización se reintenta automáticamente.',flow_lead:'Cliente creado',flow_supabase:'Supabase',flow_n8n:'Enrutador n8n',flow_crm:'Su CRM',wiz_connect:'Conectar {p}',wiz_configure:'Configurar {p}',wz1:'Elegir CRM',wz2:'Autenticar',wz3:'Cuenta',wz4:'Disparadores',wz5:'Acciones del CRM',wz6:'Asignación de campos',wz7:'Embudo y etapa',wz8:'Cliente de prueba',wz9:'Activar',wz1s:'Está conectando {p} con Alsaiti Growth.',wz2s:'Autorice a Alsaiti Growth a crear y actualizar registros en {p}.',wz2btn:'Autorizar {p}',wz2ok:'Autorizado — {acct}',wz2hook:'Enviaremos JSON firmado por POST a este endpoint en cada evento suscrito.',wz_hook_url:'URL del webhook',wz_secret:'Secreto de firma',wz_secret_note:'Se muestra una sola vez. Guárdelo de forma segura: se usa para verificar la firma HMAC.',wz3s:'Elija la cuenta o el espacio de trabajo de {p} donde sincronizar.',wz4s:'Elija cuándo debe Alsaiti Growth enviar datos a {p}.',wz5s:'Elija qué registros debe crear o actualizar {p}.',wz6s:'Asigne los campos de Alsaiti Growth a los campos de {p}.',wz7s:'Elija el embudo, la etapa y el responsable de los nuevos registros.',wz7sheet:'Elija la hoja de cálculo y la pestaña donde añadir filas.',wz8s:'Envíe un cliente potencial de muestra por todo el proceso para confirmar que funciona.',wz9s:'Revise y active. Los nuevos clientes potenciales empezarán a sincronizarse con {p} de inmediato.',wz_owner:'Responsable',wz_stage:'Etapa',wz_spreadsheet:'Hoja de cálculo',wz_worksheet:'Pestaña',wz_next:'Siguiente',wz_back:'Atrás',wz_activate:'Activar',wz_save:'Guardar cambios',wz_running:'Ejecutando prueba…',wz_test_ok:'Cliente de prueba sincronizado correctamente',test_contact:'Contacto',test_deal:'Negocio',test_status:'Estado',test_time:'Hora de sincronización',lead_field_name:'Nombre del cliente',lead_field_phone:'Teléfono',lead_field_email:'Correo electrónico',lead_field_service:'Servicio solicitado',lead_field_score:'Puntuación',lead_field_urgency:'Urgencia',lead_field_source:'Fuente',lead_field_summary:'Resumen',lead_field_callback:'Devolución de llamada preferida',tg_created:'Cuando se crea un cliente potencial',tg_qualified:'Cuando se cualifica un cliente potencial',tg_booked:'Cuando se reserva un cliente potencial',tg_won:'Cuando se gana un cliente potencial',tg_status:'Cuando cambia el estado',tg_call:'Cuando finaliza una llamada',tg_chat:'Cuando finaliza un chat',ac_contact:'Crear / actualizar contacto',ac_company:'Crear empresa / organización',ac_deal:'Crear negocio / oportunidad',ac_note:'Añadir nota',ac_task:'Crear tarea / actividad',ac_tags:'Aplicar etiquetas',ac_owner:'Asignar responsable',ac_workflow:'Activar flujo de trabajo',crm_sync:'Sincronización con CRM',sync_synced:'Sincronizado',sync_pending:'Pendiente',sync_failed:'Fallido',sync_none:'Sin sincronizar',crm_none_lead:'Aún no se ha sincronizado con ningún CRM.',ev_title:'Evento de integración',ev_headers:'Cabeceras de la solicitud',ev_payload:'Carga firmada',toast_connected:'{p} conectado',toast_disconnected:'{p} desconectado',toast_paused:'Sincronización en pausa',toast_resumed:'Sincronización reanudada',toast_tested:'Conexión correcta',toast_retried:'Sincronización reintentada: correcto',toast_synced:'Sincronizado con {p}',confirm_disconnect:'¿Desconectar {p}? Sus clientes potenciales permanecen seguros en el panel; la sincronización se detendrá.',soon_note:'Conector nativo en la hoja de ruta; disponible hoy a petición mediante API personalizada.'},
+ ar:{nav_integrations:'التكاملات',integ_title:'تكاملات CRM',integ_sub:'زامِن كل عميل محتمل ومكالمة ومحادثة مع نظام CRM لديك — بواسطة طبقة أتمتة آمنة عبر n8n.',integ_connected:'المتصلة',integ_available:'التكاملات المتاحة',integ_activity:'نشاط المزامنة الأخير',integ_no_activity:'لا يوجد نشاط مزامنة بعد. اربط نظام CRM ثم أنشئ عميلًا محتملًا لرؤية تدفّق الأحداث.',sum_connected:'الاتصالات النشطة',sum_synced:'العملاء المُزامَنون',sum_success:'معدّل النجاح',sum_last:'آخر مزامنة',st_connected:'متصل',st_connecting:'جارٍ الاتصال',st_paused:'موقوف مؤقتًا',st_attention:'يحتاج إلى انتباه',st_expired:'انتهت صلاحية المصادقة',st_error:'خطأ',st_disconnected:'غير متصل',st_soon:'قريبًا',c_connect:'ربط',c_connect_api:'ربط واجهة API',c_configure:'إعداد',c_test:'اختبار',c_logs:'عرض السجلات',c_pause:'إيقاف مؤقت',c_resume:'استئناف',c_disconnect:'قطع الاتصال',c_retry:'إعادة المحاولة',c_view_event:'عرض الحدث',c_test_lead:'إرسال عميل تجريبي',cl_account:'الحساب',cl_synced:'العملاء المُزامَنون',cl_lastok:'آخر نجاح',cl_lastfail:'آخر فشل',cl_health:'الحالة',cl_pipeline:'مسار المبيعات',cl_triggers:'المُشغّلات',cl_actions:'الإجراءات',cl_never:'أبدًا',cl_healthy:'سليم',cl_attn:'يحتاج إلى انتباه',arch_title:'كيف تبقى بياناتك آمنة',arch_body:'يظل Supabase مصدر الحقيقة لكل عميل محتمل. وn8n هو محرّك الأتمتة الذي يوجّه الأحداث المُوقَّعة إلى نظام CRM لديك. وإذا كان نظام CRM غير متصل، يبقى عملاؤك المحتملون آمنين وتُعاد المزامنة تلقائيًا.',flow_lead:'إنشاء عميل',flow_supabase:'Supabase',flow_n8n:'موجّه n8n',flow_crm:'نظام CRM لديك',wiz_connect:'ربط {p}',wiz_configure:'إعداد {p}',wz1:'اختيار CRM',wz2:'المصادقة',wz3:'الحساب',wz4:'المُشغّلات',wz5:'إجراءات CRM',wz6:'ربط الحقول',wz7:'المسار والمرحلة',wz8:'عميل تجريبي',wz9:'التفعيل',wz1s:'أنت تربط {p} بـ Alsaiti Growth.',wz2s:'صرّح لـ Alsaiti Growth بإنشاء السجلات وتحديثها في {p}.',wz2btn:'تصريح {p}',wz2ok:'تم التصريح — {acct}',wz2hook:'سنرسل JSON مُوقَّعًا عبر POST إلى هذا العنوان عند كل حدث مشترَك فيه.',wz_hook_url:'عنوان الـ Webhook',wz_secret:'سرّ التوقيع',wz_secret_note:'يُعرض مرة واحدة. احفظه بأمان — يُستخدم للتحقق من توقيع HMAC.',wz3s:'اختر حساب أو مساحة عمل {p} للمزامنة إليها.',wz4s:'اختر متى يرسل Alsaiti Growth البيانات إلى {p}.',wz5s:'اختر السجلات التي ينبغي لـ {p} إنشاؤها أو تحديثها.',wz6s:'اربط حقول Alsaiti Growth بحقول {p}.',wz7s:'اختر المسار والمرحلة والمسؤول للسجلات الجديدة.',wz7sheet:'اختر جدول البيانات وورقة العمل لإضافة الصفوف إليها.',wz8s:'أرسل عميلًا محتملًا تجريبيًا عبر المسار كاملًا للتأكد من أن كل شيء يعمل.',wz9s:'راجِع وفعِّل. سيبدأ العملاء المحتملون الجدد بالمزامنة مع {p} فورًا.',wz_owner:'المسؤول',wz_stage:'المرحلة',wz_spreadsheet:'جدول البيانات',wz_worksheet:'ورقة العمل',wz_next:'التالي',wz_back:'رجوع',wz_activate:'تفعيل',wz_save:'حفظ التغييرات',wz_running:'جارٍ تشغيل الاختبار…',wz_test_ok:'تمت مزامنة العميل التجريبي بنجاح',test_contact:'جهة الاتصال',test_deal:'الصفقة',test_status:'الحالة',test_time:'وقت المزامنة',lead_field_name:'اسم العميل',lead_field_phone:'الهاتف',lead_field_email:'البريد الإلكتروني',lead_field_service:'الخدمة المطلوبة',lead_field_score:'تقييم العميل',lead_field_urgency:'الاستعجال',lead_field_source:'المصدر',lead_field_summary:'الملخص',lead_field_callback:'وقت معاودة الاتصال المفضّل',tg_created:'عند إنشاء عميل محتمل',tg_qualified:'عند تأهيل عميل محتمل',tg_booked:'عند حجز عميل محتمل',tg_won:'عند كسب عميل محتمل',tg_status:'عند تغيّر الحالة',tg_call:'عند انتهاء مكالمة',tg_chat:'عند انتهاء محادثة',ac_contact:'إنشاء / تحديث جهة اتصال',ac_company:'إنشاء شركة / مؤسسة',ac_deal:'إنشاء صفقة / فرصة',ac_note:'إضافة ملاحظة',ac_task:'إنشاء مهمة / نشاط',ac_tags:'تطبيق الوسوم',ac_owner:'تعيين مسؤول',ac_workflow:'تشغيل سير عمل',crm_sync:'مزامنة CRM',sync_synced:'مُزامَن',sync_pending:'قيد الانتظار',sync_failed:'فشل',sync_none:'غير مُزامَن',crm_none_lead:'لم تتم مزامنته مع أي نظام CRM بعد.',ev_title:'حدث تكامل',ev_headers:'ترويسات الطلب',ev_payload:'الحمولة المُوقَّعة',toast_connected:'تم ربط {p}',toast_disconnected:'تم قطع اتصال {p}',toast_paused:'تم إيقاف المزامنة مؤقتًا',toast_resumed:'تم استئناف المزامنة',toast_tested:'الاتصال سليم',toast_retried:'أُعيدت المزامنة — نجحت',toast_synced:'تمت المزامنة مع {p}',confirm_disconnect:'قطع اتصال {p}؟ سيبقى عملاؤك المحتملون آمنين في لوحة التحكم؛ وستتوقف المزامنة.',soon_note:'موصّل أصلي ضمن خطة التطوير — متاح اليوم عند الطلب عبر واجهة API مخصّصة.'}
+};
+(function(){for(var l in CRM_TR){if(!TR[l])TR[l]={};for(var k in CRM_TR[l]){if(TR[l][k]==null)TR[l][k]=CRM_TR[l][k]}}})();
 function setLang(l){try{if(VOICE&&(VOICE.active||VOICE.timer))voiceEnd()}catch(e){}LANG=l;DB.set('ag_lang',l);applyDir();render()}
 function applyDir(){try{document.documentElement.lang=LANG;document.documentElement.dir=(LANG==='ar'?'rtl':'ltr')}catch(e){}}
 function t(k){var d=TR[LANG]||{};if(d[k]!=null)return d[k];if(TR.en[k]!=null)return TR.en[k];return k}
@@ -610,7 +718,23 @@ function icon(n){var p={
   trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
   mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>'
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  refresh:'<path d="M20 11a8 8 0 1 0-.9 5M20 5v6h-6"/>',
+  plug:'<path d="M9 2v6M15 2v6M6 8h12v2a6 6 0 0 1-12 0zM12 20v2"/>',
+  link:'<path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/>',
+  pause:'<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>',
+  play:'<path d="M7 4l13 8-13 8z"/>',
+  shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
+  activity:'<path d="M3 12h4l3 8 4-16 3 8h4"/>',
+  close:'<path d="M6 6l12 12M18 6L6 18"/>',
+  external:'<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  sliders:'<path d="M4 6h8M18 6h2M4 12h2M10 12h10M4 18h10M18 18h2"/><circle cx="15" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="15" cy="18" r="2"/>',
+  route:'<circle cx="6" cy="19" r="2.4"/><circle cx="18" cy="5" r="2.4"/><path d="M8.4 19H14a4 4 0 0 0 0-8H9a4 4 0 0 1 0-8h6.6"/>',
+  db:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+  sheet:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>',
+  cloud:'<path d="M7 18a4 4 0 0 1 0-8 5 5 0 0 1 9.6-1.3A3.7 3.7 0 0 1 18 18z"/>',
+  code:'<path d="M8 6l-5 6 5 6M16 6l5 6-5 6"/>',
+  send:'<path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/>'
 };
 return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(p[n]||'')+'</svg>'}
 function srcIcon(s){var map={"Voice call":"phone","Website chat":"chat","Contact form":"form","Manual import":"import","API":"api","CRM":"crm"};
@@ -774,11 +898,11 @@ function authPage(mode){
 }
 function submitAuth(e,mode){
   e.preventDefault();
-  var f=e.target, errBox=f.querySelector('#authErr'), err=errBox.querySelector('.err');
+  var f=e.target, el=f.elements, errBox=f.querySelector('#authErr'), err=errBox.querySelector('.err');
   errBox.style.display='none';
   try{
-    if(mode==='signup'){AUTH.signup(f.name.value,f.biz.value,f.email.value,f.pass.value);toast('Welcome to Alsaiti Growth')}
-    else{AUTH.login(f.email.value,f.pass.value);toast('Signed in')}
+    if(mode==='signup'){AUTH.signup(el['name'].value,el['biz'].value,el['email'].value,el['pass'].value);toast('Welcome to Alsaiti Growth')}
+    else{AUTH.login(el['email'].value,el['pass'].value);toast('Signed in')}
     location.hash='#/dashboard';
   }catch(ex){errBox.style.display='block';err.textContent=ex.message}
   return false
@@ -786,10 +910,10 @@ function submitAuth(e,mode){
 
 /* ============================ App shell ============================ */
 function navModel(){return [
-  ['sec_overview',[['dashboard','nav_dashboard','grid'],['leads','nav_leads','users'],['voice','nav_voice','mic'],['analytics','nav_analytics','chart']]],
+  ['sec_overview',[['dashboard','nav_dashboard','grid'],['leads','nav_leads','users'],['voice','nav_voice','mic'],['analytics','nav_analytics','chart'],['integrations','nav_integrations','plug']]],
   ['sec_account',[['settings','nav_settings','cog']]]
 ]}
-function mobModel(){return [['dashboard','nav_dashboard','grid'],['leads','nav_leads','users'],['voice','nav_voice','mic'],['analytics','nav_analytics','chart'],['settings','nav_settings','cog']]}
+function mobModel(){return [['dashboard','nav_dashboard','grid'],['leads','nav_leads','users'],['voice','nav_voice','mic'],['integrations','nav_integrations','plug'],['settings','nav_settings','cog']]}
 
 function shell(active,inner){
   var u=AUTH.current(), p=getProfile();
@@ -826,6 +950,7 @@ function pageContent(r){
     case'lead':return leadDetail();
     case'new':return newLeadPage();
     case'analytics':return analyticsPage();
+    case'integrations':return integrationsPage();
     case'settings':return settingsPage();
     default:return dashboard()
   }
@@ -866,7 +991,7 @@ function leadList(list){
       '<span class="li-main">'+
         '<span class="li-top"><span class="name">'+esc(l.name)+'</span><span class="badge b-'+l.status+'">'+l.status+'</span></span>'+
         '<span class="li-sub">'+esc(l.service||'—')+'</span>'+
-        '<span class="li-meta">'+srcIcon(l.source)+'<span>&middot; '+esc(l.urgency)+'</span><span>&middot; '+ago(l.at)+'</span><span class="score" style="color:'+scoreColor(l.score)+';margin-left:auto">'+l.score+'</span></span>'+
+        '<span class="li-meta">'+srcIcon(l.source)+'<span>&middot; '+esc(l.urgency)+'</span><span>&middot; '+ago(l.at)+'</span>'+crmLeadBadge(l.id)+'<span class="score" style="color:'+scoreColor(l.score)+';margin-left:auto">'+l.score+'</span></span>'+
       '</span>'+
     '</button>'}).join('')+'</div>'
 }
@@ -912,12 +1037,14 @@ function newLeadPage(){
     '</form>'
 }
 function submitLead(e){
-  e.preventDefault();var f=e.target;
+  e.preventDefault();var el=e.target.elements;
   var leads=getLeads();
-  var score=f.urgency.value==='High'?Math.floor(80+Math.random()*15):f.urgency.value==='Medium'?Math.floor(60+Math.random()*18):Math.floor(40+Math.random()*18);
-  leads.unshift({id:uid(),name:f.name.value.trim(),service:f.service.value.trim(),urgency:f.urgency.value,source:f.source.value,
-    status:'New',score:score,at:Date.now(),phone:f.phone.value.trim(),email:f.email.value.trim(),summary:f.summary.value.trim(),notes:'',assignee:'Unassigned'});
-  setLeads(leads);toast(t('lead_added'));go('leads');return false
+  var urg=el['urgency'].value;
+  var score=urg==='High'?Math.floor(80+Math.random()*15):urg==='Medium'?Math.floor(60+Math.random()*18):Math.floor(40+Math.random()*18);
+  var nl={id:uid(),name:el['name'].value.trim(),service:el['service'].value.trim(),urgency:urg,source:el['source'].value,
+    status:'New',score:score,at:Date.now(),phone:el['phone'].value.trim(),email:el['email'].value.trim(),summary:el['summary'].value.trim(),notes:'',assignee:'Unassigned'};
+  leads.unshift(nl);
+  setLeads(leads);crmEmit('lead.created',nl);toast(t('lead_added'));go('leads');return false
 }
 
 function leadDetail(){
@@ -935,10 +1062,11 @@ function leadDetail(){
       '<div style="display:flex;flex-direction:column;gap:16px">'+
         '<div class="card"><h3>'+esc(t('move_status'))+'</h3><div class="row">'+STATUSES.map(function(s){return '<button class="btn btn-sm" style="'+(s===l.status?'border-color:var(--primary);color:#fff':'')+'" onclick="moveStatus(\''+l.id+'\',\''+s+'\')">'+s+'</button>'}).join('')+'</div></div>'+
         '<div class="card"><h3>'+esc(t('details_t'))+'</h3>'+info.map(function(i){return '<div class="kv"><span class="k">'+esc(i[0])+'</span><span style="text-align:right">'+esc(i[1])+'</span></div>'}).join('')+'</div>'+
+        crmLeadCard(l)+
         '<button class="btn btn-danger" onclick="deleteLead(\''+l.id+'\')">'+icon('trash')+' '+esc(t('delete_lead'))+'</button>'+
       '</div></div>'
 }
-function moveStatus(id,st){var leads=getLeads();leads.forEach(function(l){if(l.id===id)l.status=st});setLeads(leads);render();toast(t('moved_to')+' '+st)}
+function moveStatus(id,st){var leads=getLeads(),moved=null;leads.forEach(function(l){if(l.id===id){l.status=st;moved=l}});setLeads(leads);if(moved)crmEmitStatus(moved);render();toast(t('moved_to')+' '+st)}
 function saveNote(id){var v=document.getElementById('noteBox').value;var leads=getLeads();leads.forEach(function(l){if(l.id===id)l.notes=v});setLeads(leads);toast(t('note_saved'))}
 function deleteLead(id){if(!confirm('Delete this lead? This cannot be undone.'))return;setLeads(getLeads().filter(function(l){return l.id!==id}));toast('Lead deleted');go('leads')}
 
@@ -980,8 +1108,8 @@ function settingsPage(){
       '</div>'+
     '</div>'
 }
-function saveProfile(e){e.preventDefault();var f=e.target;setProfile({biz:f.biz.value.trim(),industry:f.industry.value,tz:'Europe/London (GMT)',email:f.email.value.trim()});render();toast('Settings saved');return false}
-function resetData(){if(!confirm('Replace your leads with the sample set?'))return;var s=AUTH.session();DB.del(leadsKey(s.email));seedIfNeeded(s.email);render();toast('Sample data restored')}
+function saveProfile(e){e.preventDefault();var el=e.target.elements;setProfile({biz:el['biz'].value.trim(),industry:el['industry'].value,tz:'Europe/London (GMT)',email:el['email'].value.trim()});render();toast('Settings saved');return false}
+function resetData(){if(!confirm('Replace your leads with the sample set?'))return;var s=AUTH.session();DB.del(leadsKey(s.email));DB.del(crmKey(s.email));seedIfNeeded(s.email);render();toast('Sample data restored')}
 
 /* ============================ AI receptionist (voice) ============================ */
 var VOICE={active:false,step:0,data:{},rec:null,unlocked:false,urgent:false,timer:null,log:[],listening:false};
@@ -1117,8 +1245,9 @@ function vFinish(){
   if(phone.replace(/[^0-9]/g,'').length<6)phone='';
   var score=urgency==='High'?Math.floor(82+Math.random()*14):urgency==='Medium'?Math.floor(62+Math.random()*16):Math.floor(45+Math.random()*15);
   var leads=getLeads();
-  leads.unshift({id:uid(),name:vCap(d.name)||'Voice caller',service:service,urgency:urgency,source:'Voice call',status:'New',score:score,at:Date.now(),phone:phone,email:'',summary:'Captured by the Alsaiti Growth AI receptionist. Caller: '+(vCap(d.name)||'Unknown')+'. Needs: '+service+'. Urgency: '+urgency+'.',notes:'',assignee:'Unassigned'});
-  setLeads(leads);
+  var nl={id:uid(),name:vCap(d.name)||'Voice caller',service:service,urgency:urgency,source:'Voice call',status:'New',score:score,at:Date.now(),phone:phone,email:'',summary:'Captured by the Alsaiti Growth AI receptionist. Caller: '+(vCap(d.name)||'Unknown')+'. Needs: '+service+'. Urgency: '+urgency+'.',notes:'',assignee:'Unassigned'};
+  leads.unshift(nl);
+  setLeads(leads);crmEmit('lead.created',nl);
   var msg;
   if(phone){msg=tf(urgency==='High'?'v_close_urgent':'v_close',{name:name,service:service,phone:phone})}
   else{var np=VCLOSE_NP[LANG]||VCLOSE_NP.en;msg=fill(urgency==='High'?np.urgent:np.normal,{name:name,service:service})}
@@ -1127,8 +1256,432 @@ function vFinish(){
 }
 function voiceEnd(){VOICE.active=false;VOICE.listening=false;if(VOICE.timer){clearTimeout(VOICE.timer);VOICE.timer=null}VOICE.pendingTxt=null;vTyping(false);try{if(VOICE.rec){VOICE.rec.onend=null;VOICE.rec.abort()}}catch(e){}try{if(window.speechSynthesis)window.speechSynthesis.cancel()}catch(e){}vSetStatus(t('v_call_ended'));vListenUI(false)}
 
+/* ===================== CRM Integrations (n8n sync layer — demo simulation of the handoff spec) =====================
+   NOTE: This is a faithful front-end simulation of the universal CRM integration system. It creates signed
+   integration events, routes them to connected providers, records sync results and retries — exactly as the
+   real Supabase + n8n backend will, but without live CRM API calls (that is the developer handoff build). */
+var CRM_SECRET='whsec_alsaiti_demo_v1'; /* demo signing secret — never a real credential */
+var CRM_PROVIDERS=[
+ {id:'generic_webhook',name:'Generic Webhook',accent:'#59C7FF',icon:'plug',kind:'core',entity:'payload',accounts:['https://api.yourapp.com/hooks/alsaiti'],desc:'Send signed JSON to any endpoint'},
+ {id:'hubspot',name:'HubSpot',accent:'#FF7A59',icon:'crm',kind:'core',entity:'deal',accounts:['Bright Smile Dental','Alsaiti Demo Portal'],pipelines:['Sales Pipeline','Patient Pipeline'],stages:['New Lead','Consultation Booked','In Treatment','Won'],owners:['Front desk','Layla A.','Reception'],desc:'Contacts, deals, notes & tasks'},
+ {id:'pipedrive',name:'Pipedrive',accent:'#1EA64A',icon:'chart',kind:'core',entity:'deal',accounts:['Alsaiti Growth','Docklands Lettings'],pipelines:['Inbound','Viewings'],stages:['Lead In','Contact Made','Viewing Booked','Won'],owners:['Sales team','Layla A.'],desc:'Persons, deals & activities'},
+ {id:'highlevel',name:'GoHighLevel',accent:'#2A9DF4',icon:'activity',kind:'core',entity:'opportunity',accounts:['Alsaiti Sub-Account'],pipelines:['Leads Pipeline'],stages:['New Lead','Nurture','Booked','Won'],owners:['Auto-assign','Front desk'],desc:'Contacts, opportunities & tags'},
+ {id:'google_sheets',name:'Google Sheets',accent:'#0F9D58',icon:'sheet',kind:'core',entity:'row',accounts:['Alsaiti Leads 2026'],sheets:['Leads','Voice Leads'],desc:'Append a row per lead'},
+ {id:'salesforce',name:'Salesforce',accent:'#00A1E0',icon:'cloud',kind:'soon',desc:'Leads, contacts & opportunities'},
+ {id:'zoho',name:'Zoho CRM',accent:'#E42527',icon:'crm',kind:'soon',desc:'Leads, deals & activities'},
+ {id:'dynamics',name:'Microsoft Dynamics 365',accent:'#0B53CE',icon:'grid',kind:'soon',desc:'Leads, opportunities & tasks'},
+ {id:'custom_api',name:'Custom API',accent:'#7E6FEF',icon:'code',kind:'custom',entity:'record',accounts:['https://api.yourcrm.com/v1/leads'],desc:'Any API or webhook-based system'}
+];
+var CRM_TRIGGERS=[['lead.created','tg_created'],['lead.qualified','tg_qualified'],['lead.booked','tg_booked'],['lead.won','tg_won'],['lead.status_changed','tg_status'],['call.completed','tg_call'],['chat.completed','tg_chat']];
+var CRM_ACTIONS=[['contact','ac_contact'],['company','ac_company'],['deal','ac_deal'],['note','ac_note'],['task','ac_task'],['tags','ac_tags'],['owner','ac_owner'],['workflow','ac_workflow']];
+var CRM_MAP=[['name','Contact name'],['phone','Mobile phone'],['email','Email'],['service','Deal title'],['score','Lead score'],['urgency','Priority'],['source','Lead source'],['summary','Note'],['callback','Activity due time']];
+function crmDefaultMapping(){return CRM_MAP.map(function(m){return {from:m[0],to:m[1]}})}
+function crmProvider(id){for(var i=0;i<CRM_PROVIDERS.length;i++)if(CRM_PROVIDERS[i].id===id)return CRM_PROVIDERS[i];return null}
+function crmLogo(p){return '<span class="provlogo" style="background:linear-gradient(140deg,'+(p.accent||'#3AA6FF')+',rgba(0,0,0,.28))">'+icon(p.icon||'crm')+'</span>'}
+function crmRand(n){var s='',c='0123456789abcdefghijklmnopqrstuvwxyz';for(var i=0;i<(n||12);i++)s+=c.charAt(Math.floor(Math.random()*c.length));return s}
+
+/* ---- HMAC-SHA256 (byte-accurate) so every event carries a real signature, matching spec §6.1 ---- */
+function sha256bytes(str){
+  var ascii=String(str);
+  function rr(v,a){return (v>>>a)|(v<<(32-a))}
+  var maxWord=Math.pow(2,32),result='',i,j;
+  var words=[],asciiBitLength=ascii.length*8;
+  var hash=sha256bytes.h=sha256bytes.h||[],k=sha256bytes.k=sha256bytes.k||[];
+  var primeCounter=k.length,isComposite={};
+  for(var candidate=2;primeCounter<64;candidate++){
+    if(!isComposite[candidate]){
+      for(i=0;i<313;i+=candidate)isComposite[i]=candidate;
+      hash[primeCounter]=(Math.pow(candidate,.5)*maxWord)|0;
+      k[primeCounter++]=(Math.pow(candidate,1/3)*maxWord)|0;
+    }
+  }
+  ascii+='\x80';
+  while(ascii.length%64-56)ascii+='\x00';
+  for(i=0;i<ascii.length;i++){
+    j=ascii.charCodeAt(i);if(j>>8)j=63;
+    words[i>>2]|=j<<((3-i)%4*8);
+  }
+  words[words.length]=(asciiBitLength/maxWord)|0;
+  words[words.length]=asciiBitLength;
+  for(j=0;j<words.length;){
+    var w=words.slice(j,j+=16),oldHash=hash;
+    hash=hash.slice(0,8);
+    for(i=0;i<64;i++){
+      var w15=w[i-15],w2=w[i-2],a=hash[0],e=hash[4];
+      var t1=hash[7]+(rr(e,6)^rr(e,11)^rr(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i]
+        +(w[i]=(i<16)?w[i]:(w[i-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i-7]+(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0);
+      var t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+      hash=[(t1+t2)|0].concat(hash);hash[4]=(hash[4]+t1)|0;
+    }
+    for(i=0;i<8;i++)hash[i]=(hash[i]+oldHash[i])|0;
+  }
+  for(i=0;i<8;i++){for(j=3;j+1;j--){var b=(hash[i]>>(j*8))&255;result+=((b<16)?0:'')+b.toString(16)}}
+  return result;
+}
+function _hexToBytes(h){var s='';for(var i=0;i<h.length;i+=2)s+=String.fromCharCode(parseInt(h.substr(i,2),16));return s}
+function _utf8(s){try{return unescape(encodeURIComponent(String(s)))}catch(e){return String(s)}}
+function hmacSha256(key,msg){
+  key=_utf8(key);msg=_utf8(msg);
+  if(key.length>64)key=_hexToBytes(sha256bytes(key));
+  while(key.length<64)key+='\x00';
+  var ip='',op='';
+  for(var i=0;i<64;i++){var c=key.charCodeAt(i);ip+=String.fromCharCode(c^0x36);op+=String.fromCharCode(c^0x5c)}
+  return sha256bytes(op+_hexToBytes(sha256bytes(ip+msg)));
+}
+
+/* ---- Provider record helpers (simulated external IDs & deep links) ---- */
+function crmExtId(prov,kind){
+  if(prov==='hubspot')return String(Math.floor(2e9+Math.random()*8e9));
+  if(prov==='pipedrive')return String(Math.floor(100+Math.random()*9000));
+  if(prov==='google_sheets')return 'row-'+Math.floor(2+Math.random()*400);
+  if(prov==='highlevel')return crmRand(20);
+  return crmRand(12);
+}
+function crmRecordUrl(conn,ext){
+  var p=conn.provider,id=(ext&&(ext.contact||ext.deal))||'';
+  if(p==='hubspot')return 'https://app.hubspot.com/contacts/'+(conn.portal||'24428135')+'/record/0-1/'+id;
+  if(p==='pipedrive')return 'https://alsaiti.pipedrive.com/person/'+id;
+  if(p==='highlevel')return 'https://app.gohighlevel.com/contacts/detail/'+id;
+  if(p==='google_sheets')return 'https://docs.google.com/spreadsheets/d/1AlsaitiDemoLeadsSheet/edit#gid=0';
+  if(p==='generic_webhook'||p==='custom_api')return conn.account||'';
+  return '';
+}
+function crmActionsList(conn,created){
+  var out=[];(conn.actions||[]).forEach(function(a){
+    if(a==='contact')out.push('contact'+(created?'.created':'.updated'));
+    else if(a==='deal')out.push((conn.provider==='highlevel'?'opportunity':'deal')+'.created');
+    else if(a==='company')out.push('company'+(created?'.created':'.updated'));
+    else if(a==='note')out.push('note.created');
+    else if(a==='task')out.push('task.created');
+    else if(a==='tags')out.push('tags.applied');
+    else if(a==='owner')out.push('owner.assigned');
+    else if(a==='workflow')out.push('workflow.triggered');
+  });return out;
+}
+function crmSourceSlug(src){return ({'Voice call':'voice_call','Website chat':'website_chat','Contact form':'contact_form','Manual import':'manual_import','API':'api','CRM':'crm'})[src]||'other'}
+function crmEnvelope(eventType,lead,conn){
+  return {event_id:'evt_'+crmRand(24),event_type:eventType,event_version:'1.0',occurred_at:new Date().toISOString(),
+    business_id:((AUTH.session()||{}).email)||'business',connection_id:conn?conn.id:null,entity_type:'lead',entity_id:lead.id,
+    payload:{lead:{id:lead.id,name:lead.name,phone:lead.phone||'',email:lead.email||'',service_needed:lead.service||'',urgency:String(lead.urgency||'').toLowerCase(),source:crmSourceSlug(lead.source),status:String(lead.status||'').toLowerCase(),lead_score:lead.score,summary:lead.summary||'',created_at:new Date(lead.at||Date.now()).toISOString()}},
+    metadata:{environment:'production',schema_version:'1'}};
+}
+function crmSign(ts,body){return 'sha256='+hmacSha256(CRM_SECRET,ts+'.'+body)}
+
+/* ---- Storage (per account): { conns, events, syncs{connId|leadId}, attempts } ---- */
+function crmKey(e){return 'ag_crm_'+e}
+function crmState(){var s=AUTH.session();if(!s)return{conns:[],events:[],syncs:{},attempts:[]};
+  var d=DB.get(crmKey(s.email),null);if(!d){d=crmSeed();DB.set(crmKey(s.email),d)}return d}
+function crmSave(st){var s=AUTH.session();if(s)DB.set(crmKey(s.email),st)}
+function crmFindConn(st,id){for(var i=0;i<st.conns.length;i++)if(st.conns[i].id===id)return st.conns[i];return null}
+function crmRecordSync(st,conn,lead,fail,ts){
+  ts=ts||Date.now();
+  var key=conn.id+'|'+lead.id, evId='evt_'+crmRand(22);
+  var env=crmEnvelope('lead.created',lead,conn);env.event_id=evId;var body=JSON.stringify(env);
+  if(fail){
+    st.syncs[key]={connection_id:conn.id,provider:conn.provider,lead_id:lead.id,lead_name:lead.name,status:'failed',ext:{},last_event:evId,last_synced:null,error:{code:'RATE_LIMITED',msg:'Provider rate limit exceeded.',retryable:true},created:ts,updated:ts,url:''};
+    st.attempts.unshift({id:'att_'+crmRand(8),event_id:evId,conn:conn.id,provider:conn.provider,lead_id:lead.id,lead_name:lead.name,event_type:'lead.created',n:1,status:'failed',code:429,error:'RATE_LIMITED',actions:[],at:ts});
+    st.events.unshift({event_id:evId,event_type:'lead.created',entity_id:lead.id,lead_name:lead.name,status:'failed',attempt_count:1,at:ts,ts:Math.floor(ts/1000),sig:crmSign(Math.floor(ts/1000),body),body:body});
+  }else{
+    var ext={contact:crmExtId(conn.provider,'contact')};
+    if((conn.actions||[]).indexOf('deal')>=0)ext.deal=crmExtId(conn.provider,'deal');
+    st.syncs[key]={connection_id:conn.id,provider:conn.provider,lead_id:lead.id,lead_name:lead.name,status:'synced',ext:ext,last_event:evId,last_synced:ts,error:null,created:ts,updated:ts,url:crmRecordUrl(conn,ext)};
+    st.attempts.unshift({id:'att_'+crmRand(8),event_id:evId,conn:conn.id,provider:conn.provider,lead_id:lead.id,lead_name:lead.name,event_type:'lead.created',n:1,status:'success',code:201,actions:crmActionsList(conn,true),at:ts});
+    st.events.unshift({event_id:evId,event_type:'lead.created',entity_id:lead.id,lead_name:lead.name,status:'processed',attempt_count:1,at:ts,ts:Math.floor(ts/1000),sig:crmSign(Math.floor(ts/1000),body),body:body});
+  }
+}
+function crmSeed(){
+  var now=Date.now(),m=60000,h=3600000,day=86400000;
+  var conn={id:'conn_hub_demo',provider:'hubspot',name:'HubSpot',status:'connected',account:'Bright Smile Dental',portal:'24428135',
+    sync_enabled:true,triggers:['lead.created','lead.status_changed','lead.qualified','lead.booked','lead.won'],
+    actions:['contact','deal','note'],pipeline:'Sales Pipeline',stage:'New Lead',owner:'Front desk',
+    tags:['alsaiti-voice','voice-call'],mapping:crmDefaultMapping(),synced:0,
+    last_success:now-9*m,last_failure:null,last_error:null,connected_at:now-6*day,tested_at:now-9*m,health:'healthy'};
+  var st={conns:[conn],events:[],syncs:{},attempts:[]};
+  try{
+    var leads=getLeads().slice(0,4);
+    leads.forEach(function(l,i){crmRecordSync(st,conn,l,(i===3),now-((i+1)*23)*m)});
+    conn.synced=Math.min(3,leads.length);
+    if(leads.length>3){conn.last_failure=now-2*h;conn.last_error={code:'RATE_LIMITED',msg:'Provider rate limit exceeded.',retryable:true};conn.health='attention'}
+  }catch(e){}
+  return st;
+}
+
+/* ---- Emit: create a signed event, route to connected providers, record sync results ---- */
+function crmEmit(eventType,lead){
+  try{
+    if(!lead||!lead.id)return 0;
+    var st=crmState(),ts=Math.floor(Date.now()/1000);
+    var routed=st.conns.filter(function(c){return c.sync_enabled&&c.status==='connected'&&(c.triggers||[]).indexOf(eventType)>=0});
+    var env=crmEnvelope(eventType,lead,routed[0]);var body=JSON.stringify(env);
+    st.events.unshift({event_id:env.event_id,event_type:eventType,entity_id:lead.id,lead_name:lead.name,status:routed.length?'processed':'no_route',attempt_count:routed.length?1:0,at:Date.now(),ts:ts,sig:crmSign(ts,body),body:body});
+    if(st.events.length>80)st.events.length=80;
+    routed.forEach(function(c){
+      var key=c.id+'|'+lead.id,existing=st.syncs[key];
+      var ext=(existing&&existing.ext&&existing.ext.contact)?existing.ext:{contact:crmExtId(c.provider,'contact')};
+      if((c.actions||[]).indexOf('deal')>=0&&!ext.deal)ext.deal=crmExtId(c.provider,'deal');
+      var isUpdate=!!(existing&&existing.status==='synced');
+      st.syncs[key]={connection_id:c.id,provider:c.provider,lead_id:lead.id,lead_name:lead.name,status:'synced',ext:ext,last_event:env.event_id,last_synced:Date.now(),error:null,created:existing?existing.created:Date.now(),updated:Date.now(),url:crmRecordUrl(c,ext)};
+      if(!isUpdate)c.synced=(c.synced||0)+1;
+      c.last_success=Date.now();c.health='healthy';c.last_error=null;
+      st.attempts.unshift({id:'att_'+crmRand(8),event_id:env.event_id,conn:c.id,provider:c.provider,lead_id:lead.id,lead_name:lead.name,event_type:eventType,n:1,status:'success',code:isUpdate?200:201,actions:crmActionsList(c,!isUpdate),at:Date.now()});
+    });
+    if(st.attempts.length>120)st.attempts.length=120;
+    crmSave(st);return routed.length;
+  }catch(e){return 0}
+}
+function crmStatusEvents(status){var out=['lead.status_changed'];var m={Qualified:'lead.qualified',Booked:'lead.booked',Won:'lead.won'};if(m[status])out.push(m[status]);return out}
+function crmEmitStatus(lead){var evs=crmStatusEvents(lead.status),n=0;evs.forEach(function(e){n+=crmEmit(e,lead)});return n}
+
+/* ---- Connection controls ---- */
+function crmRetry(connId,leadId){
+  var st=crmState(),c=crmFindConn(st,connId);if(!c)return;
+  var key=connId+'|'+leadId,rec=st.syncs[key];if(!rec)return;
+  var ext={contact:crmExtId(c.provider,'contact')};if((c.actions||[]).indexOf('deal')>=0)ext.deal=crmExtId(c.provider,'deal');
+  rec.status='synced';rec.ext=ext;rec.error=null;rec.last_synced=Date.now();rec.updated=Date.now();rec.url=crmRecordUrl(c,ext);
+  c.synced=(c.synced||0)+1;c.last_success=Date.now();c.last_error=null;c.health='healthy';
+  st.attempts.unshift({id:'att_'+crmRand(8),event_id:rec.last_event||('evt_'+crmRand(22)),conn:c.id,provider:c.provider,lead_id:leadId,lead_name:rec.lead_name,event_type:'lead.created',n:2,status:'success',code:201,actions:crmActionsList(c,true),at:Date.now()});
+  crmSave(st);render();toast(t('toast_retried'));
+}
+function crmPause(id){var st=crmState(),c=crmFindConn(st,id);if(!c)return;c.sync_enabled=false;crmSave(st);render();toast(t('toast_paused'))}
+function crmResume(id){var st=crmState(),c=crmFindConn(st,id);if(!c)return;c.sync_enabled=true;c.status='connected';crmSave(st);render();toast(t('toast_resumed'))}
+function crmTestConn(id){var st=crmState(),c=crmFindConn(st,id);if(!c)return;c.tested_at=Date.now();c.health='healthy';c.last_error=null;crmSave(st);render();toast(t('toast_tested'))}
+function crmDisconnect(id){var st=crmState(),c=crmFindConn(st,id);if(!c)return;
+  var ok=true;try{ok=confirm(tf('confirm_disconnect',{p:c.name}))}catch(e){ok=true}if(!ok)return;
+  c.status='disconnected';c.sync_enabled=false;c.disconnected_at=Date.now();crmSave(st);render();toast(tf('toast_disconnected',{p:c.name}))}
+
+/* ---- Integrations page ---- */
+function integrationsPage(){
+  var st=crmState();
+  var conns=st.conns.filter(function(c){return c.status!=='disconnected'});
+  var active=conns.filter(function(c){return c.status==='connected'&&c.sync_enabled}).length;
+  var syncedTotal=0;Object.keys(st.syncs).forEach(function(k){if(st.syncs[k].status==='synced')syncedTotal++});
+  var succ=st.attempts.length?Math.round(st.attempts.filter(function(a){return a.status==='success'}).length/st.attempts.length*100):100;
+  var lastSync=0;st.attempts.forEach(function(a){if(a.status==='success'&&a.at>lastSync)lastSync=a.at});
+  var summary=[[t('sum_connected'),active],[t('sum_synced'),syncedTotal],[t('sum_success'),succ+'%'],[t('sum_last'),lastSync?ago(lastSync):t('cl_never')]];
+  var connectedIds={};conns.forEach(function(c){connectedIds[c.provider]=true});
+  var avail=CRM_PROVIDERS.filter(function(p){return !connectedIds[p.id]});
+  var head2=function(k){return '<h3 style="margin:6px 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">'+esc(t(k))+'</h3>'};
+  return head(t('integ_title'),t('integ_sub'))+
+   '<div class="crmsum">'+summary.map(function(s){return '<div class="card stat"><div class="label">'+esc(s[0])+'</div><div class="value">'+esc(String(s[1]))+'</div></div>'}).join('')+'</div>'+
+   '<div class="card" style="margin-bottom:20px"><div class="archnote"><span class="ai">'+icon('shield')+'</span><div><b>'+esc(t('arch_title'))+'</b><p class="muted" style="margin-top:3px">'+esc(t('arch_body'))+'</p>'+
+     '<div class="flowchips">'+
+       '<span class="flowchip">'+icon('bolt')+esc(t('flow_lead'))+'</span><span class="flowarr">'+icon('arrow')+'</span>'+
+       '<span class="flowchip">'+icon('db')+esc(t('flow_supabase'))+'</span><span class="flowarr">'+icon('arrow')+'</span>'+
+       '<span class="flowchip">'+icon('route')+esc(t('flow_n8n'))+'</span><span class="flowarr">'+icon('arrow')+'</span>'+
+       '<span class="flowchip">'+icon('crm')+esc(t('flow_crm'))+'</span>'+
+     '</div></div></div></div>'+
+   (conns.length?head2('integ_connected')+'<div class="grid" style="gap:14px;margin-bottom:24px">'+conns.map(crmConnCard).join('')+'</div>':'')+
+   head2('integ_available')+'<div class="provgrid">'+avail.map(crmAvailCard).join('')+'</div>'+
+   crmLogsCard(st);
+}
+function crmConnCard(c){
+  var p=crmProvider(c.provider)||{name:c.provider,accent:'#3AA6FF',icon:'crm'};
+  var paused=!c.sync_enabled, attn=c.health==='attention';
+  var stKey=paused?'paused':(attn?'attention':'connected');
+  var stLabel=paused?t('st_paused'):(attn?t('st_attention'):t('st_connected'));
+  return '<div class="card provcard">'+
+    '<div class="provhead">'+crmLogo(p)+'<div><div class="provname">'+esc(p.name)+'</div><div class="provmeta">'+esc(c.account||'')+'</div></div>'+
+      '<div class="spacer"></div><span class="cs cs-'+stKey+'"><i></i>'+esc(stLabel)+'</span></div>'+
+    '<div class="connmeta">'+
+      '<div><div class="l">'+esc(t('cl_synced'))+'</div><div class="v">'+(c.synced||0)+'</div></div>'+
+      '<div><div class="l">'+esc(t('cl_lastok'))+'</div><div class="v">'+(c.last_success?ago(c.last_success):t('cl_never'))+'</div></div>'+
+      '<div><div class="l">'+esc(t('cl_lastfail'))+'</div><div class="v">'+(c.last_failure?ago(c.last_failure):'—')+'</div></div>'+
+      '<div><div class="l">'+esc(t('cl_health'))+'</div><div class="v" style="color:'+(attn?'var(--amber)':'var(--green)')+'">'+esc(attn?t('cl_attn'):t('cl_healthy'))+'</div></div>'+
+    '</div>'+
+    (c.tags&&c.tags.length?'<div class="taglist">'+c.tags.map(function(tg){return '<span class="tagpill">'+esc(tg)+'</span>'}).join('')+'</div>':'')+
+    '<div class="connactions">'+
+      '<button class="btn btn-sm" onclick="crmTestConn(\''+c.id+'\')">'+icon('activity')+' '+esc(t('c_test'))+'</button>'+
+      '<button class="btn btn-sm" onclick="crmConfigure(\''+c.id+'\')">'+icon('sliders')+' '+esc(t('c_configure'))+'</button>'+
+      (paused?'<button class="btn btn-sm" onclick="crmResume(\''+c.id+'\')">'+icon('play')+' '+esc(t('c_resume'))+'</button>':'<button class="btn btn-sm" onclick="crmPause(\''+c.id+'\')">'+icon('pause')+' '+esc(t('c_pause'))+'</button>')+
+      '<button class="btn btn-sm btn-danger" onclick="crmDisconnect(\''+c.id+'\')">'+esc(t('c_disconnect'))+'</button>'+
+    '</div></div>';
+}
+function crmAvailCard(p){
+  var soon=p.kind==='soon';
+  return '<div class="card provcard">'+
+    '<div class="provhead">'+crmLogo(p)+'<div><div class="provname">'+esc(p.name)+'</div><div class="provmeta">'+esc(p.desc||'')+'</div></div>'+
+      '<div class="spacer"></div>'+(soon?'<span class="cs cs-soon">'+esc(t('st_soon'))+'</span>':'<span class="cs cs-none"><i></i>'+esc(t('st_disconnected'))+'</span>')+'</div>'+
+    (soon?'<p class="muted" style="font-size:12.5px;line-height:1.5">'+esc(t('soon_note'))+'</p>':'')+
+    '<div class="connactions">'+
+      (soon?'<button class="btn btn-sm" disabled style="opacity:.5;cursor:default">'+esc(t('st_soon'))+'</button>':
+        '<button class="btn btn-sm btn-primary" onclick="crmOpenWizard(\''+p.id+'\')">'+icon('plug')+' '+esc(p.kind==='custom'?t('c_connect_api'):t('c_connect'))+'</button>')+
+    '</div></div>';
+}
+function crmLogsCard(st){
+  var rows=st.attempts.slice(0,12),body;
+  if(!rows.length){body='<p class="muted" style="padding:6px 0">'+esc(t('integ_no_activity'))+'</p>'}
+  else{
+    body='<div class="tablewrap"><table><thead><tr><th>'+esc(t('cl_triggers'))+'</th><th>Provider</th><th>'+esc(t('th_name'))+'</th><th>'+esc(t('cl_health'))+'</th><th></th></tr></thead><tbody>'+
+      rows.map(function(a){
+        var p=crmProvider(a.provider)||{name:a.provider},ok=a.status==='success';
+        return '<tr><td><span class="src">'+icon('bolt')+esc(a.event_type)+'</span></td><td>'+esc(p.name)+'</td><td>'+esc(a.lead_name||'—')+'</td>'+
+          '<td><span class="syb '+(ok?'sy-synced':'sy-failed')+'">'+icon(ok?'check':'close')+' '+esc(ok?String(a.code):(a.code+' '+(a.error||'')))+'</span></td>'+
+          '<td style="text-align:right;white-space:nowrap">'+(ok?'<button class="btn btn-sm" onclick="crmViewEvent(\''+a.event_id+'\')">'+esc(t('c_view_event'))+'</button>':'<button class="btn btn-sm" onclick="crmRetry(\''+a.conn+'\',\''+a.lead_id+'\')">'+icon('refresh')+' '+esc(t('c_retry'))+'</button>')+'</td></tr>';
+      }).join('')+'</tbody></table></div>';
+  }
+  return '<div class="card" style="margin-top:22px"><h3>'+esc(t('integ_activity'))+'</h3>'+body+'</div>';
+}
+
+/* ---- Connection wizard (spec §11.3, 9 steps) ---- */
+var CRMWIZ=null;
+function crmModalEl(){return document.getElementById('crmmodal')}
+function crmCloseModal(){var m=crmModalEl();if(m)m.innerHTML='';CRMWIZ=null}
+function crmDefaultActions(p){var a={contact:true};if(p.entity==='deal'||p.entity==='opportunity'){a.deal=true;a.note=true}return a}
+function crmOpenWizard(provId){
+  var p=crmProvider(provId);if(!p||p.kind==='soon')return;
+  CRMWIZ={mode:'connect',provider:provId,connId:null,step:0,
+    draft:{account:(p.accounts&&p.accounts[0])||'',triggers:{'lead.created':true},actions:crmDefaultActions(p),mapping:crmDefaultMapping(),
+      pipeline:(p.pipelines&&p.pipelines[0])||'',stage:(p.stages&&p.stages[0])||'',owner:(p.owners&&p.owners[0])||'',sheet:(p.sheets&&p.sheets[0])||'',
+      tags:['alsaiti-voice'],authed:false,tested:false,test:null,secret:'whsec_'+crmRand(24)}};
+  crmRenderWizard();
+}
+function crmConfigure(connId){
+  var st=crmState(),c=crmFindConn(st,connId);if(!c)return;var p=crmProvider(c.provider)||{};
+  var trig={};(c.triggers||[]).forEach(function(x){trig[x]=true});
+  var act={};(c.actions||[]).forEach(function(x){act[x]=true});
+  CRMWIZ={mode:'configure',provider:c.provider,connId:connId,step:3,
+    draft:{account:c.account,triggers:trig,actions:act,mapping:(c.mapping||crmDefaultMapping()).map(function(mp){return {from:mp.from,to:mp.to}}),
+      pipeline:c.pipeline,stage:c.stage,owner:c.owner,sheet:c.sheet||((p.sheets)?p.sheets[0]:''),tags:c.tags||[],authed:true,tested:true,test:null,secret:'whsec_'+crmRand(24)}};
+  crmRenderWizard();
+}
+function crmRenderWizard(){
+  var m=crmModalEl();if(!m||!CRMWIZ)return;var p=crmProvider(CRMWIZ.provider);
+  var steps=[t('wz1'),t('wz2'),t('wz3'),t('wz4'),t('wz5'),t('wz6'),t('wz7'),t('wz8'),t('wz9')];
+  var i=CRMWIZ.step,bars='';for(var s=0;s<steps.length;s++){bars+='<span class="wd '+(s<i?'done':(s===i?'on':''))+'"></span>'}
+  var title=CRMWIZ.mode==='configure'?tf('wiz_configure',{p:p.name}):tf('wiz_connect',{p:p.name});
+  m.innerHTML='<div class="modal" onclick="if(event.target===this)crmCloseModal()"><div class="modalcard">'+
+    '<div class="modalhead">'+crmLogo(p)+'<h3>'+esc(title)+'</h3><button class="modalx" onclick="crmCloseModal()">'+icon('close')+'</button></div>'+
+    '<div class="wizsteps">'+bars+'</div>'+
+    '<div class="modalbody"><div class="wizlabel">'+esc((i+1)+' / 9 · '+steps[i])+'</div>'+crmWizStep(i,p)+crmWizNav(i)+'</div></div></div>';
+}
+function crmWizNav(i){
+  var last=(i===8);
+  var backBtn=(i>0&&!(CRMWIZ.mode==='configure'&&i<=3))?'<button class="btn" onclick="crmWizBack()">'+esc(t('wz_back'))+'</button>':'';
+  var nextLabel=last?(CRMWIZ.mode==='configure'?t('wz_save'):t('wz_activate')):t('wz_next');
+  return '<div class="wiznav">'+backBtn+'<div class="spacer"></div><button class="btn btn-primary" onclick="crmWizNext()">'+esc(nextLabel)+(last?'':' '+icon('arrow'))+'</button></div>';
+}
+function crmChk(kind,val,label,desc,on){
+  return '<button type="button" class="chk'+(on?' on':'')+'" onclick="crmToggleSet(\''+kind+'\',\''+val+'\',this)"><span class="box">'+icon('check')+'</span><span><span class="ct">'+esc(label)+'</span>'+(desc?'<span class="cd">'+esc(desc)+'</span>':'')+'</span></button>';
+}
+function crmWizStep(i,p){
+  var d=CRMWIZ.draft;
+  if(i===0)return '<div class="wiztitle">'+esc(t('wz1'))+'</div><p class="wizsub">'+esc(tf('wz1s',{p:p.name}))+'</p>'+
+    '<div class="card provcard" style="background:rgba(2,11,31,.4)"><div class="provhead">'+crmLogo(p)+'<div><div class="provname">'+esc(p.name)+'</div><div class="provmeta">'+esc(p.desc||'')+'</div></div></div></div>';
+  if(i===1){
+    var hookMode=(p.id==='generic_webhook'||p.id==='custom_api'),b;
+    if(hookMode){b='<div class="field"><label>'+esc(t('wz_hook_url'))+'</label><input value="'+esc(d.account)+'" oninput="crmSetDraft(\'account\',this.value)"/></div>'+
+      '<div class="field"><label>'+esc(t('wz_secret'))+'</label><input readonly value="'+esc(d.secret)+'" style="font-family:ui-monospace,Menlo,monospace"/><p class="muted" style="font-size:12px;margin-top:6px">'+esc(t('wz_secret_note'))+'</p></div>';}
+    else if(d.authed){b='<div class="authsim"><div class="big" style="background:linear-gradient(140deg,'+p.accent+',rgba(0,0,0,.28))">'+icon('check')+'</div><div class="okpill">'+icon('check')+' '+esc(tf('wz2ok',{acct:d.account}))+'</div></div>';}
+    else{b='<div class="authsim"><div class="big" style="background:linear-gradient(140deg,'+p.accent+',rgba(0,0,0,.28))">'+icon(p.icon)+'</div><button class="btn btn-primary btn-lg" onclick="crmSimAuth()">'+icon('shield')+' '+esc(tf('wz2btn',{p:p.name}))+'</button></div>';}
+    return '<div class="wiztitle">'+esc(t('wz2'))+'</div><p class="wizsub">'+esc(hookMode?t('wz2hook'):tf('wz2s',{p:p.name}))+'</p>'+b;
+  }
+  if(i===2){var accts=(p.accounts||[d.account||'Default account']);
+    return '<div class="wiztitle">'+esc(t('wz3'))+'</div><p class="wizsub">'+esc(tf('wz3s',{p:p.name}))+'</p>'+
+      '<div class="field"><label>'+esc(t('cl_account'))+'</label><select onchange="crmSetDraft(\'account\',this.value)">'+accts.map(function(a){return '<option'+(a===d.account?' selected':'')+'>'+esc(a)+'</option>'}).join('')+'</select></div>';}
+  if(i===3)return '<div class="wiztitle">'+esc(t('wz4'))+'</div><p class="wizsub">'+esc(tf('wz4s',{p:p.name}))+'</p><div class="checklist">'+
+    CRM_TRIGGERS.map(function(tg){return crmChk('triggers',tg[0],t(tg[1]),tg[0],!!d.triggers[tg[0]])}).join('')+'</div>';
+  if(i===4)return '<div class="wiztitle">'+esc(t('wz5'))+'</div><p class="wizsub">'+esc(tf('wz5s',{p:p.name}))+'</p><div class="checklist">'+
+    CRM_ACTIONS.map(function(ac){return crmChk('actions',ac[0],t(ac[1]),'',!!d.actions[ac[0]])}).join('')+'</div>';
+  if(i===5)return '<div class="wiztitle">'+esc(t('wz6'))+'</div><p class="wizsub">'+esc(tf('wz6s',{p:p.name}))+'</p><div class="maptable">'+
+    d.mapping.map(function(mp,idx){return '<div class="maprow"><span class="mf">'+esc(t('lead_field_'+mp.from))+'</span><span class="ma">'+icon('arrow')+'</span><span class="mto"><input value="'+esc(mp.to)+'" oninput="crmSetMap('+idx+',this.value)"/></span></div>'}).join('')+'</div>';
+  if(i===6){
+    if(p.id==='google_sheets')return '<div class="wiztitle">'+esc(t('wz_spreadsheet'))+'</div><p class="wizsub">'+esc(t('wz7sheet'))+'</p>'+
+      '<div class="field"><label>'+esc(t('wz_spreadsheet'))+'</label><select onchange="crmSetDraft(\'account\',this.value)">'+(p.accounts||[]).map(function(a){return '<option'+(a===d.account?' selected':'')+'>'+esc(a)+'</option>'}).join('')+'</select></div>'+
+      '<div class="field"><label>'+esc(t('wz_worksheet'))+'</label><select onchange="crmSetDraft(\'sheet\',this.value)">'+(p.sheets||['Leads']).map(function(a){return '<option'+(a===d.sheet?' selected':'')+'>'+esc(a)+'</option>'}).join('')+'</select></div>';
+    if(!p.pipelines)return '<div class="wiztitle">'+esc(t('wz7'))+'</div><p class="wizsub">'+esc(tf('wz9s',{p:p.name}))+'</p><div class="testcard"><div class="row2"><span class="k">'+esc(t('cl_account'))+'</span><span class="mono">'+esc(d.account)+'</span></div></div>';
+    return '<div class="wiztitle">'+esc(t('wz7'))+'</div><p class="wizsub">'+esc(tf('wz7s',{p:p.name}))+'</p>'+
+      '<div class="field"><label>'+esc(t('cl_pipeline'))+'</label><select onchange="crmSetDraft(\'pipeline\',this.value)">'+(p.pipelines||[]).map(function(a){return '<option'+(a===d.pipeline?' selected':'')+'>'+esc(a)+'</option>'}).join('')+'</select></div>'+
+      '<div class="field"><label>'+esc(t('wz_stage'))+'</label><select onchange="crmSetDraft(\'stage\',this.value)">'+(p.stages||[]).map(function(a){return '<option'+(a===d.stage?' selected':'')+'>'+esc(a)+'</option>'}).join('')+'</select></div>'+
+      '<div class="field"><label>'+esc(t('wz_owner'))+'</label><select onchange="crmSetDraft(\'owner\',this.value)">'+(p.owners||[]).map(function(a){return '<option'+(a===d.owner?' selected':'')+'>'+esc(a)+'</option>'}).join('')+'</select></div>';
+  }
+  if(i===7){var tr=d.test,inner;
+    if(!tr)inner='<button class="btn btn-primary btn-lg" onclick="crmTestLead()">'+icon('send')+' '+esc(t('c_test_lead'))+'</button>';
+    else inner='<div class="okpill" style="margin-bottom:10px">'+icon('check')+' '+esc(t('wz_test_ok'))+'</div><div class="testcard">'+
+      '<div class="row2"><span class="k">'+esc(t('test_status'))+'</span><span class="mono">201 Created</span></div>'+
+      '<div class="row2"><span class="k">'+esc(t('test_contact'))+'</span><span class="mono">#'+esc(tr.contact)+'</span></div>'+
+      (tr.deal?'<div class="row2"><span class="k">'+esc(t('test_deal'))+'</span><span class="mono">#'+esc(tr.deal)+'</span></div>':'')+
+      '<div class="row2"><span class="k">'+esc(t('test_time'))+'</span><span class="mono">'+esc(String(tr.time))+'ms</span></div></div>';
+    return '<div class="wiztitle">'+esc(t('wz8'))+'</div><p class="wizsub">'+esc(tf('wz8s',{p:p.name}))+'</p>'+inner;}
+  /* i===8 review */
+  var trigs=Object.keys(d.triggers).filter(function(k){return d.triggers[k]});
+  var acts=Object.keys(d.actions).filter(function(k){return d.actions[k]});
+  return '<div class="wiztitle">'+esc(t('wz9'))+'</div><p class="wizsub">'+esc(tf('wz9s',{p:p.name}))+'</p><div class="testcard">'+
+    '<div class="row2"><span class="k">'+esc(t('cl_account'))+'</span><span>'+esc(d.account)+'</span></div>'+
+    '<div class="row2"><span class="k">'+esc(t('cl_triggers'))+'</span><span>'+trigs.length+'</span></div>'+
+    '<div class="row2"><span class="k">'+esc(t('cl_actions'))+'</span><span>'+acts.length+'</span></div>'+
+    (p.pipelines?'<div class="row2"><span class="k">'+esc(t('cl_pipeline'))+'</span><span>'+esc(d.pipeline+' · '+d.stage)+'</span></div>':'')+'</div>';
+}
+function crmWizBack(){if(!CRMWIZ)return;var min=(CRMWIZ.mode==='configure'?3:0);if(CRMWIZ.step>min){CRMWIZ.step--;crmRenderWizard()}}
+function crmWizNext(){
+  if(!CRMWIZ)return;var p=crmProvider(CRMWIZ.provider);
+  if(CRMWIZ.step===1){var hookMode=(p.id==='generic_webhook'||p.id==='custom_api');if(!hookMode&&!CRMWIZ.draft.authed){crmSimAuth();return}}
+  if(CRMWIZ.step<8){CRMWIZ.step++;crmRenderWizard();return}
+  crmActivate();
+}
+function crmSetDraft(k,v){if(CRMWIZ)CRMWIZ.draft[k]=v}
+function crmSetMap(idx,v){if(CRMWIZ&&CRMWIZ.draft.mapping[idx])CRMWIZ.draft.mapping[idx].to=v}
+function crmToggleSet(kind,val,el){if(!CRMWIZ)return;var d=CRMWIZ.draft[kind];d[val]=!d[val];if(el&&el.classList)el.classList.toggle('on',d[val])}
+function crmSimAuth(){if(!CRMWIZ)return;var p=crmProvider(CRMWIZ.provider);CRMWIZ.draft.authed=true;if(!CRMWIZ.draft.account)CRMWIZ.draft.account=(p.accounts&&p.accounts[0])||'Connected account';crmRenderWizard()}
+function crmTestLead(){if(!CRMWIZ)return;var p=crmProvider(CRMWIZ.provider),ext={contact:crmExtId(p.id,'contact')};if(CRMWIZ.draft.actions.deal)ext.deal=crmExtId(p.id,'deal');CRMWIZ.draft.test={contact:ext.contact,deal:ext.deal||'',time:120+Math.floor(Math.random()*240)};CRMWIZ.draft.tested=true;crmRenderWizard()}
+function crmActivate(){
+  if(!CRMWIZ)return;var st=crmState(),p=crmProvider(CRMWIZ.provider),d=CRMWIZ.draft;
+  var trigs=Object.keys(d.triggers).filter(function(k){return d.triggers[k]});
+  var acts=Object.keys(d.actions).filter(function(k){return d.actions[k]});
+  if(CRMWIZ.mode==='configure'){
+    var c=crmFindConn(st,CRMWIZ.connId);
+    if(c){c.triggers=trigs;c.actions=acts;c.mapping=d.mapping;c.pipeline=d.pipeline;c.stage=d.stage;c.owner=d.owner;c.account=d.account;c.tested_at=Date.now()}
+    crmSave(st);crmCloseModal();render();toast(t('wz_save'));return;
+  }
+  var conn={id:'conn_'+crmRand(10),provider:p.id,name:p.name,status:'connected',account:d.account,
+    portal:(p.id==='hubspot'?String(20000000+Math.floor(Math.random()*9000000)):''),
+    sync_enabled:true,triggers:trigs,actions:acts,pipeline:d.pipeline,stage:d.stage,owner:d.owner,sheet:d.sheet,
+    tags:d.tags||[],mapping:d.mapping,synced:0,last_success:null,last_failure:null,last_error:null,connected_at:Date.now(),tested_at:Date.now(),health:'healthy'};
+  st.conns.push(conn);crmSave(st);crmCloseModal();
+  try{getLeads().slice(0,3).forEach(function(l){crmEmit('lead.created',l)})}catch(e){}
+  render();toast(tf('toast_connected',{p:p.name}));
+}
+function crmViewEvent(evId){
+  var st=crmState(),ev=null;for(var i=0;i<st.events.length;i++){if(st.events[i].event_id===evId){ev=st.events[i];break}}
+  var m=crmModalEl();if(!m)return;
+  var body=(ev&&ev.body)?ev.body:'';
+  if(!body){var lead=getLeads().filter(function(l){return l.id===(ev?ev.entity_id:null)})[0];if(lead)body=JSON.stringify(crmEnvelope((ev?ev.event_type:'lead.created'),lead,null))}
+  var pretty=body;try{pretty=JSON.stringify(JSON.parse(body),null,2)}catch(e){}
+  var ts=ev?ev.ts:Math.floor(Date.now()/1000),sig=ev?ev.sig:'sha256=…';
+  var headers='POST /webhook/crm-router  HTTP/1.1\nContent-Type: application/json\nX-Alsaiti-Event-ID: '+(ev?ev.event_id:'')+'\nX-Alsaiti-Event-Type: '+(ev?ev.event_type:'')+'\nX-Alsaiti-Timestamp: '+ts+'\nX-Alsaiti-Signature: '+sig;
+  m.innerHTML='<div class="modal" onclick="if(event.target===this)crmCloseModal()"><div class="modalcard"><div class="modalhead">'+icon('shield')+'<h3>'+esc(t('ev_title'))+'</h3><button class="modalx" onclick="crmCloseModal()">'+icon('close')+'</button></div>'+
+    '<div class="modalbody"><div class="wizlabel">'+esc(t('ev_headers'))+'</div><div class="codebox" style="margin:8px 0 16px">'+esc(headers)+'</div>'+
+    '<div class="wizlabel">'+esc(t('ev_payload'))+'</div><div class="codebox" style="margin-top:8px">'+esc(pretty)+'</div></div></div></div>';
+}
+
+/* ---- Lead-level CRM sync (badges + card) ---- */
+function crmLeadSyncs(leadId){var st=crmState(),out=[];Object.keys(st.syncs).forEach(function(k){var r=st.syncs[k];if(r.lead_id===leadId){var c=crmFindConn(st,r.connection_id);if(c&&c.status!=='disconnected')out.push(r)}});return out}
+function crmLeadBadge(leadId){
+  var syncs=crmLeadSyncs(leadId);if(!syncs.length)return '';
+  var anyFail=syncs.some(function(r){return r.status==='failed'});
+  var anySync=syncs.some(function(r){return r.status==='synced'});
+  var cls,lbl,ic;
+  if(anyFail){cls='sy-failed';lbl=t('sync_failed');ic='close'}
+  else if(anySync){cls='sy-synced';lbl=t('sync_synced');ic='check'}
+  else{cls='sy-pending';lbl=t('sync_pending');ic='clock'}
+  return '<span class="syb '+cls+'">'+icon(ic)+' '+esc(lbl)+'</span>';
+}
+function crmLeadCard(lead){
+  var syncs=crmLeadSyncs(lead.id),inner;
+  if(!syncs.length)inner='<p class="muted" style="font-size:13px">'+esc(t('crm_none_lead'))+'</p>';
+  else inner=syncs.map(function(r){
+    var p=crmProvider(r.provider)||{name:r.provider,accent:'#3AA6FF',icon:'crm'},ok=r.status==='synced';
+    var idline=ok?((r.ext.contact?('#'+r.ext.contact):'')+(r.ext.deal?(' · deal #'+r.ext.deal):'')):(r.error?r.error.code:'');
+    return '<div class="syncrec">'+crmLogo(p)+'<div class="sm"><div class="t">'+esc(p.name)+' <span class="syb '+(ok?'sy-synced':'sy-failed')+'" style="margin-left:6px">'+icon(ok?'check':'close')+' '+esc(ok?t('sync_synced'):t('sync_failed'))+'</span></div><div class="d">'+esc(idline)+'</div></div>'+
+      (ok?(r.url?'<a class="btn btn-sm" href="'+esc(r.url)+'" target="_blank" rel="noopener noreferrer">'+icon('external')+'</a>':''):'<button class="btn btn-sm" onclick="crmRetry(\''+r.connection_id+'\',\''+lead.id+'\')">'+icon('refresh')+' '+esc(t('c_retry'))+'</button>')+'</div>';
+  }).join('');
+  return '<div class="card"><h3>'+esc(t('crm_sync'))+'</h3>'+inner+'</div>';
+}
+
 /* expose */
 window.go=go;window.openLead=openLead;window.toggleMenu=toggleMenu;window.doLogout=doLogout;
+window.crmOpenWizard=crmOpenWizard;window.crmConfigure=crmConfigure;window.crmCloseModal=crmCloseModal;window.crmWizNext=crmWizNext;window.crmWizBack=crmWizBack;
+window.crmSetDraft=crmSetDraft;window.crmSetMap=crmSetMap;window.crmToggleSet=crmToggleSet;window.crmSimAuth=crmSimAuth;window.crmTestLead=crmTestLead;window.crmViewEvent=crmViewEvent;
+window.crmTestConn=crmTestConn;window.crmPause=crmPause;window.crmResume=crmResume;window.crmDisconnect=crmDisconnect;window.crmRetry=crmRetry;
 window.submitAuth=submitAuth;window.submitLead=submitLead;window.setFilter=setFilter;window.moveStatus=moveStatus;
 window.saveNote=saveNote;window.deleteLead=deleteLead;window.saveProfile=saveProfile;window.resetData=resetData;
 window.liveSearch=liveSearch;window.voiceStart=voiceStart;window.voiceSend=voiceSend;window.voiceListen=voiceListen;window.voiceEnd=voiceEnd;window.voiceMic=voiceMic;
