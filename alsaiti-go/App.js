@@ -87,8 +87,8 @@ function ago(t) {
 }
 function parseUrgency(s) {
   s = (s || '').toLowerCase();
-  if (/urgent|asap|emergency|today|right now|straight away|leak|no hot water|broken/.test(s)) return 'High';
-  if (/no|not|just|browsing|later|whenever|no rush|enquiry|quote/.test(s)) return 'Low';
+  if (/urgent|asap|emergency|today|right now|straight away|leak|no hot water|broken|urgente|hoy|emergencia|عاجل|طارئ|اليوم/.test(s)) return 'High';
+  if (/no|not|just|browsing|later|whenever|no rush|enquiry|quote|no hay prisa|más tarde|luego|لاحقا|استفسار/.test(s)) return 'Low';
   return 'Medium';
 }
 function seedLeads() {
@@ -180,7 +180,7 @@ function Landing({ onDemo, onGetStarted, onSignin }) {
     <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
         <LinearGradient colors={[C.primary, C.glow]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.logo}><Icon name="mic" size={18} color="#fff" sw={2} /></LinearGradient>
-        <Text style={{ color: C.text, fontWeight: '700', fontSize: 17 }}>Alsaiti Voice</Text>
+        <Text style={{ color: C.text, fontWeight: '700', fontSize: 17 }}>Alsaiti Growth</Text>
         <View style={{ flex: 1 }} />
         <Pressable onPress={onSignin} style={s.ghostBtn}><Text style={s.ghostBtnText}>Sign in</Text></Pressable>
       </View>
@@ -189,7 +189,7 @@ function Landing({ onDemo, onGetStarted, onSignin }) {
           <Icon name="bolt" size={13} color={C.cyan} sw={2} /><Text style={{ color: C.cyan, fontSize: 11, fontWeight: '700' }}>AI voice & chat lead capture</Text>
         </View>
         <Text style={s.heroTitle}>Never lose another enquiry.</Text>
-        <Text style={s.heroSub}>Alsaiti Voice answers your calls and website chats, qualifies every enquiry, creates a lead, and alerts your team — so nothing slips through.</Text>
+        <Text style={s.heroSub}>Alsaiti Growth answers your calls and website chats, qualifies every enquiry, creates a lead, and alerts your team — so nothing slips through.</Text>
         <GradientBtn label="View live demo" icon="bolt" onPress={onDemo} style={{ marginTop: 24, alignSelf: 'stretch' }} />
         <Pressable onPress={onGetStarted} style={[s.ghostBtn, { marginTop: 12, alignSelf: 'stretch', alignItems: 'center', paddingVertical: 14 }]}><Text style={s.ghostBtnText}>Start free</Text></Pressable>
       </View>
@@ -367,63 +367,140 @@ function LeadDetail({ lead, onMove, onNote, onDelete, onBack }) {
   );
 }
 
-/* ---------- Voice assistant ---------- */
-const VQ = [
-  { key: 'name', ask: 'Hi, thanks for calling Alsaiti Voice. Who am I speaking with?' },
-  { key: 'service', ask: 'Great to meet you. What can we help you with today?' },
-  { key: 'urgency', ask: 'Understood. Is this urgent, or an enquiry for now?' },
-  { key: 'phone', ask: 'And what is the best phone number to reach you on?' },
-];
+/* ---------- AI receptionist (voice) — trilingual + smart number speech ---------- */
+const VLANGS = [['en', 'EN'], ['es', 'ES'], ['ar', 'عربي']];
+const VTTS = { en: 'en-GB', es: 'es-ES', ar: 'ar-SA' };
+// read long digit runs (phone numbers) one digit at a time so TTS never says "million"
+const speechClean = (text) => String(text).replace(/[+]?\d[\d ]{3,}\d/g, (m) => m.replace(/[^\d]/g, '').split('').join(' '));
+const fillTpl = (str, p) => String(str).replace(/\{(\w+)\}/g, (m, k) => (p[k] != null ? p[k] : m));
+const VT = {
+  en: {
+    title: 'AI receptionist', sub: 'Talk to your AI receptionist — it greets the caller, qualifies them, and creates a lead.',
+    start: 'Start call', end: 'End call', intro: 'Tap “Start call” and talk to your AI receptionist.',
+    yourTurn: 'Your turn — type your reply and Send.', reply: 'Type your reply (or use the keyboard mic)…',
+    created: 'Lead created — see it in the Leads tab.', ended: 'Call ended.', transcript: 'Transcript',
+    transcriptPh: 'The conversation will appear here once you start the call.', toast: 'Voice lead created',
+    sound: '🔊 Turn your iPhone silent switch off and volume up to hear the assistant.',
+    greet: 'Good day, and thank you for calling Alsaiti Growth. This is your AI receptionist. May I take your name, please?',
+    service: 'Lovely to meet you, {name}. How can we help you today?',
+    urgency: 'Thank you. Is this something urgent, or are you planning ahead?',
+    phone: 'Perfect. What is the best phone number to reach you on?',
+    ack: 'I understand this is urgent — I\'ll flag it as a priority for the team.',
+    close: 'Thank you, {name}. I have logged your enquiry about {service}, and our team will call you back on {phone}. Have a wonderful day!',
+    closeUrgent: 'Thank you, {name}. I\'ve logged this as an urgent enquiry about {service}, and our team will call you back very shortly on {phone}. Take care!',
+    defName: 'there', defService: 'a general enquiry',
+  },
+  es: {
+    title: 'Recepcionista con IA', sub: 'Hable con su recepcionista con IA: saluda a la persona que llama, la cualifica y crea un cliente potencial.',
+    start: 'Iniciar llamada', end: 'Finalizar llamada', intro: 'Pulse “Iniciar llamada” y hable con su recepcionista con IA.',
+    yourTurn: 'Es su turno: escriba su respuesta y pulse Enviar.', reply: 'Escriba su respuesta (o use el micro del teclado)…',
+    created: 'Cliente potencial creado: véalo en la pestaña Clientes potenciales.', ended: 'Llamada finalizada.', transcript: 'Transcripción',
+    transcriptPh: 'La conversación aparecerá aquí en cuanto inicie la llamada.', toast: 'Cliente potencial de voz creado',
+    sound: '🔊 Desactive el interruptor de silencio del iPhone y suba el volumen para oír al asistente.',
+    greet: 'Muy buenas y gracias por llamar a Alsaiti Growth. Soy su recepcionista con IA. ¿Me podría decir su nombre, por favor?',
+    service: 'Encantada de saludarle, {name}. ¿En qué podemos ayudarle hoy?',
+    urgency: 'Gracias. ¿Se trata de algo urgente o lo está planificando con antelación?',
+    phone: 'Perfecto. ¿Cuál es el mejor número de teléfono para localizarle?',
+    ack: 'Entiendo que es urgente. Lo marcaré como prioritario para el equipo.',
+    close: 'Gracias, {name}. He registrado su consulta sobre {service} y nuestro equipo le devolverá la llamada al {phone}. ¡Que tenga un día estupendo!',
+    closeUrgent: 'Gracias, {name}. He registrado esto como una consulta urgente sobre {service} y nuestro equipo le devolverá la llamada muy pronto al {phone}. ¡Cuídese!',
+    defName: 'buenas', defService: 'una consulta general',
+  },
+  ar: {
+    title: 'موظف الاستقبال الذكي', sub: 'تحدّث مع موظف الاستقبال الذكي — يرحّب بالمتّصل، ويؤهّله، وينشئ عميلًا محتملًا.',
+    start: 'بدء المكالمة', end: 'إنهاء المكالمة', intro: 'اضغط “بدء المكالمة” وتحدّث مع موظف الاستقبال الذكي.',
+    yourTurn: 'دورك — اكتب ردّك واضغط إرسال.', reply: 'اكتب ردّك (أو استخدم ميكروفون لوحة المفاتيح)…',
+    created: 'تم إنشاء عميل محتمل — شاهده في تبويب العملاء المحتملين.', ended: 'انتهت المكالمة.', transcript: 'نص المحادثة',
+    transcriptPh: 'ستظهر المحادثة هنا بمجرد أن تبدأ المكالمة.', toast: 'تم إنشاء عميل محتمل عبر الصوت',
+    sound: '🔊 أوقف مفتاح الصامت في iPhone وارفع الصوت لسماع المساعد.',
+    greet: 'طابَ يومُك، وشكرًا لاتصالك بـ Alsaiti Growth. معك موظف الاستقبال الذكي. هل لي أن أعرف اسمك الكريم، من فضلك؟',
+    service: 'سعدتُ بمعرفتك، {name}. كيف يمكننا مساعدتك اليوم؟',
+    urgency: 'شكرًا لك. هل الأمر عاجل، أم أنك تخطّط له مسبقًا؟',
+    phone: 'ممتاز. ما أفضل رقم هاتف يمكننا التواصل معك عليه؟',
+    ack: 'أتفهّم أن الأمر عاجل — سأميّزه كأولوية قصوى للفريق.',
+    close: 'شكرًا لك، {name}. لقد سجّلتُ استفسارك بخصوص {service}، وسيعاود فريقنا الاتصال بك على {phone}. أتمنى لك يومًا رائعًا!',
+    closeUrgent: 'شكرًا لك، {name}. لقد سجّلتُ هذا كاستفسار عاجل بخصوص {service}، وسيعاود فريقنا الاتصال بك في أقرب وقت على {phone}. اعتنِ بنفسك!',
+    defName: 'عزيزي', defService: 'استفسار عام',
+  },
+};
+const QORDER = ['greet', 'service', 'urgency', 'phone'];
+const QKEY = ['name', 'service', 'urgency', 'phone'];
 function VoiceScreen({ onCreateLead, showToast }) {
-  const voice = useRef({ active: false, step: 0, data: {} }).current;
+  const [lang, setLang] = useState('en');
+  const T = VT[lang];
+  const rtl = lang === 'ar';
+  const voice = useRef({ active: false, step: 0, data: {}, urgent: false }).current;
   const [transcript, setTranscript] = useState([]);
-  const [status, setStatus] = useState('Tap “Start call” and talk to your AI receptionist.');
+  const [status, setStatus] = useState(VT.en.intro);
   const [input, setInput] = useState('');
   const [active, setActive] = useState(false);
-  const speak = (t) => { try { Speech.stop(); Speech.speak(t, { language: 'en-GB' }); } catch (e) {} };
+  const speak = (txt) => { try { Speech.stop(); Speech.speak(speechClean(txt), { language: VTTS[lang], rate: lang === 'ar' ? 0.95 : 1.0 }); } catch (e) {} };
   const add = (who, text) => setTranscript((p) => [...p, { who, text }]);
-  const ask = () => { const q = VQ[voice.step]; add('bot', q.ask); speak(q.ask); setStatus('Your turn — type your reply and Send.'); };
-  const start = () => { voice.active = true; voice.step = 0; voice.data = {}; setActive(true); setTranscript([]); ask(); };
+  const askText = () => {
+    const which = QORDER[voice.step];
+    const name = cap(voice.data.name || '') || T.defName;
+    let txt = fillTpl(T[which], { name });
+    if (which === 'phone' && voice.urgent) txt = T.ack + ' ' + txt;
+    return txt;
+  };
+  const ask = () => { const txt = askText(); add('bot', txt); speak(txt); setStatus(T.yourTurn); };
+  const start = () => { voice.active = true; voice.step = 0; voice.data = {}; voice.urgent = false; setActive(true); setTranscript([]); ask(); };
   const finish = () => {
     voice.active = false; setActive(false);
-    const d = voice.data, name = cap(d.name || 'Voice caller'), service = cap(d.service || 'General enquiry'), urgency = parseUrgency(d.urgency), phone = (d.phone || '').replace(/[^0-9+ ]/g, '').trim();
+    const d = voice.data;
+    const name = cap(d.name || '') || T.defName;
+    const leadName = cap(d.name || '') || 'Voice caller';
+    const service = (d.service || '').trim() || T.defService;
+    const urgency = parseUrgency(d.urgency);
+    const phone = (d.phone || '').replace(/[^0-9+ ]/g, '').trim();
     const score = urgency === 'High' ? Math.floor(82 + Math.random() * 14) : urgency === 'Medium' ? Math.floor(62 + Math.random() * 16) : Math.floor(45 + Math.random() * 15);
-    onCreateLead({ id: uid(), name, service, urgency, source: 'Voice call', status: 'New', score, at: Date.now(), phone, email: '', summary: 'Captured by the AI voice assistant. Caller: ' + name + '. Needs: ' + service + '. Urgency: ' + urgency + '.', notes: '', assignee: 'Unassigned' });
-    const msg = 'Thank you ' + name + '. I have logged your ' + (urgency === 'High' ? 'urgent ' : '') + 'request about ' + service + ' and the team will be in touch. Goodbye!';
-    add('bot', msg); speak(msg); setStatus('Lead created — see it in the Leads tab.'); showToast('Voice lead created');
+    onCreateLead({ id: uid(), name: leadName, service, urgency, source: 'Voice call', status: 'New', score, at: Date.now(), phone, email: '', summary: 'Captured by the Alsaiti Growth AI receptionist. Caller: ' + leadName + '. Needs: ' + service + '. Urgency: ' + urgency + '.', notes: '', assignee: 'Unassigned' });
+    const msg = fillTpl(urgency === 'High' ? T.closeUrgent : T.close, { name, service, phone: phone || '' });
+    add('bot', msg); speak(msg); setStatus(T.created); showToast(T.toast);
   };
   const send = () => {
     const v = input.trim(); if (!v || !voice.active) return; setInput(''); add('user', v);
-    voice.data[VQ[voice.step].key] = v; voice.step += 1;
-    if (voice.step < VQ.length) ask(); else finish();
+    const key = QKEY[voice.step]; voice.data[key] = v;
+    if (key === 'urgency') voice.urgent = parseUrgency(v) === 'High';
+    voice.step += 1;
+    if (voice.step < QORDER.length) ask(); else finish();
   };
-  const end = () => { voice.active = false; setActive(false); try { Speech.stop(); } catch (e) {} setStatus('Call ended.'); };
+  const end = () => { voice.active = false; setActive(false); try { Speech.stop(); } catch (e) {} setStatus(T.ended); };
+  const switchLang = (l) => { if (voice.active) end(); setLang(l); setTranscript([]); setStatus(VT[l].intro); };
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-        <H title="Voice assistant" sub="Talk to your AI receptionist — it qualifies the caller and creates a lead." />
+        <H title={T.title} sub={T.sub} />
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
+          {VLANGS.map(([code, lbl]) => (
+            <Pressable key={code} onPress={() => switchLang(code)} style={[s.chip, { marginRight: 0 }, lang === code && s.chipActive]}>
+              <Text style={{ color: lang === code ? '#04223f' : C.muted, fontWeight: '700', fontSize: 13 }}>{lbl}</Text>
+            </Pressable>
+          ))}
+        </View>
         <Card style={{ alignItems: 'center' }}>
           <Pressable onPress={active ? end : start}>
             <LinearGradient colors={[C.primary, C.glow]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.vmic}><Icon name="mic" size={38} color="#fff" sw={2} /></LinearGradient>
           </Pressable>
           <Text style={{ color: C.muted, fontSize: 13, textAlign: 'center', marginTop: 14 }}>{status}</Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
-            <Pressable onPress={start} style={s.ghostBtn}><Text style={s.ghostBtnText}>Start call</Text></Pressable>
-            <Pressable onPress={end} style={[s.ghostBtn, { borderColor: 'rgba(255,122,138,0.5)' }]}><Text style={[s.ghostBtnText, { color: '#ff9aa6' }]}>End call</Text></Pressable>
+            <Pressable onPress={start} style={s.ghostBtn}><Text style={s.ghostBtnText}>{T.start}</Text></Pressable>
+            <Pressable onPress={end} style={[s.ghostBtn, { borderColor: 'rgba(255,122,138,0.5)' }]}><Text style={[s.ghostBtnText, { color: '#ff9aa6' }]}>{T.end}</Text></Pressable>
           </View>
+          <Text style={{ color: C.muted, fontSize: 11.5, textAlign: 'center', marginTop: 12 }}>{T.sound}</Text>
         </Card>
         {active ? (
           <View style={s.voiceInput}>
-            <TextInput value={input} onChangeText={setInput} placeholder="Type your reply (or use the keyboard mic)…" placeholderTextColor={C.muted} style={{ flex: 1, color: C.text, fontSize: 14 }} onSubmitEditing={send} returnKeyType="send" blurOnSubmit={false} />
+            <TextInput value={input} onChangeText={setInput} placeholder={T.reply} placeholderTextColor={C.muted} style={{ flex: 1, color: C.text, fontSize: 14, textAlign: rtl ? 'right' : 'left' }} onSubmitEditing={send} returnKeyType="send" blurOnSubmit={false} />
             <Pressable onPress={send} style={s.sendBtn}><Icon name="send" size={18} color="#fff" sw={2} /></Pressable>
           </View>
         ) : null}
-        <Text style={s.section}>Transcript</Text>
+        <Text style={s.section}>{T.transcript}</Text>
         <Card>
-          {transcript.length === 0 ? <Text style={s.body}>The conversation will appear here once you start the call.</Text>
+          {transcript.length === 0 ? <Text style={[s.body, { textAlign: rtl ? 'right' : 'left' }]}>{T.transcriptPh}</Text>
             : transcript.map((m, i) => (
               <View key={i} style={[s.bubble, m.who === 'user' ? s.bubbleUser : s.bubbleBot]}>
-                <Text style={{ color: m.who === 'user' ? '#fff' : C.text, fontSize: 14 }}>{m.text}</Text>
+                <Text style={{ color: m.who === 'user' ? '#fff' : C.text, fontSize: 14, textAlign: rtl ? 'right' : 'left', writingDirection: rtl ? 'rtl' : 'ltr' }}>{m.text}</Text>
               </View>
             ))}
         </Card>
@@ -525,7 +602,7 @@ export default function App() {
       if (u[em]) throw new Error('An account with this email already exists.');
       u[em] = { name: name.trim(), biz: biz.trim(), email: em, pass: hash(pass) };
       usersRef.current = u; await store.set('av_users', u); await store.set('av_session', em);
-      setAuthErr(''); await loadUser(em, u); showToast('Welcome to Alsaiti Voice');
+      setAuthErr(''); await loadUser(em, u); showToast('Welcome to Alsaiti Growth');
     } catch (e) { setAuthErr(e.message); }
   }
   async function doLogin({ email, pass }) {
@@ -571,7 +648,7 @@ export default function App() {
       <View style={{ flex: 1 }}>
         <View style={s.topbar}>
           <LinearGradient colors={[C.primary, C.glow]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.logo}><Icon name="mic" size={18} color="#fff" sw={2} /></LinearGradient>
-          <View><Text style={{ color: C.text, fontWeight: '700', fontSize: 15 }}>Alsaiti Voice</Text><Text style={{ color: C.muted, fontSize: 10.5 }}>{profile?.biz || user?.biz}</Text></View>
+          <View><Text style={{ color: C.text, fontWeight: '700', fontSize: 15 }}>Alsaiti Growth</Text><Text style={{ color: C.muted, fontSize: 10.5 }}>{profile?.biz || user?.biz}</Text></View>
           <View style={{ flex: 1 }} />
           <Avatar name={user?.name || 'A'} size={36} />
         </View>
