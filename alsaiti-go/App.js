@@ -97,7 +97,7 @@ function sha256hex(str) {
   ascii += '\x80';
   while (ascii.length % 64 - 56) ascii += '\x00';
   for (i = 0; i < ascii.length; i++) {
-    j = ascii.charCodeAt(i); if (j >> 8) return '';
+    j = ascii.charCodeAt(i); if (j >> 8) j = 63;
     words[i >> 2] |= j << ((3 - i) % 4) * 8;
   }
   words[words.length] = (asciiBitLength / maxWord) | 0;
@@ -129,6 +129,7 @@ function ago(t) {
 }
 function parseUrgency(s) {
   s = (s || '').toLowerCase();
+  if (/(not|n['’]t|no\s+es|no\s+|nada\s+|ليس\s*|غير\s*|مش\s*)\s*(urgent|urgente|عاجل)/.test(s)) return 'Low';
   if (/urgent|asap|emergency|today|right now|straight away|leak|no hot water|broken|urgente|hoy|emergencia|عاجل|طارئ|اليوم/.test(s)) return 'High';
   if (/no|not|just|browsing|later|whenever|no rush|enquiry|quote|no hay prisa|más tarde|luego|لاحقا|استفسار/.test(s)) return 'Low';
   return 'Medium';
@@ -413,7 +414,8 @@ function LeadDetail({ lead, onMove, onNote, onDelete, onBack }) {
 const VLANGS = [['en', 'EN'], ['es', 'ES'], ['ar', 'عربي']];
 const VTTS = { en: 'en-GB', es: 'es-ES', ar: 'ar-SA' };
 // read long digit runs (phone numbers) one digit at a time so TTS never says "million"
-const speechClean = (text) => String(text).replace(/[+]?\d[\d ]{3,}\d/g, (m) => m.replace(/[^\d]/g, '').split('').join(' '));
+const normDigits = (s) => String(s || '').replace(/[٠-٩]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 1632 + 48)).replace(/[۰-۹]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 1776 + 48));
+const speechClean = (text) => String(text).replace(/[+]?\d[\d ]{3,}\d/g, (m) => { const ds = m.replace(/[^\d]/g, ''); return ds.length >= 7 ? ds.split('').join(' ') : m; });
 const fillTpl = (str, p) => String(str).replace(/\{(\w+)\}/g, (m, k) => (p[k] != null ? p[k] : m));
 const VT = {
   en: {
@@ -482,7 +484,7 @@ function VoiceScreen({ onCreateLead, showToast }) {
   const [lang, setLang] = useState('en');
   const T = VT[lang];
   const rtl = lang === 'ar';
-  const voice = useRef({ active: false, step: 0, data: {}, urgent: false, timer: null }).current;
+  const voice = useRef({ active: false, step: 0, data: {}, urgent: false, timer: null, pendingTxt: null }).current;
   const [transcript, setTranscript] = useState([]);
   const [status, setStatus] = useState(VT.en.intro);
   const [input, setInput] = useState('');
@@ -491,10 +493,15 @@ function VoiceScreen({ onCreateLead, showToast }) {
   const add = (who, text) => setTranscript((p) => [...p, { who, text }]);
   /* the receptionist pauses like a human: typing dots, then the reply */
   const botSay = (txt) => {
-    if (voice.timer) { clearTimeout(voice.timer); voice.timer = null; }
+    /* if a reply is still "typing", flush it into the transcript instead of dropping it */
+    if (voice.timer) {
+      clearTimeout(voice.timer); voice.timer = null;
+      if (voice.pendingTxt) { const pt = voice.pendingTxt; voice.pendingTxt = null; setTranscript((p) => [...p.filter((m) => m.who !== 'typing'), { who: 'bot', text: pt }]); }
+    }
+    voice.pendingTxt = txt;
     setTranscript((p) => [...p.filter((m) => m.who !== 'typing'), { who: 'typing' }]);
     voice.timer = setTimeout(() => {
-      voice.timer = null;
+      voice.timer = null; voice.pendingTxt = null;
       setTranscript((p) => [...p.filter((m) => m.who !== 'typing'), { who: 'bot', text: txt }]);
       speak(txt);
     }, 650 + Math.floor(Math.random() * 400));
@@ -516,7 +523,7 @@ function VoiceScreen({ onCreateLead, showToast }) {
     const leadName = cap(d.name || '') || 'Voice caller';
     const service = (d.service || '').trim() || T.defService;
     const urgency = parseUrgency(d.urgency);
-    let phone = (d.phone || '').replace(/[^0-9+ ]/g, '').trim();
+    let phone = normDigits(d.phone || '').replace(/[^0-9+ ]/g, '').trim();
     if (phone.replace(/[^0-9]/g, '').length < 6) phone = '';
     const score = urgency === 'High' ? Math.floor(82 + Math.random() * 14) : urgency === 'Medium' ? Math.floor(62 + Math.random() * 16) : Math.floor(45 + Math.random() * 15);
     onCreateLead({ id: uid(), name: leadName, service, urgency, source: 'Voice call', status: 'New', score, at: Date.now(), phone, email: '', summary: 'Captured by the Alsaiti Growth AI receptionist. Caller: ' + leadName + '. Needs: ' + service + '. Urgency: ' + urgency + '.', notes: '', assignee: 'Unassigned' });
@@ -532,8 +539,8 @@ function VoiceScreen({ onCreateLead, showToast }) {
     voice.step += 1;
     if (voice.step < QORDER.length) ask(); else finish();
   };
-  const end = () => { voice.active = false; setActive(false); if (voice.timer) { clearTimeout(voice.timer); voice.timer = null; } setTranscript((p) => p.filter((m) => m.who !== 'typing')); try { Speech.stop(); } catch (e) {} setStatus(T.ended); };
-  const switchLang = (l) => { if (voice.active) end(); setLang(l); setTranscript([]); setStatus(VT[l].intro); };
+  const end = () => { voice.active = false; setActive(false); if (voice.timer) { clearTimeout(voice.timer); voice.timer = null; } voice.pendingTxt = null; setTranscript((p) => p.filter((m) => m.who !== 'typing')); try { Speech.stop(); } catch (e) {} setStatus(T.ended); };
+  const switchLang = (l) => { if (voice.active || voice.timer) end(); setLang(l); setTranscript([]); setStatus(VT[l].intro); };
   useEffect(() => () => { if (voice.timer) clearTimeout(voice.timer); try { Speech.stop(); } catch (e) {} }, []);
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
@@ -682,7 +689,8 @@ export default function App() {
       const lk = await store.get('av_lock', {});
       const rec = lk[em];
       if (rec && rec.until && rec.until > Date.now()) throw new Error('Too many failed attempts. Please try again in a few minutes.');
-      const acc = usersRef.current[em];
+      if (!em || /^(__proto__|constructor|prototype)$/.test(em)) throw new Error('Incorrect email or password.');
+      const acc = Object.prototype.hasOwnProperty.call(usersRef.current, em) ? usersRef.current[em] : null;
       let ok = false;
       if (acc) {
         if (acc.salt) { ok = acc.pass === hashPass(pass, acc.salt); }
