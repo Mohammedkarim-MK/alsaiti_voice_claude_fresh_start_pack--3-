@@ -226,7 +226,7 @@ function crmActionsList(conn, created) {
 function crmDefaultMapping() {
   return [['name', 'Contact name'], ['phone', 'Mobile phone'], ['email', 'Email'], ['service', 'Deal title'], ['score', 'Lead score'], ['urgency', 'Priority'], ['source', 'Lead source'], ['summary', 'Note'], ['callback', 'Activity due time']].map((m) => ({ from: m[0], to: m[1] }));
 }
-function crmClone(crm) { return { conns: crm.conns.map((c) => ({ ...c })), events: crm.events.slice(), syncs: { ...crm.syncs }, attempts: crm.attempts.slice() }; }
+function crmClone(crm) { return { mode: crm.mode || 'hybrid', conns: crm.conns.map((c) => ({ ...c })), events: crm.events.slice(), syncs: { ...crm.syncs }, attempts: crm.attempts.slice() }; }
 function crmRecordSync(crm, conn, lead, fail, ts) {
   ts = ts || Date.now(); const key = conn.id + '|' + lead.id, evId = 'evt_' + crmRand(20);
   if (fail) {
@@ -244,7 +244,7 @@ function crmRecordSync(crm, conn, lead, fail, ts) {
 function crmSeed(leads) {
   const now = Date.now(), m = 60000, h = 3600000, day = 86400000;
   const conn = { id: 'conn_hub_demo', provider: 'hubspot', name: 'HubSpot', status: 'connected', account: 'Bright Smile Dental', portal: '24428135', sync_enabled: true, triggers: ['lead.created', 'lead.status_changed', 'lead.qualified', 'lead.booked', 'lead.won'], actions: ['contact', 'deal', 'note'], pipeline: 'Sales Pipeline', stage: 'New Lead', owner: 'Front desk', tags: ['alsaiti-voice', 'voice-call'], mapping: crmDefaultMapping(), synced: 0, last_success: now - 9 * m, last_failure: null, last_error: null, connected_at: now - 6 * day, tested_at: now - 9 * m, health: 'healthy' };
-  const crm = { conns: [conn], events: [], syncs: {}, attempts: [] };
+  const crm = { mode: 'hybrid', conns: [conn], events: [], syncs: {}, attempts: [] };
   (leads || []).slice(0, 4).forEach((l, i) => { crmRecordSync(crm, conn, l, i === 3, now - ((i + 1) * 23) * m); });
   conn.synced = Math.min(3, (leads || []).length);
   if ((leads || []).length > 3) { conn.last_failure = now - 2 * h; conn.last_error = { code: 'RATE_LIMITED', retryable: true }; conn.health = 'attention'; }
@@ -252,6 +252,7 @@ function crmSeed(leads) {
 }
 function crmEmit(crm, eventType, lead) {
   if (!lead || !lead.id) return crm;
+  if (crm.mode === 'internal') return crm;
   const nx = crmClone(crm);
   const routed = nx.conns.filter((c) => c.sync_enabled && c.status === 'connected' && (c.triggers || []).indexOf(eventType) >= 0);
   const evId = 'evt_' + crmRand(22);
@@ -428,7 +429,7 @@ function AuthScreen({ mode, error, onSubmit, onSwitch, onBack }) {
 }
 
 /* ---------- Dashboard ---------- */
-function Dashboard({ leads, onOpen, onNew, crm }) {
+function Dashboard({ leads, onOpen, onNew, crm, onboard, onTest, onSetup }) {
   const dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
   const today = leads.filter((l) => l.at >= dayStart.getTime()).length;
   const urgent = leads.filter((l) => l.urgency === 'High' && ['New', 'Contacted', 'Qualified'].includes(l.status)).length;
@@ -441,6 +442,18 @@ function Dashboard({ leads, onOpen, onNew, crm }) {
   return (
     <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
       <H title="Dashboard" sub="Who's arrived, who's urgent, what needs action." right={<Pressable onPress={onNew} style={s.iconBtn}><Icon name="plus" size={18} color={C.cyan} sw={2} /></Pressable>} />
+      {(!onboard || onboard.status !== 'complete') ? (
+        <Pressable onPress={onSetup} style={s.setupBanner}>
+          <View style={s.setupIcon}><Icon name="bolt" size={20} color={C.cyan} /></View>
+          <View style={{ flex: 1 }}><Text style={{ color: C.text, fontWeight: '800', fontSize: 14 }}>Finish setting up your workspace</Text><Text style={s.leadMeta}>A guided setup configures your assistant, services & CRM.</Text></View>
+          <Icon name="arrow" size={18} color={C.cyan} />
+        </Pressable>
+      ) : null}
+      <View style={s.quickRow}>
+        <Pressable style={s.qa} onPress={onNew}><View style={s.qaIcon}><Icon name="plus" size={18} color={C.cyan} /></View><Text style={s.qaText}>New lead</Text></Pressable>
+        <Pressable style={s.qa} onPress={onTest}><View style={s.qaIcon}><Icon name="send" size={18} color={C.cyan} /></View><Text style={s.qaText}>Test lead</Text></Pressable>
+        <Pressable style={s.qa} onPress={onSetup}><View style={s.qaIcon}><Icon name="cog" size={18} color={C.cyan} /></View><Text style={s.qaText}>Setup</Text></Pressable>
+      </View>
       <View style={s.statGrid}>
         {stats.map((st) => (
           <Card key={st[0]} style={s.stat}><Text style={s.statLabel}>{st[0]}</Text><Text style={s.statValue}>{st[1]}</Text></Card>
@@ -826,7 +839,7 @@ function StatusPill({ kind }) {
     </View>
   );
 }
-function Integrations({ crm, onConnect, onPause, onResume, onDisconnect, onTest, onRetry }) {
+function Integrations({ crm, mode, onSetMode, onConnect, onPause, onResume, onDisconnect, onTest, onRetry }) {
   const [wiz, setWiz] = useState(null);
   const conns = crm.conns.filter((c) => c.status !== 'disconnected');
   const active = conns.filter((c) => c.status === 'connected' && c.sync_enabled).length;
@@ -848,6 +861,12 @@ function Integrations({ crm, onConnect, onPause, onResume, onDisconnect, onTest,
   return (
     <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
       <H title="CRM Integrations" sub="Sync every lead to your CRM — via a secure n8n automation layer." />
+      <View style={s.modeRow}>
+        {[['internal', 'Built-in'], ['external', 'External'], ['hybrid', 'Hybrid']].map((mm) => {
+          const on = (mode || 'hybrid') === mm[0];
+          return (<Pressable key={mm[0]} onPress={() => onSetMode(mm[0])} style={[s.modeBtn, on && s.modeBtnOn]}><Text style={[s.modeText, on && { color: '#04223f' }]}>{mm[1]}</Text></Pressable>);
+        })}
+      </View>
       <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
         {summary.map((x) => (
           <Card key={x[0]} style={{ flex: 1, paddingVertical: 12 }}><Text style={s.statLabel}>{x[0]}</Text><Text style={[s.statValue, { fontSize: 22 }]}>{x[1]}</Text></Card>
@@ -955,6 +974,65 @@ function Integrations({ crm, onConnect, onPause, onResume, onDisconnect, onTest,
   );
 }
 
+/* ---------- Onboarding (guided setup, mirrors the web wizard) ---------- */
+function obF(label, value, onChange, ph) {
+  return (<View style={{ marginBottom: 12 }}><Text style={s.label}>{label}</Text><TextInput value={value || ''} onChangeText={onChange} placeholder={ph} placeholderTextColor={C.muted} style={s.input} /></View>);
+}
+function obFArea(label, value, onChange, ph) {
+  return (<View style={{ marginBottom: 12 }}><Text style={s.label}>{label}</Text><TextInput value={value || ''} onChangeText={onChange} placeholder={ph} placeholderTextColor={C.muted} style={[s.input, { minHeight: 70, textAlignVertical: 'top' }]} multiline /></View>);
+}
+function obSelChips(label, opts, value, onChange) {
+  return (<View style={{ marginBottom: 12 }}><Text style={s.label}>{label}</Text><View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{opts.map((o) => <Chip key={o} label={o} active={value === o} onPress={() => onChange(o)} />)}</View></View>);
+}
+function obTogRow(label, on, onToggle) {
+  return (<Pressable onPress={onToggle} style={[s.checkRow, on && s.checkRowOn]}><View style={[s.checkBox, on && s.checkBoxOn]}>{on ? <Icon name="check" size={12} color="#fff" sw={2.6} /> : null}</View><Text style={{ color: C.text, fontSize: 13, flex: 1 }}>{label}</Text></Pressable>);
+}
+function Onboarding({ onboard, crm, onSetMode, onConnectCrm, onActivate, onExit }) {
+  const STEPS = ['Welcome', 'Your business', 'Services', 'AI receptionist', 'Manage leads', 'Notifications', 'Review & go live'];
+  const [step, setStep] = useState((onboard && onboard.step) || 0);
+  const [a, setA] = useState((onboard && onboard.answers) || { crm_mode: (crm && crm.mode) || 'hybrid', services: [] });
+  const [svc, setSvc] = useState('');
+  const set = (k, v) => setA((p) => ({ ...p, [k]: v }));
+  const tog = (k) => setA((p) => ({ ...p, [k]: !p[k] }));
+  const addSvc = () => { if (!svc.trim()) return; setA((p) => ({ ...p, services: [...(p.services || []), { name: svc.trim(), category: 'General', value: 'Medium' }] })); setSvc(''); };
+  const removeSvc = (i) => setA((p) => ({ ...p, services: (p.services || []).filter((_, idx) => idx !== i) }));
+  const mode = a.crm_mode || 'hybrid';
+  const setMode = (m) => { set('crm_mode', m); if (onSetMode) onSetMode(m); };
+  const total = STEPS.length, optional = [2, 5];
+  const next = () => { if (step >= total - 1) { onActivate(a); return; } setStep(step + 1); };
+  const back = () => setStep(Math.max(0, step - 1));
+  const pct = Math.round(step / (total - 1) * 100);
+  const conns = crm.conns.filter((c) => c.status !== 'disconnected');
+  let content;
+  if (step === 0) content = (<><Text style={s.h1}>Welcome to Alsaiti Voice</Text><Text style={[s.sub, { marginTop: 8, fontSize: 14.5 }]}>We will ask a few questions about your business so we can configure your lead dashboard, AI assistant and CRM.</Text><View style={[s.badge, { alignSelf: 'flex-start', marginTop: 16, borderColor: C.borderHi, backgroundColor: 'rgba(58,166,255,0.14)' }]}><Icon name="clock" size={13} color={C.cyan} /><Text style={{ color: C.cyan, fontWeight: '700', fontSize: 12 }}>About 2 minutes</Text></View></>);
+  else if (step === 1) content = (<><Text style={s.h1}>Your business</Text>{obF('Company name', a.business_name, (v) => set('business_name', v), 'Bright Smile Dental')}{obF('Website', a.website_url, (v) => set('website_url', v), 'https://…')}{obF('Main phone', a.main_phone, (v) => set('main_phone', v), '+44 …')}{obF('Main email', a.main_email, (v) => set('main_email', v), 'you@business.com')}{obSelChips('Industry', ['Dental clinic', 'Aesthetic clinic', 'Home services', 'Real estate', 'Consultant', 'Other'], a.industry, (v) => set('industry', v))}</>);
+  else if (step === 2) content = (<><Text style={s.h1}>Services</Text><Text style={[s.sub, { marginTop: 8 }]}>Add the services customers enquire about.</Text>{(a.services || []).map((sv2, i) => (<View key={i} style={s.obSvc}><View style={{ flex: 1 }}><Text style={{ color: C.text, fontWeight: '700' }}>{sv2.name}</Text><Text style={s.leadMeta}>{sv2.category} · {sv2.value}</Text></View><Pressable onPress={() => removeSvc(i)}><Icon name="trash" size={16} color="#ff9aa6" /></Pressable></View>))}<View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}><TextInput value={svc} onChangeText={setSvc} placeholder="Service name" placeholderTextColor={C.muted} style={[s.input, { flex: 1 }]} /><Pressable onPress={addSvc} style={s.connectBtn}><Text style={{ color: '#04223f', fontWeight: '700' }}>Add</Text></Pressable></View></>);
+  else if (step === 3) content = (<><Text style={s.h1}>AI receptionist</Text>{obF('Assistant name', a.assistant_name, (v) => set('assistant_name', v), 'Alsaiti receptionist')}{obFArea('Greeting', a.assistant_greeting, (v) => set('assistant_greeting', v), 'Good day, thank you for calling…')}{obSelChips('Tone', ['Friendly', 'Professional', 'Formal'], a.tone, (v) => set('tone', v))}{obTogRow('Assistant discloses it is an AI', !!a.ai_disclosure, () => tog('ai_disclosure'))}</>);
+  else if (step === 4) content = (<><Text style={s.h1}>Manage leads</Text><Text style={[s.sub, { marginTop: 8 }]}>Use the built-in CRM, connect your own, or both.</Text>{[['internal', 'Built-in Alsaiti Voice CRM', 'Manage leads, notes, tasks and pipeline here. No external CRM needed.'], ['external', 'Connect an existing CRM', 'Keep using your CRM — we send new leads and updates into it.'], ['hybrid', 'Use both (recommended)', 'Alsaiti Voice is your inbox and also syncs to your external CRM.']].map((o) => (<Pressable key={o[0]} onPress={() => setMode(o[0])} style={[s.obOpt, mode === o[0] && s.obOptOn]}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Icon name={mode === o[0] ? 'check' : 'crm'} size={16} color={mode === o[0] ? C.cyan : C.muted} /><Text style={{ color: C.text, fontWeight: '800', fontSize: 14, flex: 1 }}>{o[1]}</Text></View><Text style={[s.leadMeta, { marginTop: 5 }]}>{o[2]}</Text></Pressable>))}{mode !== 'internal' ? (<View style={{ marginTop: 8 }}>{conns.map((c) => { const p = crmProviderN(c.provider) || { name: c.provider, accent: C.primary, icon: 'crm' }; return (<View key={c.id} style={s.obSvc}><ProviderLogo p={p} size={30} /><Text style={{ color: C.text, fontWeight: '700', flex: 1, marginLeft: 8 }}>{p.name}</Text><Text style={{ color: C.green, fontWeight: '700', fontSize: 12 }}>Connected</Text></View>); })}<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>{CRM_PROVIDERS.filter((p) => p.kind === 'core').slice(0, 3).map((p) => (<Pressable key={p.id} onPress={() => onConnectCrm({ provider: p.id, name: p.name, account: p.id === 'hubspot' ? 'Bright Smile Dental' : p.name + ' workspace', triggers: ['lead.created', 'lead.status_changed'], actions: ['contact', 'deal', 'note'] })} style={s.smallBtn}><Text style={s.smallBtnText}>Connect {p.name}</Text></Pressable>))}</View></View>) : null}</>);
+  else if (step === 5) content = (<><Text style={s.h1}>Notifications</Text><Text style={[s.sub, { marginTop: 8 }]}>How and when we should alert your team.</Text>{obTogRow('Email', a.ch_email !== false, () => tog('ch_email'))}{obTogRow('New lead', !!a.ev_new, () => tog('ev_new'))}{obTogRow('Urgent lead', !!a.ev_urgent, () => tog('ev_urgent'))}{obTogRow('CRM sync failed', !!a.ev_crmfail, () => tog('ev_crmfail'))}{obTogRow('Daily summary', !!a.ev_daily, () => tog('ev_daily'))}</>);
+  else { const rev = [['Business', !!a.business_name], ['Services', (a.services || []).length > 0], ['AI assistant', !!a.assistant_name || !!a.assistant_greeting], ['CRM mode', !!a.crm_mode], ['Notifications', !!a.ch_email || !!a.ev_new]]; content = (<><Text style={s.h1}>Review & go live</Text><Text style={[s.sub, { marginTop: 8 }]}>Check everything, then activate. You can change anything later in Settings.</Text>{rev.map((r) => (<View key={r[0]} style={s.obRev}><Text style={{ color: C.text, fontWeight: '700', flex: 1 }}>{r[0]}</Text><Text style={{ color: r[1] ? C.green : C.muted, fontWeight: '700', fontSize: 12 }}>{r[1] ? 'Complete' : 'Skipped'}</Text></View>))}<Text style={[s.sub, { marginTop: 12 }]}>Tap Activate to create your workspace and go live.</Text></>); }
+  return (
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+          <Text style={s.obStepno}>Step {step + 1} of {total} · {STEPS[step]}</Text>
+          <View style={{ flex: 1 }} />
+          <Pressable onPress={onExit} style={s.smallBtn}><Text style={s.smallBtnText}>Save & exit</Text></Pressable>
+        </View>
+        <View style={s.obProg}><View style={[s.obProgFill, { width: pct + '%' }]} /></View>
+        <Card style={{ marginTop: 16 }}>{content}</Card>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 16 }}>
+          {step > 0 ? <Pressable onPress={back} style={s.smallBtn}><Text style={s.smallBtnText}>Back</Text></Pressable> : null}
+          <View style={{ flex: 1 }} />
+          {optional.indexOf(step) >= 0 ? <Pressable onPress={next} style={s.smallBtn}><Text style={s.smallBtnText}>Skip</Text></Pressable> : null}
+          <GradientBtn label={step >= total - 1 ? 'Activate Alsaiti Voice' : 'Next'} onPress={next} style={{ minWidth: 120 }} />
+        </View>
+        <View style={{ height: 24 }} />
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+}
+
 /* ---------- App ---------- */
 const TABS = [['dashboard', 'Home', 'grid'], ['leads', 'Leads', 'users'], ['voice', 'Voice', 'mic'], ['integrations', 'Sync', 'plug'], ['analytics', 'Stats', 'chart'], ['settings', 'More', 'cog']];
 
@@ -964,7 +1042,8 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
   const [leads, setLeads] = useState([]);
-  const [crm, setCrm] = useState({ conns: [], events: [], syncs: {}, attempts: [] });
+  const [crm, setCrm] = useState({ mode: 'hybrid', conns: [], events: [], syncs: {}, attempts: [] });
+  const [onboard, setOnboardState] = useState(null);
   const [screen, setScreen] = useState('landing');
   const [activeId, setActiveId] = useState(null);
   const [authMode, setAuthMode] = useState('login');
@@ -987,7 +1066,9 @@ export default function App() {
     setLeads(l);
     let cr = await store.get('crm_' + em, null);
     if (cr == null) { cr = crmSeed(l); await store.set('crm_' + em, cr); }
+    if (!cr.mode) cr.mode = 'hybrid';
     setCrm(cr);
+    setOnboardState(await store.get('onboard_' + em, null));
     setProfile(await store.get('profile_' + em, { biz: u[em].biz, email: em }));
     setScreen('dashboard');
   }
@@ -1002,6 +1083,8 @@ export default function App() {
       u[em] = { name: name.trim().slice(0, 60), biz: biz.trim().slice(0, 80), email: em, salt, pass: hashPass(pass, salt) };
       usersRef.current = u; await store.set('av_users', u); await store.set('av_session', em);
       setAuthErr(''); await loadUser(em, u); showToast('Welcome to Alsaiti Growth');
+      const ob0 = { status: 'in_progress', step: 0, answers: { crm_mode: 'hybrid', services: [], business_name: biz.trim(), main_email: em } };
+      await store.set('onboard_' + em, ob0); setOnboardState(ob0); setScreen('onboarding');
     } catch (e) { setAuthErr(e.message); }
   }
   async function doLogin({ email, pass }) {
@@ -1041,9 +1124,16 @@ export default function App() {
       u[em] = { name: 'Demo User', biz: 'Bright Smile Dental', email: em, salt, pass: hashPass('demo1234', salt) };
       usersRef.current = u; await store.set('av_users', u);
     }
-    await store.set('av_session', em); await loadUser(em, usersRef.current); showToast('Welcome to the live demo');
+    await store.set('av_session', em); await loadUser(em, usersRef.current);
+    let ob = await store.get('onboard_' + em, null);
+    if (!ob || ob.status !== 'complete') {
+      ob = { status: 'complete', step: 6, completed: Date.now(), answers: { crm_mode: 'hybrid', business_name: 'Bright Smile Dental', industry: 'Dental clinic', main_email: em, services: [{ name: 'Dental implant consult', category: 'Implants', value: 'High' }, { name: 'Invisalign consultation', category: 'Orthodontics', value: 'High' }], ch_email: true, ev_new: true, ev_urgent: true } };
+      await store.set('onboard_' + em, ob);
+    }
+    setOnboardState(ob);
+    showToast('Welcome to the live demo');
   }
-  async function logout() { await store.del('av_session'); setSession(null); setProfile(null); setLeads([]); setCrm({ conns: [], events: [], syncs: {}, attempts: [] }); setScreen('landing'); showToast('Signed out'); }
+  async function logout() { await store.del('av_session'); setSession(null); setProfile(null); setLeads([]); setCrm({ mode: 'hybrid', conns: [], events: [], syncs: {}, attempts: [] }); setOnboardState(null); setScreen('landing'); showToast('Signed out'); }
   async function saveLeads(next) { setLeads(next); if (session) await store.set('leads_' + session, next); }
   const persistCrm = async (next) => { setCrm(next); if (session) await store.set('crm_' + session, next); };
   const crmEmitLead = async (eventType, lead) => { await persistCrm(crmEmit(crm, eventType, lead)); };
@@ -1079,6 +1169,21 @@ export default function App() {
     }
     await persistCrm(next); showToast('Sync retried — success');
   };
+  const crmSetMode = async (mode) => { const next = crmClone(crm); next.mode = mode; await persistCrm(next); };
+  const persistOnboard = async (ob) => { setOnboardState(ob); if (session) await store.set('onboard_' + session, ob); };
+  const onboardActivate = async (answers) => {
+    await persistOnboard({ status: 'complete', step: 6, completed: Date.now(), answers });
+    const p = { ...(profile || {}), biz: answers.business_name || (profile && profile.biz), industry: answers.industry || (profile && profile.industry) };
+    await saveProfile(p);
+    const next = crmClone(crm); next.mode = answers.crm_mode || 'hybrid'; await persistCrm(next);
+    setScreen('dashboard'); showToast('Your workspace is live 🎉');
+  };
+  const onboardLaunch = () => { if (!onboard) setOnboardState({ status: 'in_progress', step: 0, answers: { crm_mode: crm.mode || 'hybrid', services: [] } }); setScreen('onboarding'); };
+  const dashTestLead = () => {
+    const svc = (onboard && onboard.answers && onboard.answers.services && onboard.answers.services[0] && onboard.answers.services[0].name) || 'Test enquiry';
+    const lead = { id: uid(), name: 'Test Lead (setup)', service: svc, urgency: 'Medium', source: 'Manual import', status: 'New', score: 70, at: Date.now(), phone: '+44 7700 900000', email: 'test@alsaitigrowth.com', summary: 'Clearly-marked TEST lead. Safe to delete.', notes: '', assignee: 'Unassigned', isTest: true };
+    saveLeads([lead, ...leads]); crmEmitLead('lead.created', lead); setScreen('leads'); showToast('Test lead created');
+  };
 
   let body;
   if (!booted) body = <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color={C.cyan} /></View>;
@@ -1088,15 +1193,16 @@ export default function App() {
   } else {
     const user = usersRef.current[session];
     let screenEl;
-    if (screen === 'dashboard') screenEl = <Dashboard leads={leads} crm={crm} onOpen={openLead} onNew={() => setScreen('new')} />;
+    if (screen === 'dashboard') screenEl = <Dashboard leads={leads} crm={crm} onboard={onboard} onOpen={openLead} onNew={() => setScreen('new')} onTest={dashTestLead} onSetup={onboardLaunch} />;
     else if (screen === 'leads') screenEl = <Leads leads={leads} crm={crm} onOpen={openLead} onNew={() => setScreen('new')} />;
     else if (screen === 'voice') screenEl = <VoiceScreen onCreateLead={(l) => { saveLeads([l, ...leads]); crmEmitLead('lead.created', l); }} showToast={showToast} />;
-    else if (screen === 'integrations') screenEl = <Integrations crm={crm} onConnect={crmConnect} onPause={(id) => crmSetEnabled(id, false)} onResume={(id) => crmSetEnabled(id, true)} onDisconnect={crmDisconnectConn} onTest={crmTest} onRetry={crmRetrySync} />;
+    else if (screen === 'integrations') screenEl = <Integrations crm={crm} mode={crm.mode} onSetMode={crmSetMode} onConnect={crmConnect} onPause={(id) => crmSetEnabled(id, false)} onResume={(id) => crmSetEnabled(id, true)} onDisconnect={crmDisconnectConn} onTest={crmTest} onRetry={crmRetrySync} />;
+    else if (screen === 'onboarding') screenEl = <Onboarding onboard={onboard} crm={crm} onSetMode={crmSetMode} onConnectCrm={crmConnect} onActivate={onboardActivate} onExit={() => setScreen('dashboard')} />;
     else if (screen === 'analytics') screenEl = <Analytics leads={leads} />;
     else if (screen === 'settings') screenEl = <Settings profile={profile} user={user} leadCount={leads.length} onSave={saveProfile} onLogout={logout} onReset={resetData} />;
     else if (screen === 'new') screenEl = <NewLead onSave={addLead} onCancel={() => setScreen('leads')} />;
-    else if (screen === 'lead') { const l = leads.find((x) => x.id === activeId); screenEl = l ? <LeadDetail lead={l} crmSyncs={crmLeadSyncs(crm, l.id)} onRetry={crmRetrySync} onMove={moveStatus} onNote={saveNote} onDelete={deleteLead} onBack={() => setScreen('leads')} /> : <Dashboard leads={leads} crm={crm} onOpen={openLead} onNew={() => setScreen('new')} />; }
-    else screenEl = <Dashboard leads={leads} crm={crm} onOpen={openLead} onNew={() => setScreen('new')} />;
+    else if (screen === 'lead') { const l = leads.find((x) => x.id === activeId); screenEl = l ? <LeadDetail lead={l} crmSyncs={crmLeadSyncs(crm, l.id)} onRetry={crmRetrySync} onMove={moveStatus} onNote={saveNote} onDelete={deleteLead} onBack={() => setScreen('leads')} /> : <Dashboard leads={leads} crm={crm} onboard={onboard} onOpen={openLead} onNew={() => setScreen('new')} onTest={dashTestLead} onSetup={onboardLaunch} />; }
+    else screenEl = <Dashboard leads={leads} crm={crm} onboard={onboard} onOpen={openLead} onNew={() => setScreen('new')} onTest={dashTestLead} onSetup={onboardLaunch} />;
     const tabActive = ['lead', 'new'].includes(screen) ? 'leads' : screen;
     body = (
       <View style={{ flex: 1 }}>
@@ -1194,5 +1300,22 @@ const s = StyleSheet.create({
   checkRowOn: { borderColor: C.primary, backgroundColor: 'rgba(58,166,255,0.1)' },
   checkBox: { width: 20, height: 20, borderRadius: 6, borderWidth: 1.5, borderColor: C.borderHi, alignItems: 'center', justifyContent: 'center' },
   checkBoxOn: { backgroundColor: C.primary, borderColor: C.primary },
+  setupBanner: { flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: C.borderHi, borderRadius: 16, padding: 14, marginBottom: 14, backgroundColor: 'rgba(58,166,255,0.12)' },
+  setupIcon: { width: 40, height: 40, borderRadius: 11, backgroundColor: 'rgba(58,166,255,0.18)', alignItems: 'center', justifyContent: 'center' },
+  quickRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
+  qa: { flex: 1, borderWidth: 1, borderColor: C.border, borderRadius: 14, padding: 12, backgroundColor: C.card, gap: 8 },
+  qaIcon: { width: 34, height: 34, borderRadius: 10, backgroundColor: 'rgba(58,166,255,0.14)', alignItems: 'center', justifyContent: 'center' },
+  qaText: { color: C.text, fontSize: 12.5, fontWeight: '700' },
+  modeRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
+  modeBtn: { flex: 1, borderWidth: 1, borderColor: C.border, borderRadius: 11, paddingVertical: 9, alignItems: 'center', backgroundColor: C.card },
+  modeBtnOn: { backgroundColor: C.cyan, borderColor: C.cyan },
+  modeText: { color: C.muted, fontWeight: '700', fontSize: 13 },
+  obStepno: { color: C.cyan, fontSize: 12.5, fontWeight: '700' },
+  obProg: { height: 6, borderRadius: 999, backgroundColor: 'rgba(148,163,199,0.2)', overflow: 'hidden' },
+  obProgFill: { height: '100%', borderRadius: 999, backgroundColor: C.cyan },
+  obSvc: { flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, borderColor: C.border, borderRadius: 12, padding: 11, marginTop: 8, backgroundColor: 'rgba(2,11,31,0.4)' },
+  obOpt: { borderWidth: 1, borderColor: C.border, borderRadius: 14, padding: 14, marginTop: 10, backgroundColor: 'rgba(2,11,31,0.4)' },
+  obOptOn: { borderColor: C.borderHi, backgroundColor: 'rgba(58,166,255,0.1)' },
+  obRev: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: C.border, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginTop: 8, backgroundColor: 'rgba(2,11,31,0.4)' },
   toast: { position: 'absolute', left: 20, right: 20, bottom: 30, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 9, backgroundColor: C.cardHi, borderWidth: 1, borderColor: C.borderHi, borderRadius: 12, paddingVertical: 12, ...shadow(12) },
 });
