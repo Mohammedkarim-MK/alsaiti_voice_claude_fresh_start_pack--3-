@@ -292,27 +292,27 @@
   @media(max-width:760px){.htitle{font-size:32px}.hsub{font-size:15px}.hero{padding:34px 6px 24px}.lnav .links{display:none}.stitle{font-size:24px}.steps{grid-template-columns:1fr}}
 
   /* ===== Liquid glass + animated background (v2) ===== */
-  #bgfx{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
-  #bgfx .blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;mix-blend-mode:screen;will-change:transform}
-  #bgfx .b1{width:52vw;height:52vw;left:-8vw;top:-14vw;background:radial-gradient(circle at 30% 30%,#1E90FF,transparent 70%);animation:drift1 22s ease-in-out infinite}
-  #bgfx .b2{width:46vw;height:46vw;right:-10vw;top:6vh;background:radial-gradient(circle at 60% 40%,#7E6FEF,transparent 70%);animation:drift2 27s ease-in-out infinite}
-  #bgfx .b3{width:44vw;height:44vw;left:18vw;bottom:-16vw;background:radial-gradient(circle at 50% 50%,#59C7FF,transparent 70%);opacity:.4;animation:drift3 31s ease-in-out infinite}
-  #bgfx .grid{position:absolute;inset:0;background-image:linear-gradient(rgba(120,170,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(120,170,255,.05) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(circle at 50% 30%,#000,transparent 78%);mask-image:radial-gradient(circle at 50% 30%,#000,transparent 78%)}
-  @keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(6vw,4vh) scale(1.12)}}
-  @keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-5vw,6vh) scale(1.1)}}
-  @keyframes drift3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(4vw,-5vh) scale(1.15)}}
+  #bgfx{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none;contain:strict}
+  #bgfx .blob{position:absolute;border-radius:50%;filter:blur(56px);opacity:.42;will-change:transform;transform:translateZ(0);backface-visibility:hidden}
+  #bgfx .b1{width:46vw;height:46vw;left:-6vw;top:-12vw;background:radial-gradient(circle at 30% 30%,#1E90FF,transparent 68%);animation:drift1 34s ease-in-out infinite}
+  #bgfx .b2{width:40vw;height:40vw;right:-8vw;top:8vh;background:radial-gradient(circle at 60% 40%,#7E6FEF,transparent 68%);animation:drift2 40s ease-in-out infinite}
+  #bgfx .b3{width:38vw;height:38vw;left:20vw;bottom:-14vw;background:radial-gradient(circle at 50% 50%,#59C7FF,transparent 68%);opacity:.32;animation:drift3 46s ease-in-out infinite}
+  #bgfx .grid{position:absolute;inset:0;background-image:linear-gradient(rgba(120,170,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(120,170,255,.045) 1px,transparent 1px);background-size:48px 48px;-webkit-mask-image:radial-gradient(circle at 50% 30%,#000,transparent 78%);mask-image:radial-gradient(circle at 50% 30%,#000,transparent 78%)}
+  @keyframes drift1{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(5vw,3vh,0)}}
+  @keyframes drift2{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-4vw,5vh,0)}}
+  @keyframes drift3{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(3vw,-4vh,0)}}
   @media(prefers-reduced-motion:reduce){#bgfx .blob{animation:none}}
 
   .glass{position:relative;border:1px solid var(--glassborder);border-radius:20px;
     background:linear-gradient(160deg,rgba(255,255,255,.065),rgba(255,255,255,.02));
-    -webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);
+    -webkit-backdrop-filter:blur(10px) saturate(1.4);backdrop-filter:blur(10px) saturate(1.4);
     box-shadow:0 18px 50px -18px rgba(0,0,0,.55),inset 0 1px 0 var(--glasshi)}
   .landing .card,.dashprev,.step,.plan,.contactcard{position:relative;border:1px solid var(--glassborder);
     background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
-    -webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);
+    -webkit-backdrop-filter:blur(9px) saturate(1.3);backdrop-filter:blur(9px) saturate(1.3);
     box-shadow:0 16px 44px -20px rgba(0,0,0,.5),inset 0 1px 0 var(--glasshi)}
   .landing .card{transition:transform .2s ease,box-shadow .2s ease}
-  .landing .card:hover{transform:translateY(-4px);box-shadow:0 26px 60px -22px rgba(30,144,255,.4),inset 0 1px 0 var(--glasshi)}
+  @media(hover:hover){.landing .card:hover{transform:translateY(-4px);box-shadow:0 26px 60px -22px rgba(30,144,255,.4),inset 0 1px 0 var(--glasshi)}}
   .landing p svg,.hsub svg{width:15px;height:15px;vertical-align:middle}
   .btn-lg svg,.btn svg{width:16px;height:16px}
   .badge svg{width:14px;height:14px;flex-shrink:0}
@@ -383,6 +383,44 @@
   .lfootbase{text-align:center;color:var(--muted);font-size:12px;margin-top:26px;padding-top:20px;border-top:1px solid var(--glassborder);line-height:1.7}
   .lfootbase .discl{font-size:11px;max-width:680px;margin:8px auto 0;opacity:.75}
   @media(max-width:760px){.lfoot2{grid-template-columns:1fr;gap:22px}.form2{grid-template-columns:1fr}}
+
+  /* ===== Responsive + performance (v3) ===== */
+  .htitle{font-size:clamp(28px,5.2vw,46px)}
+  .stitle{font-size:clamp(22px,3.4vw,30px)}
+  .hsub{font-size:clamp(15px,1.7vw,17px)}
+  /* tablet */
+  @media(max-width:1024px){
+    .landing{padding:16px 18px 56px}
+    .lnav{gap:10px;padding:9px 8px 9px 16px}
+    .lnav .links{gap:15px;margin-left:6px}
+    .section{margin-top:46px}
+    .grid.cols-4{grid-template-columns:repeat(2,1fr)}
+  }
+  @media(max-width:860px){.lnav .links a:nth-child(4){display:none}}
+  /* small phones */
+  @media(max-width:560px){
+    .mockstats{grid-template-columns:repeat(2,1fr)}
+    .hero .row{flex-direction:column;align-items:stretch}
+    .hero .row .btn-lg{width:100%}
+    .contactcard{padding:22px 16px}
+    .mockbar .url{font-size:11px}
+    .lnav{padding:8px 8px 8px 12px}
+    .lnav .brand{font-size:14px}
+    .langsw button{padding:6px 8px;font-size:11.5px}
+  }
+  /* phones: drop GPU-heavy blur + background motion for smoothness */
+  @media(max-width:820px){
+    #bgfx .blob{animation:none;filter:blur(46px);opacity:.32}
+    .glass,.landing .card,.dashprev,.step,.plan,.contactcard,.lnav{
+      -webkit-backdrop-filter:none;backdrop-filter:none;
+      background:linear-gradient(160deg,rgba(20,34,66,.94),rgba(10,22,46,.9))}
+    .topbar{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(4,14,34,.96)}
+    .sidebar,.mobnav{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(7,20,44,.98)}
+  }
+  /* coarse pointers (phones/tablets): lighter background even on larger tablets */
+  @media(hover:none) and (pointer:coarse){
+    #bgfx .blob{animation:none}
+  }
 </style>
 </head>
 <body>
