@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   SafeAreaView, ScrollView, View, Text, Pressable, TextInput, StyleSheet, StatusBar,
-  Platform, Dimensions, KeyboardAvoidingView, ActivityIndicator, Alert,
+  Platform, Dimensions, KeyboardAvoidingView, ActivityIndicator, Alert, Modal,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle, Rect, Defs, RadialGradient, Stop } from 'react-native-svg';
@@ -36,6 +36,18 @@ const ICONS = {
   phone: <Path d="M6 3h4l2 5-3 2a11 11 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 4 5a2 2 0 0 1 2-2z" />,
   chat: <Path d="M4 5h16v11H8l-4 4z" />,
   send: <Path d="M22 2 11 13M22 2l-7 20-4-9-9-4z" />,
+  crm: <><Rect x="3" y="4" width="18" height="16" rx="2" /><Path d="M3 9h18M9 4v16" /></>,
+  plug: <Path d="M9 2v6M15 2v6M6 8h12v2a6 6 0 0 1-12 0zM12 20v2" />,
+  activity: <Path d="M3 12h4l3 8 4-16 3 8h4" />,
+  sheet: <><Rect x="3" y="3" width="18" height="18" rx="2" /><Path d="M3 9h18M3 15h18M9 3v18M15 3v18" /></>,
+  cloud: <Path d="M7 18a4 4 0 0 1 0-8 5 5 0 0 1 9.6-1.3A3.7 3.7 0 0 1 18 18z" />,
+  code: <Path d="M8 6l-5 6 5 6M16 6l5 6-5 6" />,
+  refresh: <Path d="M20 11a8 8 0 1 0-.9 5M20 5v6h-6" />,
+  close: <Path d="M6 6l12 12M18 6 6 18" />,
+  pause: <><Rect x="6" y="5" width="4" height="14" rx="1" /><Rect x="14" y="5" width="4" height="14" rx="1" /></>,
+  play: <Path d="M7 4l13 8-13 8z" />,
+  external: <Path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />,
+  shield: <Path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" />,
 };
 function Icon({ name, size = 22, color = C.text, sw = 1.8 }) {
   return (
@@ -134,6 +146,26 @@ function parseUrgency(s) {
   if (/no|not|just|browsing|later|whenever|no rush|enquiry|quote|no hay prisa|más tarde|luego|لاحقا|استفسار/.test(s)) return 'Low';
   return 'Medium';
 }
+/* ---------- Smart receptionist: validate answers, re-ask on gibberish ---------- */
+const VRETRY = {
+  en: { name: "Sorry, I didn't quite catch your name — could you tell me your name, please?", service: 'I want to note this down correctly — how can we help you today?', urgency: 'Just so I prioritise this correctly — is it urgent, or are you planning ahead?', phone: "Hmm, that doesn't look like a phone number. What's the best number to reach you on, including the area code?" },
+  es: { name: 'Perdone, no he captado bien su nombre. ¿Me podría decir su nombre, por favor?', service: 'Quiero anotarlo correctamente. ¿En qué podemos ayudarle hoy?', urgency: 'Solo para priorizarlo bien: ¿es urgente o lo está planificando con antelación?', phone: 'Mmm, eso no parece un número de teléfono. ¿Cuál es el mejor número para localizarle, con el prefijo incluido?' },
+  ar: { name: 'عذرًا، لم ألتقط اسمك جيدًا — هل لي أن أعرف اسمك، من فضلك؟', service: 'أريد تدوين ذلك بدقة — كيف يمكننا مساعدتك اليوم؟', urgency: 'فقط لأرتّب الأولوية بشكل صحيح: هل الأمر عاجل أم أنك تخطّط له مسبقًا؟', phone: 'يبدو أن هذا ليس رقم هاتف. ما أفضل رقم يمكننا التواصل معك عليه، مع رمز المنطقة؟' },
+};
+function vHasLetter(s) { return /[A-Za-zÀ-ɏ؀-ۿ]/.test(String(s || '')); }
+function vDigitsCount(s) { return (normDigits(String(s || '')).match(/\d/g) || []).length; }
+function validName(s) { s = String(s || '').trim(); return s.length >= 1 && s.length <= 60 && vHasLetter(s); }
+function validService(s) { s = String(s || '').trim(); return s.length >= 2 && vHasLetter(s); }
+function validPhone(s) { return vDigitsCount(s) >= 7; }
+function isRefusal(s) { s = ' ' + String(s || '').toLowerCase() + ' '; return /\b(no|nope|nah|skip|later|luego|لا)\b/.test(s) || /rather not|prefer not|don'?t have|no thanks|no gracias|prefiero no|call me|email me|لا شكرا|لاحقا|تخطي/.test(s); }
+function clearUrgency(s) { s = ' ' + String(s || '').toLowerCase() + ' '; return /(urgent|asap|emergency|today|right now|straight away|leak|no hot water|broken|soon|plan|ahead|no rush|whenever|browsing|quote|enquiry|urgente|hoy|emergencia|prisa|luego|más tarde|planific|عاجل|طارئ|اليوم|لاحق|لا يوجد|ليس|تخطيط)/.test(s) || /\b(yes|no|yeah|yep|nope|sí|si|نعم|لا)\b/.test(s); }
+function validateAnswer(key, v) {
+  if (key === 'name') return { ok: validName(v), field: 'name', max: 1 };
+  if (key === 'service') return { ok: validService(v), field: 'service', max: 1 };
+  if (key === 'urgency') return { ok: clearUrgency(v), field: 'urgency', max: 1 };
+  if (key === 'phone') return { ok: validPhone(v) || isRefusal(v), field: 'phone', max: 1 };
+  return { ok: true };
+}
 function seedLeads() {
   const now = Date.now(), m = 60000, h = 3600000, d = 86400000;
   return [
@@ -145,6 +177,110 @@ function seedLeads() {
     { id: uid(), name: 'Grace Oduya', service: 'Property valuation', urgency: 'Medium', source: 'API', status: 'Won', score: 77, at: now - 1 * d, phone: '+44 7700 900555', email: 'grace.o@example.com', summary: 'Requested a valuation for a semi-detached; instructed the agency to list.', notes: 'Listing agreement signed.', assignee: 'Layla A.' },
     { id: uid(), name: 'Oliver Payne', service: 'Invisalign quote', urgency: 'Low', source: 'Manual import', status: 'Lost', score: 41, at: now - 1 * d - 3 * h, phone: '+44 7700 900744', email: 'oliver.p@example.com', summary: 'Requested a quote, went with a competitor closer to home.', notes: 'Marked lost after 3 attempts.', assignee: 'Reception' },
   ];
+}
+
+/* ---------- CRM integrations (n8n sync layer — demo simulation, mirrors the web) ---------- */
+const CRM_PROVIDERS = [
+  { id: 'generic_webhook', name: 'Generic Webhook', accent: '#59C7FF', icon: 'plug', kind: 'core', entity: 'payload', desc: 'Send signed JSON to any endpoint' },
+  { id: 'hubspot', name: 'HubSpot', accent: '#FF7A59', icon: 'crm', kind: 'core', entity: 'deal', desc: 'Contacts, deals, notes & tasks' },
+  { id: 'pipedrive', name: 'Pipedrive', accent: '#1EA64A', icon: 'chart', kind: 'core', entity: 'deal', desc: 'Persons, deals & activities' },
+  { id: 'highlevel', name: 'GoHighLevel', accent: '#2A9DF4', icon: 'activity', kind: 'core', entity: 'opportunity', desc: 'Contacts, opportunities & tags' },
+  { id: 'google_sheets', name: 'Google Sheets', accent: '#0F9D58', icon: 'sheet', kind: 'core', entity: 'row', desc: 'Append a row per lead' },
+  { id: 'salesforce', name: 'Salesforce', accent: '#00A1E0', icon: 'cloud', kind: 'soon', desc: 'Leads, contacts & opportunities' },
+  { id: 'zoho', name: 'Zoho CRM', accent: '#E42527', icon: 'crm', kind: 'soon', desc: 'Leads, deals & activities' },
+  { id: 'dynamics', name: 'Microsoft Dynamics 365', accent: '#0B53CE', icon: 'grid', kind: 'soon', desc: 'Leads, opportunities & tasks' },
+  { id: 'custom_api', name: 'Custom API', accent: '#7E6FEF', icon: 'code', kind: 'custom', entity: 'record', desc: 'Any API or webhook-based system' },
+];
+const CRM_TRIGGERS = [['lead.created', 'When a lead is created'], ['lead.qualified', 'When a lead is qualified'], ['lead.booked', 'When a lead is booked'], ['lead.won', 'When a lead is won'], ['lead.status_changed', 'When status changes'], ['call.completed', 'When a call completes'], ['chat.completed', 'When a chat completes']];
+const CRM_ACTIONS = [['contact', 'Create / update contact'], ['company', 'Create company / organisation'], ['deal', 'Create deal / opportunity'], ['note', 'Add note'], ['task', 'Create task / activity'], ['tags', 'Apply tags'], ['owner', 'Assign owner'], ['workflow', 'Trigger workflow']];
+const crmProviderN = (id) => CRM_PROVIDERS.find((p) => p.id === id) || null;
+const crmRand = (n) => { let out = ''; const c = '0123456789abcdefghijklmnopqrstuvwxyz'; for (let i = 0; i < (n || 10); i++) out += c[Math.floor(Math.random() * c.length)]; return out; };
+function crmExtId(prov) {
+  if (prov === 'hubspot') return String(Math.floor(2e9 + Math.random() * 8e9));
+  if (prov === 'pipedrive') return String(Math.floor(100 + Math.random() * 9000));
+  if (prov === 'google_sheets') return 'row-' + Math.floor(2 + Math.random() * 400);
+  return crmRand(12);
+}
+function crmRecordUrl(conn, ext) {
+  const p = conn.provider, id = (ext && (ext.contact || ext.deal)) || '';
+  if (p === 'hubspot') return 'https://app.hubspot.com/contacts/' + (conn.portal || '24428135') + '/record/0-1/' + id;
+  if (p === 'pipedrive') return 'https://alsaiti.pipedrive.com/person/' + id;
+  if (p === 'highlevel') return 'https://app.gohighlevel.com/contacts/detail/' + id;
+  if (p === 'google_sheets') return 'https://docs.google.com/spreadsheets/d/1AlsaitiDemoLeadsSheet/edit#gid=0';
+  return conn.account || '';
+}
+function crmActionsList(conn, created) {
+  const out = [];
+  (conn.actions || []).forEach((a) => {
+    if (a === 'contact') out.push('contact' + (created ? '.created' : '.updated'));
+    else if (a === 'deal') out.push((conn.provider === 'highlevel' ? 'opportunity' : 'deal') + '.created');
+    else if (a === 'company') out.push('company' + (created ? '.created' : '.updated'));
+    else if (a === 'note') out.push('note.created');
+    else if (a === 'task') out.push('task.created');
+    else if (a === 'tags') out.push('tags.applied');
+    else if (a === 'owner') out.push('owner.assigned');
+    else if (a === 'workflow') out.push('workflow.triggered');
+  });
+  return out;
+}
+function crmDefaultMapping() {
+  return [['name', 'Contact name'], ['phone', 'Mobile phone'], ['email', 'Email'], ['service', 'Deal title'], ['score', 'Lead score'], ['urgency', 'Priority'], ['source', 'Lead source'], ['summary', 'Note'], ['callback', 'Activity due time']].map((m) => ({ from: m[0], to: m[1] }));
+}
+function crmClone(crm) { return { conns: crm.conns.map((c) => ({ ...c })), events: crm.events.slice(), syncs: { ...crm.syncs }, attempts: crm.attempts.slice() }; }
+function crmRecordSync(crm, conn, lead, fail, ts) {
+  ts = ts || Date.now(); const key = conn.id + '|' + lead.id, evId = 'evt_' + crmRand(20);
+  if (fail) {
+    crm.syncs[key] = { connection_id: conn.id, provider: conn.provider, lead_id: lead.id, lead_name: lead.name, status: 'failed', ext: {}, last_synced: null, error: { code: 'RATE_LIMITED', retryable: true }, updated: ts, url: '' };
+    crm.attempts.unshift({ id: 'att_' + crmRand(6), event_id: evId, conn: conn.id, provider: conn.provider, lead_id: lead.id, lead_name: lead.name, event_type: 'lead.created', status: 'failed', code: 429, error: 'RATE_LIMITED', at: ts });
+    crm.events.unshift({ event_id: evId, event_type: 'lead.created', entity_id: lead.id, lead_name: lead.name, status: 'failed', at: ts });
+  } else {
+    const ext = { contact: crmExtId(conn.provider) };
+    if ((conn.actions || []).indexOf('deal') >= 0) ext.deal = crmExtId(conn.provider);
+    crm.syncs[key] = { connection_id: conn.id, provider: conn.provider, lead_id: lead.id, lead_name: lead.name, status: 'synced', ext, last_synced: ts, error: null, updated: ts, url: crmRecordUrl(conn, ext) };
+    crm.attempts.unshift({ id: 'att_' + crmRand(6), event_id: evId, conn: conn.id, provider: conn.provider, lead_id: lead.id, lead_name: lead.name, event_type: 'lead.created', status: 'success', code: 201, actions: crmActionsList(conn, true), at: ts });
+    crm.events.unshift({ event_id: evId, event_type: 'lead.created', entity_id: lead.id, lead_name: lead.name, status: 'processed', at: ts });
+  }
+}
+function crmSeed(leads) {
+  const now = Date.now(), m = 60000, h = 3600000, day = 86400000;
+  const conn = { id: 'conn_hub_demo', provider: 'hubspot', name: 'HubSpot', status: 'connected', account: 'Bright Smile Dental', portal: '24428135', sync_enabled: true, triggers: ['lead.created', 'lead.status_changed', 'lead.qualified', 'lead.booked', 'lead.won'], actions: ['contact', 'deal', 'note'], pipeline: 'Sales Pipeline', stage: 'New Lead', owner: 'Front desk', tags: ['alsaiti-voice', 'voice-call'], mapping: crmDefaultMapping(), synced: 0, last_success: now - 9 * m, last_failure: null, last_error: null, connected_at: now - 6 * day, tested_at: now - 9 * m, health: 'healthy' };
+  const crm = { conns: [conn], events: [], syncs: {}, attempts: [] };
+  (leads || []).slice(0, 4).forEach((l, i) => { crmRecordSync(crm, conn, l, i === 3, now - ((i + 1) * 23) * m); });
+  conn.synced = Math.min(3, (leads || []).length);
+  if ((leads || []).length > 3) { conn.last_failure = now - 2 * h; conn.last_error = { code: 'RATE_LIMITED', retryable: true }; conn.health = 'attention'; }
+  return crm;
+}
+function crmEmit(crm, eventType, lead) {
+  if (!lead || !lead.id) return crm;
+  const nx = crmClone(crm);
+  const routed = nx.conns.filter((c) => c.sync_enabled && c.status === 'connected' && (c.triggers || []).indexOf(eventType) >= 0);
+  const evId = 'evt_' + crmRand(22);
+  nx.events.unshift({ event_id: evId, event_type: eventType, entity_id: lead.id, lead_name: lead.name, status: routed.length ? 'processed' : 'no_route', at: Date.now() });
+  if (nx.events.length > 60) nx.events.length = 60;
+  routed.forEach((c) => {
+    const key = c.id + '|' + lead.id, existing = nx.syncs[key];
+    const ext = (existing && existing.ext && existing.ext.contact) ? { ...existing.ext } : { contact: crmExtId(c.provider) };
+    if ((c.actions || []).indexOf('deal') >= 0 && !ext.deal) ext.deal = crmExtId(c.provider);
+    const isUpdate = !!(existing && existing.status === 'synced');
+    nx.syncs[key] = { connection_id: c.id, provider: c.provider, lead_id: lead.id, lead_name: lead.name, status: 'synced', ext, last_synced: Date.now(), error: null, updated: Date.now(), url: crmRecordUrl(c, ext) };
+    if (!isUpdate) c.synced = (c.synced || 0) + 1;
+    c.last_success = Date.now(); c.health = 'healthy'; c.last_error = null;
+    nx.attempts.unshift({ id: 'att_' + crmRand(6), event_id: evId, conn: c.id, provider: c.provider, lead_id: lead.id, lead_name: lead.name, event_type: eventType, status: 'success', code: isUpdate ? 200 : 201, actions: crmActionsList(c, !isUpdate), at: Date.now() });
+  });
+  if (nx.attempts.length > 80) nx.attempts.length = 80;
+  return nx;
+}
+function crmStatusEvents(status) { const out = ['lead.status_changed']; const m = { Qualified: 'lead.qualified', Booked: 'lead.booked', Won: 'lead.won' }; if (m[status]) out.push(m[status]); return out; }
+function crmLeadSyncs(crm, leadId) {
+  const out = []; if (!crm) return out;
+  Object.keys(crm.syncs).forEach((k) => { const r = crm.syncs[k]; if (r.lead_id === leadId) { const c = crm.conns.find((x) => x.id === r.connection_id); if (c && c.status !== 'disconnected') out.push(r); } });
+  return out;
+}
+function crmLeadStatus(crm, leadId) {
+  const rs = crmLeadSyncs(crm, leadId); if (!rs.length) return null;
+  if (rs.some((r) => r.status === 'failed')) return 'failed';
+  if (rs.some((r) => r.status === 'synced')) return 'synced';
+  return 'pending';
 }
 
 /* ---------- Small UI ---------- */
@@ -189,7 +325,9 @@ const H = ({ title, sub, right }) => (
     {right}
   </View>
 );
-function LeadCard({ lead, onPress }) {
+function LeadCard({ lead, onPress, sync }) {
+  const syncColor = sync === 'synced' ? C.green : sync === 'failed' ? '#ff9aa6' : C.cyan;
+  const syncLabel = sync === 'synced' ? 'Synced' : sync === 'failed' ? 'Failed' : 'Pending';
   return (
     <Pressable onPress={onPress} style={s.leadCard}>
       <Avatar name={lead.name} size={40} />
@@ -204,6 +342,12 @@ function LeadCard({ lead, onPress }) {
           <Text style={s.leadMeta}>{lead.source}</Text>
           <Text style={s.leadMeta}>· {lead.urgency}</Text>
           <Text style={s.leadMeta}>· {ago(lead.at)}</Text>
+          {sync ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: syncColor }} />
+              <Text style={{ color: syncColor, fontSize: 10, fontWeight: '700' }}>{syncLabel}</Text>
+            </View>
+          ) : null}
           <View style={{ flex: 1 }} />
           <Text style={{ color: scoreColor(lead.score), fontWeight: '700', fontSize: 12 }}>{lead.score}</Text>
         </View>
@@ -284,7 +428,7 @@ function AuthScreen({ mode, error, onSubmit, onSwitch, onBack }) {
 }
 
 /* ---------- Dashboard ---------- */
-function Dashboard({ leads, onOpen, onNew }) {
+function Dashboard({ leads, onOpen, onNew, crm }) {
   const dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
   const today = leads.filter((l) => l.at >= dayStart.getTime()).length;
   const urgent = leads.filter((l) => l.urgency === 'High' && ['New', 'Contacted', 'Qualified'].includes(l.status)).length;
@@ -313,14 +457,14 @@ function Dashboard({ leads, onOpen, onNew }) {
         ))}
       </Card>
       <Text style={s.section}>Needs attention</Text>
-      {attention.length ? attention.map((l) => <LeadCard key={l.id} lead={l} onPress={() => onOpen(l.id)} />)
+      {attention.length ? attention.map((l) => <LeadCard key={l.id} lead={l} sync={crmLeadStatus(crm, l.id)} onPress={() => onOpen(l.id)} />)
         : <Card><Text style={s.body}>Nothing urgent right now — you're all caught up.</Text></Card>}
     </ScrollView>
   );
 }
 
 /* ---------- Leads ---------- */
-function Leads({ leads, onOpen, onNew }) {
+function Leads({ leads, onOpen, onNew, crm }) {
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState('All');
   const query = q.toLowerCase().trim();
@@ -337,7 +481,7 @@ function Leads({ leads, onOpen, onNew }) {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
         {['All', ...STATUSES].map((c) => <Chip key={c} label={c} active={filter === c} onPress={() => setFilter(c)} />)}
       </ScrollView>
-      {list.length ? list.map((l) => <LeadCard key={l.id} lead={l} onPress={() => onOpen(l.id)} />)
+      {list.length ? list.map((l) => <LeadCard key={l.id} lead={l} sync={crmLeadStatus(crm, l.id)} onPress={() => onOpen(l.id)} />)
         : <Card><View style={{ alignItems: 'center', padding: 20 }}><Text style={s.cardTitle}>No matching leads</Text><Text style={s.body}>Try a different search or filter.</Text><GradientBtn label="Add a lead" icon="plus" onPress={onNew} style={{ marginTop: 14 }} /></View></Card>}
     </ScrollView>
   );
@@ -375,7 +519,7 @@ function NewLead({ onSave, onCancel }) {
 }
 
 /* ---------- Lead detail ---------- */
-function LeadDetail({ lead, onMove, onNote, onDelete, onBack }) {
+function LeadDetail({ lead, onMove, onNote, onDelete, onBack, crmSyncs, onRetry }) {
   const [note, setNote] = useState(lead.notes || '');
   const info = [['Phone', lead.phone || '—'], ['Email', lead.email || '—'], ['Service', lead.service], ['Urgency', lead.urgency], ['Source', lead.source], ['Assignee', lead.assignee || '—']];
   return (
@@ -396,6 +540,24 @@ function LeadDetail({ lead, onMove, onNote, onDelete, onBack }) {
         <Card style={{ marginTop: 12 }}>
           <Text style={s.cardTitle}>Details</Text>
           {info.map((i) => <View key={i[0]} style={s.kv}><Text style={s.kvK}>{i[0]}</Text><Text style={s.kvV}>{i[1]}</Text></View>)}
+        </Card>
+        <Card style={{ marginTop: 12 }}>
+          <Text style={s.cardTitle}>CRM sync</Text>
+          {(crmSyncs && crmSyncs.length) ? crmSyncs.map((r, idx) => {
+            const p = crmProviderN(r.provider) || { name: r.provider, accent: C.primary, icon: 'crm' };
+            const ok = r.status === 'synced';
+            return (
+              <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderTopWidth: idx ? 1 : 0, borderTopColor: C.border }}>
+                <ProviderLogo p={p} size={34} />
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text style={{ color: C.text, fontWeight: '700', fontSize: 13 }}>{p.name}</Text>
+                  <Text style={s.leadMeta} numberOfLines={1}>{ok ? ('#' + (r.ext.contact || '') + (r.ext.deal ? (' · deal #' + r.ext.deal) : '')) : (r.error ? r.error.code : '')}</Text>
+                </View>
+                {ok ? <Text style={{ color: C.green, fontWeight: '700', fontSize: 12 }}>Synced</Text>
+                  : <Pressable onPress={() => onRetry && onRetry(r.connection_id, lead.id)} style={s.smallBtn}><Text style={s.smallBtnText}>Retry</Text></Pressable>}
+              </View>
+            );
+          }) : <Text style={s.body}>Not synced to any CRM yet.</Text>}
         </Card>
         <Card style={{ marginTop: 12 }}>
           <Text style={s.cardTitle}>Internal notes</Text>
@@ -484,7 +646,7 @@ function VoiceScreen({ onCreateLead, showToast }) {
   const [lang, setLang] = useState('en');
   const T = VT[lang];
   const rtl = lang === 'ar';
-  const voice = useRef({ active: false, step: 0, data: {}, urgent: false, timer: null, pendingTxt: null }).current;
+  const voice = useRef({ active: false, step: 0, data: {}, urgent: false, timer: null, pendingTxt: null, retry: {} }).current;
   const [transcript, setTranscript] = useState([]);
   const [status, setStatus] = useState(VT.en.intro);
   const [input, setInput] = useState('');
@@ -515,7 +677,7 @@ function VoiceScreen({ onCreateLead, showToast }) {
     return txt;
   };
   const ask = () => { botSay(askText()); setStatus(T.yourTurn); };
-  const start = () => { voice.active = true; voice.step = 0; voice.data = {}; voice.urgent = false; setActive(true); setTranscript([]); ask(); };
+  const start = () => { voice.active = true; voice.step = 0; voice.data = {}; voice.urgent = false; voice.retry = {}; setActive(true); setTranscript([]); ask(); };
   const finish = () => {
     voice.active = false; setActive(false);
     const d = voice.data;
@@ -534,8 +696,16 @@ function VoiceScreen({ onCreateLead, showToast }) {
   };
   const send = () => {
     const v = input.trim(); if (!v || !voice.active) return; setInput(''); add('user', v);
-    const key = QKEY[voice.step]; voice.data[key] = v;
-    if (key === 'urgency') voice.urgent = parseUrgency(v) === 'High';
+    const key = QKEY[voice.step];
+    const vd = validateAnswer(key, v);
+    let val = v;
+    if (!vd.ok) {
+      voice.retry[key] = (voice.retry[key] || 0) + 1;
+      if (voice.retry[key] <= vd.max) { setStatus(T.yourTurn); botSay((VRETRY[lang] || VRETRY.en)[vd.field]); return; }
+      if (key === 'name' || key === 'service') val = '';
+    }
+    voice.data[key] = val;
+    if (key === 'urgency') voice.urgent = parseUrgency(val) === 'High';
     voice.step += 1;
     if (voice.step < QORDER.length) ask(); else finish();
   };
@@ -638,8 +808,155 @@ function Settings({ profile, user, leadCount, onSave, onLogout, onReset }) {
   );
 }
 
+/* ---------- Integrations ---------- */
+function ProviderLogo({ p, size = 42 }) {
+  return (
+    <LinearGradient colors={[p.accent, 'rgba(0,0,0,0.32)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: size, height: size, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+      <Icon name={p.icon} size={Math.round(size * 0.5)} color="#fff" sw={2} />
+    </LinearGradient>
+  );
+}
+const CS_META = { connected: { c: C.green, label: 'Connected' }, paused: { c: '#C3D3EA', label: 'Paused' }, attention: { c: C.amber, label: 'Attention' }, none: { c: C.muted, label: 'Not connected' }, soon: { c: '#B6A9FF', label: 'Coming soon' } };
+function StatusPill({ kind }) {
+  const m = CS_META[kind] || CS_META.none;
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: m.c + '55', backgroundColor: m.c + '1f', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3 }}>
+      {kind !== 'soon' ? <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: m.c }} /> : null}
+      <Text style={{ color: m.c, fontSize: 11, fontWeight: '700' }}>{m.label}</Text>
+    </View>
+  );
+}
+function Integrations({ crm, onConnect, onPause, onResume, onDisconnect, onTest, onRetry }) {
+  const [wiz, setWiz] = useState(null);
+  const conns = crm.conns.filter((c) => c.status !== 'disconnected');
+  const active = conns.filter((c) => c.status === 'connected' && c.sync_enabled).length;
+  const syncedTotal = Object.keys(crm.syncs).filter((k) => crm.syncs[k].status === 'synced').length;
+  const succ = crm.attempts.length ? Math.round(crm.attempts.filter((a) => a.status === 'success').length / crm.attempts.length * 100) : 100;
+  const connectedIds = {}; conns.forEach((c) => { connectedIds[c.provider] = true; });
+  const avail = CRM_PROVIDERS.filter((p) => !connectedIds[p.id]);
+  const summary = [['Active', active], ['Synced', syncedTotal], ['Success', succ + '%']];
+  const openWiz = (p) => setWiz({ provider: p.id, triggers: { 'lead.created': true, 'lead.status_changed': true }, actions: { contact: true, ...((p.entity === 'deal' || p.entity === 'opportunity') ? { deal: true, note: true } : {}) } });
+  const toggle = (grp, k) => setWiz((w) => ({ ...w, [grp]: { ...w[grp], [k]: !w[grp][k] } }));
+  const wizP = wiz ? crmProviderN(wiz.provider) : null;
+  const activate = () => {
+    const triggers = Object.keys(wiz.triggers).filter((k) => wiz.triggers[k]);
+    const actions = Object.keys(wiz.actions).filter((k) => wiz.actions[k]);
+    const account = (wizP.kind === 'custom' || wizP.id === 'generic_webhook') ? 'https://api.yourapp.com/hooks/alsaiti' : (wizP.id === 'hubspot' ? 'Bright Smile Dental' : wizP.name + ' workspace');
+    onConnect({ provider: wizP.id, name: wizP.name, account, triggers, actions });
+    setWiz(null);
+  };
+  return (
+    <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+      <H title="CRM Integrations" sub="Sync every lead to your CRM — via a secure n8n automation layer." />
+      <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
+        {summary.map((x) => (
+          <Card key={x[0]} style={{ flex: 1, paddingVertical: 12 }}><Text style={s.statLabel}>{x[0]}</Text><Text style={[s.statValue, { fontSize: 22 }]}>{x[1]}</Text></Card>
+        ))}
+      </View>
+      <Card style={{ marginBottom: 6, flexDirection: 'row', gap: 12 }}>
+        <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: 'rgba(58,166,255,0.14)', alignItems: 'center', justifyContent: 'center' }}><Icon name="shield" size={18} color={C.cyan} /></View>
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: C.text, fontWeight: '700', fontSize: 13.5 }}>Your data stays safe</Text>
+          <Text style={[s.body, { marginTop: 3 }]}>Supabase is the source of truth. n8n routes signed events to your CRM. If a CRM is offline, leads stay safe and sync retries automatically.</Text>
+        </View>
+      </Card>
+      {conns.length ? <Text style={s.section}>Connected</Text> : null}
+      {conns.map((c) => {
+        const paused = !c.sync_enabled, attn = c.health === 'attention';
+        const kind = paused ? 'paused' : (attn ? 'attention' : 'connected');
+        const p = crmProviderN(c.provider) || { name: c.provider, accent: C.primary, icon: 'crm' };
+        return (
+          <Card key={c.id} style={{ marginBottom: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <ProviderLogo p={p} />
+              <View style={{ flex: 1, minWidth: 0 }}><Text style={{ color: C.text, fontWeight: '700', fontSize: 15 }}>{p.name}</Text><Text style={s.leadMeta} numberOfLines={1}>{c.account}</Text></View>
+              <StatusPill kind={kind} />
+            </View>
+            <View style={{ flexDirection: 'row', marginTop: 12, gap: 8 }}>
+              <View style={{ flex: 1 }}><Text style={s.kvK}>Synced</Text><Text style={{ color: C.text, fontWeight: '700', marginTop: 2 }}>{c.synced || 0}</Text></View>
+              <View style={{ flex: 1 }}><Text style={s.kvK}>Last ok</Text><Text style={{ color: C.text, fontWeight: '700', marginTop: 2 }}>{c.last_success ? ago(c.last_success) : 'Never'}</Text></View>
+              <View style={{ flex: 1 }}><Text style={s.kvK}>Health</Text><Text style={{ color: attn ? C.amber : C.green, fontWeight: '700', marginTop: 2 }}>{attn ? 'Attention' : 'Healthy'}</Text></View>
+            </View>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
+              <Pressable onPress={() => onTest(c.id)} style={s.smallBtn}><Text style={s.smallBtnText}>Test</Text></Pressable>
+              {paused
+                ? <Pressable onPress={() => onResume(c.id)} style={s.smallBtn}><Text style={s.smallBtnText}>Resume</Text></Pressable>
+                : <Pressable onPress={() => onPause(c.id)} style={s.smallBtn}><Text style={s.smallBtnText}>Pause</Text></Pressable>}
+              <Pressable onPress={() => onDisconnect(c.id, p.name)} style={[s.smallBtn, { borderColor: 'rgba(255,122,138,0.5)' }]}><Text style={[s.smallBtnText, { color: '#ff9aa6' }]}>Disconnect</Text></Pressable>
+            </View>
+          </Card>
+        );
+      })}
+      <Text style={s.section}>Available integrations</Text>
+      {avail.map((p) => {
+        const soon = p.kind === 'soon';
+        return (
+          <Card key={p.id} style={{ marginBottom: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <ProviderLogo p={p} />
+              <View style={{ flex: 1, minWidth: 0 }}><Text style={{ color: C.text, fontWeight: '700', fontSize: 15 }}>{p.name}</Text><Text style={s.leadMeta} numberOfLines={1}>{p.desc}</Text></View>
+              <StatusPill kind={soon ? 'soon' : 'none'} />
+            </View>
+            <Pressable disabled={soon} onPress={() => openWiz(p)} style={[soon ? s.smallBtn : s.connectBtn, { marginTop: 12, opacity: soon ? 0.5 : 1, alignSelf: 'flex-start' }]}>
+              <Text style={soon ? s.smallBtnText : { color: '#04223f', fontWeight: '700', fontSize: 13 }}>{soon ? 'Coming soon' : (p.kind === 'custom' ? 'Connect API' : 'Connect')}</Text>
+            </Pressable>
+          </Card>
+        );
+      })}
+      <Text style={s.section}>Recent sync activity</Text>
+      <Card>
+        {crm.attempts.length === 0 ? <Text style={s.body}>No sync activity yet.</Text>
+          : crm.attempts.slice(0, 8).map((a) => {
+            const ok = a.status === 'success'; const p = crmProviderN(a.provider) || { name: a.provider };
+            return (
+              <View key={a.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, borderTopWidth: 1, borderTopColor: C.border }}>
+                <Icon name={ok ? 'check' : 'close'} size={15} color={ok ? C.green : '#ff9aa6'} sw={2.2} />
+                <View style={{ flex: 1, minWidth: 0 }}><Text style={{ color: C.text, fontSize: 13, fontWeight: '600' }} numberOfLines={1}>{a.event_type}</Text><Text style={s.leadMeta} numberOfLines={1}>{p.name} · {a.lead_name || '—'}</Text></View>
+                {ok ? <Text style={{ color: C.green, fontWeight: '700', fontSize: 12 }}>{a.code}</Text>
+                  : <Pressable onPress={() => onRetry(a.conn, a.lead_id)} style={s.smallBtn}><Text style={s.smallBtnText}>Retry</Text></Pressable>}
+              </View>
+            );
+          })}
+      </Card>
+      <View style={{ height: 16 }} />
+      <Modal visible={!!wiz} transparent animationType="fade" onRequestClose={() => setWiz(null)}>
+        <View style={s.modalWrap}>
+          <View style={s.modalCard}>
+            {wizP ? (
+              <>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                  <ProviderLogo p={wizP} size={38} />
+                  <Text style={{ color: C.text, fontWeight: '800', fontSize: 16, flex: 1 }}>Connect {wizP.name}</Text>
+                  <Pressable onPress={() => setWiz(null)}><Icon name="close" size={18} color={C.muted} /></Pressable>
+                </View>
+                <ScrollView style={{ maxHeight: 360 }} showsVerticalScrollIndicator={false}>
+                  <Text style={s.section2}>Sync triggers</Text>
+                  {CRM_TRIGGERS.map(([id, label]) => (
+                    <Pressable key={id} onPress={() => toggle('triggers', id)} style={[s.checkRow, wiz.triggers[id] && s.checkRowOn]}>
+                      <View style={[s.checkBox, wiz.triggers[id] && s.checkBoxOn]}>{wiz.triggers[id] ? <Icon name="check" size={12} color="#fff" sw={2.6} /> : null}</View>
+                      <Text style={{ color: C.text, fontSize: 13, flex: 1 }}>{label}</Text>
+                    </Pressable>
+                  ))}
+                  <Text style={s.section2}>CRM actions</Text>
+                  {CRM_ACTIONS.map(([id, label]) => (
+                    <Pressable key={id} onPress={() => toggle('actions', id)} style={[s.checkRow, wiz.actions[id] && s.checkRowOn]}>
+                      <View style={[s.checkBox, wiz.actions[id] && s.checkBoxOn]}>{wiz.actions[id] ? <Icon name="check" size={12} color="#fff" sw={2.6} /> : null}</View>
+                      <Text style={{ color: C.text, fontSize: 13, flex: 1 }}>{label}</Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+                <GradientBtn label={'Activate ' + wizP.name} onPress={activate} style={{ marginTop: 14 }} />
+              </>
+            ) : null}
+          </View>
+        </View>
+      </Modal>
+    </ScrollView>
+  );
+}
+
 /* ---------- App ---------- */
-const TABS = [['dashboard', 'Home', 'grid'], ['leads', 'Leads', 'users'], ['voice', 'Voice', 'mic'], ['analytics', 'Stats', 'chart'], ['settings', 'More', 'cog']];
+const TABS = [['dashboard', 'Home', 'grid'], ['leads', 'Leads', 'users'], ['voice', 'Voice', 'mic'], ['integrations', 'Sync', 'plug'], ['analytics', 'Stats', 'chart'], ['settings', 'More', 'cog']];
 
 export default function App() {
   const [booted, setBooted] = useState(false);
@@ -647,6 +964,7 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
   const [leads, setLeads] = useState([]);
+  const [crm, setCrm] = useState({ conns: [], events: [], syncs: {}, attempts: [] });
   const [screen, setScreen] = useState('landing');
   const [activeId, setActiveId] = useState(null);
   const [authMode, setAuthMode] = useState('login');
@@ -667,6 +985,9 @@ export default function App() {
     let l = await store.get('leads_' + em, null);
     if (l == null) { l = seedLeads(); await store.set('leads_' + em, l); }
     setLeads(l);
+    let cr = await store.get('crm_' + em, null);
+    if (cr == null) { cr = crmSeed(l); await store.set('crm_' + em, cr); }
+    setCrm(cr);
     setProfile(await store.get('profile_' + em, { biz: u[em].biz, email: em }));
     setScreen('dashboard');
   }
@@ -722,15 +1043,42 @@ export default function App() {
     }
     await store.set('av_session', em); await loadUser(em, usersRef.current); showToast('Welcome to the live demo');
   }
-  async function logout() { await store.del('av_session'); setSession(null); setProfile(null); setLeads([]); setScreen('landing'); showToast('Signed out'); }
+  async function logout() { await store.del('av_session'); setSession(null); setProfile(null); setLeads([]); setCrm({ conns: [], events: [], syncs: {}, attempts: [] }); setScreen('landing'); showToast('Signed out'); }
   async function saveLeads(next) { setLeads(next); if (session) await store.set('leads_' + session, next); }
+  const persistCrm = async (next) => { setCrm(next); if (session) await store.set('crm_' + session, next); };
+  const crmEmitLead = async (eventType, lead) => { await persistCrm(crmEmit(crm, eventType, lead)); };
   const openLead = (id) => { setActiveId(id); setScreen('lead'); };
-  const addLead = (l) => { saveLeads([l, ...leads]); setScreen('leads'); showToast('Lead added'); };
-  const moveStatus = (id, st) => { saveLeads(leads.map((l) => (l.id === id ? { ...l, status: st } : l))); showToast('Moved to ' + st); };
+  const addLead = (l) => { saveLeads([l, ...leads]); crmEmitLead('lead.created', l); setScreen('leads'); showToast('Lead added'); };
+  const moveStatus = (id, st) => {
+    const nextLeads = leads.map((l) => (l.id === id ? { ...l, status: st } : l));
+    saveLeads(nextLeads);
+    const moved = nextLeads.find((l) => l.id === id);
+    if (moved) { let next = crm; crmStatusEvents(st).forEach((ev) => { next = crmEmit(next, ev, moved); }); persistCrm(next); }
+    showToast('Moved to ' + st);
+  };
   const saveNote = (id, note) => { saveLeads(leads.map((l) => (l.id === id ? { ...l, notes: note } : l))); showToast('Note saved'); };
   const deleteLead = (id) => { saveLeads(leads.filter((l) => l.id !== id)); setScreen('leads'); showToast('Lead deleted'); };
-  async function resetData() { const l = seedLeads(); await saveLeads(l); showToast('Sample data restored'); }
+  async function resetData() { const l = seedLeads(); await saveLeads(l); await persistCrm(crmSeed(l)); showToast('Sample data restored'); }
   async function saveProfile(p) { setProfile(p); if (session) await store.set('profile_' + session, p); showToast('Settings saved'); }
+  const crmConnect = async ({ provider, name, account, triggers, actions }) => {
+    const conn = { id: 'conn_' + crmRand(8), provider, name, status: 'connected', account, portal: provider === 'hubspot' ? String(20000000 + Math.floor(Math.random() * 9000000)) : '', sync_enabled: true, triggers, actions, pipeline: 'Sales Pipeline', stage: 'New Lead', owner: 'Front desk', tags: ['alsaiti-voice'], mapping: crmDefaultMapping(), synced: 0, last_success: null, last_failure: null, last_error: null, connected_at: Date.now(), tested_at: Date.now(), health: 'healthy' };
+    let next = crmClone(crm); next.conns.push(conn);
+    leads.slice(0, 3).forEach((l) => { next = crmEmit(next, 'lead.created', l); });
+    await persistCrm(next); showToast(name + ' connected');
+  };
+  const crmSetEnabled = async (id, on) => { const next = crmClone(crm); const c = next.conns.find((x) => x.id === id); if (c) { c.sync_enabled = on; if (on) c.status = 'connected'; } await persistCrm(next); showToast(on ? 'Sync resumed' : 'Sync paused'); };
+  const crmTest = async (id) => { const next = crmClone(crm); const c = next.conns.find((x) => x.id === id); if (c) { c.tested_at = Date.now(); c.health = 'healthy'; c.last_error = null; } await persistCrm(next); showToast('Connection healthy'); };
+  const crmDisconnectConn = (id, name) => { Alert.alert('Disconnect ' + name, 'Leads stay safe; syncing will stop.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Disconnect', style: 'destructive', onPress: async () => { const next = crmClone(crm); const c = next.conns.find((x) => x.id === id); if (c) { c.status = 'disconnected'; c.sync_enabled = false; } await persistCrm(next); showToast(name + ' disconnected'); } }]); };
+  const crmRetrySync = async (connId, leadId) => {
+    const next = crmClone(crm); const c = next.conns.find((x) => x.id === connId); const key = connId + '|' + leadId; const rec = next.syncs[key];
+    if (c && rec) {
+      const ext = { contact: crmExtId(c.provider) }; if ((c.actions || []).indexOf('deal') >= 0) ext.deal = crmExtId(c.provider);
+      next.syncs[key] = { ...rec, status: 'synced', ext, error: null, last_synced: Date.now(), url: crmRecordUrl(c, ext) };
+      c.synced = (c.synced || 0) + 1; c.last_success = Date.now(); c.health = 'healthy'; c.last_error = null;
+      next.attempts.unshift({ id: 'att_' + crmRand(6), event_id: 'evt_' + crmRand(20), conn: c.id, provider: c.provider, lead_id: leadId, lead_name: rec.lead_name, event_type: 'lead.created', status: 'success', code: 201, actions: crmActionsList(c, true), at: Date.now() });
+    }
+    await persistCrm(next); showToast('Sync retried — success');
+  };
 
   let body;
   if (!booted) body = <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color={C.cyan} /></View>;
@@ -740,14 +1088,15 @@ export default function App() {
   } else {
     const user = usersRef.current[session];
     let screenEl;
-    if (screen === 'dashboard') screenEl = <Dashboard leads={leads} onOpen={openLead} onNew={() => setScreen('new')} />;
-    else if (screen === 'leads') screenEl = <Leads leads={leads} onOpen={openLead} onNew={() => setScreen('new')} />;
-    else if (screen === 'voice') screenEl = <VoiceScreen onCreateLead={(l) => saveLeads([l, ...leads])} showToast={showToast} />;
+    if (screen === 'dashboard') screenEl = <Dashboard leads={leads} crm={crm} onOpen={openLead} onNew={() => setScreen('new')} />;
+    else if (screen === 'leads') screenEl = <Leads leads={leads} crm={crm} onOpen={openLead} onNew={() => setScreen('new')} />;
+    else if (screen === 'voice') screenEl = <VoiceScreen onCreateLead={(l) => { saveLeads([l, ...leads]); crmEmitLead('lead.created', l); }} showToast={showToast} />;
+    else if (screen === 'integrations') screenEl = <Integrations crm={crm} onConnect={crmConnect} onPause={(id) => crmSetEnabled(id, false)} onResume={(id) => crmSetEnabled(id, true)} onDisconnect={crmDisconnectConn} onTest={crmTest} onRetry={crmRetrySync} />;
     else if (screen === 'analytics') screenEl = <Analytics leads={leads} />;
     else if (screen === 'settings') screenEl = <Settings profile={profile} user={user} leadCount={leads.length} onSave={saveProfile} onLogout={logout} onReset={resetData} />;
     else if (screen === 'new') screenEl = <NewLead onSave={addLead} onCancel={() => setScreen('leads')} />;
-    else if (screen === 'lead') { const l = leads.find((x) => x.id === activeId); screenEl = l ? <LeadDetail lead={l} onMove={moveStatus} onNote={saveNote} onDelete={deleteLead} onBack={() => setScreen('leads')} /> : <Dashboard leads={leads} onOpen={openLead} onNew={() => setScreen('new')} />; }
-    else screenEl = <Dashboard leads={leads} onOpen={openLead} onNew={() => setScreen('new')} />;
+    else if (screen === 'lead') { const l = leads.find((x) => x.id === activeId); screenEl = l ? <LeadDetail lead={l} crmSyncs={crmLeadSyncs(crm, l.id)} onRetry={crmRetrySync} onMove={moveStatus} onNote={saveNote} onDelete={deleteLead} onBack={() => setScreen('leads')} /> : <Dashboard leads={leads} crm={crm} onOpen={openLead} onNew={() => setScreen('new')} />; }
+    else screenEl = <Dashboard leads={leads} crm={crm} onOpen={openLead} onNew={() => setScreen('new')} />;
     const tabActive = ['lead', 'new'].includes(screen) ? 'leads' : screen;
     body = (
       <View style={{ flex: 1 }}>
@@ -835,5 +1184,15 @@ const s = StyleSheet.create({
   tab: { flex: 1, alignItems: 'center', paddingVertical: 2 },
   tabIcon: { width: 40, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   tabIconOn: { backgroundColor: 'rgba(89,199,255,0.14)', borderWidth: 1, borderColor: 'rgba(89,199,255,0.28)' },
+  smallBtn: { borderWidth: 1, borderColor: C.border, backgroundColor: C.card, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7 },
+  smallBtnText: { color: C.text, fontWeight: '700', fontSize: 13 },
+  connectBtn: { backgroundColor: C.cyan, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8, ...shadow(5, C.glow) },
+  section2: { color: C.cyan, fontSize: 11.5, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginTop: 8, marginBottom: 8 },
+  modalWrap: { flex: 1, backgroundColor: 'rgba(2,8,22,0.7)', alignItems: 'center', justifyContent: 'center', padding: 18 },
+  modalCard: { width: '100%', maxWidth: 460, backgroundColor: '#0B1730', borderWidth: 1, borderColor: C.borderHi, borderRadius: 18, padding: 18, ...shadow(14) },
+  checkRow: { flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, borderColor: C.border, borderRadius: 11, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 8, backgroundColor: 'rgba(2,11,31,0.4)' },
+  checkRowOn: { borderColor: C.primary, backgroundColor: 'rgba(58,166,255,0.1)' },
+  checkBox: { width: 20, height: 20, borderRadius: 6, borderWidth: 1.5, borderColor: C.borderHi, alignItems: 'center', justifyContent: 'center' },
+  checkBoxOn: { backgroundColor: C.primary, borderColor: C.primary },
   toast: { position: 'absolute', left: 20, right: 20, bottom: 30, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 9, backgroundColor: C.cardHi, borderWidth: 1, borderColor: C.borderHi, borderRadius: 12, paddingVertical: 12, ...shadow(12) },
 });
