@@ -584,6 +584,36 @@
   .qa .qai svg{width:18px;height:18px}
   .qa .qat{font-size:12.5px;font-weight:700}
   @media(max-width:760px){.obgrid{grid-template-columns:1fr}.quickacts{grid-template-columns:1fr 1fr}.obcard{padding:20px}}
+
+  /* keep inputs clear of the on-screen keyboard / sticky topbar on phones */
+  input,textarea,select{scroll-margin-top:80px;scroll-margin-bottom:120px}
+
+  /* ===================== Status donut (dashboard) ===================== */
+  .statwrap{display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-top:4px}
+  .donutwrap{position:relative;width:158px;height:158px;flex-shrink:0}
+  .donut{width:100%;height:100%;border-radius:50%;filter:drop-shadow(0 8px 22px rgba(0,0,0,.35));
+    -webkit-mask:radial-gradient(farthest-side,#0000 60%,#000 61%);mask:radial-gradient(farthest-side,#0000 60%,#000 61%)}
+  .donutctr{position:absolute;inset:0;display:grid;place-items:center;text-align:center;pointer-events:none}
+  .donutctr .dv{font-size:32px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .donutctr .dl{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+  .slegend{flex:1;min-width:190px;display:flex;flex-direction:column}
+  .slegrow{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13.5px;border-top:1px solid var(--border)}
+  .slegrow:first-child{border-top:none}
+  .slegrow .dot2{width:11px;height:11px;border-radius:4px;flex-shrink:0}
+  .slegrow .sname{flex:1}
+  .slegrow .scount{font-weight:800;font-variant-numeric:tabular-nums}
+  .slegrow .spct{color:var(--muted);width:46px;text-align:right;font-variant-numeric:tabular-nums;font-size:12.5px}
+  html[dir="rtl"] .slegrow .spct{text-align:left}
+
+  /* ===================== Conversion funnel (analytics) ===================== */
+  .funnelviz{margin-top:14px;display:flex;flex-direction:column;align-items:center}
+  .fstage{width:100%;max-width:540px;border-radius:13px;padding:13px 18px;color:#052033;
+    display:flex;align-items:center;justify-content:space-between;box-shadow:0 10px 24px -12px rgba(0,0,0,.55);transition:width .5s ease}
+  .fstage .fl{font-weight:800;font-size:14px;display:flex;align-items:center;gap:9px;min-width:0}
+  .fstage .fn{background:rgba(255,255,255,.32);border-radius:7px;padding:1px 8px;font-size:12px;font-variant-numeric:tabular-nums}
+  .fstage .fr{font-weight:800;font-size:15px;font-variant-numeric:tabular-nums;flex-shrink:0}
+  .fdrop{font-size:11.5px;color:var(--muted);margin:6px 0;display:flex;align-items:center;gap:6px;font-weight:600}
+  .fdrop b{color:#c3d3ea;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -1032,6 +1062,24 @@ function pageContent(r){
 }
 function head(tl,s,right){return '<div class="pagehead"><div><h1>'+esc(tl)+'</h1>'+(s?'<p>'+esc(s)+'</p>':'')+'</div><div class="spacer"></div>'+(right||'')+'</div>'}
 
+var STCOL={New:'#59C7FF',Contacted:'#C3D3EA',Qualified:'#B6A9FF',Booked:'#7BF0B4',Won:'#57E39A',Lost:'#FF9AA6',Spam:'#8EA0BD'};
+function statusDonut(counts,total){
+  var tot=total||1, acc=0, stops=[];
+  STATUSES.forEach(function(st){var v=counts[st]||0;if(v<=0)return;var from=acc/tot*360,to=(acc+v)/tot*360;acc+=v;stops.push(STCOL[st]+' '+from.toFixed(2)+'deg '+to.toFixed(2)+'deg')});
+  if(!stops.length)stops.push('rgba(148,163,199,.2) 0deg 360deg');
+  var legend=STATUSES.map(function(st){var v=counts[st]||0,pct=Math.round(v/tot*100);return '<div class="slegrow"><span class="dot2" style="background:'+STCOL[st]+'"></span><span class="sname">'+st+'</span><span class="scount">'+v+'</span><span class="spct">'+pct+'%</span></div>'}).join('');
+  return '<div class="statwrap"><div class="donutwrap"><div class="donut" style="background:conic-gradient('+stops.join(',')+')"></div><div class="donutctr"><div class="dv">'+total+'</div><div class="dl">'+esc(t('total_leads'))+'</div></div></div><div class="slegend">'+legend+'</div></div>';
+}
+function funnelViz(funnel){
+  var cols=['#59C7FF','#4FB6F2','#57C4C9','#69D5A8','#57E39A'];
+  var html='<div class="funnelviz">';
+  funnel.forEach(function(f,i){
+    var pct=f[1], w=Math.max(42,pct), c1=cols[i%cols.length], c2=cols[(i+1)%cols.length];
+    html+='<div class="fstage" style="width:'+w+'%;background:linear-gradient(90deg,'+c1+','+c2+')"><span class="fl">'+esc(f[0])+'<span class="fn">'+f[2]+'</span></span><span class="fr">'+pct+'%</span></div>';
+    if(i<funnel.length-1){var prev=f[2],next=funnel[i+1][2],drop=prev>0?Math.round((prev-next)/prev*100):0;html+='<div class="fdrop">↓ <b>'+next+'</b> continued · <b>'+drop+'%</b> drop-off</div>';}
+  });
+  return html+'</div>';
+}
 function dashboard(){
   var leads=getLeads(), dayStart=new Date();dayStart.setHours(0,0,0,0);
   var today=leads.filter(function(l){return l.at>=dayStart.getTime()}).length;
@@ -1057,7 +1105,7 @@ function dashboard(){
     '<div class="grid cols-3" style="margin-top:16px">'+
       '<div class="card" style="grid-column:span 2">'+
         '<h3>'+esc(t('by_status'))+'</h3>'+
-        STATUSES.map(function(st){return '<div class="legendrow"><span class="badge b-'+st+'">'+st+'</span><div style="flex:1;margin:0 14px"><div class="bar"><span style="width:'+(counts[st]/maxC*100)+'%"></span></div></div><b>'+counts[st]+'</b></div>'}).join('')+
+        statusDonut(counts,leads.length)+
       '</div>'+
       '<div class="card"><h3>'+esc(t('top_sources'))+'</h3>'+
         SOURCES.map(function(s){var pct=Math.round(bySource[s]/srcTotal*100);return '<div class="legendrow"><span style="font-size:13px">'+esc(s)+'</span><b>'+pct+'%</b></div><div class="bar" style="margin-bottom:8px"><span style="width:'+pct+'%"></span></div>'}).join('')+
@@ -1166,7 +1214,7 @@ function analyticsPage(){
   return head(t('analytics_title'),t('analytics_sub'))+
     '<div class="grid cols-4">'+cards.map(function(c){return '<div class="card stat"><div class="label">'+esc(c[0])+'</div><div class="value">'+c[1]+'</div></div>'}).join('')+'</div>'+
     '<div class="card" style="margin-top:16px"><h3>'+esc(t('conv_funnel'))+'</h3>'+
-      funnel.map(function(f){return '<div class="legendrow"><span style="width:96px">'+f[0]+'</span><div style="flex:1;margin:0 12px"><div class="bar"><span style="width:'+f[1]+'%"></span></div></div><b>'+f[2]+' &middot; '+f[1]+'%</b></div>'}).join('')+
+      funnelViz(funnel)+
     '</div>'
 }
 
