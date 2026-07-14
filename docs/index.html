@@ -151,7 +151,7 @@
   /* Forms */
   .field{margin:14px 0}
   .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-  .field input,.field select,.field textarea{width:100%;padding:11px 13px;border-radius:11px;background:rgba(2,11,31,.6);
+  .field input,.field select,.field textarea{width:100%;padding:11px 13px;border-radius:11px;background:var(--card2);
     border:1px solid var(--border);color:var(--text);font-size:14px;outline:none;font-family:inherit}
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary)}
   .field textarea{resize:vertical;min-height:72px}
@@ -238,7 +238,7 @@
   html[dir="rtl"] .vmsg.bot{border-bottom-left-radius:13px;border-bottom-right-radius:4px}
   html[dir="rtl"] .vmsg.user{border-bottom-right-radius:13px;border-bottom-left-radius:4px}
   .vreply{display:flex;gap:8px;margin-top:16px}
-  .vreply input{flex:1;padding:11px 13px;border-radius:11px;background:rgba(2,11,31,.6);border:1px solid var(--border);color:var(--text);font-size:14px;outline:none}
+  .vreply input{flex:1;padding:11px 13px;border-radius:11px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:14px;outline:none}
   .vreply input:focus{border-color:var(--primary)}
   .vtyping{display:flex;gap:4px;align-items:center;min-height:18px}
   .vtyping span{width:7px;height:7px;border-radius:50%;background:var(--muted);opacity:.5;animation:vdot 1s infinite}
@@ -380,7 +380,7 @@
   .form2 .full{grid-column:1 / -1}
   .form2 label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:600}
   .form2 input,.form2 select,.form2 textarea{width:100%;padding:12px 14px;border-radius:12px;font-size:14px;color:var(--text);font-family:inherit;outline:none;
-    border:1px solid var(--glassborder);background:rgba(2,11,31,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+    border:1px solid var(--glassborder);background:var(--card2);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
   .form2 input:focus,.form2 select:focus,.form2 textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(14,159,110,.16)}
   .form2 textarea{min-height:96px;resize:vertical}
   .form2 .actions{grid-column:1 / -1;display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:4px}
@@ -471,7 +471,7 @@
   .archnote .ai{width:38px;height:38px;border-radius:11px;background:rgba(14,159,110,.12);color:var(--cyan);display:grid;place-items:center;flex-shrink:0}
   .archnote .ai svg{width:20px;height:20px}
   .flowchips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;font-size:12px}
-  .flowchip{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;border:1px solid var(--border);background:rgba(2,11,31,.4);font-weight:600}
+  .flowchip{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;border:1px solid var(--border);background:var(--card2);font-weight:600}
   .flowchip svg{width:14px;height:14px;color:var(--cyan)}
   .flowarr{color:var(--muted)}
   html[dir="rtl"] .flowarr{transform:scaleX(-1)}
@@ -495,7 +495,7 @@
   .wiztitle{font-size:18px;font-weight:800;margin:4px 0 6px;text-wrap:balance}
   .wizsub{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px}
   .checklist{display:flex;flex-direction:column;gap:8px}
-  .chk{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:.12s;background:rgba(2,11,31,.4);text-align:left;width:100%;color:var(--text)}
+  .chk{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:.12s;background:var(--card2);text-align:left;width:100%;color:var(--text)}
   html[dir="rtl"] .chk{text-align:right}
   .chk:hover{border-color:var(--primary)}
   .chk.on{border-color:var(--primary);background:rgba(14,159,110,.1)}
@@ -510,13 +510,13 @@
   .maprow .mf{flex:1;font-weight:700;min-width:0}
   .maprow .ma{color:var(--muted);flex-shrink:0}
   .maprow .mto{flex:1.1;min-width:0}
-  .maprow input{width:100%;padding:8px 10px;border-radius:9px;background:rgba(2,11,31,.6);border:1px solid var(--border);color:var(--text);font-size:13px;outline:none;font-family:inherit}
+  .maprow input{width:100%;padding:8px 10px;border-radius:9px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:13px;outline:none;font-family:inherit}
   .maprow input:focus{border-color:var(--primary)}
   .wiznav{display:flex;gap:10px;align-items:center;margin-top:18px}
   .authsim{text-align:center;padding:10px 0 4px}
   .authsim .big{width:64px;height:64px;border-radius:16px;margin:0 auto 12px;display:grid;place-items:center;color:#fff;box-shadow:0 8px 22px -8px rgba(0,0,0,.6)}
   .authsim .big svg{width:32px;height:32px}
-  .testcard{border:1px solid var(--border);border-radius:12px;padding:6px 14px;background:rgba(2,11,31,.4);font-size:13px}
+  .testcard{border:1px solid var(--border);border-radius:12px;padding:6px 14px;background:var(--card2);font-size:13px}
   .testcard .row2{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--border)}
   .testcard .row2:first-child{border-top:none}
   .testcard .row2 .k{color:var(--muted)}
@@ -555,7 +555,7 @@
   .obsub{color:var(--muted);font-size:14.5px;line-height:1.55;margin-top:8px}
   .obf{margin:15px 0}
   .obf label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:600}
-  .obf input,.obf select,.obf textarea{width:100%;padding:12px 14px;border-radius:12px;background:rgba(2,11,31,.55);border:1px solid var(--border);color:var(--text);font-size:14px;outline:none;font-family:inherit}
+  .obf input,.obf select,.obf textarea{width:100%;padding:12px 14px;border-radius:12px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:14px;outline:none;font-family:inherit}
   .obf input:focus,.obf select:focus,.obf textarea:focus{border-color:var(--primary)}
   .obf textarea{min-height:84px;resize:vertical}
   .obgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
@@ -564,7 +564,7 @@
   .obtog input{width:18px;height:18px;accent-color:var(--primary)}
   .obnav{display:flex;gap:10px;align-items:center;margin-top:22px}
   .obmode{display:grid;gap:12px;margin-top:16px}
-  .obopt{border:1px solid var(--border);border-radius:16px;padding:15px 17px;cursor:pointer;transition:.15s;text-align:left;width:100%;background:rgba(2,11,31,.4);color:var(--text)}
+  .obopt{border:1px solid var(--border);border-radius:16px;padding:15px 17px;cursor:pointer;transition:.15s;text-align:left;width:100%;background:var(--card2);color:var(--text)}
   html[dir="rtl"] .obopt{text-align:right}
   .obopt:hover{border-color:var(--primary)}
   .obopt.on{border-color:var(--border-hi);background:rgba(14,159,110,.1);box-shadow:0 0 0 3px rgba(14,159,110,.14)}
@@ -573,12 +573,12 @@
   .obopt .od{font-size:13px;color:var(--muted);margin-top:5px;line-height:1.5}
   .obopt .obtag{font-size:11px;font-weight:700;color:var(--cyan);background:rgba(14,159,110,.14);border:1px solid var(--border);border-radius:999px;padding:2px 9px;margin-left:auto}
   html[dir="rtl"] .obopt .obtag{margin-left:0;margin-right:auto}
-  .obsvc{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;background:rgba(2,11,31,.4)}
+  .obsvc{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;background:var(--card2)}
   .obsvc .si{flex:1;min-width:0}
   .obsvc .sn{font-weight:700;font-size:14px}
   .obsvc .sd{font-size:12px;color:var(--muted);margin-top:1px}
   .obreview{display:grid;gap:10px;margin-top:16px}
-  .obrev{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:rgba(2,11,31,.4)}
+  .obrev{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--card2)}
   .obrev .rk{font-weight:700;font-size:14px;flex:1}
   .obrev .rs{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px}
   .rs-ok{color:var(--green);background:rgba(87,227,154,.12)}
@@ -796,6 +796,30 @@
   ::-webkit-scrollbar{width:10px;height:10px}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px;border:2px solid transparent;background-clip:content-box}
   ::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+
+  /* ---- Theme-correct inputs, modals, placeholders (fix dark-in-light) ---- */
+  .field input,.field select,.field textarea,.form2 input,.form2 select,.form2 textarea,
+  .obf input,.obf select,.obf textarea,.vreply input,.maprow input,.search input{
+    background:var(--card2);color:var(--text);border:1px solid var(--border)}
+  .field input:focus,.field select:focus,.field textarea:focus,.form2 input:focus,.form2 select:focus,.form2 textarea:focus,
+  .obf input:focus,.obf select:focus,.obf textarea:focus,.vreply input:focus,.maprow input:focus{
+    border-color:var(--primary);box-shadow:0 0 0 3px rgba(14,156,106,.14);outline:none}
+  input::placeholder,textarea::placeholder{color:var(--muted);opacity:.85}
+  .modalcard{background:var(--card);border:1px solid var(--border-hi)}
+  .modalhead{background:var(--card2)}
+  :root[data-theme="dark"] .modalcard{background:linear-gradient(160deg,#282219,#211c16)}
+  .modal{background:rgba(20,16,10,.55)}
+  :root[data-theme="dark"] .modal{background:rgba(0,0,0,.62)}
+  /* small polish */
+  .pagehead h1{letter-spacing:-.2px}
+  .card h3{letter-spacing:.1px}
+  .navsec{color:var(--muted);opacity:.85;font-weight:700}
+  .stat .value,.miniStat .v,.crmsum .value{color:var(--heading)}
+  .avatar{color:#fff}
+  .provlogo,.vmic{color:#fff}
+  .obcard{background:var(--card);border:1px solid var(--border);box-shadow:0 1px 2px var(--shadow2),0 18px 40px -22px var(--shadow);-webkit-backdrop-filter:none;backdrop-filter:none}
+  :root[data-theme="dark"] .obcard{background:linear-gradient(160deg,rgba(255,255,255,.03),rgba(255,255,255,.012)),var(--card)}
+  .codebox{background:#141210;border-color:var(--border);color:#7FE3B8}
 </style>
 </head>
 <body>
@@ -1263,7 +1287,7 @@ function statusDonut(counts,total){
   return '<div class="statwrap"><div class="donutwrap"><div class="donut" style="background:conic-gradient('+stops.join(',')+')"></div><div class="donutctr"><div class="dv">'+total+'</div><div class="dl">'+esc(t('total_leads'))+'</div></div></div><div class="slegend">'+legend+'</div></div>';
 }
 function funnelViz(funnel){
-  var cols=['#0E9C6A','#2FA46A','#5C9A56','#8A7A4A','#8A6A4E'];
+  var cols=['#0B8A5E','#10A06E','#17B37E','#3CC08D','#5FCB9E'];
   var html='<div class="funnelviz">';
   funnel.forEach(function(f,i){
     var pct=f[1], w=Math.max(42,pct), c1=cols[i%cols.length], c2=cols[(i+1)%cols.length];
@@ -1913,7 +1937,7 @@ function crmChk(kind,val,label,desc,on){
 function crmWizStep(i,p){
   var d=CRMWIZ.draft;
   if(i===0)return '<div class="wiztitle">'+esc(t('wz1'))+'</div><p class="wizsub">'+esc(tf('wz1s',{p:p.name}))+'</p>'+
-    '<div class="card provcard" style="background:rgba(2,11,31,.4)"><div class="provhead">'+crmLogo(p)+'<div><div class="provname">'+esc(p.name)+'</div><div class="provmeta">'+esc(p.desc||'')+'</div></div></div></div>';
+    '<div class="card provcard" style="background:var(--card2)"><div class="provhead">'+crmLogo(p)+'<div><div class="provname">'+esc(p.name)+'</div><div class="provmeta">'+esc(p.desc||'')+'</div></div></div></div>';
   if(i===1){
     var hookMode=(p.id==='generic_webhook'||p.id==='custom_api'),b;
     if(hookMode){b='<div class="field"><label>'+esc(t('wz_hook_url'))+'</label><input value="'+esc(d.account)+'" oninput="crmSetDraft(\'account\',this.value)"/></div>'+
