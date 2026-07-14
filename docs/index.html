@@ -820,6 +820,31 @@
   .obcard{background:var(--card);border:1px solid var(--border);box-shadow:0 1px 2px var(--shadow2),0 18px 40px -22px var(--shadow);-webkit-backdrop-filter:none;backdrop-filter:none}
   :root[data-theme="dark"] .obcard{background:linear-gradient(160deg,rgba(255,255,255,.03),rgba(255,255,255,.012)),var(--card)}
   .codebox{background:#141210;border-color:var(--border);color:#7FE3B8}
+
+  /* ---- Truthful states, OAuth consent, telephony ---- */
+  .demobanner{display:flex;gap:13px;align-items:flex-start;background:linear-gradient(135deg,rgba(178,123,42,.12),rgba(138,106,78,.07));border:1px solid rgba(178,123,42,.3);border-radius:14px;padding:13px 16px;margin-bottom:18px}
+  .demobanner .dbi{width:36px;height:36px;border-radius:10px;background:rgba(178,123,42,.16);color:var(--amber);display:grid;place-items:center;flex-shrink:0}
+  .demobanner .dbi svg{width:19px;height:19px}
+  .demobanner b{color:var(--heading)}
+  .demopill{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--amber);background:rgba(178,123,42,.14);border:1px solid rgba(178,123,42,.3);border-radius:6px;padding:1px 6px;vertical-align:middle;margin-left:6px;white-space:nowrap}
+  html[dir="rtl"] .demopill{margin-left:0;margin-right:6px}
+  .cs-demo{color:var(--amber);background:rgba(178,123,42,.14);border-color:rgba(178,123,42,.32)}
+  .scopelist{display:flex;flex-direction:column;gap:6px;margin:8px 0 14px}
+  .scoperow{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted)}
+  .scoperow svg{width:15px;height:15px;color:var(--green);flex-shrink:0}
+  .scoperow code{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--text);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 7px;word-break:break-all}
+  .consentcard{max-width:440px}
+  .consenthead{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border);background:var(--card2)}
+  .consentnote{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin:6px 0 4px;line-height:1.45}
+  .consentnote svg{width:16px;height:16px;color:var(--amber);flex-shrink:0}
+  .spin{width:38px;height:38px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--primary);margin:0 auto;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .teleopt{display:flex;align-items:center;gap:13px;cursor:pointer;text-align:left;width:100%}
+  html[dir="rtl"] .teleopt{text-align:right}
+  .teleopt .teleoi{width:42px;height:42px;border-radius:12px;background:rgba(14,156,106,.12);color:var(--primary);display:grid;place-items:center;flex-shrink:0}
+  .teleopt .teleoi svg{width:21px;height:21px}
+  .teleopt>svg:last-child{color:var(--muted);width:18px;height:18px;flex-shrink:0}
+  html[dir="rtl"] .teleopt>svg:last-child{transform:scaleX(-1)}
 </style>
 </head>
 <body>
@@ -862,6 +887,43 @@ var OB_TR={
  ar:{ob_setup:"الإعداد",ob_step_of:"الخطوة {n} من {total}",ob_next:"التالي",ob_back:"رجوع",ob_skip:"تخطٍّ الآن",ob_save_exit:"حفظ وخروج",ob_finish:"تفعيل Alsaiti Voice",ob_activated:"أصبحت مساحتك جاهزة 🎉",ob_est_time:"حوالي 3 دقائق",ob_s0_t:"مرحبًا بك في Alsaiti Voice",ob_s0_s:"سنطرح بعض الأسئلة عن نشاطك لإعداد لوحة العملاء المحتملين والمساعد الذكي ونظام CRM.",ob_s1_t:"أخبرنا عن نشاطك التجاري",ob_s1_s:"الأساسيات التي سنستخدمها في لوحتك ومساعدك.",ob_s2_t:"ماذا تقدّم شركتك؟",ob_s2_s:"يساعد ذلك مساعدك الذكي على تأهيل المتصلين والرد عليهم بدقة.",ob_s3_t:"خدماتك",ob_s3_s:"أضف الخدمات التي يسأل عنها العملاء. يطرح المساعد الأسئلة المناسبة لكل خدمة.",ob_s4_t:"ساعات العمل والتوفّر",ob_s4_s:"مواعيد عملك وما ينبغي أن يحدث بعد ساعات العمل.",ob_s5_t:"كيف نؤهّل العملاء المحتملين؟",ob_s5_s:"ما الذي نجمعه من كل استفسار، وما الذي يجعل العميل عاجلًا.",ob_s6_t:"موظف الاستقبال الذكي",ob_s6_s:"كيف يبدو المساعد، وكيف يرحّب ويتصرّف.",ob_s7_t:"مساعد الدردشة على الموقع",ob_s7_s:"أضِف أداة دردشة ذكية إلى موقعك (اختياري).",ob_s8_t:"إعداد الهاتف",ob_s8_s:"كيف يردّ الذكاء الاصطناعي على مكالماتك (اختياري).",ob_s9_t:"كيف تريد إدارة العملاء المحتملين؟",ob_s9_s:"استخدم CRM المدمج، أو اربط نظامك، أو كليهما.",ob_s10_t:"الإشعارات",ob_s10_s:"كيف ومتى ننبّه فريقك.",ob_s11_t:"راجع إعداداتك",ob_s11_s:"تحقّق من كل شيء قبل التفعيل. يمكنك تغيير أي شيء لاحقًا من الإعدادات.",ob_s12_t:"عميل تجريبي والانطلاق",ob_s12_s:"أرسل عميلًا تجريبيًا عبر المسار كاملًا ثم فعّل مساحتك.",ob_crm_int_t:"نظام CRM المدمج في Alsaiti Voice",ob_crm_int_d:"أدِر العملاء والملاحظات والمهام والمسار هنا مباشرة. دون الحاجة إلى CRM خارجي.",ob_crm_ext_t:"ربط نظام CRM حالي",ob_crm_ext_d:"واصل استخدام نظامك — سنرسل إليه العملاء الجدد والمكالمات والتحديثات تلقائيًا.",ob_crm_hyb_t:"استخدام كليهما (موصى به)",ob_crm_hyb_d:"يكون Alsaiti Voice صندوق عملائك ويُزامنهم أيضًا مع نظام CRM الخارجي.",ob_crm_connect:"اربط نظام CRM",ob_crm_int_note:"كل شيء جاهز — سيعيش العملاء في CRM المدمج.",ob_st_complete:"مكتمل",ob_st_skipped:"تم تخطّيه",ob_run_test:"إرسال عميل تجريبي",ob_test_done:"تم إنشاء عميل تجريبي",ob_chk_created:"تم إنشاء العميل",ob_chk_dash:"ظاهر في اللوحة",ob_chk_notif:"تم إرسال إشعار",ob_chk_crm_ok:"نجحت مزامنة CRM",ob_chk_crm_skip:"تم تخطّي المزامنة (CRM داخلي)",ob_chk_crm_none:"لا يوجد CRM متصل",ob_banner_t:"أكمل إعداد مساحتك",ob_banner_s:"إعداد موجَّه لمدة 3 دقائق يضبط مساعدك وخدماتك ونظام CRM.",ob_continue_setup:"متابعة الإعداد",ob_send_test:"إرسال تجريبي",ob_connect_crm:"ربط CRM",ob_setup_tour:"إعداد موجَّه"}
 };
 (function(){for(var l in OB_TR){if(!TR[l])TR[l]={};for(var k in OB_TR[l]){if(TR[l][k]==null)TR[l][k]=OB_TR[l][k]}}})();
+/* ---- Truthful states, OAuth consent & Telnyx telephony i18n ---- */
+var EXTRA_TR={
+ en:{sec_connect:'Connect',demo_badge:'Demo',demo_data:'Demo data',preview_title:'Preview mode',preview_body:'These connections are simulated to show how Alsaiti Voice works. A live connection asks you to authorise the provider (OAuth) and only shows “Connected” after a real test succeeds. No real CRM is contacted in this demo.',
+  wz_scopes:'Alsaiti Voice will request these permissions:',wz_continue:'Continue to {p}',wz_consent_title:'Authorise access',wz_consent_body:'“Alsaiti Voice” is requesting access to your {p} account.',wz_consent_demo:'Demo — simulated consent screen. No real sign-in happens and no real account is contacted.',wz_approve:'Approve access',wz_deny:'Deny',wz_verifying:'Verifying account & loading pipelines, stages and fields…',wz_declined:'Authorisation was declined. You can try again.',wz_authed_note:'Account authorised (demo). Metadata loaded.',st_auth_required:'Authorisation required',st_test_required:'Test required',st_config_required:'Configuration required',
+  nav_phone:'Phone',tele_title:'Phone & Telephony',tele_sub:'Connect a number so your AI receptionist can answer real calls — powered by Telnyx.',
+  tele_preview:'Preview — telephony is simulated in this demo. Real numbers and calls require a Telnyx account and a public carrier; a number only shows “Active” after a real test call. Nothing here places a real call.',
+  tele_add:'Add a number',tele_opt_new:'Get a new Telnyx number',tele_opt_new_d:'Search Telnyx inventory and activate a new number.',tele_opt_connect:'Connect your Telnyx account',tele_opt_connect_d:'Authorise your own Telnyx account (OAuth) or a scoped API key.',tele_opt_forward:'Forward your existing number',tele_opt_forward_d:'Keep your current number and forward calls to Alsaiti.',tele_opt_sip:'Connect a SIP carrier',tele_opt_sip_d:'Bring your own SIP trunk / carrier (BYOC).',tele_opt_port:'Port your number',tele_opt_port_d:'Move your number to Telnyx (tracked request).',
+  tele_numbers:'Your numbers',tele_no_numbers:'No numbers yet — add one above.',tele_search:'Search available numbers',tele_country:'Country',tele_areacode:'Area / prefix',tele_type:'Type',tele_available:'Available numbers (Telnyx inventory · demo)',tele_order:'Activate',tele_calls:'Recent calls',tele_no_calls:'No calls yet — run a test call from a number.',
+  num_owner:'Ownership',num_mode:'Voice mode',num_assistant:'Assistant',num_routing:'Routing',num_caps:'Capabilities',num_cost:'Monthly cost',num_lastcall:'Last call',num_status:'Status',num_lasttest:'Last test',
+  num_testcall:'Test call',num_assign:'Assign',num_calls:'View calls',num_release:'Release',num_pause:'Pause AI',num_resume:'Resume AI',
+  st_active:'Active',st_demo:'Demo',st_number_pending:'Order pending',st_routing_required:'Routing required',
+  tele_toast_added:'Number activated (demo)',tele_toast_test:'Test call completed (demo)',tele_toast_released:'Number released',tele_toast_forward:'Call forwarding set up (demo)',
+  tele_managed:'Alsaiti-managed',tele_owned:'Customer-owned',tele_voiceapi:'Voice API',tele_sip:'SIP trunk',tele_fwd:'Forwarding'},
+ es:{sec_connect:'Conectar',demo_badge:'Demo',demo_data:'Datos de demostración',preview_title:'Modo de vista previa',preview_body:'Estas conexiones están simuladas para mostrar cómo funciona Alsaiti Voice. Una conexión real le pide autorizar al proveedor (OAuth) y solo muestra «Conectado» tras superar una prueba real. En esta demo no se contacta ningún CRM real.',
+  wz_scopes:'Alsaiti Voice solicitará estos permisos:',wz_continue:'Continuar con {p}',wz_consent_title:'Autorizar acceso',wz_consent_body:'«Alsaiti Voice» solicita acceso a su cuenta de {p}.',wz_consent_demo:'Demo: pantalla de consentimiento simulada. No hay inicio de sesión real ni se contacta ninguna cuenta real.',wz_approve:'Aprobar acceso',wz_deny:'Denegar',wz_verifying:'Verificando la cuenta y cargando embudos, etapas y campos…',wz_declined:'Se denegó la autorización. Puede intentarlo de nuevo.',wz_authed_note:'Cuenta autorizada (demo). Metadatos cargados.',st_auth_required:'Autorización requerida',st_test_required:'Prueba requerida',st_config_required:'Configuración requerida',
+  nav_phone:'Teléfono',tele_title:'Teléfono y telefonía',tele_sub:'Conecte un número para que su recepcionista con IA atienda llamadas reales, con la tecnología de Telnyx.',
+  tele_preview:'Vista previa: la telefonía está simulada en esta demo. Los números y las llamadas reales requieren una cuenta de Telnyx y un operador público; un número solo muestra «Activo» tras una llamada de prueba real. Aquí no se realiza ninguna llamada real.',
+  tele_add:'Añadir un número',tele_opt_new:'Obtener un número nuevo de Telnyx',tele_opt_new_d:'Busque en el inventario de Telnyx y active un número nuevo.',tele_opt_connect:'Conectar su cuenta de Telnyx',tele_opt_connect_d:'Autorice su propia cuenta de Telnyx (OAuth) o una clave API con permisos.',tele_opt_forward:'Desviar su número actual',tele_opt_forward_d:'Mantenga su número y desvíe las llamadas a Alsaiti.',tele_opt_sip:'Conectar un operador SIP',tele_opt_sip_d:'Use su propio trunk SIP / operador (BYOC).',tele_opt_port:'Portar su número',tele_opt_port_d:'Traslade su número a Telnyx (solicitud con seguimiento).',
+  tele_numbers:'Sus números',tele_no_numbers:'Aún no hay números: añada uno arriba.',tele_search:'Buscar números disponibles',tele_country:'País',tele_areacode:'Área / prefijo',tele_type:'Tipo',tele_available:'Números disponibles (inventario de Telnyx · demo)',tele_order:'Activar',tele_calls:'Llamadas recientes',tele_no_calls:'Aún no hay llamadas: haga una llamada de prueba desde un número.',
+  num_owner:'Titularidad',num_mode:'Modo de voz',num_assistant:'Asistente',num_routing:'Enrutamiento',num_caps:'Capacidades',num_cost:'Coste mensual',num_lastcall:'Última llamada',num_status:'Estado',num_lasttest:'Última prueba',
+  num_testcall:'Llamada de prueba',num_assign:'Asignar',num_calls:'Ver llamadas',num_release:'Liberar',num_pause:'Pausar IA',num_resume:'Reanudar IA',
+  st_active:'Activo',st_demo:'Demo',st_number_pending:'Pedido pendiente',st_routing_required:'Enrutamiento requerido',
+  tele_toast_added:'Número activado (demo)',tele_toast_test:'Llamada de prueba completada (demo)',tele_toast_released:'Número liberado',tele_toast_forward:'Desvío de llamadas configurado (demo)',
+  tele_managed:'Gestionado por Alsaiti',tele_owned:'Propiedad del cliente',tele_voiceapi:'Voice API',tele_sip:'Trunk SIP',tele_fwd:'Desvío'},
+ ar:{sec_connect:'الربط',demo_badge:'تجريبي',demo_data:'بيانات تجريبية',preview_title:'وضع المعاينة',preview_body:'هذه الاتصالات محاكاة لعرض طريقة عمل Alsaiti Voice. الاتصال الحقيقي يطلب منك تفويض المزوّد (OAuth) ولا يظهر «متصل» إلا بعد نجاح اختبار حقيقي. لا يتم الاتصال بأي نظام CRM حقيقي في هذا العرض.',
+  wz_scopes:'سيطلب Alsaiti Voice هذه الأذونات:',wz_continue:'المتابعة إلى {p}',wz_consent_title:'تفويض الوصول',wz_consent_body:'يطلب «Alsaiti Voice» الوصول إلى حسابك في {p}.',wz_consent_demo:'تجريبي — شاشة موافقة محاكاة. لا يوجد تسجيل دخول حقيقي ولا يتم الاتصال بأي حساب حقيقي.',wz_approve:'الموافقة على الوصول',wz_deny:'رفض',wz_verifying:'جارٍ التحقق من الحساب وتحميل المسارات والمراحل والحقول…',wz_declined:'تم رفض التفويض. يمكنك المحاولة مرة أخرى.',wz_authed_note:'تم تفويض الحساب (تجريبي). تم تحميل البيانات الوصفية.',st_auth_required:'التفويض مطلوب',st_test_required:'الاختبار مطلوب',st_config_required:'الإعداد مطلوب',
+  nav_phone:'الهاتف',tele_title:'الهاتف والاتصالات',tele_sub:'اربط رقمًا ليتمكّن موظف الاستقبال الذكي من الرد على مكالمات حقيقية — بواسطة Telnyx.',
+  tele_preview:'معاينة — الاتصالات الهاتفية محاكاة في هذا العرض. الأرقام والمكالمات الحقيقية تتطلب حساب Telnyx ومشغّلًا عامًا؛ ولا يظهر الرقم «نشط» إلا بعد مكالمة اختبار حقيقية. لا يتم إجراء أي مكالمة حقيقية هنا.',
+  tele_add:'إضافة رقم',tele_opt_new:'الحصول على رقم Telnyx جديد',tele_opt_new_d:'ابحث في مخزون Telnyx وفعّل رقمًا جديدًا.',tele_opt_connect:'اربط حساب Telnyx الخاص بك',tele_opt_connect_d:'فوّض حساب Telnyx الخاص بك (OAuth) أو مفتاح API مقيّدًا.',tele_opt_forward:'تحويل رقمك الحالي',tele_opt_forward_d:'احتفظ برقمك الحالي وحوّل المكالمات إلى Alsaiti.',tele_opt_sip:'ربط مشغّل SIP',tele_opt_sip_d:'استخدم trunk SIP / مشغّلك الخاص (BYOC).',tele_opt_port:'نقل رقمك',tele_opt_port_d:'انقل رقمك إلى Telnyx (طلب متتبَّع).',
+  tele_numbers:'أرقامك',tele_no_numbers:'لا توجد أرقام بعد — أضف رقمًا أعلاه.',tele_search:'البحث عن الأرقام المتاحة',tele_country:'الدولة',tele_areacode:'المنطقة / البادئة',tele_type:'النوع',tele_available:'الأرقام المتاحة (مخزون Telnyx · تجريبي)',tele_order:'تفعيل',tele_calls:'المكالمات الأخيرة',tele_no_calls:'لا مكالمات بعد — أجرِ مكالمة اختبار من رقم.',
+  num_owner:'الملكية',num_mode:'وضع الصوت',num_assistant:'المساعد',num_routing:'التوجيه',num_caps:'القدرات',num_cost:'التكلفة الشهرية',num_lastcall:'آخر مكالمة',num_status:'الحالة',num_lasttest:'آخر اختبار',
+  num_testcall:'مكالمة اختبار',num_assign:'تعيين',num_calls:'عرض المكالمات',num_release:'تحرير',num_pause:'إيقاف الذكاء',num_resume:'استئناف الذكاء',
+  st_active:'نشط',st_demo:'تجريبي',st_number_pending:'الطلب قيد الانتظار',st_routing_required:'التوجيه مطلوب',
+  tele_toast_added:'تم تفعيل الرقم (تجريبي)',tele_toast_test:'اكتملت مكالمة الاختبار (تجريبي)',tele_toast_released:'تم تحرير الرقم',tele_toast_forward:'تم إعداد تحويل المكالمات (تجريبي)',
+  tele_managed:'يديره Alsaiti',tele_owned:'ملك للعميل',tele_voiceapi:'Voice API',tele_sip:'trunk SIP',tele_fwd:'تحويل'}
+};
+(function(){for(var l in EXTRA_TR){if(!TR[l])TR[l]={};for(var k in EXTRA_TR[l]){if(TR[l][k]==null)TR[l][k]=EXTRA_TR[l][k]}}})();
 function setLang(l){try{if(VOICE&&(VOICE.active||VOICE.timer))voiceEnd()}catch(e){}LANG=l;DB.set('ag_lang',l);applyDir();render()}
 function applyDir(){try{document.documentElement.lang=LANG;document.documentElement.dir=(LANG==='ar'?'rtl':'ltr')}catch(e){}}
 /* ---- Theme (light warm-luxury / dark luxury) ---- */
@@ -1231,10 +1293,11 @@ function submitAuth(e,mode){
 
 /* ============================ App shell ============================ */
 function navModel(){return [
-  ['sec_overview',[['dashboard','nav_dashboard','grid'],['leads','nav_leads','users'],['voice','nav_voice','mic'],['analytics','nav_analytics','chart'],['integrations','nav_integrations','plug']]],
+  ['sec_overview',[['dashboard','nav_dashboard','grid'],['leads','nav_leads','users'],['voice','nav_voice','mic'],['analytics','nav_analytics','chart']]],
+  ['sec_connect',[['integrations','nav_integrations','plug'],['phone','nav_phone','phone']]],
   ['sec_account',[['onboarding','ob_setup','sliders'],['settings','nav_settings','cog']]]
 ]}
-function mobModel(){return [['dashboard','nav_dashboard','grid'],['leads','nav_leads','users'],['voice','nav_voice','mic'],['integrations','nav_integrations','plug'],['settings','nav_settings','cog']]}
+function mobModel(){return [['dashboard','nav_dashboard','grid'],['leads','nav_leads','users'],['voice','nav_voice','mic'],['phone','nav_phone','phone'],['integrations','nav_integrations','plug']]}
 
 function shell(active,inner){
   var u=AUTH.current(), p=getProfile();
@@ -1272,6 +1335,7 @@ function pageContent(r){
     case'new':return newLeadPage();
     case'analytics':return analyticsPage();
     case'integrations':return integrationsPage();
+    case'phone':return telephonyPage();
     case'settings':return settingsPage();
     default:return dashboard()
   }
@@ -1645,6 +1709,17 @@ var CRM_PROVIDERS=[
 var CRM_TRIGGERS=[['lead.created','tg_created'],['lead.qualified','tg_qualified'],['lead.booked','tg_booked'],['lead.won','tg_won'],['lead.status_changed','tg_status'],['call.completed','tg_call'],['chat.completed','tg_chat']];
 var CRM_ACTIONS=[['contact','ac_contact'],['company','ac_company'],['deal','ac_deal'],['note','ac_note'],['task','ac_task'],['tags','ac_tags'],['owner','ac_owner'],['workflow','ac_workflow']];
 var CRM_MAP=[['name','Contact name'],['phone','Mobile phone'],['email','Email'],['service','Deal title'],['score','Lead score'],['urgency','Priority'],['source','Lead source'],['summary','Note'],['callback','Activity due time']];
+/* OAuth scopes requested per provider (shown on the consent screen) */
+var CRM_SCOPES={
+ hubspot:['crm.objects.contacts.write','crm.objects.deals.write','crm.schemas.contacts.read'],
+ pipedrive:['deals:full','persons:full','users:read'],
+ highlevel:['contacts.write','opportunities.write','locations.readonly'],
+ google_sheets:['https://www.googleapis.com/auth/spreadsheets'],
+ salesforce:['api','refresh_token','offline_access'],
+ zoho:['ZohoCRM.modules.ALL','ZohoCRM.settings.READ','ZohoCRM.users.READ'],
+ dynamics:['https://org.crm.dynamics.com/user_impersonation','offline_access'],
+ generic_webhook:[],custom_api:[]
+};
 function crmDefaultMapping(){return CRM_MAP.map(function(m){return {from:m[0],to:m[1]}})}
 function crmProvider(id){for(var i=0;i<CRM_PROVIDERS.length;i++)if(CRM_PROVIDERS[i].id===id)return CRM_PROVIDERS[i];return null}
 function crmLogo(p){return '<span class="provlogo" style="background:linear-gradient(140deg,'+(p.accent||'#0E9F6E')+',rgba(0,0,0,.28))">'+icon(p.icon||'crm')+'</span>'}
@@ -1761,7 +1836,7 @@ function crmRecordSync(st,conn,lead,fail,ts){
 }
 function crmSeed(){
   var now=Date.now(),m=60000,h=3600000,day=86400000;
-  var conn={id:'conn_hub_demo',provider:'hubspot',name:'HubSpot',status:'connected',account:'Bright Smile Dental',portal:'24428135',
+  var conn={id:'conn_hub_demo',provider:'hubspot',name:'HubSpot',status:'connected',demo:true,account:'Bright Smile Dental',portal:'24428135',
     sync_enabled:true,triggers:['lead.created','lead.status_changed','lead.qualified','lead.booked','lead.won'],
     actions:['contact','deal','note'],pipeline:'Sales Pipeline',stage:'New Lead',owner:'Front desk',
     tags:['alsaiti-voice','voice-call'],mapping:crmDefaultMapping(),synced:0,
@@ -1833,7 +1908,8 @@ function integrationsPage(){
   var avail=CRM_PROVIDERS.filter(function(p){return !connectedIds[p.id]});
   var head2=function(k){return '<h3 style="margin:6px 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">'+esc(t(k))+'</h3>'};
   return head(t('integ_title'),t('integ_sub'))+
-   '<div class="crmsum">'+summary.map(function(s){return '<div class="card stat"><div class="label">'+esc(s[0])+'</div><div class="value">'+esc(String(s[1]))+'</div></div>'}).join('')+'</div>'+
+   demoBanner('preview_body')+
+   '<div class="crmsum">'+summary.map(function(s){return '<div class="card stat"><div class="label">'+esc(s[0])+' <span class="demopill">'+esc(t('demo_data'))+'</span></div><div class="value">'+esc(String(s[1]))+'</div></div>'}).join('')+'</div>'+
    '<div class="card" style="margin-bottom:20px"><div class="archnote"><span class="ai">'+icon('shield')+'</span><div><b>'+esc(t('arch_title'))+'</b><p class="muted" style="margin-top:3px">'+esc(t('arch_body'))+'</p>'+
      '<div class="flowchips">'+
        '<span class="flowchip">'+icon('bolt')+esc(t('flow_lead'))+'</span><span class="flowarr">'+icon('arrow')+'</span>'+
@@ -1852,7 +1928,7 @@ function crmConnCard(c){
   var stLabel=paused?t('st_paused'):(attn?t('st_attention'):t('st_connected'));
   return '<div class="card provcard">'+
     '<div class="provhead">'+crmLogo(p)+'<div><div class="provname">'+esc(p.name)+'</div><div class="provmeta">'+esc(c.account||'')+'</div></div>'+
-      '<div class="spacer"></div><span class="cs cs-'+stKey+'"><i></i>'+esc(stLabel)+'</span></div>'+
+      '<div class="spacer"></div>'+(c.demo?'<span class="cs cs-demo" title="Simulated for this demo">'+esc(t('demo_badge'))+'</span>':'')+'<span class="cs cs-'+stKey+'"><i></i>'+esc(stLabel)+'</span></div>'+
     '<div class="connmeta">'+
       '<div><div class="l">'+esc(t('cl_synced'))+'</div><div class="v">'+(c.synced||0)+'</div></div>'+
       '<div><div class="l">'+esc(t('cl_lastok'))+'</div><div class="v">'+(c.last_success?ago(c.last_success):t('cl_never'))+'</div></div>'+
@@ -1939,11 +2015,15 @@ function crmWizStep(i,p){
   if(i===0)return '<div class="wiztitle">'+esc(t('wz1'))+'</div><p class="wizsub">'+esc(tf('wz1s',{p:p.name}))+'</p>'+
     '<div class="card provcard" style="background:var(--card2)"><div class="provhead">'+crmLogo(p)+'<div><div class="provname">'+esc(p.name)+'</div><div class="provmeta">'+esc(p.desc||'')+'</div></div></div></div>';
   if(i===1){
-    var hookMode=(p.id==='generic_webhook'||p.id==='custom_api'),b;
+    var hookMode=(p.id==='generic_webhook'||p.id==='custom_api'),b,scopes=CRM_SCOPES[p.id]||[];
     if(hookMode){b='<div class="field"><label>'+esc(t('wz_hook_url'))+'</label><input value="'+esc(d.account)+'" oninput="crmSetDraft(\'account\',this.value)"/></div>'+
       '<div class="field"><label>'+esc(t('wz_secret'))+'</label><input readonly value="'+esc(d.secret)+'" style="font-family:ui-monospace,Menlo,monospace"/><p class="muted" style="font-size:12px;margin-top:6px">'+esc(t('wz_secret_note'))+'</p></div>';}
-    else if(d.authed){b='<div class="authsim"><div class="big" style="background:linear-gradient(140deg,'+p.accent+',rgba(0,0,0,.28))">'+icon('check')+'</div><div class="okpill">'+icon('check')+' '+esc(tf('wz2ok',{acct:d.account}))+'</div></div>';}
-    else{b='<div class="authsim"><div class="big" style="background:linear-gradient(140deg,'+p.accent+',rgba(0,0,0,.28))">'+icon(p.icon)+'</div><button class="btn btn-primary btn-lg" onclick="crmSimAuth()">'+icon('shield')+' '+esc(tf('wz2btn',{p:p.name}))+'</button></div>';}
+    else if(d.authed){b='<div class="authsim"><div class="big" style="background:linear-gradient(140deg,'+p.accent+',rgba(0,0,0,.28))">'+icon('check')+'</div><div class="okpill">'+icon('check')+' '+esc(tf('wz2ok',{acct:d.account}))+'</div><p class="muted" style="font-size:12px;margin-top:8px">'+esc(t('wz_authed_note'))+'</p></div>';}
+    else{b=(CRMWIZ.declined?'<p class="wizsub" style="color:var(--red);margin-top:-4px">'+esc(t('wz_declined'))+'</p>':'')+
+      '<p class="wizsub" style="margin-top:-2px">'+esc(t('wz_scopes'))+'</p>'+
+      '<div class="scopelist">'+scopes.map(function(sc){return '<div class="scoperow">'+icon('check')+'<code>'+esc(sc)+'</code></div>'}).join('')+'</div>'+
+      '<button class="btn btn-primary btn-lg" style="width:100%" onclick="crmConsent()">'+icon('shield')+' '+esc(tf('wz_continue',{p:p.name}))+'</button>'+
+      '<p class="muted" style="font-size:11.5px;margin-top:8px;text-align:center">'+esc(t('wz_consent_demo'))+'</p>';}
     return '<div class="wiztitle">'+esc(t('wz2'))+'</div><p class="wizsub">'+esc(hookMode?t('wz2hook'):tf('wz2s',{p:p.name}))+'</p>'+b;
   }
   if(i===2){var accts=(p.accounts||[d.account||'Default account']);
@@ -2003,7 +2083,7 @@ function crmActivate(){
     if(c){c.triggers=trigs;c.actions=acts;c.mapping=d.mapping;c.pipeline=d.pipeline;c.stage=d.stage;c.owner=d.owner;c.account=d.account;c.tested_at=Date.now()}
     crmSave(st);crmCloseModal();render();toast(t('wz_save'));return;
   }
-  var conn={id:'conn_'+crmRand(10),provider:p.id,name:p.name,status:'connected',account:d.account,
+  var conn={id:'conn_'+crmRand(10),provider:p.id,name:p.name,status:'connected',demo:true,account:d.account,
     portal:(p.id==='hubspot'?String(20000000+Math.floor(Math.random()*9000000)):''),
     sync_enabled:true,triggers:trigs,actions:acts,pipeline:d.pipeline,stage:d.stage,owner:d.owner,sheet:d.sheet,
     tags:d.tags||[],mapping:d.mapping,synced:0,last_success:null,last_failure:null,last_error:null,connected_at:Date.now(),tested_at:Date.now(),health:'healthy'};
@@ -2158,8 +2238,114 @@ function dashTestLead(){
   leads.unshift(lead);setLeads(leads);if(crmMode()!=='internal')crmEmit('lead.created',lead);toast(t('ob_test_done'));go('leads');
 }
 
+/* ---- Truthful "demo/preview" banner ---- */
+function demoBanner(bodyKey){return '<div class="demobanner"><span class="dbi">'+icon('shield')+'</span><div><b>'+esc(t('preview_title'))+'</b><p class="muted" style="margin-top:2px;font-size:12.5px;line-height:1.5">'+esc(t(bodyKey))+'</p></div></div>'}
+
+/* ---- Simulated OAuth consent (shows the REAL flow, clearly labelled demo) ---- */
+function crmConsent(){
+  if(!CRMWIZ)return;var p=crmProvider(CRMWIZ.provider),scopes=CRM_SCOPES[p.id]||[];var m=crmModalEl();if(!m)return;
+  m.innerHTML='<div class="modal"><div class="modalcard consentcard">'+
+    '<div class="consenthead">'+crmLogo(p)+'<div><div style="font-weight:800;font-size:15px">'+esc(p.name)+'</div><div class="muted" style="font-size:12px">accounts.'+esc(p.id.replace(/_/g,''))+'.com</div></div></div>'+
+    '<div class="modalbody"><div class="wiztitle" style="font-size:17px">'+esc(t('wz_consent_title'))+'</div>'+
+      '<p class="wizsub">'+esc(tf('wz_consent_body',{p:p.name}))+'</p>'+
+      (scopes.length?'<div class="scopelist">'+scopes.map(function(sc){return '<div class="scoperow">'+icon('check')+'<code>'+esc(sc)+'</code></div>'}).join('')+'</div>':'')+
+      '<div class="consentnote">'+icon('shield')+' '+esc(t('wz_consent_demo'))+'</div>'+
+      '<div class="wiznav"><button class="btn" onclick="crmDenyConsent()">'+esc(t('wz_deny'))+'</button><div class="spacer"></div><button class="btn btn-primary" onclick="crmApproveConsent()">'+icon('check')+' '+esc(t('wz_approve'))+'</button></div>'+
+    '</div></div></div>';
+}
+function crmApproveConsent(){
+  if(!CRMWIZ)return;var p=crmProvider(CRMWIZ.provider);CRMWIZ.declined=false;
+  CRMWIZ.draft.authed=true;if(!CRMWIZ.draft.account)CRMWIZ.draft.account=(p.accounts&&p.accounts[0])||'Connected account';
+  var m=crmModalEl();if(m)m.innerHTML='<div class="modal"><div class="modalcard"><div class="modalbody" style="text-align:center;padding:44px 20px"><div class="spin"></div><p class="muted" style="margin-top:16px">'+esc(t('wz_verifying'))+'</p></div></div></div>';
+  var dl=(window.V_DELAY!=null?0:750);
+  if(dl){CRMWIZ.timer=setTimeout(function(){crmRenderWizard()},dl)}else{crmRenderWizard()}
+}
+function crmDenyConsent(){if(!CRMWIZ)return;CRMWIZ.declined=true;crmRenderWizard()}
+
+/* ===================== Telephony (Telnyx-first) — demo simulation of the spec ===================== */
+var TELE_SEARCH=[];
+function teleKey(e){return 'ag_tele_'+e}
+function teleState(){var s=AUTH.session();if(!s)return{conns:[],numbers:[],calls:[]};var d=DB.get(teleKey(s.email),null);if(!d){d=teleSeed();DB.set(teleKey(s.email),d)}return d}
+function teleSave(st){var s=AUTH.session();if(s)DB.set(teleKey(s.email),st)}
+function teleSeed(){
+  var now=Date.now(),m=60000,h=3600000;
+  var num={id:'num_demo',e164:'+44 20 4599 8842',country:'GB',type:'Local',caps:['Voice','SMS'],status:'active',demo:true,mode:'voiceapi',ownership:'alsaiti_managed',assistant:'Alsaiti receptionist',routing:'AI answers all calls',cost:'£1.00',currency:'GBP',last_test:now-2*h,last_call:now-35*m,telnyx_id:'num-'+crmRand(10)};
+  var calls=[
+    {id:'call_'+crmRand(6),number:'+44 20 4599 8842',from:'+44 7700 900148',at:now-35*m,dur:'2:14',outcome:'Lead created',summary:'New patient asked about an implant consultation; callback booked.'},
+    {id:'call_'+crmRand(6),number:'+44 20 4599 8842',from:'+44 7700 900713',at:now-3*h,dur:'1:02',outcome:'Transferred',summary:'Existing patient, urgent — transferred to the front desk.'}
+  ];
+  return {conns:[{id:'tconn_demo',provider:'telnyx',mode:'alsaiti_managed',status:'active',demo:true,account:'Alsaiti-managed Telnyx',telnyx_account_id:'acct-'+crmRand(8),last_verified:now-2*h}],numbers:[num],calls:calls};
+}
+function telephonyPage(){
+  var st=teleState();
+  var opts=[['tele_opt_new','tele_opt_new_d','plus','teleOpenSearch()'],['tele_opt_connect','tele_opt_connect_d','shield','teleConnectAccount()'],['tele_opt_forward','tele_opt_forward_d','phone','teleForward()'],['tele_opt_sip','tele_opt_sip_d','route','teleSip()'],['tele_opt_port','tele_opt_port_d','arrow','telePort()']];
+  var head2=function(k){return '<h3 style="margin:6px 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">'+esc(t(k))+'</h3>'};
+  return head(t('tele_title'),t('tele_sub'))+
+   demoBanner('tele_preview')+
+   head2('tele_add')+
+   '<div class="provgrid" style="margin-bottom:24px">'+opts.map(function(o){return '<button class="card teleopt" onclick="'+o[3]+'"><span class="teleoi">'+icon(o[2])+'</span><div style="flex:1;min-width:0;text-align:left"><div class="provname">'+esc(t(o[0]))+'</div><div class="provmeta">'+esc(t(o[1]))+'</div></div>'+icon('arrow')+'</button>'}).join('')+'</div>'+
+   head2('tele_numbers')+
+   (st.numbers.length?st.numbers.map(teleNumCard).join(''):'<div class="card"><p class="muted" style="padding:6px 0">'+esc(t('tele_no_numbers'))+'</p></div>')+
+   teleCallsCard(st);
+}
+function teleNumCard(n){
+  var caps=(n.caps||[]).join(' · ');
+  return '<div class="card provcard" style="margin-bottom:14px">'+
+    '<div class="provhead"><span class="teleoi" style="color:var(--primary)">'+icon('phone')+'</span><div style="min-width:0"><div class="provname" style="font-variant-numeric:tabular-nums">'+esc(n.e164)+'</div><div class="provmeta">Telnyx · '+esc(t(n.ownership==='alsaiti_managed'?'tele_managed':'tele_owned'))+'</div></div>'+
+      '<div class="spacer"></div>'+(n.demo?'<span class="cs cs-demo">'+esc(t('demo_badge'))+'</span>':'')+'<span class="cs cs-'+(n.status==='active'?'connected':'attention')+'"><i></i>'+esc(t(n.status==='active'?'st_active':'st_routing_required'))+'</span></div>'+
+    '<div class="connmeta">'+
+      '<div><div class="l">'+esc(t('num_mode'))+'</div><div class="v">'+esc(t(n.mode==='sip'?'tele_sip':(n.mode==='forward'?'tele_fwd':'tele_voiceapi')))+'</div></div>'+
+      '<div><div class="l">'+esc(t('num_assistant'))+'</div><div class="v">'+esc(n.assistant||'—')+'</div></div>'+
+      '<div><div class="l">'+esc(t('num_cost'))+'</div><div class="v">'+esc(n.cost||'—')+'</div></div>'+
+      '<div><div class="l">'+esc(t('num_lastcall'))+'</div><div class="v">'+(n.last_call?ago(n.last_call):'—')+'</div></div>'+
+    '</div>'+
+    '<div class="provmeta" style="margin:2px 0 6px">'+esc(t('num_caps'))+': '+esc(caps)+' · '+esc(t('num_routing'))+': '+esc(n.routing||'—')+'</div>'+
+    '<div class="connactions">'+
+      '<button class="btn btn-sm" onclick="teleTestCall(\''+n.id+'\')">'+icon('phone')+' '+esc(t('num_testcall'))+'</button>'+
+      '<button class="btn btn-sm" onclick="teleAssign(\''+n.id+'\')">'+icon('mic')+' '+esc(t('num_assign'))+'</button>'+
+      '<button class="btn btn-sm btn-danger" onclick="teleRelease(\''+n.id+'\')">'+esc(t('num_release'))+'</button>'+
+    '</div></div>';
+}
+function teleCallsCard(st){
+  var rows=st.calls.slice(0,10),body;
+  if(!rows.length)body='<p class="muted" style="padding:6px 0">'+esc(t('tele_no_calls'))+'</p>';
+  else body='<div class="tablewrap"><table><thead><tr><th>When</th><th>From</th><th>Duration</th><th>Outcome</th><th>'+esc(t('summary_t'))+'</th></tr></thead><tbody>'+
+    rows.map(function(c){return '<tr><td><span class="src">'+icon('phone')+ago(c.at)+'</span></td><td style="font-variant-numeric:tabular-nums">'+esc(c.from)+'</td><td>'+esc(c.dur)+'</td><td>'+esc(c.outcome)+'</td><td class="muted" style="font-size:12px;max-width:280px">'+esc(c.summary||'')+'</td></tr>'}).join('')+'</tbody></table></div>';
+  return '<div class="card" style="margin-top:22px"><h3>'+esc(t('tele_calls'))+' <span class="demopill">'+esc(t('demo_data'))+'</span></h3>'+body+'</div>';
+}
+function teleOpenSearch(){
+  var m=crmModalEl();if(!m)return;TELE_SEARCH=[];
+  for(var i=0;i<6;i++){TELE_SEARCH.push({e164:'+44 20 4599 '+(1000+Math.floor(Math.random()*8999)),caps:'Voice · SMS',cost:'£1.00'})}
+  m.innerHTML='<div class="modal" onclick="if(event.target===this)crmCloseModal()"><div class="modalcard"><div class="modalhead">'+icon('phone')+'<h3>'+esc(t('tele_search'))+'</h3><button class="modalx" onclick="crmCloseModal()">'+icon('close')+'</button></div>'+
+    '<div class="modalbody">'+
+      '<div class="obgrid"><div class="field"><label>'+esc(t('tele_country'))+'</label><select><option>United Kingdom (+44)</option><option>United States (+1)</option><option>Ireland (+353)</option></select></div><div class="field"><label>'+esc(t('tele_areacode'))+'</label><input value="20"/></div></div>'+
+      '<div class="wizlabel" style="margin-top:6px">'+esc(t('tele_available'))+'</div>'+
+      '<div class="maptable" style="margin-top:8px">'+TELE_SEARCH.map(function(n,idx){return '<div class="maprow"><span class="mf" style="font-variant-numeric:tabular-nums">'+esc(n.e164)+'</span><span class="ma" style="flex:1">'+esc(n.caps)+'</span><span style="color:var(--muted);white-space:nowrap">'+esc(n.cost)+'/mo</span><button class="btn btn-sm btn-primary" onclick="teleActivate('+idx+')">'+esc(t('tele_order'))+'</button></div>'}).join('')+'</div>'+
+      '<p class="muted" style="font-size:11.5px;margin-top:12px;line-height:1.5">'+esc(t('tele_preview'))+'</p>'+
+    '</div></div></div>';
+}
+function teleActivate(idx){
+  var pick=TELE_SEARCH[idx];if(!pick)return;var st=teleState();
+  st.numbers.unshift({id:'num_'+crmRand(8),e164:pick.e164,country:'GB',type:'Local',caps:['Voice','SMS'],status:'active',demo:true,mode:'voiceapi',ownership:'alsaiti_managed',assistant:'Alsaiti receptionist',routing:'AI answers all calls',cost:pick.cost,currency:'GBP',last_test:Date.now(),last_call:null,telnyx_id:'num-'+crmRand(10)});
+  teleSave(st);crmCloseModal();render();toast(t('tele_toast_added'));
+}
+function teleTestCall(id){
+  var st=teleState(),n=null;st.numbers.forEach(function(x){if(x.id===id)n=x});if(!n)return;
+  n.last_test=Date.now();n.last_call=Date.now();
+  st.calls.unshift({id:'call_'+crmRand(6),number:n.e164,from:'+44 7700 900'+(100+Math.floor(Math.random()*899)),at:Date.now(),dur:'0:'+(20+Math.floor(Math.random()*39)),outcome:'Test call · Lead created',summary:'Simulated inbound test call — the AI receptionist answered, qualified the caller and created a lead.'});
+  if(st.calls.length>40)st.calls.length=40;teleSave(st);render();toast(t('tele_toast_test'));
+}
+function teleRelease(id){var ok=true;try{ok=confirm('Release this number? (demo)')}catch(e){ok=true}if(!ok)return;var st=teleState();st.numbers=st.numbers.filter(function(x){return x.id!==id});teleSave(st);render();toast(t('tele_toast_released'))}
+function teleAssign(){toast('Assistant assigned (demo)')}
+function teleForward(){var st=teleState();st.numbers.unshift({id:'num_'+crmRand(8),e164:'+44 7700 900000',country:'GB',type:'Forwarded',caps:['Voice'],status:'active',demo:true,mode:'forward',ownership:'customer_owned',assistant:'Alsaiti receptionist',routing:'Forwarded → Alsaiti',cost:'—',last_call:null});teleSave(st);render();toast(t('tele_toast_forward'))}
+function teleConnectAccount(){toast('Telnyx OAuth authorisation happens on the backend (demo)')}
+function teleSip(){toast('SIP / BYOC trunk is configured on the backend (demo)')}
+function telePort(){toast('Port request is tracked on the backend (demo)')}
+
 /* expose */
 window.go=go;window.openLead=openLead;window.toggleMenu=toggleMenu;window.doLogout=doLogout;
+window.crmConsent=crmConsent;window.crmApproveConsent=crmApproveConsent;window.crmDenyConsent=crmDenyConsent;
+window.teleOpenSearch=teleOpenSearch;window.teleActivate=teleActivate;window.teleTestCall=teleTestCall;window.teleRelease=teleRelease;window.teleAssign=teleAssign;window.teleForward=teleForward;window.teleConnectAccount=teleConnectAccount;window.teleSip=teleSip;window.telePort=telePort;
 window.obNext=obNext;window.obBack=obBack;window.obSkip=obSkip;window.obExit=obExit;window.obGoStep=obGoStep;window.obSet=obSet;window.obSetChk=obSetChk;window.obSetMode=obSetMode;window.obAddSvc=obAddSvc;window.obRemoveSvc=obRemoveSvc;window.obLaunch=obLaunch;window.obRunTest=obRunTest;window.dashTestLead=dashTestLead;
 window.crmOpenWizard=crmOpenWizard;window.crmConfigure=crmConfigure;window.crmCloseModal=crmCloseModal;window.crmWizNext=crmWizNext;window.crmWizBack=crmWizBack;
 window.crmSetDraft=crmSetDraft;window.crmSetMap=crmSetMap;window.crmToggleSet=crmToggleSet;window.crmSimAuth=crmSimAuth;window.crmTestLead=crmTestLead;window.crmViewEvent=crmViewEvent;
