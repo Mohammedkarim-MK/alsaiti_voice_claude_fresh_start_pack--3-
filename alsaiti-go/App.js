@@ -401,7 +401,7 @@ function AuthScreen({ mode, error, onSubmit, onSwitch, onBack }) {
   const [pass, setPass] = useState('');
   const isSignup = mode === 'signup';
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+    <KeyboardAvoidingView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ padding: 22, paddingTop: 40 }} keyboardShouldPersistTaps="handled">
         <Pressable onPress={onBack} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 10 }}>
           <Icon name="back" size={18} color={C.muted} /><Text style={{ color: C.muted }}>Back</Text>
@@ -428,6 +428,40 @@ function AuthScreen({ mode, error, onSubmit, onSwitch, onBack }) {
   );
 }
 
+/* ---------- Status donut ---------- */
+const FUNNEL_COLORS = ['#59C7FF', '#4FB6F2', '#57C4C9', '#69D5A8', '#57E39A'];
+function StatusDonut({ counts, total }) {
+  const R = 54, CIRC = 2 * Math.PI * R, cx = 70, cy = 70, tot = total || 1;
+  let accLen = 0; const segs = [];
+  STATUSES.forEach((st) => { const v = counts[st] || 0; if (v <= 0) return; const segLen = (v / tot) * CIRC; segs.push({ color: STATUS_COLOR[st] || C.muted, segLen, offset: -accLen }); accLen += segLen; });
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+      <View style={{ width: 140, height: 140 }}>
+        <Svg width={140} height={140}>
+          <Circle cx={cx} cy={cy} r={R} stroke="rgba(148,163,199,0.15)" strokeWidth={16} fill="none" />
+          {segs.map((sg, i) => (
+            <Circle key={i} cx={cx} cy={cy} r={R} stroke={sg.color} strokeWidth={16} fill="none" strokeDasharray={sg.segLen + ' ' + CIRC} strokeDashoffset={sg.offset} transform={'rotate(-90 ' + cx + ' ' + cy + ')'} />
+          ))}
+        </Svg>
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ color: C.text, fontSize: 28, fontWeight: '800' }}>{total}</Text>
+          <Text style={{ color: C.muted, fontSize: 10, textTransform: 'uppercase', letterSpacing: 1 }}>Leads</Text>
+        </View>
+      </View>
+      <View style={{ flex: 1, minWidth: 150 }}>
+        {STATUSES.map((st) => { const v = counts[st] || 0, pct = Math.round(v / tot * 100); return (
+          <View key={st} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 5, borderTopWidth: st === 'New' ? 0 : 1, borderTopColor: C.border }}>
+            <View style={{ width: 11, height: 11, borderRadius: 4, backgroundColor: STATUS_COLOR[st] || C.muted }} />
+            <Text style={{ color: C.text, fontSize: 13, flex: 1 }}>{st}</Text>
+            <Text style={{ color: C.text, fontWeight: '800', fontSize: 13 }}>{v}</Text>
+            <Text style={{ color: C.muted, fontSize: 12, width: 40, textAlign: 'right' }}>{pct}%</Text>
+          </View>
+        ); })}
+      </View>
+    </View>
+  );
+}
+
 /* ---------- Dashboard ---------- */
 function Dashboard({ leads, onOpen, onNew, crm, onboard, onTest, onSetup }) {
   const dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
@@ -437,7 +471,6 @@ function Dashboard({ leads, onOpen, onNew, crm, onboard, onTest, onSetup }) {
   const active = leads.filter((l) => ['New', 'Contacted', 'Qualified', 'Booked'].includes(l.status)).length;
   const stats = [['Leads today', today], ['High priority', urgent], ['Active pipeline', active], ['Won', won]];
   const counts = {}; STATUSES.forEach((st) => { counts[st] = leads.filter((l) => l.status === st).length; });
-  const maxC = Math.max(1, ...STATUSES.map((st) => counts[st]));
   const attention = leads.filter((l) => ['New', 'Qualified'].includes(l.status)).sort((a, b) => b.at - a.at).slice(0, 5);
   return (
     <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
@@ -460,15 +493,7 @@ function Dashboard({ leads, onOpen, onNew, crm, onboard, onTest, onSetup }) {
         ))}
       </View>
       <Text style={s.section}>Leads by status</Text>
-      <Card>
-        {STATUSES.map((st) => (
-          <View key={st} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 6, gap: 10 }}>
-            <View style={{ width: 78 }}><Badge label={st} color={STATUS_COLOR[st]} /></View>
-            <View style={s.barTrack}><View style={[s.barFill, { width: (counts[st] / maxC * 100) + '%' }]} /></View>
-            <Text style={{ color: C.text, fontWeight: '700', width: 22, textAlign: 'right' }}>{counts[st]}</Text>
-          </View>
-        ))}
-      </Card>
+      <Card><StatusDonut counts={counts} total={leads.length} /></Card>
       <Text style={s.section}>Needs attention</Text>
       {attention.length ? attention.map((l) => <LeadCard key={l.id} lead={l} sync={crmLeadStatus(crm, l.id)} onPress={() => onOpen(l.id)} />)
         : <Card><Text style={s.body}>Nothing urgent right now — you're all caught up.</Text></Card>}
@@ -510,8 +535,8 @@ function NewLead({ onSave, onCancel }) {
     onSave({ id: uid(), name: f.name.trim(), service: f.service.trim(), phone: f.phone.trim(), email: f.email.trim(), urgency: f.urgency, source: f.source, status: 'New', score, at: Date.now(), summary: f.summary.trim(), notes: '', assignee: 'Unassigned' });
   };
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+    <KeyboardAvoidingView style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <Pressable onPress={onCancel} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 12 }}><Icon name="back" size={18} color={C.muted} /><Text style={{ color: C.muted }}>Back</Text></Pressable>
         <H title="New lead" sub="Manually add an enquiry." />
         <Card>
@@ -536,8 +561,8 @@ function LeadDetail({ lead, onMove, onNote, onDelete, onBack, crmSyncs, onRetry 
   const [note, setNote] = useState(lead.notes || '');
   const info = [['Phone', lead.phone || '—'], ['Email', lead.email || '—'], ['Service', lead.service], ['Urgency', lead.urgency], ['Source', lead.source], ['Assignee', lead.assignee || '—']];
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+    <KeyboardAvoidingView style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
           <Pressable onPress={onBack} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Icon name="back" size={18} color={C.muted} /><Text style={{ color: C.muted }}>Back</Text></Pressable>
           <View style={{ flex: 1 }} />
@@ -726,8 +751,8 @@ function VoiceScreen({ onCreateLead, showToast }) {
   const switchLang = (l) => { if (voice.active || voice.timer) end(); setLang(l); setTranscript([]); setStatus(VT[l].intro); };
   useEffect(() => () => { if (voice.timer) clearTimeout(voice.timer); try { Speech.stop(); } catch (e) {} }, []);
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+    <KeyboardAvoidingView style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <H title={T.title} sub={T.sub} />
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
           {VLANGS.map(([code, lbl]) => (
@@ -783,13 +808,15 @@ function Analytics({ leads }) {
       <H title="Analytics" sub="Conversion and quality across your leads." />
       <View style={s.statGrid}>{cards.map((c) => <Card key={c[0]} style={s.stat}><Text style={s.statLabel}>{c[0]}</Text><Text style={s.statValue}>{c[1]}</Text></Card>)}</View>
       <Text style={s.section}>Conversion funnel</Text>
-      <Card>
-        {funnel.map((f) => (
-          <View key={f[0]} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 6, gap: 10 }}>
-            <Text style={{ color: C.text, width: 78 }}>{f[0]}</Text>
-            <View style={s.barTrack}><View style={[s.barFill, { width: f[1] + '%' }]} /></View>
-            <Text style={{ color: C.text, fontWeight: '700', width: 54, textAlign: 'right' }}>{f[2]} · {f[1]}%</Text>
-          </View>
+      <Card style={{ alignItems: 'center' }}>
+        {funnel.map((f, i) => (
+          <React.Fragment key={f[0]}>
+            <LinearGradient colors={[FUNNEL_COLORS[i % FUNNEL_COLORS.length], FUNNEL_COLORS[(i + 1) % FUNNEL_COLORS.length]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ width: Math.max(46, f[1]) + '%', borderRadius: 12, paddingVertical: 12, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={{ color: '#052033', fontWeight: '800', fontSize: 13 }}>{f[0]}  <Text style={{ fontSize: 12 }}>({f[2]})</Text></Text>
+              <Text style={{ color: '#052033', fontWeight: '800', fontSize: 14 }}>{f[1]}%</Text>
+            </LinearGradient>
+            {i < funnel.length - 1 ? <Text style={{ color: C.muted, fontSize: 11.5, marginVertical: 5, fontWeight: '600' }}>↓ {funnel[i + 1][2]} continued · {f[2] > 0 ? Math.round((f[2] - funnel[i + 1][2]) / f[2] * 100) : 0}% drop-off</Text> : null}
+          </React.Fragment>
         ))}
       </Card>
     </ScrollView>
@@ -800,8 +827,8 @@ function Analytics({ leads }) {
 function Settings({ profile, user, leadCount, onSave, onLogout, onReset }) {
   const [biz, setBiz] = useState(profile?.biz || user?.biz || '');
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+    <KeyboardAvoidingView style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <H title="Settings" sub="Your business profile and account." />
         <Card>
           <Text style={s.cardTitle}>Business profile</Text>
@@ -1012,12 +1039,12 @@ function Onboarding({ onboard, crm, onSetMode, onConnectCrm, onActivate, onExit 
   else if (step === 5) content = (<><Text style={s.h1}>Notifications</Text><Text style={[s.sub, { marginTop: 8 }]}>How and when we should alert your team.</Text>{obTogRow('Email', a.ch_email !== false, () => tog('ch_email'))}{obTogRow('New lead', !!a.ev_new, () => tog('ev_new'))}{obTogRow('Urgent lead', !!a.ev_urgent, () => tog('ev_urgent'))}{obTogRow('CRM sync failed', !!a.ev_crmfail, () => tog('ev_crmfail'))}{obTogRow('Daily summary', !!a.ev_daily, () => tog('ev_daily'))}</>);
   else { const rev = [['Business', !!a.business_name], ['Services', (a.services || []).length > 0], ['AI assistant', !!a.assistant_name || !!a.assistant_greeting], ['CRM mode', !!a.crm_mode], ['Notifications', !!a.ch_email || !!a.ev_new]]; content = (<><Text style={s.h1}>Review & go live</Text><Text style={[s.sub, { marginTop: 8 }]}>Check everything, then activate. You can change anything later in Settings.</Text>{rev.map((r) => (<View key={r[0]} style={s.obRev}><Text style={{ color: C.text, fontWeight: '700', flex: 1 }}>{r[0]}</Text><Text style={{ color: r[1] ? C.green : C.muted, fontWeight: '700', fontSize: 12 }}>{r[1] ? 'Complete' : 'Skipped'}</Text></View>))}<Text style={[s.sub, { marginTop: 12 }]}>Tap Activate to create your workspace and go live.</Text></>); }
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+    <KeyboardAvoidingView style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
           <Text style={s.obStepno}>Step {step + 1} of {total} · {STEPS[step]}</Text>
           <View style={{ flex: 1 }} />
-          <Pressable onPress={onExit} style={s.smallBtn}><Text style={s.smallBtnText}>Save & exit</Text></Pressable>
+          <Pressable onPress={() => onExit(step, a)} style={s.smallBtn}><Text style={s.smallBtnText}>Save & exit</Text></Pressable>
         </View>
         <View style={s.obProg}><View style={[s.obProgFill, { width: pct + '%' }]} /></View>
         <Card style={{ marginTop: 16 }}>{content}</Card>
@@ -1197,7 +1224,7 @@ export default function App() {
     else if (screen === 'leads') screenEl = <Leads leads={leads} crm={crm} onOpen={openLead} onNew={() => setScreen('new')} />;
     else if (screen === 'voice') screenEl = <VoiceScreen onCreateLead={(l) => { saveLeads([l, ...leads]); crmEmitLead('lead.created', l); }} showToast={showToast} />;
     else if (screen === 'integrations') screenEl = <Integrations crm={crm} mode={crm.mode} onSetMode={crmSetMode} onConnect={crmConnect} onPause={(id) => crmSetEnabled(id, false)} onResume={(id) => crmSetEnabled(id, true)} onDisconnect={crmDisconnectConn} onTest={crmTest} onRetry={crmRetrySync} />;
-    else if (screen === 'onboarding') screenEl = <Onboarding onboard={onboard} crm={crm} onSetMode={crmSetMode} onConnectCrm={crmConnect} onActivate={onboardActivate} onExit={() => setScreen('dashboard')} />;
+    else if (screen === 'onboarding') screenEl = <Onboarding onboard={onboard} crm={crm} onSetMode={crmSetMode} onConnectCrm={crmConnect} onActivate={onboardActivate} onExit={async (st, ans) => { await persistOnboard({ status: (onboard && onboard.status === 'complete') ? 'complete' : 'in_progress', step: st, answers: ans }); setScreen('dashboard'); }} />;
     else if (screen === 'analytics') screenEl = <Analytics leads={leads} />;
     else if (screen === 'settings') screenEl = <Settings profile={profile} user={user} leadCount={leads.length} onSave={saveProfile} onLogout={logout} onReset={resetData} />;
     else if (screen === 'new') screenEl = <NewLead onSave={addLead} onCancel={() => setScreen('leads')} />;
