@@ -1,0 +1,67 @@
+# Alsaiti Voice — production backend stack (reference, per spec §3.2 "local-control model").
+# This is a STARTING scaffold. A senior developer completes each service, wires the
+# env, and deploys to an Alsaiti-controlled VPS/cloud VM behind HTTPS + a custom domain.
+# Do NOT run the demo (GitHub Pages) as production. Secrets come from .env / the vault.
+
+services:
+  reverse-proxy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+    # Caddyfile terminates TLS for voice.alsaitigrowth.com + api.voice.alsaitigrowth.com
+
+  web:
+    # Server-capable Next.js app: UI + /api/integrations/* + /api/oauth/*/callback + /api/webhooks/telnyx/voice
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    depends_on: [redis]
+    # expose 3000 to the reverse-proxy only
+
+  integration-worker:
+    # Outbox/queue worker: CRM sync, token refresh (locked), retries.
+    build: .
+    command: ["node", "dist/workers/integration-worker.js"]
+    restart: unless-stopped
+    env_file: .env
+    depends_on: [redis]
+
+  voice-worker:
+    # Long-running LiveKit Agents worker (STT/LLM/TTS, tools, exactly-once lead).
+    # MUST NOT run in the static site or a short-lived function.
+    build: ./voice-worker
+    restart: unless-stopped
+    env_file: .env
+    depends_on: [redis]
+
+  n8n:
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+    volumes: [n8n_data:/home/node/.n8n]
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: [redis_data:/data]
+
+  vault:
+    # Secret vault for OAuth tokens + telecom credentials (Infisical / OpenBao / managed KMS).
+    # Replace with your chosen vault; NEVER store tokens in Postgres/n8n as plain text.
+    image: infisical/infisical:latest
+    restart: unless-stopped
+    env_file: .env
+
+  # Supabase is used as a hosted project initially (SUPABASE_URL in .env).
+  # LiveKit Server + LiveKit SIP run here or on dedicated compute (see spec §15).
+
+volumes:
+  caddy_data:
+  n8n_data:
+  redis_data:
