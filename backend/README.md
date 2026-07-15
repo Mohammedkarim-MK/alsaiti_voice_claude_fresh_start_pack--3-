@@ -21,7 +21,7 @@ functional SaaS with genuine CRM OAuth and Telnyx phone calls, per the specs in
 | DB schema (CRM + telephony + OAuth) | ✅ `supabase/migrations/0001_*.sql` | run against your Supabase project |
 | Env var contract | ✅ `.env.example` | fill from provider consoles (server-side only) |
 | Container stack | ✅ `docker-compose.yml` (reference) | complete + deploy to a VPS/cloud VM |
-| OAuth framework + provider adapters | ⬜ scaffold next (`src/lib/oauth/`) | implement + test with real client IDs |
+| OAuth framework + HubSpot adapter | ✅ reference code in `src/lib/oauth/` | add client IDs + wire ports; add other adapters |
 | Telnyx adapter + number/call flow | ⬜ scaffold next (`src/lib/telephony/`) | needs a funded Telnyx account |
 | LiveKit voice worker (real calls) | ⬜ separate long-running service | deploy LiveKit SIP + Agents worker |
 
@@ -97,9 +97,28 @@ cp .env.example .env       # fill server-side values (dev provider apps + Telnyx
 docker compose up -d       # reverse-proxy, web, workers, n8n, redis, vault
 ```
 
-The OAuth route handlers live under `src/app/api/integrations/[provider]/authorise` and
-`src/app/api/oauth/[provider]/callback`, backed by `src/lib/oauth/`. Implement HubSpot
-first (the framework generalises to the rest).
+### CRM OAuth framework (`src/lib/oauth/`) — implemented as reference
+
+- `types.ts` — provider/connection types + the ports you implement (`OAuthSessionStore`,
+  `CredentialVault`, `ConnectionStore`, `AuditLog`).
+- `providers.ts` — provider registry (HubSpot, Pipedrive, HighLevel, Google, Salesforce,
+  Zoho, Dynamics: authorize/token URLs, scopes, PKCE flag) + `makeState`/`makePkce`/
+  `buildAuthorizeUrl`/`exchangeCode`/`refreshTokens`.
+- `hubspot.ts` — the reference connector: `getIdentity`, `loadMetadata`, real `runTest`
+  (creates + archives a test contact).
+- `index.ts` — `startAuthorisation`, `handleCallback`, `testConnection` (only a passing
+  real test flips a card to `connected`), `getValidAccessToken` (refresh under a lock),
+  `disconnect`.
+
+Route handlers under `src/app/api/integrations/[provider]/authorise` and
+`src/app/api/oauth/[provider]/callback` call this framework. **To activate:** create a
+`ports.ts` that implements the interfaces against your Supabase project + secret vault,
+add `HUBSPOT_CLIENT_ID/SECRET` from a real HubSpot app, and uncomment the wiring in the
+route handlers. Then add the remaining provider connectors following `hubspot.ts`.
+
+> All TypeScript here parses cleanly, but it is a **reference scaffold** to be reviewed,
+> completed (ports + remaining adapters) and **tested with real credentials** — not a
+> drop-in, security-audited production module.
 
 > Everything here is a scaffold to be reviewed, completed and **tested with real
 > credentials** by a senior developer. It is not claimed to be production-ready or
