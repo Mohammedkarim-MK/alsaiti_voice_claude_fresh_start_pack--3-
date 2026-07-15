@@ -73,6 +73,26 @@ API test passes. A number shows **Active** only after a real inbound test call s
 
 ---
 
+## Alternative go-live path (lighter — no VPS/vault to operate)
+
+The full stack above (VPS + Docker + external vault) is the robust option. If you want the
+**fastest, cheapest** route to a *real* connection, use **hosted Supabase only**:
+
+- **Auth + data:** Supabase (already the source of truth).
+- **OAuth callbacks / token exchange:** a **Supabase Edge Function** (or a single Next.js
+  route on Vercel) — it holds the client secret server-side, so it can do the real code→token
+  exchange a static site can't.
+- **Token storage:** **envelope encryption** in Postgres instead of a separate vault —
+  `crm_credentials` (migration `0002`) holds AES-256-GCM ciphertext; the key lives in the
+  server env (`OAUTH_CREDENTIAL_ENCRYPTION_KEY`).
+- **Wiring:** `src/lib/oauth/ports.supabase.ts` already implements all four ports this way —
+  drop it into `startAuthorisation`/`handleCallback` and you have a working HubSpot connection
+  with just a Supabase project + a HubSpot app. No Redis/n8n/VPS required for the MVP.
+
+Trade-off: fine for a pilot; move tokens to a dedicated vault + add Redis locks before scale.
+Telephony (Telnyx real calls) still needs the long-running voice worker — Supabase Edge
+Functions can't hold a live audio session.
+
 ## Build order (spec §21) — do ONE vertical slice first
 
 1. **Phase 0 — preserve the demo.** Keep GitHub Pages as a labelled demo; no real credentials on it.
