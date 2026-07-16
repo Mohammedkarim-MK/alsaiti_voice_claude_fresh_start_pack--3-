@@ -1696,6 +1696,180 @@ function voiceEnd(){VOICE.active=false;VOICE.listening=false;if(VOICE.timer){cle
    NOTE: This is a faithful front-end simulation of the universal CRM integration system. It creates signed
    integration events, routes them to connected providers, records sync results and retries — exactly as the
    real Supabase + n8n backend will, but without live CRM API calls (that is the developer handoff build). */
+/* ============================ Real backend (Supabase Edge Functions) ============================ */
+/* The public GitHub Pages demo has NO backend. When the user connects their own Supabase project
+   here, the Connect buttons perform REAL provider OAuth + REAL Telnyx calls via Edge Functions.
+   Secrets (client secrets, Telnyx keys, tokens) live ONLY server-side — never in this file. */
+var BK_TR={
+ en:{bk_title:'Real backend',bk_sub:'Connect your Supabase project to make CRM & phone connections real. Without it, everything below is a labelled demo.',
+  bk_none:'No backend connected — demo mode',bk_connected_as:'Backend connected as {e}',bk_project:'Supabase project URL',bk_anon:'Supabase anon key',bk_email:'Your app email',bk_password:'Password',
+  bk_save:'Connect backend',bk_disconnect:'Disconnect backend',bk_connect_backend:'Connect a backend',bk_signed_in:'Backend connected',bk_signin_err:'Sign-in failed: {e}',bk_saved:'Backend project saved',
+  bk_redirecting:'Redirecting to the provider to authorise…',bk_connect_err:'Could not start authorisation: {e}',bk_testing:'Running a real test…',bk_test_ok:'Test passed — connection is live',bk_test_fail:'Test failed: {e}',
+  bk_run_test:'Run real test',bk_refresh:'Refresh',bk_live_conns:'Live connections (your backend)',bk_no_live:'No live connections yet. Use Connect on a provider below to authorise for real.',
+  bk_demo_t:'Demo mode — no backend connected',bk_demo_b:'This public demo can’t reach a CRM. Connect your Supabase backend to authorise {p} for real, or preview the setup steps as a labelled demo.',bk_preview_demo:'Preview setup (demo)',bk_needs_creds:'{p} needs server credentials in your backend before it can connect.',
+  bk_url_ph:'https://YOUR_REF.supabase.co',bk_note:'The anon key is safe to use in a browser. Your Supabase service role key and all provider secrets stay on the server and are never entered here.',
+  cs_demo:'Demo',cs_needs_setup:'Needs setup',cs_authorising:'Authorising',cs_test_required:'Test required',cs_connected:'Connected',cs_attention:'Attention required',cs_error:'Error',cs_disconnected:'Not connected',
+  tele_verify:'Verify Telnyx account',tele_verify_ok:'Telnyx account verified',tele_verify_fail:'Telnyx verification failed: {e}',tele_search_real:'Search real numbers',tele_order_real:'Order',tele_ordered:'Number ordered — becomes Active only after a real inbound test call',
+  tele_needs_backend:'Connect a backend to search and order real Telnyx numbers.',num_active_after_test:'Active only after a real inbound test call is recorded.',st_test_pending:'Awaiting test call'},
+ es:{bk_title:'Backend real',bk_sub:'Conecte su proyecto de Supabase para que las conexiones de CRM y teléfono sean reales. Sin él, todo lo de abajo es una demo etiquetada.',
+  bk_none:'Sin backend conectado — modo demo',bk_connected_as:'Backend conectado como {e}',bk_project:'URL del proyecto de Supabase',bk_anon:'Clave anon de Supabase',bk_email:'Su correo de la app',bk_password:'Contraseña',
+  bk_save:'Conectar backend',bk_disconnect:'Desconectar backend',bk_connect_backend:'Conectar un backend',bk_signed_in:'Backend conectado',bk_signin_err:'Error de inicio de sesión: {e}',bk_saved:'Proyecto de backend guardado',
+  bk_redirecting:'Redirigiendo al proveedor para autorizar…',bk_connect_err:'No se pudo iniciar la autorización: {e}',bk_testing:'Ejecutando una prueba real…',bk_test_ok:'Prueba superada — la conexión está activa',bk_test_fail:'Prueba fallida: {e}',
+  bk_run_test:'Ejecutar prueba real',bk_refresh:'Actualizar',bk_live_conns:'Conexiones activas (su backend)',bk_no_live:'Aún no hay conexiones activas. Use Conectar en un proveedor para autorizar de verdad.',
+  bk_demo_t:'Modo demo — sin backend conectado',bk_demo_b:'Esta demo pública no puede acceder a un CRM. Conecte su backend de Supabase para autorizar {p} de verdad, o vea los pasos como demo etiquetada.',bk_preview_demo:'Ver configuración (demo)',bk_needs_creds:'{p} necesita credenciales de servidor en su backend antes de conectarse.',
+  bk_url_ph:'https://SU_REF.supabase.co',bk_note:'La clave anon es segura en el navegador. Su clave service role y los secretos de los proveedores permanecen en el servidor y nunca se introducen aquí.',
+  cs_demo:'Demo',cs_needs_setup:'Requiere configuración',cs_authorising:'Autorizando',cs_test_required:'Prueba requerida',cs_connected:'Conectado',cs_attention:'Requiere atención',cs_error:'Error',cs_disconnected:'No conectado',
+  tele_verify:'Verificar cuenta de Telnyx',tele_verify_ok:'Cuenta de Telnyx verificada',tele_verify_fail:'Verificación de Telnyx fallida: {e}',tele_search_real:'Buscar números reales',tele_order_real:'Pedir',tele_ordered:'Número pedido — se activa solo tras una llamada de prueba entrante real',
+  tele_needs_backend:'Conecte un backend para buscar y pedir números reales de Telnyx.',num_active_after_test:'Activo solo tras registrar una llamada de prueba entrante real.',st_test_pending:'Esperando llamada de prueba'},
+ ar:{bk_title:'خادم حقيقي',bk_sub:'اربط مشروع Supabase الخاص بك لجعل اتصالات CRM والهاتف حقيقية. بدونه، كل ما بالأسفل عرض تجريبي موسوم.',
+  bk_none:'لا يوجد خادم متصل — وضع تجريبي',bk_connected_as:'الخادم متصل باسم {e}',bk_project:'رابط مشروع Supabase',bk_anon:'مفتاح anon الخاص بـ Supabase',bk_email:'بريدك في التطبيق',bk_password:'كلمة المرور',
+  bk_save:'ربط الخادم',bk_disconnect:'قطع اتصال الخادم',bk_connect_backend:'ربط خادم',bk_signed_in:'تم ربط الخادم',bk_signin_err:'فشل تسجيل الدخول: {e}',bk_saved:'تم حفظ مشروع الخادم',
+  bk_redirecting:'جارٍ التحويل إلى المزوّد للتفويض…',bk_connect_err:'تعذّر بدء التفويض: {e}',bk_testing:'جارٍ تشغيل اختبار حقيقي…',bk_test_ok:'نجح الاختبار — الاتصال فعّال',bk_test_fail:'فشل الاختبار: {e}',
+  bk_run_test:'تشغيل اختبار حقيقي',bk_refresh:'تحديث',bk_live_conns:'الاتصالات الفعّالة (خادمك)',bk_no_live:'لا توجد اتصالات فعّالة بعد. استخدم «ربط» على أحد المزوّدين للتفويض فعليًا.',
+  bk_demo_t:'وضع تجريبي — لا يوجد خادم متصل',bk_demo_b:'لا يستطيع هذا العرض العام الوصول إلى CRM. اربط خادم Supabase لتفويض {p} فعليًا، أو استعرض خطوات الإعداد كعرض تجريبي موسوم.',bk_preview_demo:'استعراض الإعداد (تجريبي)',bk_needs_creds:'يحتاج {p} إلى بيانات اعتماد خادم في خادمك قبل الاتصال.',
+  bk_url_ph:'https://YOUR_REF.supabase.co',bk_note:'مفتاح anon آمن للاستخدام في المتصفح. يبقى مفتاح service role وأسرار المزوّدين على الخادم ولا تُدخَل هنا أبدًا.',
+  cs_demo:'تجريبي',cs_needs_setup:'يحتاج إعدادًا',cs_authorising:'جارٍ التفويض',cs_test_required:'يلزم اختبار',cs_connected:'متصل',cs_attention:'يحتاج انتباه',cs_error:'خطأ',cs_disconnected:'غير متصل',
+  tele_verify:'التحقق من حساب Telnyx',tele_verify_ok:'تم التحقق من حساب Telnyx',tele_verify_fail:'فشل التحقق من Telnyx: {e}',tele_search_real:'بحث عن أرقام حقيقية',tele_order_real:'طلب',tele_ordered:'تم طلب الرقم — يصبح فعّالًا فقط بعد مكالمة اختبار واردة حقيقية',
+  tele_needs_backend:'اربط خادمًا للبحث عن أرقام Telnyx حقيقية وطلبها.',num_active_after_test:'فعّال فقط بعد تسجيل مكالمة اختبار واردة حقيقية.',st_test_pending:'بانتظار مكالمة اختبار'}
+};
+(function(){for(var l in BK_TR){if(!TR[l])TR[l]={};for(var k in BK_TR[l]){if(TR[l][k]==null)TR[l][k]=BK_TR[l][k]}}})();
+
+var BK={
+  cfg:function(){var c=DB.get('ag_backend',null);return isObj(c)?c:{}},
+  save:function(c){DB.set('ag_backend',c)},
+  clear:function(){DB.del('ag_backend');CRM_REAL={loading:false,loaded:false,conns:[],err:null}},
+  base:function(){return String(BK.cfg().url||'').replace(/\/+$/,'')},
+  hasProject:function(){var c=BK.cfg();return !!(c.url&&c.anon)},
+  configured:function(){var c=BK.cfg();return !!(c.url&&c.anon&&c.token)},
+  signIn:function(email,pass){
+    var c=BK.cfg();if(!c.url||!c.anon)return Promise.reject(new Error('no_project'));
+    return fetch(BK.base()+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:c.anon,'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pass})})
+      .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error_description||j.msg||j.error||('HTTP '+r.status));return j})})
+      .then(function(j){c.email=email;c.token=j.access_token;c.refresh=j.refresh_token;BK.save(c);return j});
+  },
+  refresh:function(){
+    var c=BK.cfg();if(!c.refresh)return Promise.reject(new Error('no_refresh'));
+    return fetch(BK.base()+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:c.anon,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:c.refresh})})
+      .then(function(r){if(!r.ok)throw new Error('refresh_failed');return r.json()})
+      .then(function(j){c.token=j.access_token;if(j.refresh_token)c.refresh=j.refresh_token;BK.save(c);return j});
+  },
+  fn:function(name,opts){
+    opts=opts||{};var c=BK.cfg();
+    var call=function(){return fetch(BK.base()+'/functions/v1/'+name,{
+      method:opts.method||'POST',
+      headers:{apikey:c.anon,Authorization:'Bearer '+(c.token||c.anon),'Content-Type':'application/json'},
+      body:opts.body?JSON.stringify(opts.body):undefined});};
+    return call().then(function(r){
+      if(r.status===401&&BK.cfg().refresh){return BK.refresh().then(function(){c=BK.cfg();return call()})}
+      return r;
+    }).then(function(r){return r.json().catch(function(){return{}}).then(function(j){if(!r.ok)throw new Error(j.error||('HTTP '+r.status));return j})});
+  }
+};
+/* Truthful connection-state → chip class + label. NEVER shows "Connected" for a demo/unverified state. */
+function crmStateMeta(s){return ({
+  demo:{k:'cs-demo',l:t('cs_demo')},needs_setup:{k:'cs-none',l:t('cs_needs_setup')},authorising:{k:'cs-connecting',l:t('cs_authorising')},
+  test_required:{k:'cs-expired',l:t('cs_test_required')},connected:{k:'cs-connected',l:t('cs_connected')},
+  attention_required:{k:'cs-attention',l:t('cs_attention')},error:{k:'cs-error',l:t('cs_error')},disconnected:{k:'cs-none',l:t('cs_disconnected')}
+})[s]||{k:'cs-none',l:s};}
+function bkErrLabel(m){m=String(m||'');
+  var map={provider_not_configured:t('bk_needs_creds'),unauthenticated:'sign in to your backend first',no_workspace:'no workspace on your backend',telnyx_not_configured:'Telnyx not configured on the backend',test_not_implemented:'live test not implemented for this provider yet'};
+  return map[m]||m;}
+
+/* Real CRM connections fetched from the backend (crm-status). Demo connections live in crmState(). */
+var CRM_REAL={loading:false,loaded:false,conns:[],err:null};
+function crmFetchReal(force){
+  if(!BK.configured())return;
+  if(CRM_REAL.loading)return;if(CRM_REAL.loaded&&!force)return;
+  CRM_REAL.loading=true;
+  BK.fn('crm-status',{method:'GET'}).then(function(r){CRM_REAL.conns=(r&&r.connections)||[];CRM_REAL.loaded=true;CRM_REAL.err=null;})
+    .catch(function(e){CRM_REAL.err=String(e.message||e);CRM_REAL.loaded=true;})
+    .then(function(){CRM_REAL.loading=false;if(location.hash.indexOf('integrations')>=0)render();});
+}
+function crmConnect(prov){
+  var p=crmProvider(prov);if(!p)return;
+  if(p.id==='generic_webhook'||p.id==='custom_api'){crmOpenWizard(prov);return;} /* hook config = local demo */
+  if(BK.configured()){crmConnectReal(prov);return;}
+  bkExplain(prov);
+}
+function bkNavigate(u){location.href=u} /* single navigation point (overridable in tests) */
+function crmConnectReal(prov){
+  toast(t('bk_redirecting'));
+  BK.fn('crm-authorise',{body:{provider:prov,returnUrl:location.origin+location.pathname}})
+    .then(function(r){if(r&&r.authorizationUrl){bkNavigate(r.authorizationUrl)}else{throw new Error('no_url')}})
+    .catch(function(e){toast(tf('bk_connect_err',{e:bkErrLabel(e.message)}))});
+}
+function crmRunRealTest(connId){
+  toast(t('bk_testing'));
+  BK.fn('crm-test',{body:{connectionId:connId}}).then(function(r){
+    crmFetchReal(true);
+    toast(r&&r.ok?t('bk_test_ok'):tf('bk_test_fail',{e:bkErrLabel((r&&r.error)||'failed')}));
+  }).catch(function(e){toast(tf('bk_test_fail',{e:bkErrLabel(e.message)}))});
+}
+/* Consume the OAuth callback return (?crm=..&connection=..&status=..|error=..) on boot. */
+function bkConsumeReturn(){
+  try{
+    var q=new URLSearchParams(location.search||'');
+    if(!q.get('crm'))return;
+    DB.set('ag_oauth_return',{crm:q.get('crm'),connection:q.get('connection'),status:q.get('status'),error:q.get('error')});
+    history.replaceState(null,'',location.pathname+'#/integrations');
+  }catch(e){}
+}
+function bkShowReturnToast(){
+  var r=DB.get('ag_oauth_return',null);if(!isObj(r))return;DB.del('ag_oauth_return');
+  if(r.error){toast(tf('bk_connect_err',{e:bkErrLabel(r.error)}))}
+  else{toast(t('cs_test_required')+' — '+esc(r.crm||''));CRM_REAL.loaded=false;crmFetchReal(true);}
+}
+/* ---- Backend connection panel ---- */
+function bkOpenPanel(){
+  var m=crmModalEl();if(!m)return;var c=BK.cfg();
+  m.innerHTML='<div class="modal" onclick="if(event.target===this)crmCloseModal()"><div class="modalcard"><div class="modalhead">'+icon('db')+'<h3>'+esc(t('bk_title'))+'</h3><button class="modalx" onclick="crmCloseModal()">'+icon('close')+'</button></div>'+
+    '<div class="modalbody">'+
+      '<p class="wizsub" style="margin-top:-2px">'+esc(t('bk_sub'))+'</p>'+
+      '<div class="field"><label>'+esc(t('bk_project'))+'</label><input id="bkurl" value="'+esc(c.url||'')+'" placeholder="'+esc(t('bk_url_ph'))+'"/></div>'+
+      '<div class="field"><label>'+esc(t('bk_anon'))+'</label><input id="bkanon" value="'+esc(c.anon||'')+'" style="font-family:ui-monospace,Menlo,monospace"/></div>'+
+      '<div class="obgrid"><div class="field"><label>'+esc(t('bk_email'))+'</label><input id="bkemail" value="'+esc(c.email||'')+'" autocomplete="username"/></div>'+
+        '<div class="field"><label>'+esc(t('bk_password'))+'</label><input id="bkpass" type="password" autocomplete="current-password"/></div></div>'+
+      '<p class="muted" style="font-size:11.5px;line-height:1.5;margin-top:2px">'+esc(t('bk_note'))+'</p>'+
+      '<div class="wiznav"><div class="spacer"></div>'+(BK.hasProject()?'<button class="btn btn-danger" onclick="bkDisconnect()">'+esc(t('bk_disconnect'))+'</button>':'')+'<button class="btn btn-primary" onclick="bkConnect()">'+esc(t('bk_save'))+'</button></div>'+
+    '</div></div></div>';
+}
+function bkConnect(){
+  var d=document,url=(d.getElementById('bkurl')||{}).value,anon=(d.getElementById('bkanon')||{}).value,em=(d.getElementById('bkemail')||{}).value,pw=(d.getElementById('bkpass')||{}).value;
+  if(!url||!anon){toast(tf('bk_signin_err',{e:'URL + anon key required'}));return}
+  var c=BK.cfg();c.url=url.trim();c.anon=anon.trim();BK.save(c);toast(t('bk_saved'));
+  if(!em||!pw){bkOpenPanel();return}
+  BK.signIn(em.trim(),pw).then(function(){crmCloseModal();CRM_REAL.loaded=false;toast(t('bk_signed_in'));crmFetchReal(true);render();})
+    .catch(function(e){toast(tf('bk_signin_err',{e:String(e.message||e)}))});
+}
+function bkDisconnect(){BK.clear();crmCloseModal();render();toast(t('bk_none'))}
+function bkExplain(prov){
+  var p=crmProvider(prov)||{name:prov};var m=crmModalEl();if(!m)return;
+  m.innerHTML='<div class="modal" onclick="if(event.target===this)crmCloseModal()"><div class="modalcard"><div class="modalhead">'+icon('shield')+'<h3>'+esc(t('bk_demo_t'))+'</h3><button class="modalx" onclick="crmCloseModal()">'+icon('close')+'</button></div>'+
+    '<div class="modalbody"><p class="wizsub">'+esc(tf('bk_demo_b',{p:p.name}))+'</p>'+
+    '<div class="wiznav" style="margin-top:14px"><button class="btn" onclick="crmCloseModal();crmOpenWizard(\''+prov+'\')">'+esc(t('bk_preview_demo'))+'</button><div class="spacer"></div><button class="btn btn-primary" onclick="bkOpenPanel()">'+icon('db')+' '+esc(t('bk_connect_backend'))+'</button></div>'+
+    '</div></div></div>';
+}
+function bkCard(){
+  var live=BK.configured();var c=BK.cfg();
+  var status=live?tf('bk_connected_as',{e:c.email||'user'}):t('bk_none');
+  return '<div class="card" style="margin-bottom:20px"><div class="archnote"><span class="ai">'+icon('db')+'</span><div style="flex:1;min-width:0"><b>'+esc(t('bk_title'))+'</b>'+
+    '<p class="muted" style="margin-top:3px">'+esc(status)+'</p></div><div class="spacer"></div>'+
+    '<span class="cs '+(live?'cs-connected':'cs-none')+'" style="margin-inline-end:8px"><i></i>'+esc(live?t('cs_connected'):t('cs_demo'))+'</span>'+
+    '<button class="btn btn-sm '+(live?'':'btn-primary')+'" onclick="bkOpenPanel()">'+icon('sliders')+' '+esc(live?t('c_configure'):t('bk_connect_backend'))+'</button></div></div>';
+}
+function crmRealCard(c){
+  var p=crmProvider(c.provider)||{name:c.provider,accent:'#0E9F6E',icon:'crm'};var meta=crmStateMeta(c.status);
+  var md=isObj(c.metadata)?c.metadata:{};var pipes=(md.pipelines||[]).length,owners=(md.owners||[]).length,fields=(md.fields||[]).length;
+  var acts='';
+  if(c.status==='test_required'||c.status==='attention_required')acts+='<button class="btn btn-sm btn-primary" onclick="crmRunRealTest(\''+c.id+'\')">'+icon('activity')+' '+esc(t('bk_run_test'))+'</button>';
+  acts+='<button class="btn btn-sm" onclick="crmFetchReal(true)">'+icon('refresh')+' '+esc(t('bk_refresh'))+'</button>';
+  return '<div class="card provcard">'+
+    '<div class="provhead">'+crmLogo(p)+'<div><div class="provname">'+esc(p.name)+'</div><div class="provmeta">'+esc(c.external_account_name||'')+'</div></div>'+
+      '<div class="spacer"></div><span class="cs '+meta.k+'"><i></i>'+esc(meta.l)+'</span></div>'+
+    (pipes||owners||fields?'<div class="connmeta"><div><div class="l">Pipelines</div><div class="v">'+pipes+'</div></div><div><div class="l">Owners</div><div class="v">'+owners+'</div></div><div><div class="l">Fields</div><div class="v">'+fields+'</div></div><div><div class="l">'+esc(t('cl_health'))+'</div><div class="v">'+esc(meta.l)+'</div></div></div>':'')+
+    (c.last_error&&c.last_error.message?'<p class="muted" style="font-size:12px;color:var(--amber)">'+esc(String(c.last_error.message).slice(0,160))+'</p>':'')+
+    '<div class="connactions">'+acts+'</div></div>';
+}
 var CRM_SECRET='whsec_alsaiti_demo_v1'; /* demo signing secret — never a real credential */
 var CRM_PROVIDERS=[
  {id:'generic_webhook',name:'Generic Webhook',accent:'#12B886',icon:'plug',kind:'core',entity:'payload',accounts:['https://api.yourapp.com/hooks/alsaiti'],desc:'Send signed JSON to any endpoint'},
@@ -1838,7 +2012,7 @@ function crmRecordSync(st,conn,lead,fail,ts){
 }
 function crmSeed(){
   var now=Date.now(),m=60000,h=3600000,day=86400000;
-  var conn={id:'conn_hub_demo',provider:'hubspot',name:'HubSpot',status:'connected',demo:true,account:'Bright Smile Dental',portal:'24428135',
+  var conn={id:'conn_hub_demo',provider:'hubspot',name:'HubSpot',status:'demo',demo:true,account:'Bright Smile Dental',portal:'24428135',
     sync_enabled:true,triggers:['lead.created','lead.status_changed','lead.qualified','lead.booked','lead.won'],
     actions:['contact','deal','note'],pipeline:'Sales Pipeline',stage:'New Lead',owner:'Front desk',
     tags:['alsaiti-voice','voice-call'],mapping:crmDefaultMapping(),synced:0,
@@ -1859,7 +2033,7 @@ function crmEmit(eventType,lead){
     if(!lead||!lead.id)return 0;
     if(crmMode()==='internal')return 0;
     var st=crmState(),ts=Math.floor(Date.now()/1000);
-    var routed=st.conns.filter(function(c){return c.sync_enabled&&c.status==='connected'&&(c.triggers||[]).indexOf(eventType)>=0});
+    var routed=st.conns.filter(function(c){return c.sync_enabled&&(c.status==='connected'||c.status==='demo')&&(c.triggers||[]).indexOf(eventType)>=0});
     var env=crmEnvelope(eventType,lead,routed[0]);var body=JSON.stringify(env);
     st.events.unshift({event_id:env.event_id,event_type:eventType,entity_id:lead.id,lead_name:lead.name,status:routed.length?'processed':'no_route',attempt_count:routed.length?1:0,at:Date.now(),ts:ts,sig:crmSign(ts,body),body:body});
     if(st.events.length>80)st.events.length=80;
@@ -1891,7 +2065,7 @@ function crmRetry(connId,leadId){
   crmSave(st);render();toast(t('toast_retried'));
 }
 function crmPause(id){var st=crmState(),c=crmFindConn(st,id);if(!c)return;c.sync_enabled=false;crmSave(st);render();toast(t('toast_paused'))}
-function crmResume(id){var st=crmState(),c=crmFindConn(st,id);if(!c)return;c.sync_enabled=true;c.status='connected';crmSave(st);render();toast(t('toast_resumed'))}
+function crmResume(id){var st=crmState(),c=crmFindConn(st,id);if(!c)return;c.sync_enabled=true;c.status=(c.demo?'demo':'connected');crmSave(st);render();toast(t('toast_resumed'))}
 function crmTestConn(id){var st=crmState(),c=crmFindConn(st,id);if(!c)return;c.tested_at=Date.now();c.health='healthy';c.last_error=null;crmSave(st);render();toast(t('toast_tested'))}
 function crmDisconnect(id){var st=crmState(),c=crmFindConn(st,id);if(!c)return;
   var ok=true;try{ok=confirm(tf('confirm_disconnect',{p:c.name}))}catch(e){ok=true}if(!ok)return;
@@ -1899,9 +2073,10 @@ function crmDisconnect(id){var st=crmState(),c=crmFindConn(st,id);if(!c)return;
 
 /* ---- Integrations page ---- */
 function integrationsPage(){
+  if(BK.configured()&&!CRM_REAL.loaded)crmFetchReal();
   var st=crmState();
   var conns=st.conns.filter(function(c){return c.status!=='disconnected'});
-  var active=conns.filter(function(c){return c.status==='connected'&&c.sync_enabled}).length;
+  var active=conns.filter(function(c){return (c.status==='connected'||c.status==='demo')&&c.sync_enabled}).length;
   var syncedTotal=0;Object.keys(st.syncs).forEach(function(k){if(st.syncs[k].status==='synced')syncedTotal++});
   var succ=st.attempts.length?Math.round(st.attempts.filter(function(a){return a.status==='success'}).length/st.attempts.length*100):100;
   var lastSync=0;st.attempts.forEach(function(a){if(a.status==='success'&&a.at>lastSync)lastSync=a.at});
@@ -1909,9 +2084,15 @@ function integrationsPage(){
   var connectedIds={};conns.forEach(function(c){connectedIds[c.provider]=true});
   var avail=CRM_PROVIDERS.filter(function(p){return !connectedIds[p.id]});
   var head2=function(k){return '<h3 style="margin:6px 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">'+esc(t(k))+'</h3>'};
+  var realConns=CRM_REAL.conns||[];
+  var liveSection=BK.configured()?
+    (head2('bk_live_conns')+(realConns.length?'<div class="grid" style="gap:14px;margin-bottom:24px">'+realConns.map(crmRealCard).join('')+'</div>':'<div class="card" style="margin-bottom:24px"><p class="muted" style="padding:6px 0">'+esc(CRM_REAL.err?bkErrLabel(CRM_REAL.err):t('bk_no_live'))+'</p></div>'))
+    :'';
   return head(t('integ_title'),t('integ_sub'))+
-   demoBanner('preview_body')+
+   bkCard()+
+   (BK.configured()?'':demoBanner('preview_body'))+
    '<div class="crmsum">'+summary.map(function(s){return '<div class="card stat"><div class="label">'+esc(s[0])+' <span class="demopill">'+esc(t('demo_data'))+'</span></div><div class="value">'+esc(String(s[1]))+'</div></div>'}).join('')+'</div>'+
+   liveSection+
    '<div class="card" style="margin-bottom:20px"><div class="archnote"><span class="ai">'+icon('shield')+'</span><div><b>'+esc(t('arch_title'))+'</b><p class="muted" style="margin-top:3px">'+esc(t('arch_body'))+'</p>'+
      '<div class="flowchips">'+
        '<span class="flowchip">'+icon('bolt')+esc(t('flow_lead'))+'</span><span class="flowarr">'+icon('arrow')+'</span>'+
@@ -1926,11 +2107,11 @@ function integrationsPage(){
 function crmConnCard(c){
   var p=crmProvider(c.provider)||{name:c.provider,accent:'#0E9F6E',icon:'crm'};
   var paused=!c.sync_enabled, attn=c.health==='attention';
-  var stKey=paused?'paused':(attn?'attention':'connected');
-  var stLabel=paused?t('st_paused'):(attn?t('st_attention'):t('st_connected'));
+  /* Truthful chip: a demo connection reads "Demo", never "Connected". Paused/attention still shown. */
+  var meta=paused?{k:'cs-paused',l:t('st_paused')}:(attn&&c.status!=='demo'?{k:'cs-attention',l:t('st_attention')}:crmStateMeta(c.status));
   return '<div class="card provcard">'+
     '<div class="provhead">'+crmLogo(p)+'<div><div class="provname">'+esc(p.name)+'</div><div class="provmeta">'+esc(c.account||'')+'</div></div>'+
-      '<div class="spacer"></div>'+(c.demo?'<span class="cs cs-demo" title="Simulated for this demo">'+esc(t('demo_badge'))+'</span>':'')+'<span class="cs cs-'+stKey+'"><i></i>'+esc(stLabel)+'</span></div>'+
+      '<div class="spacer"></div><span class="cs '+meta.k+'"><i></i>'+esc(meta.l)+'</span></div>'+
     '<div class="connmeta">'+
       '<div><div class="l">'+esc(t('cl_synced'))+'</div><div class="v">'+(c.synced||0)+'</div></div>'+
       '<div><div class="l">'+esc(t('cl_lastok'))+'</div><div class="v">'+(c.last_success?ago(c.last_success):t('cl_never'))+'</div></div>'+
@@ -1947,13 +2128,16 @@ function crmConnCard(c){
 }
 function crmAvailCard(p){
   var soon=p.kind==='soon';
+  var hook=(p.id==='generic_webhook'||p.id==='custom_api');
+  /* Truthful available state: "Needs setup" (needs a backend / config), not a fake status. */
+  var stMeta=BK.configured()&&!hook?crmStateMeta('needs_setup'):{k:'cs-none',l:t('cs_needs_setup')};
   return '<div class="card provcard">'+
     '<div class="provhead">'+crmLogo(p)+'<div><div class="provname">'+esc(p.name)+'</div><div class="provmeta">'+esc(p.desc||'')+'</div></div>'+
-      '<div class="spacer"></div>'+(soon?'<span class="cs cs-soon">'+esc(t('st_soon'))+'</span>':'<span class="cs cs-none"><i></i>'+esc(t('st_disconnected'))+'</span>')+'</div>'+
+      '<div class="spacer"></div>'+(soon?'<span class="cs cs-soon">'+esc(t('st_soon'))+'</span>':'<span class="cs '+stMeta.k+'"><i></i>'+esc(stMeta.l)+'</span>')+'</div>'+
     (soon?'<p class="muted" style="font-size:12.5px;line-height:1.5">'+esc(t('soon_note'))+'</p>':'')+
     '<div class="connactions">'+
       (soon?'<button class="btn btn-sm" disabled style="opacity:.5;cursor:default">'+esc(t('st_soon'))+'</button>':
-        '<button class="btn btn-sm btn-primary" onclick="crmOpenWizard(\''+p.id+'\')">'+icon('plug')+' '+esc(p.kind==='custom'?t('c_connect_api'):t('c_connect'))+'</button>')+
+        '<button class="btn btn-sm btn-primary" onclick="crmConnect(\''+p.id+'\')">'+icon('plug')+' '+esc(hook?t('c_connect_api'):t('c_connect'))+'</button>')+
     '</div></div>';
 }
 function crmLogsCard(st){
@@ -2085,13 +2269,13 @@ function crmActivate(){
     if(c){c.triggers=trigs;c.actions=acts;c.mapping=d.mapping;c.pipeline=d.pipeline;c.stage=d.stage;c.owner=d.owner;c.account=d.account;c.tested_at=Date.now()}
     crmSave(st);crmCloseModal();render();toast(t('wz_save'));return;
   }
-  var conn={id:'conn_'+crmRand(10),provider:p.id,name:p.name,status:'connected',demo:true,account:d.account,
+  var conn={id:'conn_'+crmRand(10),provider:p.id,name:p.name,status:'demo',demo:true,account:d.account,
     portal:(p.id==='hubspot'?String(20000000+Math.floor(Math.random()*9000000)):''),
     sync_enabled:true,triggers:trigs,actions:acts,pipeline:d.pipeline,stage:d.stage,owner:d.owner,sheet:d.sheet,
     tags:d.tags||[],mapping:d.mapping,synced:0,last_success:null,last_failure:null,last_error:null,connected_at:Date.now(),tested_at:Date.now(),health:'healthy'};
   st.conns.push(conn);crmSave(st);crmCloseModal();
   try{getLeads().slice(0,3).forEach(function(l){crmEmit('lead.created',l)})}catch(e){}
-  render();toast(tf('toast_connected',{p:p.name}));
+  render();toast(t('cs_demo')+' — '+p.name);
 }
 function crmViewEvent(evId){
   var st=crmState(),ev=null;for(var i=0;i<st.events.length;i++){if(st.events[i].event_id===evId){ev=st.events[i];break}}
@@ -2315,16 +2499,41 @@ function teleCallsCard(st){
     rows.map(function(c){return '<tr><td><span class="src">'+icon('phone')+ago(c.at)+'</span></td><td style="font-variant-numeric:tabular-nums">'+esc(c.from)+'</td><td>'+esc(c.dur)+'</td><td>'+esc(c.outcome)+'</td><td class="muted" style="font-size:12px;max-width:280px">'+esc(c.summary||'')+'</td></tr>'}).join('')+'</tbody></table></div>';
   return '<div class="card" style="margin-top:22px"><h3>'+esc(t('tele_calls'))+' <span class="demopill">'+esc(t('demo_data'))+'</span></h3>'+body+'</div>';
 }
-function teleOpenSearch(){
-  var m=crmModalEl();if(!m)return;TELE_SEARCH=[];
-  for(var i=0;i<6;i++){TELE_SEARCH.push({e164:'+44 20 4599 '+(1000+Math.floor(Math.random()*8999)),caps:'Voice · SMS',cost:'£1.00'})}
-  m.innerHTML='<div class="modal" onclick="if(event.target===this)crmCloseModal()"><div class="modalcard"><div class="modalhead">'+icon('phone')+'<h3>'+esc(t('tele_search'))+'</h3><button class="modalx" onclick="crmCloseModal()">'+icon('close')+'</button></div>'+
+var TELE_COUNTRIES=[['GB','United Kingdom (+44)','20'],['US','United States (+1)','212'],['IE','Ireland (+353)','1']];
+function teleSearchModal(resultsHtml,note){
+  var m=crmModalEl();if(!m)return;
+  var real=BK.configured();
+  m.innerHTML='<div class="modal" onclick="if(event.target===this)crmCloseModal()"><div class="modalcard"><div class="modalhead">'+icon('phone')+'<h3>'+esc(real?t('tele_search_real'):t('tele_search'))+'</h3><button class="modalx" onclick="crmCloseModal()">'+icon('close')+'</button></div>'+
     '<div class="modalbody">'+
-      '<div class="obgrid"><div class="field"><label>'+esc(t('tele_country'))+'</label><select><option>United Kingdom (+44)</option><option>United States (+1)</option><option>Ireland (+353)</option></select></div><div class="field"><label>'+esc(t('tele_areacode'))+'</label><input value="20"/></div></div>'+
+      '<div class="obgrid"><div class="field"><label>'+esc(t('tele_country'))+'</label><select id="telecountry">'+TELE_COUNTRIES.map(function(c){return '<option value="'+c[0]+'">'+esc(c[1])+'</option>'}).join('')+'</select></div><div class="field"><label>'+esc(t('tele_areacode'))+'</label><input id="telearea" value="20"/></div></div>'+
+      (real?'<div class="wiznav" style="margin:2px 0 6px"><div class="spacer"></div><button class="btn btn-primary" onclick="teleSearchRealRun()">'+icon('activity')+' '+esc(t('tele_search_real'))+'</button></div>':'')+
       '<div class="wizlabel" style="margin-top:6px">'+esc(t('tele_available'))+'</div>'+
-      '<div class="maptable" style="margin-top:8px">'+TELE_SEARCH.map(function(n,idx){return '<div class="maprow"><span class="mf" style="font-variant-numeric:tabular-nums">'+esc(n.e164)+'</span><span class="ma" style="flex:1">'+esc(n.caps)+'</span><span style="color:var(--muted);white-space:nowrap">'+esc(n.cost)+'/mo</span><button class="btn btn-sm btn-primary" onclick="teleActivate('+idx+')">'+esc(t('tele_order'))+'</button></div>'}).join('')+'</div>'+
-      '<p class="muted" style="font-size:11.5px;margin-top:12px;line-height:1.5">'+esc(t('tele_preview'))+'</p>'+
+      '<div id="teleresults" class="maptable" style="margin-top:8px">'+resultsHtml+'</div>'+
+      '<p class="muted" style="font-size:11.5px;margin-top:12px;line-height:1.5">'+esc(note||(real?t('num_active_after_test'):t('tele_preview')))+'</p>'+
     '</div></div></div>';
+}
+function teleOpenSearch(){
+  if(BK.configured()){teleSearchModal('<p class="muted" style="padding:4px 2px">'+esc(t('tele_search_real'))+'…</p>');return;}
+  TELE_SEARCH=[];
+  for(var i=0;i<6;i++){TELE_SEARCH.push({e164:'+44 20 4599 '+(1000+Math.floor(Math.random()*8999)),caps:'Voice · SMS',cost:'£1.00'})}
+  var html=TELE_SEARCH.map(function(n,idx){return '<div class="maprow"><span class="mf" style="font-variant-numeric:tabular-nums">'+esc(n.e164)+'</span><span class="ma" style="flex:1">'+esc(n.caps)+'</span><span style="color:var(--muted);white-space:nowrap">'+esc(n.cost)+'/mo</span><button class="btn btn-sm btn-primary" onclick="teleActivate('+idx+')">'+esc(t('tele_order'))+'</button></div>'}).join('');
+  teleSearchModal(html);
+}
+function teleSearchRealRun(){
+  var country=(document.getElementById('telecountry')||{}).value||'GB';
+  var area=(document.getElementById('telearea')||{}).value||'';
+  var box=document.getElementById('teleresults');if(box)box.innerHTML='<p class="muted" style="padding:4px 2px">'+esc(t('tele_search_real'))+'…</p>';
+  BK.fn('telnyx-search',{body:{country:country,areaCode:area}}).then(function(r){
+    var nums=(r&&r.numbers)||[];TELE_REAL=nums;
+    if(!box)return;
+    box.innerHTML=nums.length?nums.map(function(n,idx){return '<div class="maprow"><span class="mf" style="font-variant-numeric:tabular-nums">'+esc(n.phoneNumber)+'</span><span class="ma" style="flex:1">'+esc((n.capabilities||[]).join(' · '))+'</span><span style="color:var(--muted);white-space:nowrap">'+esc((n.monthlyCost||'—')+(n.currency?(' '+n.currency):''))+'</span><button class="btn btn-sm btn-primary" onclick="teleOrderReal('+idx+')">'+esc(t('tele_order_real'))+'</button></div>'}).join(''):'<p class="muted" style="padding:4px 2px">No numbers found for that search.</p>';
+  }).catch(function(e){if(box)box.innerHTML='<p class="muted" style="padding:4px 2px;color:var(--amber)">'+esc(bkErrLabel(e.message))+'</p>'});
+}
+var TELE_REAL=[];
+function teleOrderReal(idx){
+  var pick=TELE_REAL[idx];if(!pick)return;toast(t('tele_search_real')+'…');
+  BK.fn('telnyx-order',{body:{phoneNumber:pick.phoneNumber}}).then(function(r){crmCloseModal();toast(t('tele_ordered'))})
+    .catch(function(e){toast(tf('tele_verify_fail',{e:bkErrLabel(e.message)}))});
 }
 function teleActivate(idx){
   var pick=TELE_SEARCH[idx];if(!pick)return;var st=teleState();
@@ -2340,7 +2549,12 @@ function teleTestCall(id){
 function teleRelease(id){var ok=true;try{ok=confirm('Release this number? (demo)')}catch(e){ok=true}if(!ok)return;var st=teleState();st.numbers=st.numbers.filter(function(x){return x.id!==id});teleSave(st);render();toast(t('tele_toast_released'))}
 function teleAssign(){toast('Assistant assigned (demo)')}
 function teleForward(){var st=teleState();st.numbers.unshift({id:'num_'+crmRand(8),e164:'+44 7700 900000',country:'GB',type:'Forwarded',caps:['Voice'],status:'active',demo:true,mode:'forward',ownership:'customer_owned',assistant:'Alsaiti receptionist',routing:'Forwarded → Alsaiti',cost:'—',last_call:null});teleSave(st);render();toast(t('tele_toast_forward'))}
-function teleConnectAccount(){toast('Telnyx OAuth authorisation happens on the backend (demo)')}
+function teleConnectAccount(){
+  if(!BK.configured()){toast(t('tele_needs_backend'));bkOpenPanel();return}
+  toast(t('tele_verify')+'…');
+  BK.fn('telnyx-verify',{}).then(function(r){toast(r&&r.ok?t('tele_verify_ok'):tf('tele_verify_fail',{e:bkErrLabel((r&&r.error)||'failed')}))})
+    .catch(function(e){toast(tf('tele_verify_fail',{e:bkErrLabel(e.message)}))});
+}
 function teleSip(){toast('SIP / BYOC trunk is configured on the backend (demo)')}
 function telePort(){toast('Port request is tracked on the backend (demo)')}
 
@@ -2348,6 +2562,9 @@ function telePort(){toast('Port request is tracked on the backend (demo)')}
 window.go=go;window.openLead=openLead;window.toggleMenu=toggleMenu;window.doLogout=doLogout;
 window.crmConsent=crmConsent;window.crmApproveConsent=crmApproveConsent;window.crmDenyConsent=crmDenyConsent;
 window.teleOpenSearch=teleOpenSearch;window.teleActivate=teleActivate;window.teleTestCall=teleTestCall;window.teleRelease=teleRelease;window.teleAssign=teleAssign;window.teleForward=teleForward;window.teleConnectAccount=teleConnectAccount;window.teleSip=teleSip;window.telePort=telePort;
+window.teleSearchRealRun=teleSearchRealRun;window.teleOrderReal=teleOrderReal;
+window.crmConnect=crmConnect;window.crmConnectReal=crmConnectReal;window.crmRunRealTest=crmRunRealTest;window.crmFetchReal=crmFetchReal;
+window.bkOpenPanel=bkOpenPanel;window.bkConnect=bkConnect;window.bkDisconnect=bkDisconnect;window.bkExplain=bkExplain;window.bkNavigate=bkNavigate;window.BK=BK;
 window.obNext=obNext;window.obBack=obBack;window.obSkip=obSkip;window.obExit=obExit;window.obGoStep=obGoStep;window.obSet=obSet;window.obSetChk=obSetChk;window.obSetMode=obSetMode;window.obAddSvc=obAddSvc;window.obRemoveSvc=obRemoveSvc;window.obLaunch=obLaunch;window.obRunTest=obRunTest;window.dashTestLead=dashTestLead;
 window.crmOpenWizard=crmOpenWizard;window.crmConfigure=crmConfigure;window.crmCloseModal=crmCloseModal;window.crmWizNext=crmWizNext;window.crmWizBack=crmWizBack;
 window.crmSetDraft=crmSetDraft;window.crmSetMap=crmSetMap;window.crmToggleSet=crmToggleSet;window.crmSimAuth=crmSimAuth;window.crmTestLead=crmTestLead;window.crmViewEvent=crmViewEvent;
@@ -2360,7 +2577,9 @@ window.toggleTheme=toggleTheme;window.setTheme=setTheme;
 
 applyTheme();
 applyDir();
+bkConsumeReturn();
 render();
+try{bkShowReturnToast()}catch(e){}
 </script>
 </body>
 </html>

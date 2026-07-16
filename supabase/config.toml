@@ -1,0 +1,33 @@
+# Supabase project config. `verify_jwt` gates each Edge Function:
+#   * true  → the caller MUST present a valid Supabase Auth JWT (a signed-in app user).
+#   * false → public entry points that authenticate a different way:
+#       - crm-callback   is hit by the CRM's browser redirect (no JWT); it trusts the single-use state.
+#       - telnyx-webhook is hit by Telnyx (no JWT); it verifies the Ed25519 signature itself.
+project_id = "alsaiti-voice"
+
+[functions.crm-authorise]
+verify_jwt = true
+
+[functions.crm-callback]
+verify_jwt = false
+
+[functions.crm-test]
+verify_jwt = true
+
+[functions.crm-metadata]
+verify_jwt = true
+
+[functions.crm-status]
+verify_jwt = true
+
+[functions.telnyx-verify]
+verify_jwt = true
+
+[functions.telnyx-search]
+verify_jwt = true
+
+[functions.telnyx-order]
+verify_jwt = true
+
+[functions.telnyx-webhook]
+verify_jwt = false
