@@ -87,6 +87,9 @@ export interface OAuthSession {
 export interface OAuthSessionStore {
   create(session: Omit<OAuthSession, 'id'>): Promise<OAuthSession>;
   findByStateHash(stateHash: string): Promise<OAuthSession | null>;
+  // Atomically flip 'authorising' -> 'callback_received'; false if already claimed.
+  // Makes the state single-use even under concurrent/replayed callbacks.
+  claim(id: string): Promise<boolean>;
   markCompleted(id: string): Promise<void>;
   markError(id: string, code: string, message: string): Promise<void>;
 }
@@ -101,7 +104,11 @@ export interface CredentialVault {
 export interface ConnectionStore {
   upsert(rec: Partial<CrmConnectionRecord> & { businessId: string; provider: CrmProvider }): Promise<CrmConnectionRecord>;
   get(connectionId: string): Promise<CrmConnectionRecord | null>;
+  // Lookup by the natural key so re-authorisation reuses the existing vault row.
+  findByAccount(businessId: string, provider: CrmProvider, externalAccountId: string): Promise<CrmConnectionRecord | null>;
   setStatus(connectionId: string, status: ConnectionStatus): Promise<void>;
+  // Persist the new expiry after a token refresh (token_expires_at + last_refreshed_at).
+  recordRefresh(connectionId: string, tokenExpiresAt?: string): Promise<void>;
 }
 
 export interface AuditLog {

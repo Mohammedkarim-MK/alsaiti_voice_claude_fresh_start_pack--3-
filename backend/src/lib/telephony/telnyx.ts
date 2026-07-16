@@ -76,12 +76,19 @@ export const telnyx = {
   },
 
   // Verify a Telnyx webhook (Ed25519 over `${timestamp}|${rawBody}`) using TELNYX_PUBLIC_KEY.
-  // No unverified voice event may update a call or lead (spec §16). Confirm the exact
-  // key encoding + signed-payload format against current Telnyx webhook-security docs.
-  verifyWebhook(rawBody: string, signatureB64: string, timestamp: string): boolean {
+  // The portal supplies the key as base64 of the RAW 32-byte Ed25519 key, so it must be
+  // wrapped in an SPKI header before createPublicKey can parse it. Also enforce a freshness
+  // window: a validly signed payload must not verify forever (replay). No unverified voice
+  // event may update a call or lead (spec §16). Confirm both against current Telnyx docs.
+  verifyWebhook(rawBody: string, signatureB64: string, timestamp: string, toleranceSeconds = 300): boolean {
     const pub = process.env.TELNYX_PUBLIC_KEY || '';
     try {
-      const key = crypto.createPublicKey({ key: Buffer.from(pub, 'base64'), format: 'der', type: 'spki' });
+      const ts = parseInt(timestamp, 10);
+      if (!Number.isFinite(ts) || Math.abs(Date.now() / 1000 - ts) > toleranceSeconds) return false;
+      const raw = Buffer.from(pub, 'base64');
+      const SPKI_ED25519_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
+      const der = raw.length === 32 ? Buffer.concat([SPKI_ED25519_PREFIX, raw]) : raw;
+      const key = crypto.createPublicKey({ key: der, format: 'der', type: 'spki' });
       return crypto.verify(null, Buffer.from(`${timestamp}|${rawBody}`), key, Buffer.from(signatureB64, 'base64'));
     } catch {
       return false;

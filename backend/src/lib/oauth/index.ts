@@ -47,12 +47,24 @@ export async function handleCallback(
   ports: Ports,
   input: { provider: CrmProvider; code?: string; state?: string; error?: string },
 ): Promise<{ redirectTo: string; connectionId: string }> {
+  // Consent denied / bad params: still mark the session + audit so the wizard can show why.
   if (input.error || !input.code || !input.state) {
+    if (input.state) {
+      const s = await ports.sessions.findByStateHash(sha256b64url(input.state));
+      if (s) {
+        await ports.sessions.markError(s.id, input.error ? 'consent_denied' : 'missing_params', input.error || 'code/state missing');
+        await ports.audit.record(s.businessId, s.provider, 'consent_denied', { error: input.error });
+      }
+    }
     throw new Error('consent_denied_or_missing_params');
   }
   const session = await ports.sessions.findByStateHash(sha256b64url(input.state));
   if (!session) throw new Error('invalid_state');
   if (new Date(session.expiresAt) < new Date()) throw new Error('expired_state');
+  // The callback URL's provider must be the one this state was issued for.
+  if (session.provider !== input.provider) throw new Error('provider_mismatch');
+  // Single-use state: atomic claim so a replayed/concurrent callback cannot reuse it.
+  if (!(await ports.sessions.claim(session.id))) throw new Error('state_already_used');
   await ports.audit.record(session.businessId, input.provider, 'code_received');
 
   const cfg = getProviderConfig(input.provider);
@@ -73,7 +85,9 @@ export async function handleCallback(
     ? await connector.getIdentity(tokens)
     : { accountId: 'unknown', accountName: cfg.displayName };
 
-  const credentialReference = await ports.vault.store(null, tokens);
+  // Re-authorisation must reuse the existing vault row, not orphan it.
+  const existing = await ports.connections.findByAccount(session.businessId, input.provider, identity.accountId);
+  const credentialReference = await ports.vault.store(existing?.credentialReference || null, tokens);
 
   const conn = await ports.connections.upsert({
     businessId: session.businessId,
@@ -87,7 +101,7 @@ export async function handleCallback(
     grantedScopes: (tokens.scope || '').split(' ').filter(Boolean),
     instanceUrl: tokens.instanceUrl,
     apiDomain: tokens.apiDomain,
-    tokenExpiresAt: tokens.expiresIn ? new Date(Date.now() + tokens.expiresIn * 1000).toISOString() : undefined,
+    tokenExpiresAt: tokenExpiry(tokens),
   });
   await ports.sessions.markCompleted(session.id);
 
@@ -111,6 +125,13 @@ export async function testConnection(ports: Ports, connectionId: string): Promis
   return { ok: result.ok, operation: result.operation, error: result.error };
 }
 
+// When a provider omits expires_in but the token is refreshable, assume 1h so the
+// refresh path still runs (production should also retry-once on a 401).
+function tokenExpiry(tokens: { expiresIn?: number; refreshToken?: string }): string | undefined {
+  const secs = tokens.expiresIn || (tokens.refreshToken ? 3600 : undefined);
+  return secs ? new Date(Date.now() + secs * 1000).toISOString() : undefined;
+}
+
 // Refresh-on-demand. A distributed lock (e.g. Redis) MUST wrap the refresh in production
 // to avoid concurrent refreshes invalidating each other.
 async function getValidAccessTokenSet(ports: Ports, connectionId: string) {
@@ -125,6 +146,7 @@ async function getValidAccessTokenSet(ports: Ports, connectionId: string) {
     const refreshed = await refreshTokens(cfg, tokens.refreshToken);
     if (!refreshed.refreshToken) refreshed.refreshToken = tokens.refreshToken; // some providers omit it on refresh
     await ports.vault.store(conn.credentialReference, refreshed);
+    await ports.connections.recordRefresh(connectionId, tokenExpiry(refreshed)); // keep stored expiry current
     await ports.audit.record(conn.businessId, conn.provider, 'token_refreshed');
     return refreshed;
   } catch (e: any) {

@@ -80,7 +80,7 @@ function BackgroundGlow() {
 
 /* ---------- Storage ---------- */
 const store = {
-  get: async (k, d) => { try { const v = await AsyncStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  get: async (k, d) => { try { const v = await AsyncStorage.getItem(k); if (v == null) return d; const p = JSON.parse(v); return p == null ? d : p; } catch (e) { return d; } },
   set: async (k, v) => { try { await AsyncStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
   del: async (k) => { try { await AsyncStorage.removeItem(k); } catch (e) {} },
 };
@@ -1088,15 +1088,18 @@ export default function App() {
 
   async function loadUser(em, u) {
     setSession(em);
+    // Corrupted/legacy stored values must never crash the app — validate shapes on read.
     let l = await store.get('leads_' + em, null);
-    if (l == null) { l = seedLeads(); await store.set('leads_' + em, l); }
+    if (!Array.isArray(l)) { l = seedLeads(); await store.set('leads_' + em, l); }
     setLeads(l);
     let cr = await store.get('crm_' + em, null);
-    if (cr == null) { cr = crmSeed(l); await store.set('crm_' + em, cr); }
+    if (!cr || typeof cr !== 'object' || Array.isArray(cr) || !Array.isArray(cr.conns) || !Array.isArray(cr.events) || !cr.syncs || typeof cr.syncs !== 'object' || !Array.isArray(cr.attempts)) { cr = crmSeed(l); await store.set('crm_' + em, cr); }
     if (!cr.mode) cr.mode = 'hybrid';
     setCrm(cr);
-    setOnboardState(await store.get('onboard_' + em, null));
-    setProfile(await store.get('profile_' + em, { biz: u[em].biz, email: em }));
+    const ob = await store.get('onboard_' + em, null);
+    setOnboardState(ob && typeof ob === 'object' && !Array.isArray(ob) && ob.answers && typeof ob.answers === 'object' ? ob : null);
+    const prof = await store.get('profile_' + em, null);
+    setProfile(prof && typeof prof === 'object' && !Array.isArray(prof) ? prof : { biz: u[em].biz, email: em });
     setScreen('dashboard');
   }
   async function doSignup({ name, biz, email, pass }) {

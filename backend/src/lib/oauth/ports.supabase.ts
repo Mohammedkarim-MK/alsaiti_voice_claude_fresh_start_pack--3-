@@ -52,11 +52,21 @@ export function makeSupabasePorts(): Ports {
       const { data } = await sb.from('oauth_authorisation_sessions').select('*').eq('state_hash', h).maybeSingle();
       return data ? mapSession(data) : null;
     },
+    // Atomic single-use claim: the status guard in the WHERE clause means only ONE
+    // callback (of any replayed/concurrent set) can flip 'authorising' -> 'callback_received'.
+    async claim(id) {
+      const { data, error } = await sb.from('oauth_authorisation_sessions')
+        .update({ status: 'callback_received' }).eq('id', id).eq('status', 'authorising').select('id');
+      if (error) throw error;
+      return !!(data && data.length);
+    },
     async markCompleted(id) {
-      await sb.from('oauth_authorisation_sessions').update({ status: 'completed', completed_at: new Date().toISOString() }).eq('id', id);
+      const { error } = await sb.from('oauth_authorisation_sessions').update({ status: 'completed', completed_at: new Date().toISOString() }).eq('id', id);
+      if (error) throw error;
     },
     async markError(id, code, message) {
-      await sb.from('oauth_authorisation_sessions').update({ status: 'error', error_code: code, error_message: message }).eq('id', id);
+      const { error } = await sb.from('oauth_authorisation_sessions').update({ status: 'error', error_code: code, error_message: message }).eq('id', id);
+      if (error) throw error;
     },
   };
 
@@ -65,7 +75,11 @@ export function makeSupabasePorts(): Ports {
       const ciphertext = encrypt(JSON.stringify(tokens));
       if (existingRef) {
         const id = existingRef.replace(REF_PREFIX, '');
-        await sb.from('crm_credentials').update({ ciphertext, updated_at: new Date().toISOString() }).eq('id', id);
+        // A silent failure here would strand the connection on stale tokens — surface it.
+        const { data, error } = await sb.from('crm_credentials')
+          .update({ ciphertext, updated_at: new Date().toISOString() }).eq('id', id).select('id');
+        if (error) throw error;
+        if (!data || !data.length) throw new Error(`credential row not found for ${existingRef}`);
         return existingRef;
       }
       const { data, error } = await sb.from('crm_credentials').insert({ ciphertext }).select('id').single();
@@ -79,7 +93,8 @@ export function makeSupabasePorts(): Ports {
       return JSON.parse(decrypt(data.ciphertext)) as TokenSet;
     },
     async destroy(ref) {
-      await sb.from('crm_credentials').delete().eq('id', ref.replace(REF_PREFIX, ''));
+      const { error } = await sb.from('crm_credentials').delete().eq('id', ref.replace(REF_PREFIX, ''));
+      if (error) throw error;
     },
   };
 
@@ -102,14 +117,29 @@ export function makeSupabasePorts(): Ports {
       const { data } = await sb.from('crm_connections').select('*').eq('id', id).maybeSingle();
       return data ? mapConnection(data) : null;
     },
+    async findByAccount(businessId, provider, externalAccountId) {
+      const { data } = await sb.from('crm_connections').select('*')
+        .eq('business_id', businessId).eq('provider', provider)
+        .eq('external_account_id', externalAccountId).maybeSingle();
+      return data ? mapConnection(data) : null;
+    },
     async setStatus(id, status: ConnectionStatus) {
-      await sb.from('crm_connections').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+      const { error } = await sb.from('crm_connections').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+      if (error) throw error;
+    },
+    async recordRefresh(id, tokenExpiresAt) {
+      const now = new Date().toISOString();
+      const { error } = await sb.from('crm_connections')
+        .update({ token_expires_at: tokenExpiresAt, last_refreshed_at: now, updated_at: now }).eq('id', id);
+      if (error) throw error;
     },
   };
 
   const audit: AuditLog = {
     async record(businessId, provider, eventType, detail) {
-      await sb.from('provider_oauth_events').insert({ business_id: businessId, provider, event_type: eventType, detail: detail || {} });
+      // Audit failures are logged but never break the OAuth flow itself.
+      const { error } = await sb.from('provider_oauth_events').insert({ business_id: businessId, provider, event_type: eventType, detail: detail || {} });
+      if (error) console.error('audit insert failed', eventType, error.message);
     },
   };
 
