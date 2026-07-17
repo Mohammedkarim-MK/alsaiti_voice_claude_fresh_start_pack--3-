@@ -312,7 +312,7 @@
   #bgfx .b1{width:46vw;height:46vw;left:-6vw;top:-12vw;background:radial-gradient(circle at 30% 30%,#0A875C,transparent 68%);animation:drift1 34s ease-in-out infinite}
   #bgfx .b2{width:40vw;height:40vw;right:-8vw;top:8vh;background:radial-gradient(circle at 60% 40%,#B0824E,transparent 68%);animation:drift2 40s ease-in-out infinite}
   #bgfx .b3{width:38vw;height:38vw;left:20vw;bottom:-14vw;background:radial-gradient(circle at 50% 50%,#12B886,transparent 68%);opacity:.32;animation:drift3 46s ease-in-out infinite}
-  #bgfx .grid{position:absolute;inset:0;background-image:linear-gradient(rgba(120,170,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(120,170,255,.045) 1px,transparent 1px);background-size:48px 48px;-webkit-mask-image:radial-gradient(circle at 50% 30%,#000,transparent 78%);mask-image:radial-gradient(circle at 50% 30%,#000,transparent 78%)}
+  #bgfx .grid{position:absolute;inset:0;background-image:linear-gradient(rgba(14,159,110,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(14,159,110,.05) 1px,transparent 1px);background-size:48px 48px;-webkit-mask-image:radial-gradient(circle at 50% 30%,#000,transparent 78%);mask-image:radial-gradient(circle at 50% 30%,#000,transparent 78%)}
   @keyframes drift1{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(5vw,3vh,0)}}
   @keyframes drift2{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-4vw,5vh,0)}}
   @keyframes drift3{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(3vw,-4vh,0)}}
@@ -846,6 +846,78 @@
   .teleopt .teleoi svg{width:21px;height:21px}
   .teleopt>svg:last-child{color:var(--muted);width:18px;height:18px;flex-shrink:0}
   html[dir="rtl"] .teleopt>svg:last-child{transform:scaleX(-1)}
+  /* ============================================================
+     PREMIUM MOTION PASS — scroll reveal, hero entrance, live feed,
+     floating dashboard, nav + button micro-interactions (both themes)
+     ============================================================ */
+  /* scroll reveal: only active once JS confirms IntersectionObserver + motion allowed,
+     so content is NEVER hidden if JS/IO is unavailable */
+  .landing.reveal-ready .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.2,.65,.2,1),transform .7s cubic-bezier(.2,.65,.2,1)}
+  .landing.reveal-ready .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.landing.reveal-ready .reveal{opacity:1;transform:none;transition:none}}
+
+  /* hero staggered entrance (pure CSS on load) */
+  @media(prefers-reduced-motion:no-preference){
+    .hero>.badge{animation:lux-in .6s .04s both}
+    .hero>.htitle{animation:lux-in .75s .12s both}
+    .hero>.hsub{animation:lux-in .75s .24s both}
+    .hero>.row{animation:lux-in .75s .36s both}
+    .hero>.herolive{animation:lux-in .8s .5s both}
+    .hero>.herotrust{animation:lux-in .8s .62s both}
+  }
+
+  /* hero — live incoming-lead ticker */
+  .herolive{display:inline-flex;align-items:center;gap:11px;margin:26px auto 0;padding:9px 16px 9px 13px;border-radius:999px;
+    background:var(--card);border:1px solid var(--border);box-shadow:0 10px 30px -16px var(--shadow),inset 0 1px 0 var(--glasshi);max-width:96%}
+  .herolive .hl-live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--green);white-space:nowrap}
+  .herolive .hl-live i{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(14,159,110,.5);animation:vpulse2 1.7s infinite}
+  .herolive .hl-sep{width:1px;height:18px;background:var(--border)}
+  .herolive .hl-feed{position:relative;height:1.5em;overflow:hidden;min-width:min(58vw,340px);text-align:left}
+  html[dir="rtl"] .herolive .hl-feed{text-align:right}
+  .herolive .hl-feed ul{margin:0;padding:0;list-style:none;animation:tickerRoll 13s cubic-bezier(.7,0,.3,1) infinite}
+  .herolive .hl-feed li{height:1.5em;line-height:1.5em;font-size:13.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .herolive .hl-feed li b{color:var(--heading)}
+  .herolive .hl-feed li .svc{color:var(--muted)}
+  @keyframes tickerRoll{0%,20%{transform:translateY(0)}25%,45%{transform:translateY(-1.5em)}50%,70%{transform:translateY(-3em)}75%,95%{transform:translateY(-4.5em)}100%{transform:translateY(0)}}
+  @media(prefers-reduced-motion:reduce){.herolive .hl-feed ul{animation:none}}
+
+  /* hero trust chips */
+  .herotrust{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:20px auto 0;max-width:640px}
+  .herotrust .tc{font-size:12px;font-weight:600;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:5px 13px;transition:color .2s,border-color .2s,transform .2s}
+  .herotrust .tc:hover{color:var(--primary);border-color:var(--border-hi);transform:translateY(-1px)}
+  .herotrust .tc svg{width:13px;height:13px;vertical-align:-2px;margin-inline-end:5px;color:var(--primary)}
+
+  /* floating dashboard mock + shimmer on the live chip */
+  @media(prefers-reduced-motion:no-preference){
+    .mock.glass{animation:floaty 8s ease-in-out infinite}
+    .mock .mtr:first-child{position:relative;overflow:hidden}
+    .mock .mtr:first-child::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,rgba(14,159,110,.10) 50%,transparent 80%);transform:translateX(-100%);animation:sweep 5.5s ease-in-out 1.5s infinite}
+  }
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  @keyframes sweep{0%{transform:translateX(-100%)}45%,100%{transform:translateX(100%)}}
+
+  /* nav: animated underline + solidify on scroll */
+  .lnav .links a{position:relative}
+  .lnav .links a::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--primary),var(--cyan));transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+  html[dir="rtl"] .lnav .links a::after{transform-origin:right}
+  .lnav .links a:hover::after{transform:scaleX(1)}
+  .lnav.scrolled{box-shadow:0 16px 40px -20px var(--shadow),inset 0 1px 0 var(--glasshi);border-color:var(--border-hi)}
+
+  /* primary button — subtle shine sweep on hover */
+  .btn-primary{position:relative;overflow:hidden}
+  .btn-primary::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent);transform:skewX(-18deg);transition:none;opacity:0}
+  @media(prefers-reduced-motion:no-preference){.btn-primary:hover::after{opacity:1;animation:shine .7s ease}}
+  @keyframes shine{from{left:-60%}to{left:130%}}
+
+  /* card hover lift (industries / plans) */
+  .landing .card{transition:transform .25s cubic-bezier(.2,.6,.2,1),box-shadow .25s,border-color .25s}
+  .landing .card:hover{transform:translateY(-4px)}
+  .step{transition:transform .2s,border-color .2s}
+  .step:hover{transform:translateY(-3px);border-color:var(--border-hi)}
+  /* stronger emerald glow in dark for that premium fintech feel */
+  :root[data-theme="dark"] .herolive{box-shadow:0 14px 40px -18px rgba(0,0,0,.6),0 0 0 1px rgba(34,227,154,.10),inset 0 1px 0 rgba(255,255,255,.04)}
+  :root[data-theme="dark"] .btn-primary::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent)}
+  @media(max-width:760px){.herolive{padding:8px 12px}.herolive .hl-feed{min-width:min(64vw,240px)}}
 </style>
 </head>
 <body>
@@ -936,7 +1008,24 @@ function setTheme(v){THEME=(v==='dark'?'dark':'light');DB.set('ag_theme',THEME);
 function toggleTheme(){setTheme(THEME==='dark'?'light':'dark');render()}
 function themeSwitch(){return '<button class="themebtn" onclick="toggleTheme()" title="Toggle light / dark" aria-label="Toggle theme">'+icon(THEME==='dark'?'sun':'moon')+'</button>'}
 /* premium touch: count up numeric stat values on render */
-function animateStats(){try{if(typeof requestAnimationFrame!=='function')return;var els=document.querySelectorAll('.stat .value');Array.prototype.forEach.call(els,function(el){var txt=(el.textContent||'').trim();if(!/^\d{1,6}$/.test(txt))return;var to=parseInt(txt,10);if(to<=1)return;var dur=600,start=null;el.textContent='0';requestAnimationFrame(function step(ts){if(start==null)start=ts;var p=Math.min(1,(ts-start)/dur);el.textContent=String(Math.round((1-Math.pow(1-p,3))*to));if(p<1)requestAnimationFrame(step)})})}catch(e){}}
+function revealInit(){
+  try{
+    var root=document.querySelector('.landing');if(!root)return;
+    /* nav solidifies on scroll — single handler, re-queried each scroll (no leak) */
+    window.onscroll=function(){try{var n=document.querySelector('.lnav');if(n)n.classList.toggle('scrolled',(window.pageYOffset||document.documentElement.scrollTop||0)>16)}catch(e){}};
+    if(!('IntersectionObserver' in window))return;
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+    root.classList.add('reveal-ready');
+    var els=root.querySelectorAll('.section, .card, .plan, .step, .mstat, .contactcard');
+    Array.prototype.forEach.call(els,function(el){el.classList.add('reveal')});
+    Array.prototype.forEach.call(root.querySelectorAll('.grid, .pricegrid, .steps, .mockstats'),function(g){
+      var i=0;Array.prototype.forEach.call(g.children,function(c){if(c.classList&&c.classList.contains('reveal')){c.style.transitionDelay=(Math.min(i,7)*55)+'ms';i++}});
+    });
+    var io=new IntersectionObserver(function(ents){Array.prototype.forEach.call(ents,function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}})},{threshold:.06,rootMargin:'0px 0px -6% 0px'});
+    Array.prototype.forEach.call(els,function(el){io.observe(el)});
+  }catch(e){}
+}
+function animateStats(){try{if(typeof requestAnimationFrame!=='function')return;var els=document.querySelectorAll('.stat .value, .mstat .v');Array.prototype.forEach.call(els,function(el){var txt=(el.textContent||'').trim();if(!/^\d{1,6}$/.test(txt))return;var to=parseInt(txt,10);if(to<=1)return;var dur=600,start=null;el.textContent='0';requestAnimationFrame(function step(ts){if(start==null)start=ts;var p=Math.min(1,(ts-start)/dur);el.textContent=String(Math.round((1-Math.pow(1-p,3))*to));if(p<1)requestAnimationFrame(step)})})}catch(e){}}
 function t(k){var d=TR[LANG]||{};if(d[k]!=null)return d[k];if(TR.en[k]!=null)return TR.en[k];return k}
 function fill(s,p){p=p||{};return String(s).replace(/\{(\w+)\}/g,function(m,n){return p[n]!=null?p[n]:m})}
 function tf(k,p){return fill(t(k),p)}
@@ -1137,7 +1226,7 @@ function render(){
   if(!s && pub.indexOf(hash)<0){location.hash='#/landing';return}
   if(s && pub.indexOf(hash)>=0){location.hash='#/dashboard';return}
   var root=document.getElementById('root');
-  if(hash==='landing'){root.innerHTML=landing();return}
+  if(hash==='landing'){root.innerHTML=landing();try{animateStats();revealInit()}catch(e){}return}
   if(pub.indexOf(hash)>=0){root.innerHTML=authPage(hash);return}
   if(hash==='onboarding'){root.innerHTML=obScreen();return}
   root.innerHTML=shell(hash,pageContent(hash));try{animateStats()}catch(e){}
@@ -1178,6 +1267,9 @@ function landing(){
       '<div class="row" style="justify-content:center;margin-top:26px">'+
         '<button class="btn btn-primary btn-lg" onclick="demoLogin(\'voice\')">'+icon('bolt')+' '+esc(t('try_demo'))+' '+icon('arrow')+'</button>'+
         '<button class="btn btn-lg" onclick="demoLogin()">'+icon('grid')+' '+esc(t('view_dashboard'))+'</button></div>'+
+      '<div class="herolive"><span class="hl-live"><i></i>'+esc(t('live_label'))+'</span><span class="hl-sep"></span><span class="hl-feed"><ul>'+
+        rows.slice(0,4).map(function(r){return '<li>'+esc(t('hero_new_lead'))+' · <b>'+esc(r[0])+'</b> · <span class="svc">'+esc(r[1])+'</span></li>'}).join('')+'</ul></span></div>'+
+      '<div class="herotrust">'+inds.map(function(c){return '<span class="tc">'+icon(c[0])+esc(t(c[1]))+'</span>'}).join('')+'</div>'+
     '</section>'+
     '<section class="section" id="sec-demos"><div class="kicker">'+esc(t('dashprev_kicker'))+'</div><h2 class="stitle">'+esc(t('stats_title'))+'</h2><p class="ssub">'+esc(t('dashprev_sub'))+'</p>'+
       '<div class="mock glass">'+
@@ -1740,6 +1832,7 @@ var BK_TR={
   bk_sync_real:'مزامنة مع HubSpot',bk_syncing:'جارٍ مزامنة هذا العميل مع نظام CRM…',bk_synced_real:'تمت المزامنة مع HubSpot — جهة الاتصال رقم {id}',bk_sync_fail:'فشلت المزامنة: {e}',bk_no_connected:'اربط نظام CRM أولًا (شغّل اختباره حتى يظهر «متصل»)'}
 };
 (function(){for(var l in BK_TR){if(!TR[l])TR[l]={};for(var k in BK_TR[l]){if(TR[l][k]==null)TR[l][k]=BK_TR[l][k]}}})();
+(function(){var H={en:{hero_new_lead:'New lead'},es:{hero_new_lead:'Nuevo cliente'},ar:{hero_new_lead:'عميل جديد'}};for(var l in H){if(!TR[l])TR[l]={};for(var k in H[l]){if(TR[l][k]==null)TR[l][k]=H[l][k]}}})();
 
 var BK={
   cfg:function(){var c=DB.get('ag_backend',null);return isObj(c)?c:{}},
