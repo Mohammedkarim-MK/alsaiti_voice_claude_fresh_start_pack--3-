@@ -918,6 +918,51 @@
   :root[data-theme="dark"] .herolive{box-shadow:0 14px 40px -18px rgba(0,0,0,.6),0 0 0 1px rgba(34,227,154,.10),inset 0 1px 0 rgba(255,255,255,.04)}
   :root[data-theme="dark"] .btn-primary::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent)}
   @media(max-width:760px){.herolive{padding:8px 12px}.herolive .hl-feed{min-width:min(64vw,240px)}}
+
+  /* ============================================================
+     LANDING COLOUR RICHNESS — emerald spotlight, gradient headline,
+     vivid accents, tinted showcase (both themes)
+     ============================================================ */
+  /* hero emerald spotlight behind the headline */
+  .hero{position:relative;isolation:isolate}
+  .hero::before{content:"";position:absolute;z-index:-1;left:50%;top:8%;width:min(760px,92%);height:340px;transform:translateX(-50%);
+    background:radial-gradient(ellipse at center,rgba(14,159,110,.16),transparent 68%);filter:blur(8px);pointer-events:none}
+  :root[data-theme="dark"] .hero::before{background:radial-gradient(ellipse at center,rgba(34,227,154,.20),transparent 66%)}
+
+  /* gradient headline — stays readable (dark heading → emerald); brighter in dark */
+  .htitle{color:var(--heading);
+    background:linear-gradient(112deg,var(--heading) 42%,var(--primary));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  @supports not ((-webkit-background-clip:text) or (background-clip:text)){.htitle{-webkit-text-fill-color:currentColor;background:none;color:var(--heading)}}
+  :root[data-theme="dark"] .htitle{background:linear-gradient(112deg,var(--heading) 34%,var(--primary) 78%,var(--cyan))}
+
+  /* kickers: emerald with a centred accent mark */
+  .kicker{color:var(--primary)}
+  .kicker::before{content:"";display:block;width:34px;height:3px;border-radius:3px;margin:0 auto 10px;
+    background:linear-gradient(90deg,var(--primary),var(--cyan))}
+
+  /* industry icons → vivid emerald gradient chips */
+  .ficon{background:linear-gradient(140deg,var(--primary),var(--glow));color:#fff;box-shadow:0 8px 20px -10px rgba(14,159,110,.55)}
+  :root[data-theme="dark"] .ficon{box-shadow:0 8px 22px -10px rgba(34,227,154,.5)}
+  .landing .card{position:relative;overflow:hidden}
+  /* thin emerald top-accent that grows on hover */
+  .landing #sec-ind .card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;transform:scaleX(0);transform-origin:left;
+    background:linear-gradient(90deg,var(--primary),var(--cyan));transition:transform .3s ease}
+  .landing #sec-ind .card:hover::before{transform:scaleX(1)}
+
+  /* tinted showcase panels (demos + pricing) for colour rhythm */
+  #sec-demos,#sec-price{position:relative}
+  #sec-demos::before,#sec-price::before{content:"";position:absolute;z-index:-1;inset:-6% -8%;border-radius:36px;
+    background:radial-gradient(60% 80% at 50% 0%,rgba(14,159,110,.05),transparent 70%)}
+  :root[data-theme="dark"] #sec-demos::before,:root[data-theme="dark"] #sec-price::before{background:radial-gradient(60% 80% at 50% 0%,rgba(34,227,154,.06),transparent 70%)}
+
+  /* footer: emerald top hairline glow */
+  footer{position:relative}
+  footer::before{content:"";position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,var(--primary),transparent);opacity:.5}
+
+  /* stat deltas + live chip already emerald — reinforce popular plan glow */
+  .plan.pop{background:linear-gradient(180deg,rgba(14,159,110,.05),var(--card))}
+  :root[data-theme="dark"] .plan.pop{background:linear-gradient(180deg,rgba(34,227,154,.07),var(--card))}
 </style>
 </head>
 <body>
@@ -1025,7 +1070,7 @@ function revealInit(){
     Array.prototype.forEach.call(els,function(el){io.observe(el)});
   }catch(e){}
 }
-function animateStats(){try{if(typeof requestAnimationFrame!=='function')return;var els=document.querySelectorAll('.stat .value, .mstat .v');Array.prototype.forEach.call(els,function(el){var txt=(el.textContent||'').trim();if(!/^\d{1,6}$/.test(txt))return;var to=parseInt(txt,10);if(to<=1)return;var dur=600,start=null;el.textContent='0';requestAnimationFrame(function step(ts){if(start==null)start=ts;var p=Math.min(1,(ts-start)/dur);el.textContent=String(Math.round((1-Math.pow(1-p,3))*to));if(p<1)requestAnimationFrame(step)})})}catch(e){}}
+function animateStats(){try{if(typeof requestAnimationFrame!=='function')return;var els=document.querySelectorAll('.stat .value, .mstat .v');Array.prototype.forEach.call(els,function(el){var txt=(el.textContent||'').trim();if(!/^\d{1,6}$/.test(txt))return;var to=parseInt(txt,10);if(to<=1)return;var dur=600,start=null;el.textContent='0';requestAnimationFrame(function step(ts){if(typeof ts!=='number'||!isFinite(ts)){el.textContent=String(to);return}if(start==null)start=ts;var p=Math.min(1,(ts-start)/dur);el.textContent=String(Math.round((1-Math.pow(1-p,3))*to));if(p<1)requestAnimationFrame(step)})})}catch(e){}}
 function t(k){var d=TR[LANG]||{};if(d[k]!=null)return d[k];if(TR.en[k]!=null)return TR.en[k];return k}
 function fill(s,p){p=p||{};return String(s).replace(/\{(\w+)\}/g,function(m,n){return p[n]!=null?p[n]:m})}
 function tf(k,p){return fill(t(k),p)}
