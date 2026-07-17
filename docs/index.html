@@ -1710,7 +1710,9 @@ var BK_TR={
   bk_url_ph:'https://YOUR_REF.supabase.co',bk_note:'The anon key is safe to use in a browser. Your Supabase service role key and all provider secrets stay on the server and are never entered here.',
   cs_demo:'Demo',cs_needs_setup:'Needs setup',cs_authorising:'Authorising',cs_test_required:'Test required',cs_connected:'Connected',cs_attention:'Attention required',cs_error:'Error',cs_disconnected:'Not connected',
   tele_verify:'Verify Telnyx account',tele_verify_ok:'Telnyx account verified',tele_verify_fail:'Telnyx verification failed: {e}',tele_search_real:'Search real numbers',tele_order_real:'Order',tele_ordered:'Number ordered — becomes Active only after a real inbound test call',
-  tele_needs_backend:'Connect a backend to search and order real Telnyx numbers.',num_active_after_test:'Active only after a real inbound test call is recorded.',st_test_pending:'Awaiting test call'},
+  tele_needs_backend:'Connect a backend to search and order real Telnyx numbers.',num_active_after_test:'Active only after a real inbound test call is recorded.',st_test_pending:'Awaiting test call',
+  tele_funding_required:'Funding required — add funds to your Telnyx account to order numbers',tele_missing_creds:'Needs Telnyx credentials on the backend',
+  bk_sync_real:'Sync to HubSpot',bk_syncing:'Syncing this lead to your CRM…',bk_synced_real:'Synced to HubSpot — contact #{id}',bk_sync_fail:'Sync failed: {e}',bk_no_connected:'Connect a CRM first (run its test so it shows Connected)'},
  es:{bk_title:'Backend real',bk_sub:'Conecte su proyecto de Supabase para que las conexiones de CRM y teléfono sean reales. Sin él, todo lo de abajo es una demo etiquetada.',
   bk_none:'Sin backend conectado — modo demo',bk_connected_as:'Backend conectado como {e}',bk_project:'URL del proyecto de Supabase',bk_anon:'Clave anon de Supabase',bk_email:'Su correo de la app',bk_password:'Contraseña',
   bk_save:'Conectar backend',bk_disconnect:'Desconectar backend',bk_connect_backend:'Conectar un backend',bk_signed_in:'Backend conectado',bk_signin_err:'Error de inicio de sesión: {e}',bk_saved:'Proyecto de backend guardado',
@@ -1720,7 +1722,9 @@ var BK_TR={
   bk_url_ph:'https://SU_REF.supabase.co',bk_note:'La clave anon es segura en el navegador. Su clave service role y los secretos de los proveedores permanecen en el servidor y nunca se introducen aquí.',
   cs_demo:'Demo',cs_needs_setup:'Requiere configuración',cs_authorising:'Autorizando',cs_test_required:'Prueba requerida',cs_connected:'Conectado',cs_attention:'Requiere atención',cs_error:'Error',cs_disconnected:'No conectado',
   tele_verify:'Verificar cuenta de Telnyx',tele_verify_ok:'Cuenta de Telnyx verificada',tele_verify_fail:'Verificación de Telnyx fallida: {e}',tele_search_real:'Buscar números reales',tele_order_real:'Pedir',tele_ordered:'Número pedido — se activa solo tras una llamada de prueba entrante real',
-  tele_needs_backend:'Conecte un backend para buscar y pedir números reales de Telnyx.',num_active_after_test:'Activo solo tras registrar una llamada de prueba entrante real.',st_test_pending:'Esperando llamada de prueba'},
+  tele_needs_backend:'Conecte un backend para buscar y pedir números reales de Telnyx.',num_active_after_test:'Activo solo tras registrar una llamada de prueba entrante real.',st_test_pending:'Esperando llamada de prueba',
+  tele_funding_required:'Se requieren fondos — añada saldo a su cuenta de Telnyx para pedir números',tele_missing_creds:'Faltan credenciales de Telnyx en el backend',
+  bk_sync_real:'Sincronizar con HubSpot',bk_syncing:'Sincronizando este cliente con su CRM…',bk_synced_real:'Sincronizado con HubSpot — contacto n.º {id}',bk_sync_fail:'Sincronización fallida: {e}',bk_no_connected:'Conecte primero un CRM (ejecute su prueba para que aparezca Conectado)'},
  ar:{bk_title:'خادم حقيقي',bk_sub:'اربط مشروع Supabase الخاص بك لجعل اتصالات CRM والهاتف حقيقية. بدونه، كل ما بالأسفل عرض تجريبي موسوم.',
   bk_none:'لا يوجد خادم متصل — وضع تجريبي',bk_connected_as:'الخادم متصل باسم {e}',bk_project:'رابط مشروع Supabase',bk_anon:'مفتاح anon الخاص بـ Supabase',bk_email:'بريدك في التطبيق',bk_password:'كلمة المرور',
   bk_save:'ربط الخادم',bk_disconnect:'قطع اتصال الخادم',bk_connect_backend:'ربط خادم',bk_signed_in:'تم ربط الخادم',bk_signin_err:'فشل تسجيل الدخول: {e}',bk_saved:'تم حفظ مشروع الخادم',
@@ -1730,7 +1734,9 @@ var BK_TR={
   bk_url_ph:'https://YOUR_REF.supabase.co',bk_note:'مفتاح anon آمن للاستخدام في المتصفح. يبقى مفتاح service role وأسرار المزوّدين على الخادم ولا تُدخَل هنا أبدًا.',
   cs_demo:'تجريبي',cs_needs_setup:'يحتاج إعدادًا',cs_authorising:'جارٍ التفويض',cs_test_required:'يلزم اختبار',cs_connected:'متصل',cs_attention:'يحتاج انتباه',cs_error:'خطأ',cs_disconnected:'غير متصل',
   tele_verify:'التحقق من حساب Telnyx',tele_verify_ok:'تم التحقق من حساب Telnyx',tele_verify_fail:'فشل التحقق من Telnyx: {e}',tele_search_real:'بحث عن أرقام حقيقية',tele_order_real:'طلب',tele_ordered:'تم طلب الرقم — يصبح فعّالًا فقط بعد مكالمة اختبار واردة حقيقية',
-  tele_needs_backend:'اربط خادمًا للبحث عن أرقام Telnyx حقيقية وطلبها.',num_active_after_test:'فعّال فقط بعد تسجيل مكالمة اختبار واردة حقيقية.',st_test_pending:'بانتظار مكالمة اختبار'}
+  tele_needs_backend:'اربط خادمًا للبحث عن أرقام Telnyx حقيقية وطلبها.',num_active_after_test:'فعّال فقط بعد تسجيل مكالمة اختبار واردة حقيقية.',st_test_pending:'بانتظار مكالمة اختبار',
+  tele_funding_required:'يلزم تمويل — أضِف رصيدًا إلى حساب Telnyx لطلب الأرقام',tele_missing_creds:'يلزم إدخال بيانات اعتماد Telnyx على الخادم',
+  bk_sync_real:'مزامنة مع HubSpot',bk_syncing:'جارٍ مزامنة هذا العميل مع نظام CRM…',bk_synced_real:'تمت المزامنة مع HubSpot — جهة الاتصال رقم {id}',bk_sync_fail:'فشلت المزامنة: {e}',bk_no_connected:'اربط نظام CRM أولًا (شغّل اختباره حتى يظهر «متصل»)'}
 };
 (function(){for(var l in BK_TR){if(!TR[l])TR[l]={};for(var k in BK_TR[l]){if(TR[l][k]==null)TR[l][k]=BK_TR[l][k]}}})();
 
@@ -1772,7 +1778,8 @@ function crmStateMeta(s){return ({
   attention_required:{k:'cs-attention',l:t('cs_attention')},error:{k:'cs-error',l:t('cs_error')},disconnected:{k:'cs-none',l:t('cs_disconnected')}
 })[s]||{k:'cs-none',l:s};}
 function bkErrLabel(m){m=String(m||'');
-  var map={provider_not_configured:t('bk_needs_creds'),unauthenticated:'sign in to your backend first',no_workspace:'no workspace on your backend',telnyx_not_configured:'Telnyx not configured on the backend',test_not_implemented:'live test not implemented for this provider yet'};
+  var map={provider_not_configured:t('bk_needs_creds'),unauthenticated:'sign in to your backend first',no_workspace:'no workspace on your backend',telnyx_not_configured:'Telnyx not configured on the backend',test_not_implemented:'live test not implemented for this provider yet',
+    connection_not_connected:t('bk_no_connected'),sync_not_implemented_for_provider:'live lead sync is HubSpot-only so far',missing_credentials:t('tele_missing_creds'),funding_required:t('tele_funding_required'),not_authorised:'re-authorise this connection'};
   return map[m]||m;}
 
 /* Real CRM connections fetched from the backend (crm-status). Demo connections live in crmState(). */
@@ -1804,6 +1811,17 @@ function crmRunRealTest(connId){
     crmFetchReal(true);
     toast(r&&r.ok?t('bk_test_ok'):tf('bk_test_fail',{e:bkErrLabel((r&&r.error)||'failed')}));
   }).catch(function(e){toast(tf('bk_test_fail',{e:bkErrLabel(e.message)}))});
+}
+/* Real lead sync (Malik's Priority 1): push an actual lead to the connected HubSpot. */
+function crmRealConnected(){return (CRM_REAL.conns||[]).filter(function(c){return c.status==='connected'})[0]||null}
+function crmSyncLeadReal(leadId){
+  var lead=getLeads().filter(function(l){return l.id===leadId})[0];if(!lead)return;
+  var conn=crmRealConnected();
+  if(!conn){toast(t('bk_no_connected'));return}
+  toast(t('bk_syncing'));
+  BK.fn('crm-sync-lead',{body:{connectionId:conn.id,createDeal:true,lead:{id:lead.id,name:lead.name,email:lead.email,phone:lead.phone,service:lead.service,summary:lead.summary,source:lead.source}}})
+    .then(function(r){toast(r&&r.ok?tf('bk_synced_real',{id:r.contactId||''}):tf('bk_sync_fail',{e:bkErrLabel((r&&r.error)||'failed')}))})
+    .catch(function(e){toast(tf('bk_sync_fail',{e:bkErrLabel(e.message)}))});
 }
 /* Consume the OAuth callback return (?crm=..&connection=..&status=..|error=..) on boot. */
 function bkConsumeReturn(){
@@ -2311,7 +2329,8 @@ function crmLeadCard(lead){
     return '<div class="syncrec">'+crmLogo(p)+'<div class="sm"><div class="t">'+esc(p.name)+' <span class="syb '+(ok?'sy-synced':'sy-failed')+'" style="margin-left:6px">'+icon(ok?'check':'close')+' '+esc(ok?t('sync_synced'):t('sync_failed'))+'</span></div><div class="d">'+esc(idline)+'</div></div>'+
       (ok?(r.url?'<a class="btn btn-sm" href="'+esc(r.url)+'" target="_blank" rel="noopener noreferrer">'+icon('external')+'</a>':''):'<button class="btn btn-sm" onclick="crmRetry(\''+r.connection_id+'\',\''+lead.id+'\')">'+icon('refresh')+' '+esc(t('c_retry'))+'</button>')+'</div>';
   }).join('');
-  return '<div class="card"><h3>'+esc(t('crm_sync'))+'</h3>'+inner+'</div>';
+  var realBtn=(BK.configured()&&crmRealConnected())?'<button class="btn btn-sm btn-primary" style="margin-top:12px" onclick="crmSyncLeadReal(\''+lead.id+'\')">'+icon('send')+' '+esc(t('bk_sync_real'))+'</button>':'';
+  return '<div class="card"><h3>'+esc(t('crm_sync'))+'</h3>'+inner+realBtn+'</div>';
 }
 
 /* ===================== Onboarding & business setup (main product functions) ===================== */
@@ -2552,8 +2571,13 @@ function teleForward(){var st=teleState();st.numbers.unshift({id:'num_'+crmRand(
 function teleConnectAccount(){
   if(!BK.configured()){toast(t('tele_needs_backend'));bkOpenPanel();return}
   toast(t('tele_verify')+'…');
-  BK.fn('telnyx-verify',{}).then(function(r){toast(r&&r.ok?t('tele_verify_ok'):tf('tele_verify_fail',{e:bkErrLabel((r&&r.error)||'failed')}))})
-    .catch(function(e){toast(tf('tele_verify_fail',{e:bkErrLabel(e.message)}))});
+  BK.fn('telnyx-verify',{}).then(function(r){
+    var st=r&&r.state;
+    if(st==='connected')toast(t('tele_verify_ok'));
+    else if(st==='funding_required')toast(t('tele_funding_required'));
+    else if(st==='missing_credentials')toast(t('tele_missing_creds'));
+    else toast(tf('tele_verify_fail',{e:bkErrLabel((r&&r.error)||'failed')}));
+  }).catch(function(e){toast(tf('tele_verify_fail',{e:bkErrLabel(e.message)}))});
 }
 function teleSip(){toast('SIP / BYOC trunk is configured on the backend (demo)')}
 function telePort(){toast('Port request is tracked on the backend (demo)')}
@@ -2563,7 +2587,7 @@ window.go=go;window.openLead=openLead;window.toggleMenu=toggleMenu;window.doLogo
 window.crmConsent=crmConsent;window.crmApproveConsent=crmApproveConsent;window.crmDenyConsent=crmDenyConsent;
 window.teleOpenSearch=teleOpenSearch;window.teleActivate=teleActivate;window.teleTestCall=teleTestCall;window.teleRelease=teleRelease;window.teleAssign=teleAssign;window.teleForward=teleForward;window.teleConnectAccount=teleConnectAccount;window.teleSip=teleSip;window.telePort=telePort;
 window.teleSearchRealRun=teleSearchRealRun;window.teleOrderReal=teleOrderReal;
-window.crmConnect=crmConnect;window.crmConnectReal=crmConnectReal;window.crmRunRealTest=crmRunRealTest;window.crmFetchReal=crmFetchReal;
+window.crmConnect=crmConnect;window.crmConnectReal=crmConnectReal;window.crmRunRealTest=crmRunRealTest;window.crmFetchReal=crmFetchReal;window.crmSyncLeadReal=crmSyncLeadReal;
 window.bkOpenPanel=bkOpenPanel;window.bkConnect=bkConnect;window.bkDisconnect=bkDisconnect;window.bkExplain=bkExplain;window.bkNavigate=bkNavigate;window.BK=BK;
 window.obNext=obNext;window.obBack=obBack;window.obSkip=obSkip;window.obExit=obExit;window.obGoStep=obGoStep;window.obSet=obSet;window.obSetChk=obSetChk;window.obSetMode=obSetMode;window.obAddSvc=obAddSvc;window.obRemoveSvc=obRemoveSvc;window.obLaunch=obLaunch;window.obRunTest=obRunTest;window.dashTestLead=dashTestLead;
 window.crmOpenWizard=crmOpenWizard;window.crmConfigure=crmConfigure;window.crmCloseModal=crmCloseModal;window.crmWizNext=crmWizNext;window.crmWizBack=crmWizBack;

@@ -18,6 +18,7 @@ supabase/
     crm-test         → runs a REAL provider round-trip; only this flips a card to "Connected"
     crm-metadata     → loads pipelines / stages / owners / fields
     crm-status       → truthful connection list for the app (no secrets)
+    crm-sync-lead    → pushes a REAL lead into HubSpot (contact + deal), stores external ids
     telnyx-verify    → real Telnyx account check
     telnyx-search    → real Telnyx number search
     telnyx-order     → orders a number (idempotent); number stays "test_pending"
@@ -62,7 +63,7 @@ Set `PUBLIC_FUNCTIONS_URL=https://YOUR_REF.supabase.co/functions/v1` and
 
 ```bash
 supabase functions deploy crm-authorise crm-callback crm-test crm-metadata crm-status \
-  telnyx-verify telnyx-search telnyx-order telnyx-webhook
+  crm-sync-lead telnyx-verify telnyx-search telnyx-order telnyx-webhook
 ```
 
 `config.toml` already sets `verify_jwt = false` for `crm-callback` (the CRM redirects here with
@@ -99,6 +100,7 @@ app's sign-up to Supabase Auth). Then **Connect** on HubSpot runs the real OAuth
 | Capability | State |
 |---|---|
 | HubSpot OAuth → callback → token exchange → encrypted storage → metadata → real test → Connected | **Real** (once creds + deploy done) |
+| Real lead sync: an Alsaiti lead → real HubSpot contact (+ deal), external id stored, link returned | **Real** (`crm-sync-lead`, HubSpot) |
 | Truthful connection states everywhere (Demo / Needs setup / Authorising / Test required / Connected / Attention / Error) | **Real** |
 | Telnyx account verify, number **search**, number **order** (idempotent) | **Real** |
 | Telnyx webhook Ed25519 verification + inbound-call → number goes Active | **Real** |
@@ -111,6 +113,20 @@ app's sign-up to Supabase Auth). Then **Connect** on HubSpot runs the real OAuth
 - A funded **Telnyx** account + business verification + a purchased number for a real inbound test.
 - Provider **developer apps** (HubSpot first) for client IDs/secrets + approved redirect URIs.
 - For real calls: a deployed **LiveKit SIP** + **voice-agent worker** (VPS / container host).
+
+## Telnyx "no-funds" mode (build now, fund later)
+
+Telnyx is wired but **safe without funds** — nothing charges you until you choose to:
+- **No `TELNYX_API_KEY`** → `telnyx-verify` reports **missing_credentials** ("Needs Telnyx credentials").
+- **Valid key but zero balance** → reports **funding_required** ("Funding required") — it will *not* claim Connected.
+- **Number ordering** stays a scaffold; a number only becomes **Active** after a real, signature-verified inbound test call.
+
+Build order: prove the free HubSpot CRM + real lead sync first, then add Telnyx funds when ready.
+
+### Function-name note (matches the plan's intent)
+Same behaviour, our names: `crm-metadata` = "crm-load-metadata", `crm-test` = "crm-test-connection",
+`telnyx-verify` = "telnyx-account-check", `telnyx-search` = "telnyx-number-search",
+`telnyx-order` = "telnyx-number-order". `crm-sync-lead` is the real lead→CRM sync.
 
 ## Definition of "go-live"
 

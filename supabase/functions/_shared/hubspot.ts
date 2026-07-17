@@ -87,4 +87,53 @@ export const hubspot = {
     try { await fetch(`${API}/crm/v3/objects/contacts/${id}`, { method: 'DELETE', headers: h }); } catch { /* best effort */ }
     return { ok: true, operation: 'contacts.create+archive', externalTestRecordId: id };
   },
+
+  // Real lead sync: create (or update) a HubSpot contact from an Alsaiti lead, and optionally a
+  // deal. Unlike runTest, these records are KEPT. Returns the real external IDs to store + link.
+  async syncLead(
+    tokens: TokenSet,
+    lead: { name?: string; email?: string; phone?: string; service?: string; summary?: string; source?: string },
+    opts: { createDeal?: boolean; pipeline?: string; stage?: string } = {},
+  ): Promise<{ ok: boolean; operation: string; contactId?: string; dealId?: string; recordUrl?: string; error?: string }> {
+    const h = authHeaders(tokens);
+    const [firstname, ...rest] = (lead.name || 'Alsaiti Lead').trim().split(/\s+/);
+    const lastname = rest.join(' ') || '(lead)';
+    // Upsert the contact by email when we have one (avoids duplicates on re-sync); else create.
+    let contactId: string | undefined;
+    const props: Record<string, string> = { firstname, lastname };
+    if (lead.email) props.email = lead.email;
+    if (lead.phone) props.phone = lead.phone;
+    if (lead.summary || lead.service) props.hs_content_membership_notes = (lead.service ? `${lead.service}. ` : '') + (lead.summary || '');
+
+    if (lead.email) {
+      // Try update-by-email first (idempotent), fall back to create.
+      const up = await fetch(`${API}/crm/v3/objects/contacts/${encodeURIComponent(lead.email)}?idProperty=email`, {
+        method: 'PATCH', headers: h, body: JSON.stringify({ properties: props }),
+      });
+      if (up.ok) { contactId = (await up.json()).id; }
+    }
+    if (!contactId) {
+      const create = await fetch(`${API}/crm/v3/objects/contacts`, { method: 'POST', headers: h, body: JSON.stringify({ properties: props }) });
+      if (!create.ok) return { ok: false, operation: 'contacts.upsert', error: `HTTP ${create.status}: ${(await create.text()).slice(0, 300)}` };
+      contactId = (await create.json()).id;
+    }
+
+    let dealId: string | undefined;
+    if (opts.createDeal) {
+      const dealProps: Record<string, string> = { dealname: `${lead.name || 'Lead'} — ${lead.service || 'enquiry'}`, dealstage: opts.stage || 'appointmentscheduled' };
+      const deal = await fetch(`${API}/crm/v3/objects/deals`, {
+        method: 'POST', headers: h,
+        body: JSON.stringify({
+          properties: dealProps,
+          associations: contactId ? [{ to: { id: contactId }, types: [{ associationCategory: 'HUBSPOT_DEFINED', associationTypeId: 3 }] }] : undefined,
+        }),
+      });
+      if (deal.ok) dealId = (await deal.json()).id;
+    }
+    return {
+      ok: true, operation: opts.createDeal ? 'contact+deal.upsert' : 'contact.upsert',
+      contactId, dealId,
+      recordUrl: contactId ? `https://app.hubspot.com/contacts/0/record/0-1/${contactId}` : undefined,
+    };
+  },
 };

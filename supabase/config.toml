@@ -20,6 +20,9 @@ verify_jwt = true
 [functions.crm-status]
 verify_jwt = true
 
+[functions.crm-sync-lead]
+verify_jwt = true
+
 [functions.telnyx-verify]
 verify_jwt = true
 
