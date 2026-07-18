@@ -21,17 +21,25 @@
     --green:#1C6B4E; --amber:#A8791F; --red:#B4553E;
     --glassborder:rgba(20,35,28,0.09); --glasshi:rgba(255,255,255,0.92);
     --shadow:rgba(18,42,32,0.16); --shadow2:rgba(18,42,32,0.06);
+    /* charts — distinct, on-palette status hues + funnel ramp + funnel text */
+    --st-new:#2E8A66; --st-contacted:#96A0A6; --st-qualified:#C6A15B; --st-booked:#4FB98D;
+    --st-won:#123A2C; --st-lost:#C0664A; --st-spam:#8A9096;
+    --fn1:#123A2C; --fn2:#17573F; --fn3:#1C6B4E; --fn4:#26775A; --fn5:#2E8A66; --fntext:#F2EBDC;
     --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
   }
   :root[data-theme="dark"]{
-    /* ===== DARK — Private Wealth after dark: deep forest / green / ivory / brass ===== */
-    --bg:#0D1411; --bg2:#111A15; --primary:#2E9E74; --cyan:#4BC998; --glow:#1C6B4E;
-    --purple:#D4B476; --accent:#D4B476; --brass:#D4B476; --heading:#F2EBDC; --text:#E3DCC9; --muted:#98A392;
-    --glass:#16211B; --glass-hi:#1B2820; --card:#16211B; --card2:#1B2620; --sidebar:rgba(13,20,16,.92); --topbar:rgba(13,20,16,.85);
-    --border:rgba(242,235,220,0.10); --border-hi:rgba(46,158,116,0.42);
-    --green:#4BC998; --amber:#D9B45A; --red:#E58063;
-    --glassborder:rgba(242,235,220,0.08); --glasshi:rgba(255,255,255,0.05);
+    /* ===== DARK — Modern Fintech: charcoal / electric emerald / cool white ===== */
+    --bg:#0C100E; --bg2:#0F1512; --primary:#16C98A; --cyan:#22E39A; --glow:#0FA372;
+    --purple:#22E39A; --accent:#22E39A; --brass:#22E39A; --heading:#EAF2EE; --text:#DCE7E1; --muted:#8A9A92;
+    --glass:#151B18; --glass-hi:#1B2320; --card:#151B18; --card2:#1A211D; --sidebar:rgba(12,16,14,.92); --topbar:rgba(12,16,14,.85);
+    --border:rgba(234,242,238,0.10); --border-hi:rgba(34,227,154,0.40);
+    --green:#22E39A; --amber:#D9B45A; --red:#E58063;
+    --glassborder:rgba(234,242,238,0.08); --glasshi:rgba(255,255,255,0.05);
     --shadow:rgba(0,0,0,0.55); --shadow2:rgba(0,0,0,0.34);
+    /* charts — electric fintech hues; bright bars take ink text */
+    --st-new:#22E39A; --st-contacted:#8FA3AD; --st-qualified:#D9B45A; --st-booked:#7FE7C3;
+    --st-won:#0FA372; --st-lost:#E58063; --st-spam:#9AA5AA;
+    --fn1:#0FA372; --fn2:#13B380; --fn3:#16C98A; --fn4:#1CD592; --fn5:#22E39A; --fntext:#06231A;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -107,7 +115,7 @@
   .badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 10px;border-radius:999px;
     border:1px solid var(--border);white-space:nowrap;font-weight:600}
   .b-New{background:rgba(28,107,78,.16);color:var(--cyan);border-color:rgba(46,138,102,.4)}
-  .b-Contacted{background:rgba(148,163,199,.14);color:#c3d3ea}
+  .b-Contacted{background:rgba(90,104,112,.13);color:#516069}
   .b-Qualified{background:rgba(168,121,31,.15);color:#8A6416}
   .b-Booked{background:rgba(92,196,151,.14);color:#7bf0b4}
   .b-Won{background:rgba(92,196,151,.2);color:var(--green)}
@@ -455,7 +463,7 @@
   .cs i{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block;flex-shrink:0}
   .cs-connected{color:var(--green);background:rgba(92,196,151,.12);border-color:rgba(92,196,151,.32)}
   .cs-connecting{color:var(--cyan);background:rgba(46,138,102,.12);border-color:rgba(46,138,102,.32)}
-  .cs-paused{color:#c3d3ea;background:rgba(148,163,199,.14)}
+  .cs-paused{color:var(--muted);background:rgba(150,160,166,.15)}
   .cs-attention{color:var(--amber);background:rgba(251,191,90,.12);border-color:rgba(251,191,90,.3)}
   .cs-expired{color:#ffb27a;background:rgba(255,150,90,.12);border-color:rgba(255,150,90,.3)}
   .cs-error{color:#ff9aa6;background:rgba(255,122,138,.12);border-color:rgba(255,122,138,.32)}
@@ -606,8 +614,8 @@
     radial-gradient(1100px 620px at 84% -12%, rgba(28,107,78,.10), transparent 60%),
     radial-gradient(920px 520px at -8% 12%, rgba(18,58,44,.05), transparent 58%);}
   :root[data-theme="dark"] body{background-image:
-    radial-gradient(1100px 620px at 84% -12%, rgba(62,185,140,.14), transparent 60%),
-    radial-gradient(920px 520px at -8% 12%, rgba(62,185,140,.07), transparent 58%);}
+    radial-gradient(1100px 620px at 84% -12%, rgba(34,227,154,.14), transparent 60%),
+    radial-gradient(920px 520px at -8% 12%, rgba(34,227,154,.07), transparent 58%);}
   /* smooth theme switch + premium micro-motion */
   body,.card,.sidebar,.topbar,.btn,.badge,.navlink,.leaditem,.qa,.plan,.step,.provcard{transition:background-color .35s ease,border-color .35s ease,color .25s ease,box-shadow .3s ease,transform .18s ease}
   /* refined serif headings for a branded, editorial feel */
@@ -653,11 +661,11 @@
   .b-Won{background:rgba(28,107,78,.16);color:#155C41;border-color:rgba(28,107,78,.35)}
   .b-Lost{background:rgba(192,85,59,.12);color:#A5442C;border-color:rgba(192,85,59,.3)}
   .b-Spam{background:rgba(120,110,100,.10);color:#6B6258;border-color:rgba(120,110,100,.22)}
-  :root[data-theme="dark"] .b-New{background:rgba(46,138,102,.16);color:#6FC9A4;border-color:rgba(46,138,102,.4)}
+  :root[data-theme="dark"] .b-New{background:rgba(46,138,102,.16);color:#5FE3B0;border-color:rgba(46,138,102,.4)}
   :root[data-theme="dark"] .b-Contacted{background:rgba(150,166,176,.13);color:#B6C4CC;border-color:rgba(150,166,176,.24)}
   :root[data-theme="dark"] .b-Qualified{background:rgba(217,180,90,.16);color:#E3C173;border-color:rgba(217,180,90,.32)}
-  :root[data-theme="dark"] .b-Booked{background:rgba(75,201,152,.14);color:#84D2AF;border-color:rgba(75,201,152,.3)}
-  :root[data-theme="dark"] .b-Won{background:rgba(75,201,152,.2);color:#79CCA6;border-color:rgba(75,201,152,.36)}
+  :root[data-theme="dark"] .b-Booked{background:rgba(60,224,166,.14);color:#8FEBC8;border-color:rgba(60,224,166,.3)}
+  :root[data-theme="dark"] .b-Won{background:rgba(60,224,166,.2);color:#72E4B6;border-color:rgba(60,224,166,.36)}
   :root[data-theme="dark"] .b-Lost{background:rgba(224,122,95,.16);color:#F2A48C;border-color:rgba(224,122,95,.32)}
   :root[data-theme="dark"] .b-Spam{background:rgba(200,185,160,.10);color:#A99B85;border-color:rgba(200,185,160,.18)}
   /* aurora → warm luxury glows */
@@ -712,8 +720,9 @@
   .donut{width:100%;height:100%;border-radius:50%;filter:drop-shadow(0 8px 22px rgba(0,0,0,.35));
     -webkit-mask:radial-gradient(farthest-side,#0000 60%,#000 61%);mask:radial-gradient(farthest-side,#0000 60%,#000 61%)}
   .donutctr{position:absolute;inset:0;display:grid;place-items:center;text-align:center;pointer-events:none}
-  .donutctr .dv{font-size:32px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
-  .donutctr .dl{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+  .donutctr>div{max-width:62%}
+  .donutctr .dv{font-size:30px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .donutctr .dl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:5px auto 0;line-height:1.35;max-width:78px}
   .slegend{flex:1;min-width:190px;display:flex;flex-direction:column}
   .slegrow{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13.5px;border-top:1px solid var(--border)}
   .slegrow:first-child{border-top:none}
@@ -725,13 +734,14 @@
 
   /* ===================== Conversion funnel (analytics) ===================== */
   .funnelviz{margin-top:14px;display:flex;flex-direction:column;align-items:center}
-  .fstage{width:100%;max-width:540px;border-radius:13px;padding:13px 18px;color:#052033;
-    display:flex;align-items:center;justify-content:space-between;box-shadow:0 10px 24px -12px rgba(0,0,0,.55);transition:width .5s ease}
+  .fstage{width:100%;max-width:540px;border-radius:13px;padding:13px 18px;color:var(--fntext);
+    display:flex;align-items:center;justify-content:space-between;box-shadow:0 12px 26px -14px var(--shadow);transition:width .5s ease}
   .fstage .fl{font-weight:800;font-size:14px;display:flex;align-items:center;gap:9px;min-width:0}
-  .fstage .fn{background:rgba(255,255,255,.32);border-radius:7px;padding:1px 8px;font-size:12px;font-variant-numeric:tabular-nums}
+  .fstage .fn{background:rgba(255,255,255,.24);border-radius:7px;padding:1px 8px;font-size:12px;font-variant-numeric:tabular-nums}
+  :root[data-theme="dark"] .fstage .fn{background:rgba(0,0,0,.22)}
   .fstage .fr{font-weight:800;font-size:15px;font-variant-numeric:tabular-nums;flex-shrink:0}
   .fdrop{font-size:11.5px;color:var(--muted);margin:6px 0;display:flex;align-items:center;gap:6px;font-weight:600}
-  .fdrop b{color:#c3d3ea;font-variant-numeric:tabular-nums}
+  .fdrop b{color:var(--heading);font-variant-numeric:tabular-nums}
 
   /* ===================== Refinements v2 — search, motion, polish ===================== */
   .fdrop b{color:var(--heading)}
@@ -915,7 +925,7 @@
   .step{transition:transform .2s,border-color .2s}
   .step:hover{transform:translateY(-3px);border-color:var(--border-hi)}
   /* stronger emerald glow in dark for that premium fintech feel */
-  :root[data-theme="dark"] .herolive{box-shadow:0 14px 40px -18px rgba(0,0,0,.6),0 0 0 1px rgba(62,185,140,.10),inset 0 1px 0 rgba(255,255,255,.04)}
+  :root[data-theme="dark"] .herolive{box-shadow:0 14px 40px -18px rgba(0,0,0,.6),0 0 0 1px rgba(34,227,154,.10),inset 0 1px 0 rgba(255,255,255,.04)}
   :root[data-theme="dark"] .btn-primary::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent)}
   @media(max-width:760px){.herolive{padding:8px 12px}.herolive .hl-feed{min-width:min(64vw,240px)}}
 
@@ -927,7 +937,7 @@
   .hero{position:relative;isolation:isolate}
   .hero::before{content:"";position:absolute;z-index:-1;left:50%;top:8%;width:min(760px,92%);height:340px;transform:translateX(-50%);
     background:radial-gradient(ellipse at center,rgba(28,107,78,.16),transparent 68%);filter:blur(8px);pointer-events:none}
-  :root[data-theme="dark"] .hero::before{background:radial-gradient(ellipse at center,rgba(62,185,140,.20),transparent 66%)}
+  :root[data-theme="dark"] .hero::before{background:radial-gradient(ellipse at center,rgba(34,227,154,.20),transparent 66%)}
 
   /* gradient headline — stays readable (dark heading → emerald); brighter in dark */
   .htitle{color:var(--heading);
@@ -943,7 +953,7 @@
 
   /* industry icons → vivid emerald gradient chips */
   .ficon{background:linear-gradient(140deg,var(--primary),var(--glow));color:#fff;box-shadow:0 8px 20px -10px rgba(28,107,78,.55)}
-  :root[data-theme="dark"] .ficon{box-shadow:0 8px 22px -10px rgba(62,185,140,.5)}
+  :root[data-theme="dark"] .ficon{box-shadow:0 8px 22px -10px rgba(34,227,154,.5)}
   .landing .card{position:relative;overflow:hidden}
   /* thin emerald top-accent that grows on hover */
   .landing #sec-ind .card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;transform:scaleX(0);transform-origin:left;
@@ -954,7 +964,7 @@
   #sec-demos,#sec-price{position:relative}
   #sec-demos::before,#sec-price::before{content:"";position:absolute;z-index:-1;inset:-6% -8%;border-radius:36px;
     background:radial-gradient(60% 80% at 50% 0%,rgba(28,107,78,.05),transparent 70%)}
-  :root[data-theme="dark"] #sec-demos::before,:root[data-theme="dark"] #sec-price::before{background:radial-gradient(60% 80% at 50% 0%,rgba(62,185,140,.06),transparent 70%)}
+  :root[data-theme="dark"] #sec-demos::before,:root[data-theme="dark"] #sec-price::before{background:radial-gradient(60% 80% at 50% 0%,rgba(34,227,154,.06),transparent 70%)}
 
   /* footer: emerald top hairline glow */
   footer{position:relative}
@@ -962,7 +972,7 @@
 
   /* stat deltas + live chip already emerald — reinforce popular plan glow */
   .plan.pop{background:linear-gradient(180deg,rgba(28,107,78,.05),var(--card))}
-  :root[data-theme="dark"] .plan.pop{background:linear-gradient(180deg,rgba(62,185,140,.07),var(--card))}
+  :root[data-theme="dark"] .plan.pop{background:linear-gradient(180deg,rgba(34,227,154,.07),var(--card))}
 
   /* ============================================================
      PRIVATE WEALTH LAYER — forest / ivory / brass (thin accents only)
@@ -986,13 +996,13 @@
   .plan .poptag{background:linear-gradient(135deg,var(--brass),#B08D45);color:#fff;border:none}
   /* hero live chip: whisper of brass in the border */
   .herolive{border-color:rgba(198,161,91,.28)}
-  :root[data-theme="dark"] .herolive{border-color:rgba(212,180,118,.24)}
+  :root[data-theme="dark"] .herolive{border-color:rgba(34,227,154,.22)}
   /* footer hairline: green fades through brass */
   footer::before{background:linear-gradient(90deg,transparent,var(--brass),var(--primary),var(--brass),transparent);opacity:.55}
 
   /* ---- Sidebar: private-members club ---- */
   .sidebar{background:linear-gradient(180deg,var(--glass-hi),var(--sidebar) 42%)}
-  :root[data-theme="dark"] .sidebar{background:linear-gradient(180deg,rgba(28,107,78,.10),rgba(13,20,16,.94) 46%)}
+  :root[data-theme="dark"] .sidebar{background:linear-gradient(180deg,rgba(34,227,154,.07),rgba(12,16,14,.94) 46%)}
   .navsec{color:var(--brass);letter-spacing:.14em;font-weight:700;display:flex;align-items:center;gap:8px}
   .navsec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(198,161,91,.35),transparent)}
   .navlink{overflow:visible}
@@ -1012,7 +1022,13 @@
   .stat .value,.mstat .v,.donutctr .dv,.plan .amt{font-family:var(--serif);letter-spacing:.2px}
   /* selection color joins the brand */
   ::selection{background:rgba(198,161,91,.30)}
-  :root[data-theme="dark"] ::selection{background:rgba(46,158,116,.35)}
+  :root[data-theme="dark"] ::selection{background:rgba(34,227,154,.35)}
+  /* dark = Modern Fintech: brass moments become electric emerald */
+  :root[data-theme="dark"] .mock.glass::before,:root[data-theme="dark"] .plan.pop::before,:root[data-theme="dark"] .contactcard::before{
+    background:linear-gradient(90deg,transparent,var(--brass) 30%,#7FF0CB 50%,var(--brass) 70%,transparent);background-size:220% 100%}
+  :root[data-theme="dark"] .plan.pop{border-color:rgba(34,227,154,.35)}
+  :root[data-theme="dark"] .navsec::after{background:linear-gradient(90deg,rgba(34,227,154,.30),transparent)}
+  :root[data-theme="dark"] .brand:hover .logo{box-shadow:0 0 0 2px rgba(34,227,154,.45),0 6px 16px -6px rgba(34,227,154,.5)}
 </style>
 </head>
 <body>
@@ -1532,7 +1548,8 @@ function pageContent(r){
 }
 function head(tl,s,right){return '<div class="pagehead"><div><h1>'+esc(tl)+'</h1>'+(s?'<p>'+esc(s)+'</p>':'')+'</div><div class="spacer"></div>'+(right||'')+'</div>'}
 
-var STCOL={New:'#1C6B4E',Contacted:'#7C8A92',Qualified:'#C6952E',Booked:'#2E8A66',Won:'#1C6B4E',Lost:'#C0553C',Spam:'#828C90'};
+/* Theme-aware status colours (CSS vars) — distinct hue per status, auto-switch with the theme */
+var STCOL={New:'var(--st-new)',Contacted:'var(--st-contacted)',Qualified:'var(--st-qualified)',Booked:'var(--st-booked)',Won:'var(--st-won)',Lost:'var(--st-lost)',Spam:'var(--st-spam)'};
 function statusDonut(counts,total){
   var tot=total||1, acc=0, stops=[];
   STATUSES.forEach(function(st){var v=counts[st]||0;if(v<=0)return;var from=acc/tot*360,to=(acc+v)/tot*360;acc+=v;stops.push(STCOL[st]+' '+from.toFixed(2)+'deg '+to.toFixed(2)+'deg')});
@@ -1541,10 +1558,11 @@ function statusDonut(counts,total){
   return '<div class="statwrap"><div class="donutwrap"><div class="donut" style="background:conic-gradient('+stops.join(',')+')"></div><div class="donutctr"><div class="dv">'+total+'</div><div class="dl">'+esc(t('total_leads'))+'</div></div></div><div class="slegend">'+legend+'</div></div>';
 }
 function funnelViz(funnel){
-  var cols=['#123A2C','#17573F','#1C6B4E','#2E8A66','#43A97F'];
+  /* theme-aware ramp; clamp the last stage so its gradient never wraps back to stage 1 */
+  var cols=['var(--fn1)','var(--fn2)','var(--fn3)','var(--fn4)','var(--fn5)'];
   var html='<div class="funnelviz">';
   funnel.forEach(function(f,i){
-    var pct=f[1], w=Math.max(42,pct), c1=cols[i%cols.length], c2=cols[(i+1)%cols.length];
+    var pct=f[1], w=Math.max(42,pct), c1=cols[Math.min(i,cols.length-1)], c2=cols[Math.min(i+1,cols.length-1)];
     html+='<div class="fstage" style="width:'+w+'%;background:linear-gradient(90deg,'+c1+','+c2+')"><span class="fl">'+esc(f[0])+'<span class="fn">'+f[2]+'</span></span><span class="fr">'+pct+'%</span></div>';
     if(i<funnel.length-1){var prev=f[2],next=funnel[i+1][2],drop=prev>0?Math.round((prev-next)/prev*100):0;html+='<div class="fdrop">↓ <b>'+next+'</b> continued · <b>'+drop+'%</b> drop-off</div>';}
   });
