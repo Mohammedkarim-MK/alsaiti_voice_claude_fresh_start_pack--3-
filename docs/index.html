@@ -21,10 +21,12 @@
     --green:#1C6B4E; --amber:#A8791F; --red:#B4553E;
     --glassborder:rgba(20,35,28,0.09); --glasshi:rgba(255,255,255,0.92);
     --shadow:rgba(18,42,32,0.16); --shadow2:rgba(18,42,32,0.06);
-    /* charts — distinct, on-palette status hues + funnel ramp + funnel text */
-    --st-new:#2E8A66; --st-contacted:#96A0A6; --st-qualified:#C6A15B; --st-booked:#4FB98D;
-    --st-won:#123A2C; --st-lost:#C0664A; --st-spam:#8A9096;
-    --fn1:#123A2C; --fn2:#17573F; --fn3:#1C6B4E; --fn4:#26775A; --fn5:#2E8A66; --fntext:#F2EBDC;
+    /* charts — VALIDATED ordinal ramp (single hue, monotone L, light end clears surface)
+       for the ordered pipeline, plus reserved status tokens for the terminal states. */
+    --st-new:#57B892; --st-contacted:#38A279; --st-qualified:#238662; --st-booked:#156548;
+    --st-won:#0D4531; --st-lost:#C0553C; --st-spam:#8A9096;
+    --fn1:#57B892; --fn2:#38A279; --fn3:#238662; --fn4:#156548; --fn5:#0D4531; --fntext:#F2EBDC;
+    --chart-track:rgba(20,35,28,.08); --chart-grid:rgba(20,35,28,.07);
     --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
   }
   :root[data-theme="dark"]{
@@ -36,10 +38,11 @@
     --green:#22E39A; --amber:#D9B45A; --red:#E58063;
     --glassborder:rgba(234,242,238,0.08); --glasshi:rgba(255,255,255,0.05);
     --shadow:rgba(0,0,0,0.55); --shadow2:rgba(0,0,0,0.34);
-    /* charts — electric fintech hues; bright bars take ink text */
-    --st-new:#22E39A; --st-contacted:#8FA3AD; --st-qualified:#D9B45A; --st-booked:#7FE7C3;
-    --st-won:#0FA372; --st-lost:#E58063; --st-spam:#9AA5AA;
-    --fn1:#0FA372; --fn2:#13B380; --fn3:#16C98A; --fn4:#1CD592; --fn5:#22E39A; --fntext:#06231A;
+    /* charts — VALIDATED dark ordinal ramp (dim→electric, all checks pass on charcoal) */
+    --st-new:#16795A; --st-contacted:#0FA372; --st-qualified:#16C98A; --st-booked:#22E39A;
+    --st-won:#7FF0CB; --st-lost:#E58063; --st-spam:#9AA5AA;
+    --fn1:#16795A; --fn2:#0FA372; --fn3:#16C98A; --fn4:#22E39A; --fn5:#7FF0CB; --fntext:#06231A;
+    --chart-track:rgba(234,242,238,.10); --chart-grid:rgba(234,242,238,.08);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -714,37 +717,7 @@
   /* keep inputs clear of the on-screen keyboard / sticky topbar on phones */
   input,textarea,select{scroll-margin-top:80px;scroll-margin-bottom:120px}
 
-  /* ===================== Status donut (dashboard) ===================== */
-  .statwrap{display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-top:4px}
-  .donutwrap{position:relative;width:158px;height:158px;flex-shrink:0}
-  .donut{width:100%;height:100%;border-radius:50%;filter:drop-shadow(0 8px 22px rgba(0,0,0,.35));
-    -webkit-mask:radial-gradient(farthest-side,#0000 60%,#000 61%);mask:radial-gradient(farthest-side,#0000 60%,#000 61%)}
-  .donutctr{position:absolute;inset:0;display:grid;place-items:center;text-align:center;pointer-events:none}
-  .donutctr>div{max-width:62%}
-  .donutctr .dv{font-size:30px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
-  .donutctr .dl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:5px auto 0;line-height:1.35;max-width:78px}
-  .slegend{flex:1;min-width:190px;display:flex;flex-direction:column}
-  .slegrow{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13.5px;border-top:1px solid var(--border)}
-  .slegrow:first-child{border-top:none}
-  .slegrow .dot2{width:11px;height:11px;border-radius:4px;flex-shrink:0}
-  .slegrow .sname{flex:1}
-  .slegrow .scount{font-weight:800;font-variant-numeric:tabular-nums}
-  .slegrow .spct{color:var(--muted);width:46px;text-align:right;font-variant-numeric:tabular-nums;font-size:12.5px}
-  html[dir="rtl"] .slegrow .spct{text-align:left}
-
-  /* ===================== Conversion funnel (analytics) ===================== */
-  .funnelviz{margin-top:14px;display:flex;flex-direction:column;align-items:center}
-  .fstage{width:100%;max-width:540px;border-radius:13px;padding:13px 18px;color:var(--fntext);
-    display:flex;align-items:center;justify-content:space-between;box-shadow:0 12px 26px -14px var(--shadow);transition:width .5s ease}
-  .fstage .fl{font-weight:800;font-size:14px;display:flex;align-items:center;gap:9px;min-width:0}
-  .fstage .fn{background:rgba(255,255,255,.24);border-radius:7px;padding:1px 8px;font-size:12px;font-variant-numeric:tabular-nums}
-  :root[data-theme="dark"] .fstage .fn{background:rgba(0,0,0,.22)}
-  .fstage .fr{font-weight:800;font-size:15px;font-variant-numeric:tabular-nums;flex-shrink:0}
-  .fdrop{font-size:11.5px;color:var(--muted);margin:6px 0;display:flex;align-items:center;gap:6px;font-weight:600}
-  .fdrop b{color:var(--heading);font-variant-numeric:tabular-nums}
-
   /* ===================== Refinements v2 — search, motion, polish ===================== */
-  .fdrop b{color:var(--heading)}
   /* ---- Search bar (premium) ---- */
   .search{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0 8px 0 14px;height:42px;gap:10px;
     box-shadow:inset 0 1px 2px var(--shadow2);transition:border-color .18s ease,box-shadow .18s ease}
@@ -774,10 +747,7 @@
     .leadlist .leaditem:nth-child(5){animation-delay:.20s}
     .quickacts .qa{animation:lux-pop .45s ease both}
     .quickacts .qa:nth-child(2){animation-delay:.06s}.quickacts .qa:nth-child(3){animation-delay:.12s}.quickacts .qa:nth-child(4){animation-delay:.18s}
-    .donut{animation:donut-in .7s cubic-bezier(.2,.8,.2,1) both}
-    .funnelviz .fstage{animation:fstage-in .5s ease both}
-    .funnelviz .fstage:nth-child(3){animation-delay:.06s}.funnelviz .fstage:nth-child(5){animation-delay:.12s}
-    .funnelviz .fstage:nth-child(7){animation-delay:.18s}.funnelviz .fstage:nth-child(9){animation-delay:.24s}
+    .frChart{animation:donut-in .7s cubic-bezier(.2,.8,.2,1) both}
   }
   /* hover micro-interactions */
   .card{transition:transform .2s ease,box-shadow .25s ease,border-color .2s ease,background-color .35s ease}
@@ -1029,6 +999,80 @@
   :root[data-theme="dark"] .plan.pop{border-color:rgba(34,227,154,.35)}
   :root[data-theme="dark"] .navsec::after{background:linear-gradient(90deg,rgba(34,227,154,.30),transparent)}
   :root[data-theme="dark"] .brand:hover .logo{box-shadow:0 0 0 2px rgba(34,227,154,.45),0 6px 16px -6px rgba(34,227,154,.5)}
+
+  /* ============================================================
+     CHARTS v2 — status BARS + conversion RINGS, on a live background
+     ============================================================ */
+  /* --- live ambient background inside chart cards (subtle: depth, never noise) --- */
+  .chartcard{position:relative;overflow:hidden;isolation:isolate}
+  .chartcard>*{position:relative;z-index:1}
+  .chartcard::before{content:"";position:absolute;z-index:0;inset:-40%;pointer-events:none;
+    background:
+      radial-gradient(38% 38% at 22% 28%,rgba(35,134,98,.13),transparent 62%),
+      radial-gradient(34% 34% at 78% 68%,rgba(198,161,91,.10),transparent 62%),
+      radial-gradient(30% 30% at 60% 20%,rgba(87,184,146,.10),transparent 62%);
+    filter:blur(26px)}
+  :root[data-theme="dark"] .chartcard::before{
+    background:
+      radial-gradient(38% 38% at 22% 28%,rgba(34,227,154,.16),transparent 62%),
+      radial-gradient(34% 34% at 78% 68%,rgba(22,201,138,.12),transparent 62%),
+      radial-gradient(30% 30% at 60% 20%,rgba(127,240,203,.09),transparent 62%)}
+  .chartcard::after{content:"";position:absolute;z-index:0;inset:0;pointer-events:none;opacity:.5;
+    background-image:linear-gradient(var(--chart-grid) 1px,transparent 1px),linear-gradient(90deg,var(--chart-grid) 1px,transparent 1px);
+    background-size:34px 34px;
+    -webkit-mask-image:radial-gradient(circle at 50% 40%,#000,transparent 76%);mask-image:radial-gradient(circle at 50% 40%,#000,transparent 76%)}
+  @media(prefers-reduced-motion:no-preference){
+    .chartcard::before{animation:auroraDrift 22s ease-in-out infinite}
+    .chartcard::after{animation:gridBreathe 9s ease-in-out infinite}
+  }
+  @keyframes auroraDrift{0%,100%{transform:translate3d(0,0,0) scale(1)}33%{transform:translate3d(3%,-2%,0) scale(1.06)}66%{transform:translate3d(-2%,3%,0) scale(1.03)}}
+  @keyframes gridBreathe{0%,100%{opacity:.32}50%{opacity:.6}}
+
+  /* --- Leads by status: horizontal bars --- */
+  .sbwrap{margin-top:6px}
+  .sbtotal{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+  .sbtotal b{font-family:var(--serif);font-size:22px;color:var(--heading);margin-inline-end:4px}
+  .sbchart{display:flex;flex-direction:column;gap:9px}
+  .sbrow{display:grid;grid-template-columns:112px 1fr 34px 42px;align-items:center;gap:10px;
+    padding:3px 6px;border-radius:9px;transition:background .18s ease}
+  .sbrow:hover{background:var(--card2)}
+  .sbname{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--text);min-width:0}
+  .sbdot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+  .sbtrack{position:relative;height:16px;border-radius:8px;background:var(--chart-track);overflow:hidden}
+  .sbfill{position:absolute;inset-block:0;inset-inline-start:0;border-radius:8px;display:block;transform-origin:left}
+  html[dir="rtl"] .sbfill{transform-origin:right}
+  @media(prefers-reduced-motion:no-preference){.sbfill{animation:barGrow .75s cubic-bezier(.2,.75,.2,1) both}}
+  @keyframes barGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  .sbval{font-weight:800;font-variant-numeric:tabular-nums;text-align:end;color:var(--heading);font-size:14px}
+  .sbpct{color:var(--muted);font-variant-numeric:tabular-nums;text-align:end;font-size:12.5px}
+  @media(max-width:520px){.sbrow{grid-template-columns:92px 1fr 28px 38px;gap:8px}}
+
+  /* --- Conversion rings --- */
+  .frWrap{display:flex;gap:26px;align-items:center;flex-wrap:wrap;margin-top:8px}
+  .frChart{position:relative;width:210px;height:210px;flex-shrink:0}
+  .frChart svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .frTrack{fill:none;stroke:var(--chart-track)}
+  .frArc{fill:none;stroke-linecap:round;transition:stroke-width .2s ease,filter .2s ease;cursor:pointer}
+  .frArc:hover{stroke-width:17;filter:brightness(1.12)}
+  @media(prefers-reduced-motion:no-preference){.frArc{animation:arcSweep 1.05s cubic-bezier(.2,.7,.2,1) both}}
+  @keyframes arcSweep{from{stroke-dashoffset:var(--dash)}to{stroke-dashoffset:var(--fill)}}
+  @media(prefers-reduced-motion:reduce){.frArc{stroke-dashoffset:var(--fill)}}
+  .frCentre{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}
+  .frBig{font-size:34px;font-weight:800;line-height:1;color:var(--heading)}
+  .frLbl{font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-top:5px}
+  .frLegend{flex:1;min-width:230px}
+  .frHead,.frRow{display:grid;grid-template-columns:12px 1fr 34px 44px 52px;align-items:center;gap:9px}
+  .frHead{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:0 4px 7px;border-bottom:1px solid var(--border)}
+  .frHead span:nth-child(n+3){text-align:end}
+  .frRow{padding:8px 4px;border-bottom:1px solid var(--border);font-size:13.5px;transition:background .18s ease;border-radius:7px}
+  .frRow:last-child{border-bottom:none}
+  .frRow:hover{background:var(--card2)}
+  .frDot{width:10px;height:10px;border-radius:3px}
+  .frName{font-weight:600;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .frCount{font-weight:800;text-align:end;font-variant-numeric:tabular-nums;color:var(--heading)}
+  .frPct{text-align:end;font-variant-numeric:tabular-nums;color:var(--muted)}
+  .frDrop{text-align:end;font-variant-numeric:tabular-nums;color:var(--red);font-weight:600;font-size:12.5px}
+  @media(max-width:560px){.frWrap{gap:16px;justify-content:center}.frHead,.frRow{grid-template-columns:12px 1fr 30px 40px 46px}}
 </style>
 </head>
 <body>
@@ -1550,23 +1594,45 @@ function head(tl,s,right){return '<div class="pagehead"><div><h1>'+esc(tl)+'</h1
 
 /* Theme-aware status colours (CSS vars) — distinct hue per status, auto-switch with the theme */
 var STCOL={New:'var(--st-new)',Contacted:'var(--st-contacted)',Qualified:'var(--st-qualified)',Booked:'var(--st-booked)',Won:'var(--st-won)',Lost:'var(--st-lost)',Spam:'var(--st-spam)'};
-function statusDonut(counts,total){
-  var tot=total||1, acc=0, stops=[];
-  STATUSES.forEach(function(st){var v=counts[st]||0;if(v<=0)return;var from=acc/tot*360,to=(acc+v)/tot*360;acc+=v;stops.push(STCOL[st]+' '+from.toFixed(2)+'deg '+to.toFixed(2)+'deg')});
-  if(!stops.length)stops.push('rgba(148,163,199,.2) 0deg 360deg');
-  var legend=STATUSES.map(function(st){var v=counts[st]||0,pct=Math.round(v/tot*100);return '<div class="slegrow"><span class="dot2" style="background:'+STCOL[st]+'"></span><span class="sname">'+st+'</span><span class="scount">'+v+'</span><span class="spct">'+pct+'%</span></div>'}).join('');
-  return '<div class="statwrap"><div class="donutwrap"><div class="donut" style="background:conic-gradient('+stops.join(',')+')"></div><div class="donutctr"><div class="dv">'+total+'</div><div class="dl">'+esc(t('total_leads'))+'</div></div></div><div class="slegend">'+legend+'</div></div>';
+/* Leads by status → horizontal BAR chart. Every bar is directly labelled, so identity is
+   never colour-alone. Ordered pipeline uses the validated ordinal ramp; Lost/Spam are
+   reserved status tokens. Bars grow in on render (reduced-motion safe). */
+function statusBars(counts,total){
+  var tot=total||1;
+  var max=1;STATUSES.forEach(function(st){if((counts[st]||0)>max)max=counts[st]||0});
+  var rows=STATUSES.map(function(st,i){
+    var v=counts[st]||0,pct=Math.round(v/tot*100),w=Math.round(v/max*100);
+    return '<div class="sbrow" title="'+esc(st)+': '+v+' lead'+(v===1?'':'s')+' ('+pct+'%)">'+
+      '<span class="sbname"><i class="sbdot" style="background:'+STCOL[st]+'"></i>'+esc(st)+'</span>'+
+      '<span class="sbtrack"><i class="sbfill" style="width:'+w+'%;background:'+STCOL[st]+';animation-delay:'+(i*70)+'ms"></i></span>'+
+      '<span class="sbval">'+v+'</span><span class="sbpct">'+pct+'%</span></div>';
+  }).join('');
+  return '<div class="sbwrap"><div class="sbtotal"><b>'+total+'</b> '+esc(t('total_leads'))+'</div><div class="sbchart">'+rows+'</div></div>';
 }
-function funnelViz(funnel){
-  /* theme-aware ramp; clamp the last stage so its gradient never wraps back to stage 1 */
+/* Conversion funnel → concentric CONVERSION RINGS (pie-family, circular).
+   A funnel's stages are NESTED subsets, so real pie slices would double-count; each ring
+   is one stage sweeping to the % of all leads that reached it. Single-hue ordinal ramp,
+   arcs animate in with stagger, centre carries the hero conversion figure. */
+function funnelRings(funnel){
   var cols=['var(--fn1)','var(--fn2)','var(--fn3)','var(--fn4)','var(--fn5)'];
-  var html='<div class="funnelviz">';
+  var size=210,cx=size/2,cy=size/2,ringW=13,gap=5,arcs='',legend='';
+  var top=(funnel[0]&&funnel[0][2])||0,won=(funnel[funnel.length-1]&&funnel[funnel.length-1][2])||0;
+  var convRate=top>0?Math.round(won/top*100):0;
   funnel.forEach(function(f,i){
-    var pct=f[1], w=Math.max(42,pct), c1=cols[Math.min(i,cols.length-1)], c2=cols[Math.min(i+1,cols.length-1)];
-    html+='<div class="fstage" style="width:'+w+'%;background:linear-gradient(90deg,'+c1+','+c2+')"><span class="fl">'+esc(f[0])+'<span class="fn">'+f[2]+'</span></span><span class="fr">'+pct+'%</span></div>';
-    if(i<funnel.length-1){var prev=f[2],next=funnel[i+1][2],drop=prev>0?Math.round((prev-next)/prev*100):0;html+='<div class="fdrop">↓ <b>'+next+'</b> continued · <b>'+drop+'%</b> drop-off</div>';}
+    var r=cx-8-i*(ringW+gap);if(r<16)return;
+    var c=2*Math.PI*r,pct=Math.max(0,Math.min(100,f[1]));
+    arcs+='<circle class="frTrack" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-width="'+ringW+'"/>'+
+      '<circle class="frArc" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-width="'+ringW+'" stroke="'+cols[Math.min(i,cols.length-1)]+'"'+
+      ' stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+c.toFixed(1)+'"'+
+      ' style="--dash:'+c.toFixed(1)+';--fill:'+(c*(1-pct/100)).toFixed(1)+';animation-delay:'+(i*140)+'ms"><title>'+esc(f[0])+': '+f[2]+' ('+pct+'%)</title></circle>';
+    var drop=i>0&&funnel[i-1][2]>0?Math.round((funnel[i-1][2]-f[2])/funnel[i-1][2]*100):0;
+    legend+='<div class="frRow"><i class="frDot" style="background:'+cols[Math.min(i,cols.length-1)]+'"></i>'+
+      '<span class="frName">'+esc(f[0])+'</span><span class="frCount">'+f[2]+'</span><span class="frPct">'+pct+'%</span>'+
+      '<span class="frDrop">'+(i>0?(drop>0?'−'+drop+'%':'—'):'')+'</span></div>';
   });
-  return html+'</div>';
+  return '<div class="frWrap"><div class="frChart"><svg viewBox="0 0 '+size+' '+size+'" role="img" aria-label="Conversion rings">'+arcs+'</svg>'+
+    '<div class="frCentre"><div class="frBig">'+convRate+'%</div><div class="frLbl">'+esc(t('conv_rate_lbl'))+'</div></div></div>'+
+    '<div class="frLegend"><div class="frHead"><span></span><span>'+esc(t('th_status'))+'</span><span>#</span><span>%</span><span>'+esc(t('fr_drop'))+'</span></div>'+legend+'</div></div>';
 }
 function dashboard(){
   var leads=getLeads(), dayStart=new Date();dayStart.setHours(0,0,0,0);
@@ -1591,9 +1657,9 @@ function dashboard(){
     '</div>'+
     '<div class="grid cols-4">'+stats.map(function(s){return '<div class="card stat"><div class="label">'+esc(s[0])+'</div><div class="value">'+s[1]+'</div></div>'}).join('')+'</div>'+
     '<div class="grid cols-3" style="margin-top:16px">'+
-      '<div class="card" style="grid-column:span 2">'+
+      '<div class="card chartcard" style="grid-column:span 2">'+
         '<h3>'+esc(t('by_status'))+'</h3>'+
-        statusDonut(counts,leads.length)+
+        statusBars(counts,leads.length)+
       '</div>'+
       '<div class="card"><h3>'+esc(t('top_sources'))+'</h3>'+
         SOURCES.map(function(s){var pct=Math.round(bySource[s]/srcTotal*100);return '<div class="legendrow"><span style="font-size:13px">'+esc(s)+'</span><b>'+pct+'%</b></div><div class="bar" style="margin-bottom:8px"><span style="width:'+pct+'%"></span></div>'}).join('')+
@@ -1701,8 +1767,8 @@ function analyticsPage(){
   var cards=[[t('total_leads'),leads.length],[t('qualified_rate'),qualifiedRate+'%'],[t('won_label'),won],[t('avg_score'),avg]];
   return head(t('analytics_title'),t('analytics_sub'))+
     '<div class="grid cols-4">'+cards.map(function(c){return '<div class="card stat"><div class="label">'+esc(c[0])+'</div><div class="value">'+c[1]+'</div></div>'}).join('')+'</div>'+
-    '<div class="card" style="margin-top:16px"><h3>'+esc(t('conv_funnel'))+'</h3>'+
-      funnelViz(funnel)+
+    '<div class="card chartcard" style="margin-top:16px"><h3>'+esc(t('conv_funnel'))+'</h3>'+
+      funnelRings(funnel)+
     '</div>'
 }
 
@@ -1945,7 +2011,11 @@ var BK_TR={
   bk_sync_real:'مزامنة مع HubSpot',bk_syncing:'جارٍ مزامنة هذا العميل مع نظام CRM…',bk_synced_real:'تمت المزامنة مع HubSpot — جهة الاتصال رقم {id}',bk_sync_fail:'فشلت المزامنة: {e}',bk_no_connected:'اربط نظام CRM أولًا (شغّل اختباره حتى يظهر «متصل»)'}
 };
 (function(){for(var l in BK_TR){if(!TR[l])TR[l]={};for(var k in BK_TR[l]){if(TR[l][k]==null)TR[l][k]=BK_TR[l][k]}}})();
-(function(){var H={en:{hero_new_lead:'New lead'},es:{hero_new_lead:'Nuevo cliente'},ar:{hero_new_lead:'عميل جديد'}};for(var l in H){if(!TR[l])TR[l]={};for(var k in H[l]){if(TR[l][k]==null)TR[l][k]=H[l][k]}}})();
+(function(){var H={
+ en:{hero_new_lead:'New lead',conv_rate_lbl:'New → Won',fr_drop:'Drop'},
+ es:{hero_new_lead:'Nuevo cliente',conv_rate_lbl:'Nuevo → Ganado',fr_drop:'Caída'},
+ ar:{hero_new_lead:'عميل جديد',conv_rate_lbl:'جديد ← مكسوب',fr_drop:'التراجع'}};
+ for(var l in H){if(!TR[l])TR[l]={};for(var k in H[l]){if(TR[l][k]==null)TR[l][k]=H[l][k]}}})();
 
 var BK={
   cfg:function(){var c=DB.get('ag_backend',null);return isObj(c)?c:{}},
