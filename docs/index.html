@@ -27,6 +27,7 @@
     --st-won:#0D4531; --st-lost:#C0553C; --st-spam:#8A9096;
     --fn1:#57B892; --fn2:#38A279; --fn3:#238662; --fn4:#156548; --fn5:#0D4531; --fntext:#F2EBDC;
     --chart-track:rgba(20,35,28,.08); --chart-grid:rgba(20,35,28,.07);
+    color-scheme:light; /* native controls (dropdowns, inputs, scrollbars) render light */
     --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
   }
   :root[data-theme="dark"]{
@@ -43,6 +44,7 @@
     --st-won:#7FF0CB; --st-lost:#E58063; --st-spam:#9AA5AA;
     --fn1:#16795A; --fn2:#0FA372; --fn3:#16C98A; --fn4:#22E39A; --fn5:#7FF0CB; --fntext:#06231A;
     --chart-track:rgba(234,242,238,.10); --chart-grid:rgba(234,242,238,.08);
+    color-scheme:dark; /* FIX: native controls render dark — no more black text in dark mode */
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -786,6 +788,9 @@
   .obf input:focus,.obf select:focus,.obf textarea:focus,.vreply input:focus,.maprow input:focus{
     border-color:var(--primary);box-shadow:0 0 0 3px rgba(28,107,78,.14);outline:none}
   input::placeholder,textarea::placeholder{color:var(--muted);opacity:.85}
+  /* belt-and-suspenders: every field + dropdown option shows theme text, never OS-default black */
+  input,textarea,select{color:var(--text)}
+  select option,select optgroup{background:var(--card);color:var(--text)}
   .modalcard{background:var(--card);border:1px solid var(--border-hi)}
   .modalhead{background:var(--card2)}
   :root[data-theme="dark"] .modalcard{background:linear-gradient(160deg,#282219,#211c16)}
@@ -2037,7 +2042,12 @@ var BK_TR={
  for(var l in H){if(!TR[l])TR[l]={};for(var k in H[l]){if(TR[l][k]==null)TR[l][k]=H[l][k]}}})();
 
 var BK={
-  cfg:function(){var c=DB.get('ag_backend',null);return isObj(c)?c:{}},
+  /* Default Supabase project (publishable/anon key — safe for the browser, protected by RLS).
+     The app targets this project out of the box; it stays in Demo mode until a user signs in.
+     Deploy the migrations + Edge Functions to this project for the real CRM/phone to work. */
+  DEFAULT_URL:'https://jnxvwdcvnwigowafdxvl.supabase.co',
+  DEFAULT_ANON:'sb_publishable_fTj566JdyWyCA58y2AU8rQ_l-SmkBXU',
+  cfg:function(){var c=DB.get('ag_backend',null);if(!isObj(c))c={};if(!c.url)c.url=BK.DEFAULT_URL;if(!c.anon)c.anon=BK.DEFAULT_ANON;return c},
   save:function(c){DB.set('ag_backend',c)},
   clear:function(){DB.del('ag_backend');CRM_REAL={loading:false,loaded:false,conns:[],err:null}},
   base:function(){return String(BK.cfg().url||'').replace(/\/+$/,'')},
