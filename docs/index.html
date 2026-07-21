@@ -1028,51 +1028,53 @@
   @keyframes auroraDrift{0%,100%{transform:translate3d(0,0,0) scale(1)}33%{transform:translate3d(3%,-2%,0) scale(1.06)}66%{transform:translate3d(-2%,3%,0) scale(1.03)}}
   @keyframes gridBreathe{0%,100%{opacity:.32}50%{opacity:.6}}
 
-  /* --- Leads by status: horizontal bars --- */
-  .sbwrap{margin-top:6px}
-  .sbtotal{font-size:12.5px;color:var(--muted);margin-bottom:14px}
-  .sbtotal b{font-family:var(--serif);font-size:22px;color:var(--heading);margin-inline-end:4px}
-  .sbchart{display:flex;flex-direction:column;gap:9px}
-  .sbrow{display:grid;grid-template-columns:112px 1fr 34px 42px;align-items:center;gap:10px;
-    padding:3px 6px;border-radius:9px;transition:background .18s ease}
-  .sbrow:hover{background:var(--card2)}
-  .sbname{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--text);min-width:0}
-  .sbdot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
-  .sbtrack{position:relative;height:16px;border-radius:8px;background:var(--chart-track);overflow:hidden}
-  .sbfill{position:absolute;inset-block:0;inset-inline-start:0;border-radius:8px;display:block;transform-origin:left}
-  html[dir="rtl"] .sbfill{transform-origin:right}
-  @media(prefers-reduced-motion:no-preference){.sbfill{animation:barGrow .75s cubic-bezier(.2,.75,.2,1) both}}
-  @keyframes barGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-  .sbval{font-weight:800;font-variant-numeric:tabular-nums;text-align:end;color:var(--heading);font-size:14px}
-  .sbpct{color:var(--muted);font-variant-numeric:tabular-nums;text-align:end;font-size:12.5px}
-  @media(max-width:520px){.sbrow{grid-template-columns:92px 1fr 28px 38px;gap:8px}}
+  /* --- Leads by status: COLUMN bar graph --- */
+  .cbWrap{margin-top:4px}
+  .cbTotal{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+  .cbTotal b{font-family:var(--serif);font-size:22px;color:var(--heading);margin-inline-end:4px}
+  .cbPlot{position:relative;padding-top:8px}
+  .cbGrid{position:absolute;inset:8px 0 26px 0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+  .cbGridline{position:relative;border-top:1px solid var(--chart-grid)}
+  .cbGridline span{position:absolute;inset-inline-start:0;top:-8px;font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums;background:var(--card);padding-inline-end:5px}
+  .cbCols{position:relative;display:flex;align-items:flex-end;gap:2%;height:180px;padding-inline-start:22px}
+  .cbCol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px}
+  .cbSlot{width:100%;max-width:38px;flex:1;display:flex;align-items:flex-end;justify-content:center}
+  .cbBar{width:100%;border-radius:7px 7px 3px 3px;min-height:2px;transform-origin:bottom;box-shadow:0 6px 14px -8px var(--shadow)}
+  @media(prefers-reduced-motion:no-preference){.cbBar{animation:colGrow .8s cubic-bezier(.2,.8,.2,1) both}}
+  @keyframes colGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+  .cbVal{font-size:14px;font-weight:800;color:var(--heading);font-variant-numeric:tabular-nums;line-height:1}
+  .cbCol.zero .cbVal{color:var(--muted)}
+  .cbName{font-size:11px;color:var(--muted);text-align:center;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cbCol{cursor:default;transition:transform .16s ease}
+  .cbCol:hover{transform:translateY(-2px)}
+  .cbCol:hover .cbBar{filter:brightness(1.08)}
+  @media(max-width:520px){.cbName{font-size:9.5px}.cbCols{gap:1.5%}}
 
-  /* --- Conversion rings --- */
-  .frWrap{display:flex;gap:26px;align-items:center;flex-wrap:wrap;margin-top:8px}
-  .frChart{position:relative;width:210px;height:210px;flex-shrink:0}
-  .frChart svg{width:100%;height:100%;transform:rotate(-90deg)}
-  .frTrack{fill:none;stroke:var(--chart-track)}
-  .frArc{fill:none;stroke-linecap:round;transition:stroke-width .2s ease,filter .2s ease;cursor:pointer}
-  .frArc:hover{stroke-width:17;filter:brightness(1.12)}
-  @media(prefers-reduced-motion:no-preference){.frArc{animation:arcSweep 1.05s cubic-bezier(.2,.7,.2,1) both}}
-  @keyframes arcSweep{from{stroke-dashoffset:var(--dash)}to{stroke-dashoffset:var(--fill)}}
-  @media(prefers-reduced-motion:reduce){.frArc{stroke-dashoffset:var(--fill)}}
-  .frCentre{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}
-  .frBig{font-size:34px;font-weight:800;line-height:1;color:var(--heading)}
-  .frLbl{font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-top:5px}
-  .frLegend{flex:1;min-width:230px}
-  .frHead,.frRow{display:grid;grid-template-columns:12px 1fr 34px 44px 52px;align-items:center;gap:9px}
-  .frHead{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:0 4px 7px;border-bottom:1px solid var(--border)}
-  .frHead span:nth-child(n+3){text-align:end}
-  .frRow{padding:8px 4px;border-bottom:1px solid var(--border);font-size:13.5px;transition:background .18s ease;border-radius:7px}
-  .frRow:last-child{border-bottom:none}
-  .frRow:hover{background:var(--card2)}
-  .frDot{width:10px;height:10px;border-radius:3px}
-  .frName{font-weight:600;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis}
-  .frCount{font-weight:800;text-align:end;font-variant-numeric:tabular-nums;color:var(--heading)}
-  .frPct{text-align:end;font-variant-numeric:tabular-nums;color:var(--muted)}
-  .frDrop{text-align:end;font-variant-numeric:tabular-nums;color:var(--red);font-weight:600;font-size:12.5px}
-  @media(max-width:560px){.frWrap{gap:16px;justify-content:center}.frHead,.frRow{grid-template-columns:12px 1fr 30px 40px 46px}}
+  /* --- Conversion funnel: DONUT / pie --- */
+  .pieWrap{display:flex;gap:28px;align-items:center;flex-wrap:wrap;margin-top:6px}
+  .pieChart{position:relative;width:200px;height:200px;flex-shrink:0}
+  .pieChart svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .pieTrack{fill:none;stroke:var(--chart-track)}
+  .pieSeg{fill:none;stroke-linecap:butt;transition:stroke-width .2s ease,filter .2s ease;cursor:pointer}
+  .pieSeg:hover{stroke-width:36;filter:brightness(1.1)}
+  @media(prefers-reduced-motion:no-preference){.pieSeg{animation:pieIn .9s cubic-bezier(.3,.7,.2,1) both}}
+  @keyframes pieIn{from{stroke-dasharray:0 999}to{stroke-dasharray:var(--len)}}
+  .pieCentre{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}
+  .pieBig{font-size:36px;font-weight:800;line-height:1;color:var(--heading)}
+  .pieLbl{font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:5px}
+  .pieLegend{flex:1;min-width:240px}
+  .pieHead,.pieRow{display:grid;grid-template-columns:12px 1fr 40px 44px 52px;align-items:center;gap:9px}
+  .pieHead{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:0 4px 7px;border-bottom:1px solid var(--border)}
+  .pieHead span:nth-child(n+3){text-align:end}
+  .pieRow{padding:8px 4px;border-bottom:1px solid var(--border);font-size:13.5px;transition:background .18s ease;border-radius:7px}
+  .pieRow:last-child{border-bottom:none}
+  .pieRow:hover{background:var(--card2)}
+  .pieDot{width:10px;height:10px;border-radius:3px}
+  .pieName{font-weight:600;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pieHere{font-weight:800;text-align:end;font-variant-numeric:tabular-nums;color:var(--heading)}
+  .piePct{text-align:end;font-variant-numeric:tabular-nums;color:var(--muted)}
+  .pieDrop{text-align:end;font-variant-numeric:tabular-nums;color:var(--red);font-weight:600;font-size:12.5px}
+  @media(max-width:560px){.pieWrap{gap:16px;justify-content:center}.pieHead,.pieRow{grid-template-columns:12px 1fr 34px 40px 46px}}
 </style>
 </head>
 <body>
@@ -1600,39 +1602,56 @@ var STCOL={New:'var(--st-new)',Contacted:'var(--st-contacted)',Qualified:'var(--
 function statusBars(counts,total){
   var tot=total||1;
   var max=1;STATUSES.forEach(function(st){if((counts[st]||0)>max)max=counts[st]||0});
-  var rows=STATUSES.map(function(st,i){
-    var v=counts[st]||0,pct=Math.round(v/tot*100),w=Math.round(v/max*100);
-    return '<div class="sbrow" title="'+esc(st)+': '+v+' lead'+(v===1?'':'s')+' ('+pct+'%)">'+
-      '<span class="sbname"><i class="sbdot" style="background:'+STCOL[st]+'"></i>'+esc(st)+'</span>'+
-      '<span class="sbtrack"><i class="sbfill" style="width:'+w+'%;background:'+STCOL[st]+';animation-delay:'+(i*70)+'ms"></i></span>'+
-      '<span class="sbval">'+v+'</span><span class="sbpct">'+pct+'%</span></div>';
+  /* round the axis up to a clean top so gridlines land on whole leads */
+  var top=max<=4?max:Math.ceil(max/5)*5;
+  var ticks=[];for(var g=0;g<=2;g++)ticks.push(Math.round(top-(top/2)*g));
+  var grid=ticks.map(function(n){return '<div class="cbGridline"><span>'+n+'</span></div>'}).join('');
+  var cols=STATUSES.map(function(st,i){
+    var v=counts[st]||0,pct=Math.round(v/tot*100),h=top>0?(v/top*100):0;
+    return '<div class="cbCol'+(v===0?' zero':'')+'" title="'+esc(st)+': '+v+' lead'+(v===1?'':'s')+' · '+pct+'% of all leads">'+
+      '<span class="cbVal">'+v+'</span>'+
+      '<span class="cbSlot"><i class="cbBar" style="height:'+h.toFixed(1)+'%;background:'+STCOL[st]+';animation-delay:'+(i*65)+'ms"></i></span>'+
+      '<span class="cbName">'+esc(st)+'</span></div>';
   }).join('');
-  return '<div class="sbwrap"><div class="sbtotal"><b>'+total+'</b> '+esc(t('total_leads'))+'</div><div class="sbchart">'+rows+'</div></div>';
+  return '<div class="cbWrap"><div class="cbTotal"><b>'+total+'</b> '+esc(t('total_leads'))+'</div>'+
+    '<div class="cbPlot"><div class="cbGrid">'+grid+'</div><div class="cbCols">'+cols+'</div></div></div>';
 }
-/* Conversion funnel → concentric CONVERSION RINGS (pie-family, circular).
-   A funnel's stages are NESTED subsets, so real pie slices would double-count; each ring
-   is one stage sweeping to the % of all leads that reached it. Single-hue ordinal ramp,
-   arcs animate in with stagger, centre carries the hero conversion figure. */
+/* Conversion funnel → a real DONUT (pie) chart.
+   Funnel counts are cumulative (the 3 Contacted are also inside the 8 New), so slicing them
+   directly would double-count. We derive MUTUALLY EXCLUSIVE buckets — where each lead
+   actually stands now (stalled at a stage, or Won) — which genuinely sum to the whole, so a
+   pie is honest. Thick ring, big clear hole for the hero conversion figure (no overlap). */
 function funnelRings(funnel){
   var cols=['var(--fn1)','var(--fn2)','var(--fn3)','var(--fn4)','var(--fn5)'];
-  var size=210,cx=size/2,cy=size/2,ringW=13,gap=5,arcs='',legend='';
-  var top=(funnel[0]&&funnel[0][2])||0,won=(funnel[funnel.length-1]&&funnel[funnel.length-1][2])||0;
-  var convRate=top>0?Math.round(won/top*100):0;
+  var entered=(funnel[0]&&funnel[0][2])||0, won=(funnel[funnel.length-1]&&funnel[funnel.length-1][2])||0;
+  var convRate=entered>0?Math.round(won/entered*100):0;
+  /* exclusive buckets: reached stage i but not i+1 (last stage = converted) */
+  var segs=[];
   funnel.forEach(function(f,i){
-    var r=cx-8-i*(ringW+gap);if(r<16)return;
-    var c=2*Math.PI*r,pct=Math.max(0,Math.min(100,f[1]));
-    arcs+='<circle class="frTrack" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-width="'+ringW+'"/>'+
-      '<circle class="frArc" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-width="'+ringW+'" stroke="'+cols[Math.min(i,cols.length-1)]+'"'+
-      ' stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+c.toFixed(1)+'"'+
-      ' style="--dash:'+c.toFixed(1)+';--fill:'+(c*(1-pct/100)).toFixed(1)+';animation-delay:'+(i*140)+'ms"><title>'+esc(f[0])+': '+f[2]+' ('+pct+'%)</title></circle>';
+    var next=funnel[i+1], v=next?Math.max(0,f[2]-next[2]):f[2];
     var drop=i>0&&funnel[i-1][2]>0?Math.round((funnel[i-1][2]-f[2])/funnel[i-1][2]*100):0;
-    legend+='<div class="frRow"><i class="frDot" style="background:'+cols[Math.min(i,cols.length-1)]+'"></i>'+
-      '<span class="frName">'+esc(f[0])+'</span><span class="frCount">'+f[2]+'</span><span class="frPct">'+pct+'%</span>'+
-      '<span class="frDrop">'+(i>0?(drop>0?'−'+drop+'%':'—'):'')+'</span></div>';
+    segs.push({name:f[0],here:v,reached:f[2],pct:f[1],drop:drop,col:cols[Math.min(i,cols.length-1)],last:!next});
   });
-  return '<div class="frWrap"><div class="frChart"><svg viewBox="0 0 '+size+' '+size+'" role="img" aria-label="Conversion rings">'+arcs+'</svg>'+
-    '<div class="frCentre"><div class="frBig">'+convRate+'%</div><div class="frLbl">'+esc(t('conv_rate_lbl'))+'</div></div></div>'+
-    '<div class="frLegend"><div class="frHead"><span></span><span>'+esc(t('th_status'))+'</span><span>#</span><span>%</span><span>'+esc(t('fr_drop'))+'</span></div>'+legend+'</div></div>';
+  var sum=segs.reduce(function(a,s){return a+s.here},0)||1;
+  var size=200,cx=100,cy=100,r=70,w=30,C=2*Math.PI*r,gap=sum>1?3:0,acc=0,arcs='',legend='';
+  segs.forEach(function(s,i){
+    if(s.here>0){
+      var len=Math.max(0,s.here/sum*C-gap);
+      arcs+='<circle class="pieSeg" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-width="'+w+'" stroke="'+s.col+'"'+
+        ' stroke-dasharray="'+len.toFixed(1)+' '+(C-len).toFixed(1)+'" stroke-dashoffset="'+(-acc).toFixed(1)+'"'+
+        ' style="--len:'+len.toFixed(1)+' '+(C-len).toFixed(1)+';animation-delay:'+(i*110)+'ms">'+
+        '<title>'+esc(s.name)+': '+s.here+' lead'+(s.here===1?'':'s')+' here</title></circle>';
+      acc+=s.here/sum*C;
+    }
+    legend+='<div class="pieRow"><i class="pieDot" style="background:'+s.col+'"></i>'+
+      '<span class="pieName">'+esc(s.name)+(s.last?' ✓':'')+'</span>'+
+      '<span class="pieHere">'+s.here+'</span><span class="piePct">'+Math.round(s.here/sum*100)+'%</span>'+
+      '<span class="pieDrop">'+(s.drop>0?'−'+s.drop+'%':'—')+'</span></div>';
+  });
+  return '<div class="pieWrap"><div class="pieChart"><svg viewBox="0 0 '+size+' '+size+'" role="img" aria-label="Conversion breakdown">'+
+      '<circle class="pieTrack" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-width="'+w+'"/>'+arcs+'</svg>'+
+    '<div class="pieCentre"><div class="pieBig">'+convRate+'%</div><div class="pieLbl">'+esc(t('conv_rate_lbl'))+'</div></div></div>'+
+    '<div class="pieLegend"><div class="pieHead"><span></span><span>'+esc(t('th_status'))+'</span><span>'+esc(t('pie_here'))+'</span><span>%</span><span>'+esc(t('fr_drop'))+'</span></div>'+legend+'</div></div>';
 }
 function dashboard(){
   var leads=getLeads(), dayStart=new Date();dayStart.setHours(0,0,0,0);
@@ -2012,9 +2031,9 @@ var BK_TR={
 };
 (function(){for(var l in BK_TR){if(!TR[l])TR[l]={};for(var k in BK_TR[l]){if(TR[l][k]==null)TR[l][k]=BK_TR[l][k]}}})();
 (function(){var H={
- en:{hero_new_lead:'New lead',conv_rate_lbl:'New → Won',fr_drop:'Drop'},
- es:{hero_new_lead:'Nuevo cliente',conv_rate_lbl:'Nuevo → Ganado',fr_drop:'Caída'},
- ar:{hero_new_lead:'عميل جديد',conv_rate_lbl:'جديد ← مكسوب',fr_drop:'التراجع'}};
+ en:{hero_new_lead:'New lead',conv_rate_lbl:'New → Won',fr_drop:'Drop',pie_here:'Here'},
+ es:{hero_new_lead:'Nuevo cliente',conv_rate_lbl:'Nuevo → Ganado',fr_drop:'Caída',pie_here:'Aquí'},
+ ar:{hero_new_lead:'عميل جديد',conv_rate_lbl:'جديد ← مكسوب',fr_drop:'التراجع',pie_here:'هنا'}};
  for(var l in H){if(!TR[l])TR[l]={};for(var k in H[l]){if(TR[l][k]==null)TR[l][k]=H[l][k]}}})();
 
 var BK={
