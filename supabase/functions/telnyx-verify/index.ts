@@ -4,6 +4,7 @@
 // 'connected' only when the key genuinely works.
 
 import { preflight, json, fail } from '../_shared/http.ts';
+import { enforceLimit, userBucket, LIMITS } from '../_shared/ratelimit.ts';
 import { resolveWorkspace, serviceClient } from '../_shared/store.ts';
 import { telnyx } from '../_shared/telnyx.ts';
 
@@ -12,7 +13,9 @@ Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') return fail('method_not_allowed', 405);
 
   try {
-    const { workspaceId } = await resolveWorkspace(req);
+    const { userId, workspaceId } = await resolveWorkspace(req);
+    const limited = await enforceLimit(userBucket(userId, 'telnyx-verify'), LIMITS.test);
+    if (limited) return limited;
     const sb = serviceClient();
     const now = new Date().toISOString();
 

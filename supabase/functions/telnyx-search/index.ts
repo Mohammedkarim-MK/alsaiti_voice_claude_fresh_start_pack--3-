@@ -2,6 +2,7 @@
 // Auth: verify_jwt = true. REAL Telnyx available-number search. Read-only — orders nothing.
 
 import { preflight, json, fail } from '../_shared/http.ts';
+import { enforceLimit, userBucket, LIMITS } from '../_shared/ratelimit.ts';
 import { resolveWorkspace } from '../_shared/store.ts';
 import { telnyx } from '../_shared/telnyx.ts';
 
@@ -10,7 +11,9 @@ Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') return fail('method_not_allowed', 405);
 
   try {
-    await resolveWorkspace(req); // gate on a signed-in member
+    const { userId } = await resolveWorkspace(req); // gate on a signed-in member
+    const limited = await enforceLimit(userBucket(userId, 'telnyx-search'), LIMITS.read);
+    if (limited) return limited;
     const { country, areaCode, type, limit } = await req.json().catch(() => ({}));
     if (!country || !/^[A-Za-z]{2}$/.test(country)) return fail('invalid_country', 400);
 

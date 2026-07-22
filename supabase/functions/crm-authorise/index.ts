@@ -4,6 +4,7 @@
 // authorization URL. The browser then navigates there so the user approves inside the provider.
 
 import { preflight, json, fail } from '../_shared/http.ts';
+import { enforceLimit, userBucket, LIMITS } from '../_shared/ratelimit.ts';
 import { resolveWorkspace, store } from '../_shared/store.ts';
 import { encryptJson } from '../_shared/crypto.ts';
 import { makeState, makePkce } from '../_shared/crypto.ts';
@@ -20,6 +21,8 @@ Deno.serve(async (req: Request) => {
     if (!SUPPORTED.includes(provider)) return fail('unsupported_provider', 400);
 
     const { userId, workspaceId } = await resolveWorkspace(req);
+    const limited = await enforceLimit(userBucket(userId, 'crm-authorise'), LIMITS.auth);
+    if (limited) return limited;
     const cfg = getProviderConfig(provider);          // throws if the provider's client env is missing
     const redirectUri = callbackUrl(provider);
     const { state, stateHash } = await makeState();

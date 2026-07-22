@@ -4,6 +4,7 @@
 // Only a genuinely 'connected' connection can sync; the result is truthful (synced / failed).
 
 import { preflight, json, fail } from '../_shared/http.ts';
+import { enforceLimit, userBucket, LIMITS } from '../_shared/ratelimit.ts';
 import { resolveWorkspace, store, serviceClient } from '../_shared/store.ts';
 import { getValidTokens } from '../_shared/tokens.ts';
 import { hubspot } from '../_shared/hubspot.ts';
@@ -17,7 +18,9 @@ Deno.serve(async (req: Request) => {
     const { connectionId, lead, createDeal } = body;
     if (!connectionId || !lead || typeof lead !== 'object') return fail('missing_params', 400);
 
-    const { workspaceId } = await resolveWorkspace(req);
+    const { userId, workspaceId } = await resolveWorkspace(req);
+    const limited = await enforceLimit(userBucket(userId, 'crm-sync-lead'), LIMITS.write);
+    if (limited) return limited;
     const conn = await store.getConnection(connectionId);
     if (!conn || conn.workspace_id !== workspaceId) return fail('connection_not_found', 404);
     if (conn.status !== 'connected') return fail('connection_not_connected', 409); // truthful: no sync before a passing test

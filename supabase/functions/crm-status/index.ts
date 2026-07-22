@@ -4,6 +4,7 @@
 // instead of embedding the supabase-js client.
 
 import { preflight, json, fail } from '../_shared/http.ts';
+import { enforceLimit, userBucket, LIMITS } from '../_shared/ratelimit.ts';
 import { resolveWorkspace, serviceClient } from '../_shared/store.ts';
 
 Deno.serve(async (req: Request) => {
@@ -11,7 +12,9 @@ Deno.serve(async (req: Request) => {
   if (req.method !== 'GET' && req.method !== 'POST') return fail('method_not_allowed', 405);
 
   try {
-    const { workspaceId } = await resolveWorkspace(req);
+    const { userId, workspaceId } = await resolveWorkspace(req);
+    const limited = await enforceLimit(userBucket(userId, 'crm-status'), LIMITS.read);
+    if (limited) return limited;
     const sb = serviceClient();
     const { data, error } = await sb.from('crm_connections')
       .select('id, provider, status, external_account_name, granted_scopes, metadata, sync_enabled, last_tested_at, last_success_at, last_failure_at, last_error, updated_at')

@@ -5,6 +5,7 @@
 // 'test_required' here — only crm-test can flip it to 'connected'.
 
 import { preflight, redirect, fail } from '../_shared/http.ts';
+import { enforceLimit, ipBucket, LIMITS } from '../_shared/ratelimit.ts';
 import { store } from '../_shared/store.ts';
 import { decryptJson, sha256b64url } from '../_shared/crypto.ts';
 import { getProviderConfig, exchangeCode, callbackUrl, tokenExpiryIso, CrmProvider } from '../_shared/providers.ts';
@@ -20,6 +21,10 @@ function appReturn(base: string | undefined, params: Record<string, string>): st
 
 Deno.serve(async (req: Request) => {
   const pre = preflight(req); if (pre) return pre;
+
+  // Public endpoint: throttle per IP so nobody can brute-force OAuth `state` values.
+  const limited = await enforceLimit(ipBucket(req, 'crm-callback'), LIMITS.auth);
+  if (limited) return limited;
 
   const url = new URL(req.url);
   const provider = url.pathname.split('/').pop() as CrmProvider;

@@ -52,19 +52,46 @@ left to inherit a restrictive default again.
 
 ---
 
-## Known limitations / remaining work before real customer data
+## Hardening added (previously-listed gaps, now closed)
 
-1. **Clickjacking** — `frame-ancestors` only works as an HTTP header, which GitHub Pages cannot set.
-   Add `Content-Security-Policy: frame-ancestors 'none'` (or `X-Frame-Options: DENY`) at the host/CDN
-   when this moves off GitHub Pages.
-2. **No rate limiting** on Edge Functions — add per-IP/per-user throttling before public launch to
-   limit brute-force and abuse.
-3. **Token refresh under concurrency** — refresh should be wrapped in a distributed lock (Postgres
-   advisory lock or Redis) so simultaneous requests can't invalidate each other's tokens.
-4. **Expo tooling advisories** — resolved by future Expo SDK upgrades. Do **not** run
-   `npm audit fix --force`: it breaks the pinned SDK 54.
-5. **Secrets rotation** — if the Supabase project ever held a real secret key, rotate it in the
+**1. Real authentication — accounts are no longer localStorage-only.**
+Sign-up and sign-in now go through **Supabase Auth**: the password is verified and hashed
+server-side (bcrypt) and **never stored on the device in any form — not even a hash**. A real
+account holds only an email, a display name, and a short-lived JWT; there is nothing locally for
+an attacker to steal or crack. Logout clears the JWT. The UI labels each session **Secure account**
+or **Demo account (this device only)**, so the two can never be confused.
+*Note:* the local demo login still exists for the public demo and is clearly marked as such.
+If you don't want strangers creating real accounts in your project, turn off public sign-ups
+in **Supabase → Authentication → Providers**.
+
+**2. Clickjacking — defended in JS (the only option on a static host).**
+`frameGuard()` runs at boot **and on every render** (so a late-injected frame can't reveal a
+populated dashboard). Same-origin framing stays allowed; a foreign origin gets a safety notice and
+an escape link instead of your UI. Still add the real header when you move to a host that can set
+one: `Content-Security-Policy: frame-ancestors 'none'`.
+
+**3. Rate limiting — live on all 10 Edge Functions.**
+An **atomic Postgres limiter** (`rate_limit_hit`, migration `0003`) does check-and-increment in a
+single statement, so concurrent requests can't race past the limit — no Redis required. Limits are
+per-signed-in-user for authenticated endpoints and **per-IP** for the two public ones (OAuth
+callback, Telnyx webhook), which is where brute-force actually lands. Over-limit returns **429 with
+`Retry-After`**. The limiter **fails open** (logging loudly) so a limiter outage can never take the
+product down. Buckets: auth 10/min · test 20/min · read 120/min · write 60/min ·
+**number-order 5 per 5 min** (deliberately strict — it spends money) · webhook 600/min per IP.
+
+## Known limitations / remaining work
+
+1. **Token refresh under concurrency** — refresh should be wrapped in a distributed lock (Postgres
+   advisory lock) so simultaneous requests can't invalidate each other's tokens.
+2. **Expo tooling advisories** — only **2 distinct** issues (PostCSS CSS-stringify XSS; uuid buffer
+   bounds check), amplified across 12 dependency paths. Both are reachable **only at build time**,
+   on your own input, and neither ships in the app users run — **not exploitable here**. `npm audit fix`
+   cannot resolve them without `--force`, which **breaks the pinned SDK 54**, so they stay until a
+   future Expo SDK upgrade. Verified: neither is a direct dependency.
+3. **Secrets rotation** — if the Supabase project ever held a real secret key, rotate it in the
    dashboard. (None was ever committed here.)
+4. **Publishable key in the frontend is correct** — `sb_publishable_…` keys are designed to be public
+   and are protected by RLS. No action needed; just never put an `sb_secret_…` or service-role key there.
 
 ---
 

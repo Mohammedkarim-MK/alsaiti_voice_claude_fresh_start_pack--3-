@@ -1290,7 +1290,24 @@ var AUTH={
     DB.set('ag_session',{email:email,at:Date.now()});
     seedIfNeeded(email);
   },
-  logout:function(){DB.del('ag_session')}
+  /* Adopt an identity ALREADY verified by Supabase Auth. Deliberately stores NO password
+     hash locally — the credential lives only on Supabase's server, so there is nothing on
+     this device for an attacker to steal or crack. */
+  adoptExternal:function(email,name,biz){
+    email=(email||'').toLowerCase().trim();
+    if(!email||/^(__proto__|constructor|prototype)$/.test(email))throw new Error('Invalid email.');
+    var u=AUTH.users();
+    var prev=Object.prototype.hasOwnProperty.call(u,email)?u[email]:null;
+    u[email]={name:String(name||(prev&&prev.name)||email.split('@')[0]).trim().slice(0,60),
+              biz:String(biz||(prev&&prev.biz)||'My business').trim().slice(0,80),
+              email:email,auth:'supabase',created:(prev&&prev.created)||Date.now()};
+    DB.set('ag_users',u);
+    DB.set('ag_session',{email:email,at:Date.now(),auth:'supabase'});
+    return u[email];
+  },
+  /* true when the current session was verified by Supabase (not the local demo store) */
+  isSecure:function(){var s=AUTH.session();return !!(s&&s.auth==='supabase')},
+  logout:function(){DB.del('ag_session');try{BK.signOut()}catch(e){}}
 };
 
 /* ============================ Leads store (per account) ============================ */
@@ -1384,6 +1401,7 @@ function go(route){UI.menu=false;var h='#/'+route;if(location.hash===h){render()
 function openLead(id){UI.leadId=id;go('lead')}
 
 function render(){
+  if(typeof frameGuard==='function'&&frameGuard())return; /* never paint data inside a foreign frame */
   applyDir();
   var s=AUTH.session();
   var hash=location.hash.replace(/^#\/?/,'')||(s?'dashboard':'landing');
@@ -1539,16 +1557,53 @@ function authPage(mode){
     '</p>'+
   '</form></div>'
 }
+/* Friendly text for the errors Supabase Auth actually returns. */
+function bkAuthError(m){
+  m=String(m||'');
+  if(/Invalid login credentials/i.test(m))return 'Incorrect email or password.';
+  if(/User already registered|already been registered/i.test(m))return 'That email already has an account — sign in instead.';
+  if(/Password should be at least/i.test(m))return 'Password must be at least 8 characters.';
+  if(/rate limit|too many/i.test(m))return 'Too many attempts. Please wait a minute and try again.';
+  if(/Email not confirmed/i.test(m))return 'Please confirm your email first — check your inbox.';
+  if(/Failed to fetch|NetworkError|no_project/i.test(m))return 'Could not reach the secure server. Check your connection.';
+  return m;
+}
 function submitAuth(e,mode){
   e.preventDefault();
   var f=e.target, el=f.elements, errBox=f.querySelector('#authErr'), err=errBox.querySelector('.err');
   errBox.style.display='none';
+  var showErr=function(m){errBox.style.display='block';err.textContent=m};
+  var email=el['email']?el['email'].value:'', pass=el['pass']?el['pass'].value:'';
+  var name=el['name']?el['name'].value:'', biz=el['biz']?el['biz'].value:'';
+
+  /* REAL auth: when a Supabase project is configured, credentials are verified server-side
+     and no password ever lands in this browser's storage. */
+  if(BK.hasProject()){
+    var btn=f.querySelector('button.btn-primary');
+    if(btn){btn.disabled=true;btn.style.opacity='.65'}
+    var done=function(){if(btn){btn.disabled=false;btn.style.opacity=''}};
+    var p=(mode==='signup')?BK.signUp(email,pass,{full_name:name,business_name:biz}):BK.signIn(email,pass);
+    p.then(function(res){
+      done();
+      if(mode==='signup'&&res&&res.session===false){showErr(t('auth_confirm_email'));return}
+      AUTH.adoptExternal(email,name,biz);
+      toast(t('auth_secure_ok'));
+      if(mode==='signup'){
+        setOnboard({status:'in_progress',step:0,answers:{crm_mode:'hybrid',services:[],business_name:biz,main_email:email}});
+        location.hash='#/onboarding';
+      }else{location.hash='#/dashboard'}
+      render();
+    })['catch'](function(ex){done();showErr(bkAuthError(ex&&ex.message))});
+    return false;
+  }
+
+  /* No backend configured → local demo accounts only (clearly not real security). */
   try{
-    if(mode==='signup'){AUTH.signup(el['name'].value,el['biz'].value,el['email'].value,el['pass'].value);toast('Welcome to Alsaiti Growth');
-      setOnboard({status:'in_progress',step:0,answers:{crm_mode:'hybrid',services:[],business_name:el['biz'].value,main_email:el['email'].value}});location.hash='#/onboarding';return false}
-    else{AUTH.login(el['email'].value,el['pass'].value);toast('Signed in')}
+    if(mode==='signup'){AUTH.signup(name,biz,email,pass);toast('Welcome to Alsaiti Growth');
+      setOnboard({status:'in_progress',step:0,answers:{crm_mode:'hybrid',services:[],business_name:biz,main_email:email}});location.hash='#/onboarding';return false}
+    else{AUTH.login(email,pass);toast('Signed in')}
     location.hash='#/dashboard';
-  }catch(ex){errBox.style.display='block';err.textContent=ex.message}
+  }catch(ex){showErr(ex.message)}
   return false
 }
 
@@ -1571,6 +1626,8 @@ function shell(active,inner){
     '<div style="margin-top:22px" class="card">'+
       '<div style="font-size:13px;font-weight:700">'+esc(p.biz||u.biz)+'</div>'+
       '<div class="muted" style="font-size:12px;margin-top:2px">'+esc(u.email)+'</div>'+
+      '<div class="cs '+(AUTH.isSecure()?'cs-connected':'cs-demo')+'" style="margin-top:8px;font-size:10px">'+
+        icon(AUTH.isSecure()?'shield':'bolt')+' '+esc(AUTH.isSecure()?t('acct_secure'):t('acct_demo'))+'</div>'+
       '<button class="btn btn-sm" style="width:100%;margin-top:12px" onclick="doLogout()">'+icon('logout')+' '+esc(t('signout'))+'</button>'+
     '</div></aside>'+
     '<div class="main"><div class="topbar">'+
@@ -2040,9 +2097,15 @@ var BK_TR={
 };
 (function(){for(var l in BK_TR){if(!TR[l])TR[l]={};for(var k in BK_TR[l]){if(TR[l][k]==null)TR[l][k]=BK_TR[l][k]}}})();
 (function(){var H={
- en:{hero_new_lead:'New lead',conv_rate_lbl:'New → Won',fr_drop:'Drop',pie_here:'Here'},
- es:{hero_new_lead:'Nuevo cliente',conv_rate_lbl:'Nuevo → Ganado',fr_drop:'Caída',pie_here:'Aquí'},
- ar:{hero_new_lead:'عميل جديد',conv_rate_lbl:'جديد ← مكسوب',fr_drop:'التراجع',pie_here:'هنا'}};
+ en:{hero_new_lead:'New lead',conv_rate_lbl:'New → Won',fr_drop:'Drop',pie_here:'Here',
+  auth_secure_ok:'Signed in securely',auth_confirm_email:'Account created — check your email to confirm it, then sign in.',
+  acct_secure:'Secure account',acct_demo:'Demo account (this device only)'},
+ es:{hero_new_lead:'Nuevo cliente',conv_rate_lbl:'Nuevo → Ganado',fr_drop:'Caída',pie_here:'Aquí',
+  auth_secure_ok:'Sesión iniciada de forma segura',auth_confirm_email:'Cuenta creada: confirme su correo y luego inicie sesión.',
+  acct_secure:'Cuenta segura',acct_demo:'Cuenta de demo (solo este dispositivo)'},
+ ar:{hero_new_lead:'عميل جديد',conv_rate_lbl:'جديد ← مكسوب',fr_drop:'التراجع',pie_here:'هنا',
+  auth_secure_ok:'تم تسجيل الدخول بأمان',auth_confirm_email:'تم إنشاء الحساب — أكِّد بريدك ثم سجّل الدخول.',
+  acct_secure:'حساب آمن',acct_demo:'حساب تجريبي (هذا الجهاز فقط)'}};
  for(var l in H){if(!TR[l])TR[l]={};for(var k in H[l]){if(TR[l][k]==null)TR[l][k]=H[l][k]}}})();
 
 var BK={
@@ -2063,6 +2126,20 @@ var BK={
       .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error_description||j.msg||j.error||('HTTP '+r.status));return j})})
       .then(function(j){c.email=email;c.token=j.access_token;c.refresh=j.refresh_token;BK.save(c);return j});
   },
+  /* Real Supabase Auth sign-up. The password is verified and stored by Supabase (bcrypt,
+     server-side) — it never touches this device. If the project requires email confirmation,
+     no session comes back and we say so instead of pretending the user is signed in. */
+  signUp:function(email,pass,meta){
+    var c=BK.cfg();if(!c.url||!c.anon)return Promise.reject(new Error('no_project'));
+    return fetch(BK.base()+'/auth/v1/signup',{method:'POST',headers:{apikey:c.anon,'Content-Type':'application/json'},
+      body:JSON.stringify({email:email,password:pass,data:meta||{}})})
+      .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.msg||j.error_description||j.error||('HTTP '+r.status));return j})})
+      .then(function(j){
+        if(j.access_token){c.email=email;c.token=j.access_token;c.refresh=j.refresh_token;BK.save(c);return {session:true,data:j}}
+        return {session:false,data:j}; /* email confirmation required */
+      });
+  },
+  signOut:function(){var c=BK.cfg();delete c.token;delete c.refresh;BK.save(c)},
   refresh:function(){
     var c=BK.cfg();if(!c.refresh)return Promise.reject(new Error('no_refresh'));
     return fetch(BK.base()+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:c.anon,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:c.refresh})})
@@ -2909,11 +2986,31 @@ window.liveSearch=liveSearch;window.voiceStart=voiceStart;window.voiceSend=voice
 window.demoLogin=demoLogin;window.setLang=setLang;window.scrollToId=scrollToId;window.submitContactForm=submitContactForm;
 window.toggleTheme=toggleTheme;window.setTheme=setTheme;
 
+/* ---- Clickjacking defence ----------------------------------------------------
+   frame-ancestors/X-Frame-Options are HTTP headers a static host can't set, so we
+   defend in JS: if this page is framed by a DIFFERENT origin, refuse to render and
+   break out. Same-origin framing stays allowed. Also re-checked on every render so
+   a late-injected frame can't reveal a populated dashboard. */
+function frameGuard(){
+  try{
+    if(window.top===window.self)return false;
+    var sameOrigin=false;
+    try{sameOrigin=(window.top.location.origin===window.self.location.origin)}catch(e){sameOrigin=false}
+    if(sameOrigin)return false;
+    document.documentElement.innerHTML='<body style="margin:0;font-family:system-ui,sans-serif;background:#0D1411;color:#F2EBDC;display:grid;place-items:center;height:100vh;text-align:center;padding:24px">'+
+      '<div><p style="font-size:15px;margin:0 0 14px">For your security, Alsaiti Growth can’t be displayed inside another site.</p>'+
+      '<a href="'+encodeURI(window.self.location.href)+'" target="_top" style="color:#22E39A;font-weight:700">Open it safely →</a></div></body>';
+    try{window.top.location=window.self.location}catch(e){}
+    return true;
+  }catch(e){return false}
+}
+if(!frameGuard()){
 applyTheme();
 applyDir();
 bkConsumeReturn();
 render();
 try{bkShowReturnToast()}catch(e){}
+}
 </script>
 </body>
 </html>

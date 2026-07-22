@@ -5,12 +5,18 @@
 // (a number only goes Active after a REAL inbound test call is recorded).
 
 import { preflight, json, fail } from '../_shared/http.ts';
+import { enforceLimit, ipBucket, LIMITS } from '../_shared/ratelimit.ts';
 import { serviceClient } from '../_shared/store.ts';
 import { telnyx } from '../_shared/telnyx.ts';
 
 Deno.serve(async (req: Request) => {
   const pre = preflight(req); if (pre) return pre;
   if (req.method !== 'POST') return fail('method_not_allowed', 405);
+
+  // Public endpoint: throttle per IP so a flood of forged webhooks can't hammer signature
+  // verification or the DB. Generous limit — real carriers legitimately burst.
+  const limited = await enforceLimit(ipBucket(req, 'telnyx-webhook'), LIMITS.webhook);
+  if (limited) return limited;
 
   const raw = await req.text();
   const signature = req.headers.get('telnyx-signature-ed25519') || '';

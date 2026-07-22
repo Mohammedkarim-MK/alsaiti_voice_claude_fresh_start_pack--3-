@@ -4,6 +4,7 @@
 // ONLY after a real inbound test call is recorded by telnyx-webhook. Never 'active' on order.
 
 import { preflight, json, fail } from '../_shared/http.ts';
+import { enforceLimit, userBucket, LIMITS } from '../_shared/ratelimit.ts';
 import { resolveWorkspace, serviceClient } from '../_shared/store.ts';
 import { telnyx } from '../_shared/telnyx.ts';
 
@@ -12,7 +13,9 @@ Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') return fail('method_not_allowed', 405);
 
   try {
-    const { workspaceId } = await resolveWorkspace(req);
+    const { userId, workspaceId } = await resolveWorkspace(req);
+    const limited = await enforceLimit(userBucket(userId, 'telnyx-order'), LIMITS.order);
+    if (limited) return limited;
     const body = await req.json().catch(() => ({}));
     const phoneNumber = body.phoneNumber;
     if (!phoneNumber || !/^\+?[0-9]{6,15}$/.test(String(phoneNumber).replace(/\s/g, ''))) return fail('invalid_number', 400);

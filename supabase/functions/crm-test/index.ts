@@ -3,6 +3,7 @@
 // Only a passing test flips the card to 'connected'; a failure sets 'attention_required'.
 
 import { preflight, json, fail } from '../_shared/http.ts';
+import { enforceLimit, userBucket, LIMITS } from '../_shared/ratelimit.ts';
 import { resolveWorkspace, store } from '../_shared/store.ts';
 import { getValidTokens } from '../_shared/tokens.ts';
 import { hubspot } from '../_shared/hubspot.ts';
@@ -15,7 +16,9 @@ Deno.serve(async (req: Request) => {
     const { connectionId } = await req.json().catch(() => ({}));
     if (!connectionId) return fail('missing_connection', 400);
 
-    const { workspaceId } = await resolveWorkspace(req);
+    const { userId, workspaceId } = await resolveWorkspace(req);
+    const limited = await enforceLimit(userBucket(userId, 'crm-test'), LIMITS.test);
+    if (limited) return limited;
     const conn = await store.getConnection(connectionId);
     if (!conn || conn.workspace_id !== workspaceId) return fail('connection_not_found', 404);
     if (!conn.credential_reference) return fail('not_authorised', 409);
