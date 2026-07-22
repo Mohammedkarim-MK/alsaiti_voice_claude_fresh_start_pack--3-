@@ -9,6 +9,7 @@ credentials, hold Telnyx keys, or receive live call events — so all of that ha
 supabase/
   migrations/
     0001_foundation.sql              profiles, workspaces, members, leads (+ RLS)
+    0003_rate_limiting.sql           atomic per-user / per-IP limiter (rate_limit_hit)
     0002_integrations_telephony.sql  crm_connections, crm_credentials, oauth sessions,
                                      telephony_connections, phone_numbers, call_sessions (+ RLS)
   functions/
@@ -43,7 +44,8 @@ supabase/
 ### 1. Create the project + schema
 
 1. Create a project at **supabase.com** (free tier is fine).
-2. **SQL editor →** run `migrations/0001_foundation.sql`, then `migrations/0002_integrations_telephony.sql`.
+2. **SQL editor →** run `migrations/0001_foundation.sql`, then `migrations/0002_integrations_telephony.sql`,
+   then `migrations/0003_rate_limiting.sql` (rate limiting — required, the functions call it).
 3. Install the CLI: `npm i -g supabase`, then `supabase login` and
    `supabase link --project-ref YOUR_REF`.
 
