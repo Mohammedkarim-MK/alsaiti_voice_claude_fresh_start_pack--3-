@@ -12,7 +12,7 @@ Last audited: 2026-07-21. Scope: the whole repo — web app (`docs/index.html`),
 | Leaked secrets | **Clean** | Pattern scan of every tracked file **and the entire git history**. No API key, service-role key, private key or `.env` was ever committed. |
 | XSS / injection | **Clean** | Live penetration test (`pentest.js`): 10 hostile payloads (script tags, attribute breakout, `onerror`, `javascript:`, `</textarea>` escape) fired at **every input surface** — lead fields, search, voice, settings, CRM wizard, backend panel. Nothing executed; payloads render as inert text. |
 | Prototype pollution | **Clean** | Crafted `__proto__` JSON injected into storage; `Object.prototype` stayed clean. |
-| Password handling | **Sound (for a demo)** | Stored as a **salted hash** (32-char salt, 2048 SHA-256 iterations, 64-hex output). No plaintext anywhere; session record holds no password material. |
+| Password handling | **Sound** | Real accounts: verified/hashed **server-side by Supabase**, with **no password material stored on the device at all**. Demo accounts: salted hash (32-char salt, 2048 SHA-256 iterations). No plaintext anywhere. |
 | Secrets in the browser bundle | **Clean** | No service-role key, provider client secret, or Telnyx key in the shipped file. |
 | Row-Level Security | **Enforced** | RLS enabled on **all 14 tables**. Members can only read their own workspace's rows. |
 | Credential isolation | **Enforced** | `crm_credentials`, `telephony_credentials`, `oauth_authorisation_sessions`, `telephony_webhook_events` have **no client policy** and are explicitly `revoke`d from `anon`/`authenticated` — service-role only. |
@@ -46,9 +46,11 @@ left to inherit a restrictive default again.
   a **Bearer JWT**, not cookies, so CORS is not a CSRF boundary. An attacker without the token gets
   401 from any origin; one *with* the token can call it from `curl` regardless of CORS. Tokens live in
   `localStorage`, which no other origin can read.
-- **The demo login is not real authentication.** `demo@alsaiti.app` and any account created in the
-  browser live in `localStorage`. This is fine for a public demo, but **real customer data must use
-  Supabase Auth** (already wired) — never the demo login.
+- **Two account types, always labelled.** Real sign-ups now go through **Supabase Auth** (see
+  Hardening #1) and store no password material on the device. The **demo login**
+  (`demo@alsaiti.app`) still exists for the public demo and lives only in `localStorage` — it is
+  clearly badged *Demo account (this device only)* in the UI. Never put real customer data behind
+  the demo login.
 
 ---
 
@@ -79,11 +81,26 @@ callback, Telnyx webhook), which is where brute-force actually lands. Over-limit
 product down. Buckets: auth 10/min · test 20/min · read 120/min · write 60/min ·
 **number-order 5 per 5 min** (deliberately strict — it spends money) · webhook 600/min per IP.
 
+**4. Open redirect — closed.** `returnUrl` arrives from the client and the OAuth callback 302s the
+browser to it, so an attacker could have crafted a link that passed through our trusted domain and
+landed on a phishing site. `safeReturnUrl()` now discards anything not on our own origin (blocking
+`//evil.com`, `https://ourdomain.evil.com`, `javascript:`, `data:`, backslash and `@` tricks) and
+falls back to `PUBLIC_APP_URL`. Validated when stored **and** again before redirecting.
+
+**5. Input caps on lead sync.** Every field is length-bounded (name 120, email 200, phone 40,
+service 200, summary 2000) and the email format is checked before anything reaches the CRM, so an
+unbounded body can't be used to push megabytes into your CRM or our tables.
+
+**6. Token-refresh race — closed** (migration `0004`). Providers invalidate the old refresh token
+when issuing a new one, so two simultaneous refreshes would leave one request writing
+already-revoked tokens and silently killing the connection. A short **TTL lock** now guarantees one
+refresh; others wait and reuse the winner's tokens. TTL-based rather than `pg_advisory_lock`
+because Edge Functions run on pooled connections. Degrades gracefully (refreshes unlocked, logs
+loudly) if the migration hasn't been applied.
+
 ## Known limitations / remaining work
 
-1. **Token refresh under concurrency** — refresh should be wrapped in a distributed lock (Postgres
-   advisory lock) so simultaneous requests can't invalidate each other's tokens.
-2. **Expo tooling advisories** — only **2 distinct** issues (PostCSS CSS-stringify XSS; uuid buffer
+1. **Expo tooling advisories** — only **2 distinct** issues (PostCSS CSS-stringify XSS; uuid buffer
    bounds check), amplified across 12 dependency paths. Both are reachable **only at build time**,
    on your own input, and neither ships in the app users run — **not exploitable here**. `npm audit fix`
    cannot resolve them without `--force`, which **breaks the pinned SDK 54**, so they stay until a

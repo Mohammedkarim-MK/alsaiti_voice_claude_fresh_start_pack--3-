@@ -9,9 +9,10 @@ credentials, hold Telnyx keys, or receive live call events — so all of that ha
 supabase/
   migrations/
     0001_foundation.sql              profiles, workspaces, members, leads (+ RLS)
-    0003_rate_limiting.sql           atomic per-user / per-IP limiter (rate_limit_hit)
     0002_integrations_telephony.sql  crm_connections, crm_credentials, oauth sessions,
                                      telephony_connections, phone_numbers, call_sessions (+ RLS)
+    0003_rate_limiting.sql           atomic per-user / per-IP limiter (rate_limit_hit)
+    0004_token_refresh_lock.sql      TTL lock so concurrent refreshes can't revoke each other
   functions/
     _shared/    http, crypto (AES-256-GCM), providers, hubspot, telnyx, store, tokens
     crm-authorise    → returns the provider's REAL authorize URL
@@ -45,7 +46,8 @@ supabase/
 
 1. Create a project at **supabase.com** (free tier is fine).
 2. **SQL editor →** run `migrations/0001_foundation.sql`, then `migrations/0002_integrations_telephony.sql`,
-   then `migrations/0003_rate_limiting.sql` (rate limiting — required, the functions call it).
+   then `migrations/0003_rate_limiting.sql` (rate limiting) and `migrations/0004_token_refresh_lock.sql`
+   (token-refresh lock) — both required, the functions call them.
 3. Install the CLI: `npm i -g supabase`, then `supabase login` and
    `supabase link --project-ref YOUR_REF`.
 

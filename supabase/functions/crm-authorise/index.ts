@@ -3,7 +3,7 @@
 // Creates a single-use OAuth session (state + optional PKCE) and returns the provider's REAL
 // authorization URL. The browser then navigates there so the user approves inside the provider.
 
-import { preflight, json, fail } from '../_shared/http.ts';
+import { preflight, json, fail, safeReturnUrl } from '../_shared/http.ts';
 import { enforceLimit, userBucket, LIMITS } from '../_shared/ratelimit.ts';
 import { resolveWorkspace, store } from '../_shared/store.ts';
 import { encryptJson } from '../_shared/crypto.ts';
@@ -31,7 +31,7 @@ Deno.serve(async (req: Request) => {
     await store.createSession({
       workspaceId, userId, provider, stateHash,
       pkceVerifierCiphertext: pkce ? await encryptJson(pkce.verifier) : undefined,
-      requestedScopes: cfg.scopes, redirectUri, returnUrl,
+      requestedScopes: cfg.scopes, redirectUri, returnUrl: safeReturnUrl(returnUrl), // open-redirect guard
       expiresAt: new Date(Date.now() + 10 * 60_000).toISOString(),
     });
     await store.audit(workspaceId, provider, 'authorisation_started');

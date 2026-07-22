@@ -28,9 +28,17 @@ Deno.serve(async (req: Request) => {
     if (!conn.credential_reference) return fail('not_authorised', 409);
 
     const sb = serviceClient();
-    const clientLeadId = String(lead.id || lead.clientLeadId || '');
+    const clientLeadId = String(lead.id || lead.clientLeadId || '').slice(0, 64);
+    // Bound every field before it reaches the provider: an unbounded body would let a caller
+    // push megabytes into the CRM (and into our own row), which is an abuse/DoS vector.
+    const cap = (v: unknown, n: number) => (typeof v === 'string' && v.trim() ? v.trim().slice(0, n) : undefined);
+    const safeLead = {
+      name: cap(lead.name, 120), email: cap(lead.email, 200), phone: cap(lead.phone, 40),
+      service: cap(lead.service, 200), summary: cap(lead.summary, 2000), source: cap(lead.source, 40),
+    };
+    if (safeLead.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(safeLead.email)) return fail('invalid_email', 400);
     const tokens = await getValidTokens(conn);
-    const result = await hubspot.syncLead(tokens, lead, { createDeal: !!createDeal });
+    const result = await hubspot.syncLead(tokens, safeLead, { createDeal: !!createDeal });
     const now = new Date().toISOString();
 
     if (!result.ok) {

@@ -4,7 +4,7 @@
 // loads identity + metadata, then redirects the browser back to the app. The card becomes
 // 'test_required' here — only crm-test can flip it to 'connected'.
 
-import { preflight, redirect, fail } from '../_shared/http.ts';
+import { preflight, redirect, fail, safeReturnUrl } from '../_shared/http.ts';
 import { enforceLimit, ipBucket, LIMITS } from '../_shared/ratelimit.ts';
 import { store } from '../_shared/store.ts';
 import { decryptJson, sha256b64url } from '../_shared/crypto.ts';
@@ -14,7 +14,9 @@ import { hubspot } from '../_shared/hubspot.ts';
 function appReturn(base: string | undefined, params: Record<string, string>): string {
   // deno-lint-ignore no-explicit-any
   const fallback = (globalThis as any).Deno?.env.get('PUBLIC_APP_URL') || '';
-  const target = base || fallback || '/';
+  // Re-validate even though crm-authorise already did: a row written by an older build (or a
+  // direct DB write) must never turn this redirect into an open redirect.
+  const target = safeReturnUrl(base) || fallback || '/';
   const sep = target.includes('?') ? '&' : '?';
   return target + sep + new URLSearchParams(params).toString();
 }
