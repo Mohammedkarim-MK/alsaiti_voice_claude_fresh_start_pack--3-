@@ -98,6 +98,24 @@ refresh; others wait and reuse the winner's tokens. TTL-based rather than `pg_ad
 because Edge Functions run on pooled connections. Degrades gracefully (refreshes unlocked, logs
 loudly) if the migration hasn't been applied.
 
+## Found in the follow-up audit
+
+**Encryption-format landmine between the two backends — defused.** The live Deno backend stores
+credentials as `iv.ct` (Web Crypto appends the GCM tag to the ciphertext); the older Node scaffold
+in `backend/` stores `iv.tag.ct`. Deploying both against the same `crm_credentials` table would
+make tokens written by one **undecryptable** by the other, silently breaking connections. `backend/`
+is now clearly marked **superseded**, with the incompatibility documented at the top of both the
+README and the file itself. `supabase/` is the only backend to deploy.
+
+**The native app has NOT been upgraded to real auth.** `alsaiti-go/App.js` still uses the original
+local accounts (salted hash in `AsyncStorage`) — the same demo-grade scheme the web app used before
+Hardening #1. It is less exposed than a browser (AsyncStorage is app-sandboxed on a non-rooted
+device), but it is **not** real authentication. Treat the native app as a demo until it is wired to
+Supabase Auth the same way the web app now is.
+
+**Checked and clean:** committed `.claude/settings.json` (a plugin toggle, no secrets); nothing
+unexpected served from `docs/`.
+
 ## Known limitations / remaining work
 
 1. **Expo tooling advisories** — only **2 distinct** issues (PostCSS CSS-stringify XSS; uuid buffer

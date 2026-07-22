@@ -1,0 +1,31 @@
+# Security headers for Alsaiti Growth.
+#
+# GitHub Pages IGNORES this file (it cannot serve custom headers) — it is harmless there.
+# Netlify and Cloudflare Pages read it AUTOMATICALLY: deploy this same /docs folder to
+# either one and you instantly get the header-level protections that a static host on
+# GitHub Pages can't give you (most importantly frame-ancestors, the real clickjacking fix).
+
+/*
+  # Clickjacking: the real fix. The in-page frameGuard() JS is only a fallback for hosts
+  # that can't set headers — this stops the page being framed at all.
+  Content-Security-Policy: frame-ancestors 'none'
+  X-Frame-Options: DENY
+
+  # Stop browsers guessing a different content type than we sent.
+  X-Content-Type-Options: nosniff
+
+  # Don't leak the URL (which can contain a ?connection= id) to third parties.
+  Referrer-Policy: no-referrer
+
+  # Force HTTPS for a year, including subdomains.
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+  # This app needs none of these device APIs — deny them outright.
+  Permissions-Policy: camera=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+
+  # Isolate the browsing context from anything it opens.
+  Cross-Origin-Opener-Policy: same-origin
+
+# NOTE: the main Content-Security-Policy (default-src/connect-src/etc.) stays in the
+# <meta> tag inside index.html so it also applies on GitHub Pages. Only frame-ancestors
+# is repeated here, because frame-ancestors is IGNORED in a meta tag by design.

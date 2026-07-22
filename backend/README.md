@@ -1,3 +1,17 @@
+# ⚠️ SUPERSEDED — the live backend is `../supabase/`
+
+**Do not deploy this folder as-is.** The working, tested backend is now
+[`../supabase/`](../supabase/) (Deno Edge Functions). This folder remains only as reference for
+the heavier VPS + external-vault architecture.
+
+**Concrete incompatibility:** `src/lib/oauth/ports.supabase.ts` encrypts credentials as
+`iv.tag.ct` (3 parts), while the live Deno implementation uses `iv.ct` (2 parts — Web Crypto
+appends the GCM tag to the ciphertext). Pointing both at the same `crm_credentials` table would
+make tokens written by one **undecryptable** by the other and silently break CRM connections.
+Align the formats first, or use a separate database. You can also simply delete this folder.
+
+---
+
 # Alsaiti Voice — Production Backend (go-live scaffold)
 
 This folder is the **starting point** for turning the Alsaiti Voice demo into a real,

@@ -1,3 +1,16 @@
+// ⚠️  DEPRECATED — DO NOT DEPLOY THIS AGAINST THE SAME DATABASE AS supabase/functions/.
+//
+// The LIVE implementation is `supabase/functions/_shared/crypto.ts` (Deno / Web Crypto).
+// It stores ciphertext as TWO parts — "iv.ct" — because Web Crypto appends the 16-byte GCM
+// auth tag to the ciphertext. This Node file stores THREE parts — "iv.tag.ct".
+//
+// The formats are NOT interchangeable. If both ever wrote to the same `crm_credentials`
+// table, tokens written by one would be undecryptable by the other and every affected CRM
+// connection would break with a decrypt error.
+//
+// Keep this file only as reference for the full VPS/vault architecture. If you deploy it,
+// first align its encrypt()/decrypt() with the Deno version (or use a separate database).
+//
 // Alsaiti Voice — "serverless / MVP" Ports implementation (the LIGHTER go-live path).
 // Implements the OAuth framework ports against hosted Supabase + envelope encryption
 // (AES-256-GCM) instead of a separate secret vault. Runs in a Supabase Edge Function or
