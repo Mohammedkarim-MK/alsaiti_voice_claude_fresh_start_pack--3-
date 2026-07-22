@@ -85,6 +85,53 @@ const store = {
   del: async (k) => { try { await AsyncStorage.removeItem(k); } catch (e) {} },
 };
 
+/* ---------- Real authentication (Supabase Auth) ----------------------------
+   Passwords are verified and hashed SERVER-SIDE by Supabase and are never written to
+   this device — not even as a hash. The device keeps only an email and a short-lived
+   JWT. The publishable/anon key below is safe to ship (it is protected by RLS); the
+   secret/service-role key must never appear in app code. */
+const SUPA = {
+  url: 'https://jnxvwdcvnwigowafdxvl.supabase.co',
+  anon: 'sb_publishable_fTj566JdyWyCA58y2AU8rQ_l-SmkBXU',
+};
+const supaAuth = {
+  configured: () => !!(SUPA.url && SUPA.anon),
+  async _post(path, body) {
+    const r = await fetch(SUPA.url.replace(/\/+$/, '') + path, {
+      method: 'POST',
+      headers: { apikey: SUPA.anon, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    let j = {};
+    try { j = await r.json(); } catch (e) {}
+    if (!r.ok) throw new Error(j.msg || j.error_description || j.error || ('HTTP ' + r.status));
+    return j;
+  },
+  // Returns {session:true} when signed in, {session:false} when email confirmation is pending.
+  async signUp(email, pass, meta) {
+    const j = await this._post('/auth/v1/signup', { email, password: pass, data: meta || {} });
+    if (j.access_token) { await store.set('av_token', { t: j.access_token, r: j.refresh_token, email }); return { session: true }; }
+    return { session: false };
+  },
+  async signIn(email, pass) {
+    const j = await this._post('/auth/v1/token?grant_type=password', { email, password: pass });
+    await store.set('av_token', { t: j.access_token, r: j.refresh_token, email });
+    return { session: true };
+  },
+  async signOut() { await store.del('av_token'); },
+};
+/* Map Supabase's raw auth errors to something a business owner can act on. */
+function authErrorText(m) {
+  m = String(m || '');
+  if (/Invalid login credentials/i.test(m)) return 'Incorrect email or password.';
+  if (/already registered/i.test(m)) return 'That email already has an account — sign in instead.';
+  if (/Password should be at least/i.test(m)) return 'Password must be at least 8 characters.';
+  if (/Email not confirmed/i.test(m)) return 'Please confirm your email first — check your inbox.';
+  if (/rate limit|too many/i.test(m)) return 'Too many attempts. Please wait a minute and try again.';
+  if (/Network request failed|fetch/i.test(m)) return 'Could not reach the secure server. Check your connection.';
+  return m;
+}
+
 /* ---------- Helpers ---------- */
 const uid = () => 'LD-' + Math.random().toString(36).slice(2, 7).toUpperCase();
 const initials = (n) => String(n || '?').trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
@@ -1075,6 +1122,7 @@ export default function App() {
   const [activeId, setActiveId] = useState(null);
   const [authMode, setAuthMode] = useState('login');
   const [authErr, setAuthErr] = useState('');
+  const [authBusy, setAuthBusy] = useState(false); // network round-trip to Supabase Auth in flight
   const [toast, setToast] = useState('');
   const toastTimer = useRef(null);
   const showToast = (m) => { setToast(m); clearTimeout(toastTimer.current); toastTimer.current = setTimeout(() => setToast(''), 2000); };
@@ -1102,11 +1150,41 @@ export default function App() {
     setProfile(prof && typeof prof === 'object' && !Array.isArray(prof) ? prof : { biz: u[em].biz, email: em });
     setScreen('dashboard');
   }
+  /* Record an identity ALREADY verified by Supabase. Deliberately writes no `pass`/`salt`,
+     so a stolen device yields no credential to crack. */
+  async function adoptExternal(em, name, biz) {
+    const u = { ...usersRef.current };
+    const prev = Object.prototype.hasOwnProperty.call(u, em) ? u[em] : null;
+    u[em] = {
+      name: String(name || (prev && prev.name) || em.split('@')[0]).trim().slice(0, 60),
+      biz: String(biz || (prev && prev.biz) || 'My business').trim().slice(0, 80),
+      email: em, auth: 'supabase', created: (prev && prev.created) || Date.now(),
+    };
+    usersRef.current = u;
+    await store.set('av_users', u);
+    await store.set('av_session', em);
+    return u;
+  }
   async function doSignup({ name, biz, email, pass }) {
     try {
       const em = (email || '').toLowerCase().trim();
       if (!name.trim() || !biz.trim() || !em) throw new Error('Please fill in every field.');
       if (!passOK(pass)) throw new Error('Password must be at least 8 characters and include a letter and a number.');
+
+      if (supaAuth.configured()) {
+        setAuthBusy(true);
+        try {
+          const res = await supaAuth.signUp(em, pass, { full_name: name.trim(), business_name: biz.trim() });
+          if (!res.session) { setAuthErr('Account created — confirm your email, then sign in.'); return; }
+          const u = await adoptExternal(em, name, biz);
+          setAuthErr(''); await loadUser(em, u); showToast('Welcome to Alsaiti Growth');
+          const ob0 = { status: 'in_progress', step: 0, answers: { crm_mode: 'hybrid', services: [], business_name: biz.trim(), main_email: em } };
+          await store.set('onboard_' + em, ob0); setOnboardState(ob0); setScreen('onboarding');
+        } finally { setAuthBusy(false); }
+        return;
+      }
+
+      /* Offline fallback: local demo account (clearly not real security). */
       const u = { ...usersRef.current };
       if (u[em]) throw new Error('An account with this email already exists.');
       const salt = makeSalt();
@@ -1115,7 +1193,7 @@ export default function App() {
       setAuthErr(''); await loadUser(em, u); showToast('Welcome to Alsaiti Growth');
       const ob0 = { status: 'in_progress', step: 0, answers: { crm_mode: 'hybrid', services: [], business_name: biz.trim(), main_email: em } };
       await store.set('onboard_' + em, ob0); setOnboardState(ob0); setScreen('onboarding');
-    } catch (e) { setAuthErr(e.message); }
+    } catch (e) { setAuthErr(authErrorText(e.message)); }
   }
   async function doLogin({ email, pass }) {
     try {
@@ -1124,6 +1202,21 @@ export default function App() {
       const rec = lk[em];
       if (rec && rec.until && rec.until > Date.now()) throw new Error('Too many failed attempts. Please try again in a few minutes.');
       if (!em || /^(__proto__|constructor|prototype)$/.test(em)) throw new Error('Incorrect email or password.');
+
+      /* Real auth first: Supabase verifies the password server-side. Local accounts are only
+         consulted as a fallback (demo account / offline), never for a Supabase-backed user. */
+      const localAcc = Object.prototype.hasOwnProperty.call(usersRef.current, em) ? usersRef.current[em] : null;
+      const isLocalDemo = localAcc && localAcc.auth !== 'supabase' && localAcc.pass;
+      if (supaAuth.configured() && !isLocalDemo) {
+        setAuthBusy(true);
+        try {
+          await supaAuth.signIn(em, pass);
+          const u = await adoptExternal(em, localAcc && localAcc.name, localAcc && localAcc.biz);
+          if (lk[em]) { delete lk[em]; await store.set('av_lock', lk); }
+          setAuthErr(''); await loadUser(em, u); showToast('Signed in securely');
+        } finally { setAuthBusy(false); }
+        return;
+      }
       const acc = Object.prototype.hasOwnProperty.call(usersRef.current, em) ? usersRef.current[em] : null;
       let ok = false;
       if (acc) {
@@ -1145,7 +1238,7 @@ export default function App() {
       }
       if (lk[em]) { delete lk[em]; await store.set('av_lock', lk); }
       await store.set('av_session', em); setAuthErr(''); await loadUser(em, usersRef.current); showToast('Signed in');
-    } catch (e) { setAuthErr(e.message); }
+    } catch (e) { setAuthErr(authErrorText(e.message)); }
   }
   async function doDemo() {
     const em = 'demo@alsaiti.app'; const u = { ...usersRef.current };
@@ -1163,7 +1256,7 @@ export default function App() {
     setOnboardState(ob);
     showToast('Welcome to the live demo');
   }
-  async function logout() { await store.del('av_session'); setSession(null); setProfile(null); setLeads([]); setCrm({ mode: 'hybrid', conns: [], events: [], syncs: {}, attempts: [] }); setOnboardState(null); setScreen('landing'); showToast('Signed out'); }
+  async function logout() { await store.del('av_session'); try { await supaAuth.signOut(); } catch (e) {} /* drop the JWT too */ setSession(null); setProfile(null); setLeads([]); setCrm({ mode: 'hybrid', conns: [], events: [], syncs: {}, attempts: [] }); setOnboardState(null); setScreen('landing'); showToast('Signed out'); }
   async function saveLeads(next) { setLeads(next); if (session) await store.set('leads_' + session, next); }
   const persistCrm = async (next) => { setCrm(next); if (session) await store.set('crm_' + session, next); };
   const crmEmitLead = async (eventType, lead) => { await persistCrm(crmEmit(crm, eventType, lead)); };

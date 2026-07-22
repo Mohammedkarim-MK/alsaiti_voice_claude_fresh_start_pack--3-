@@ -107,11 +107,11 @@ make tokens written by one **undecryptable** by the other, silently breaking con
 is now clearly marked **superseded**, with the incompatibility documented at the top of both the
 README and the file itself. `supabase/` is the only backend to deploy.
 
-**The native app has NOT been upgraded to real auth.** `alsaiti-go/App.js` still uses the original
-local accounts (salted hash in `AsyncStorage`) — the same demo-grade scheme the web app used before
-Hardening #1. It is less exposed than a browser (AsyncStorage is app-sandboxed on a non-rooted
-device), but it is **not** real authentication. Treat the native app as a demo until it is wired to
-Supabase Auth the same way the web app now is.
+**The native app now uses real auth too — closed.** `alsaiti-go/App.js` signs up and signs in through
+**Supabase Auth**, exactly like the web app: the password is verified and hashed server-side and
+**never written to the device, not even as a hash**. `adoptExternal()` deliberately stores no
+`pass`/`salt`; the device keeps only an email and a short-lived JWT, which logout deletes. Local
+accounts remain only as an offline/demo fallback and are never used for a Supabase-backed user.
 
 **Checked and clean:** committed `.claude/settings.json` (a plugin toggle, no secrets); nothing
 unexpected served from `docs/`.
