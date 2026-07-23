@@ -4,7 +4,7 @@ import {
   Platform, Dimensions, KeyboardAvoidingView, ActivityIndicator, Alert, Modal,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Path, Circle, Rect, Defs, RadialGradient, Stop } from 'react-native-svg';
+import Svg, { Path, Circle, Rect, Defs, RadialGradient, Stop, Polygon } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Speech from 'expo-speech';
 
@@ -53,6 +53,28 @@ function Icon({ name, size = 22, color = C.text, sw = 1.8 }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
       {ICONS[name] || null}
+    </Svg>
+  );
+}
+
+/* ---------- Brand mark: the faceted ALSAITI "A" monogram (matches the website) ----------
+   Low-poly "A" — emerald facets, gold crossbar + hook (the "G"), thin seams. Pure vector. */
+const A_FACETS = [
+  ['#3DEFAE', '50,6 45,32 55,32'], ['#3DEFAE', '50,6 36,40 45,32'],
+  ['#22E39A', '36,40 45,32 40,58'], ['#22E39A', '36,40 20,70 40,58'],
+  ['#12AC77', '20,70 40,58 44,72'], ['#0E8A63', '20,70 44,72 30,96'],
+  ['#0A6A4E', '20,70 30,96 8,96'], ['#22E39A', '50,6 64,40 55,32'],
+  ['#16C98A', '64,40 55,32 60,58'], ['#16C98A', '64,40 80,70 60,58'],
+  ['#BE9A4A', '80,70 60,58 56,72'], ['#0E8A63', '80,70 56,72 70,96'],
+  ['#0A6A4E', '80,70 70,96 92,96'], ['#D9BC77', '40,58 60,58 56,72'],
+  ['#D9BC77', '40,58 56,72 44,72'],
+];
+function ALogo({ size = 34 }) {
+  return (
+    <Svg width={size} height={size * 1.02} viewBox="0 0 100 102">
+      {A_FACETS.map((f, i) => (
+        <Polygon key={i} points={f[1]} fill={f[0]} stroke="#0A1428" strokeWidth={0.9} strokeLinejoin="round" />
+      ))}
     </Svg>
   );
 }
@@ -414,7 +436,7 @@ function Landing({ onDemo, onGetStarted, onSignin }) {
   return (
     <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-        <LinearGradient colors={[C.primary, C.glow]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.logo}><Icon name="mic" size={18} color="#fff" sw={2} /></LinearGradient>
+        <ALogo size={34} />
         <Text style={{ color: C.text, fontWeight: '700', fontSize: 17 }}>Alsaiti Growth</Text>
         <View style={{ flex: 1 }} />
         <Pressable onPress={onSignin} style={s.ghostBtn}><Text style={s.ghostBtnText}>Sign in</Text></Pressable>
@@ -454,7 +476,7 @@ function AuthScreen({ mode, error, onSubmit, onSwitch, onBack }) {
           <Icon name="back" size={18} color={C.muted} /><Text style={{ color: C.muted }}>Back</Text>
         </Pressable>
         <View style={{ alignItems: 'center', marginBottom: 8 }}>
-          <LinearGradient colors={[C.primary, C.glow]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[s.logo, { width: 44, height: 44 }]}><Icon name="mic" size={22} color="#fff" sw={2} /></LinearGradient>
+          <ALogo size={48} />
           <Text style={{ color: C.text, fontSize: 21, fontWeight: '800', marginTop: 12 }}>{isSignup ? 'Create your account' : 'Welcome back'}</Text>
           <Text style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>{isSignup ? 'Start capturing every enquiry.' : 'Sign in to your lead workspace.'}</Text>
         </View>
