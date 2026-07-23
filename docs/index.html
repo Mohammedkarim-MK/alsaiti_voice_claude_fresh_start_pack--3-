@@ -248,6 +248,12 @@
   @keyframes vpulse{0%{box-shadow:0 0 0 0 rgba(255,122,138,.55)}70%{box-shadow:0 0 0 22px rgba(255,122,138,0)}100%{box-shadow:0 0 0 0 rgba(255,122,138,0)}}
   #vspeak.on{border-color:var(--red);color:#ff9aa6;background:rgba(255,122,138,.12)}
   .vlang{display:flex;justify-content:center;gap:8px;margin-bottom:16px}
+  .vgender{display:inline-flex;align-items:center;gap:6px;margin:0 auto 18px;padding:4px;border:1px solid var(--border);border-radius:999px;background:var(--card2)}
+  .vgender .vgl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:0 8px 0 10px}
+  .vgender button{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;color:var(--muted);background:none;border:none;border-radius:999px;padding:7px 14px;cursor:pointer;transition:background .18s,color .18s}
+  .vgender button svg{width:13px;height:13px}
+  .vgender button.on{background:linear-gradient(135deg,var(--primary),var(--glow));color:#fff;box-shadow:0 4px 12px -4px rgba(28,107,78,.5)}
+  :root[data-theme="dark"] .vgender button.on{color:#08130D}
   .vtranscript{max-height:340px;overflow:auto;display:flex;flex-direction:column;gap:8px}
   .vmsg{max-width:85%;padding:9px 13px;border-radius:13px;font-size:14px;line-height:1.4}
   .vmsg.bot{background:var(--glass-hi);border:1px solid var(--border);border-bottom-left-radius:4px;align-self:flex-start}
@@ -1881,13 +1887,13 @@ function saveProfile(e){e.preventDefault();var el=e.target.elements;setProfile({
 function resetData(){if(!confirm('Replace your leads with the sample set?'))return;var s=AUTH.session();DB.del(leadsKey(s.email));DB.del(crmKey(s.email));seedIfNeeded(s.email);render();toast('Sample data restored')}
 
 /* ============================ AI receptionist (voice) ============================ */
-var VOICE={active:false,step:0,data:{},rec:null,unlocked:false,urgent:false,timer:null,log:[],listening:false,retry:{}};
+var VOICE={active:false,step:0,data:{},rec:null,unlocked:false,urgent:false,timer:null,log:[],listening:false,retry:{},gender:(function(){var g=DB.get('ag_voice_gender','female');return g==='male'?'male':'female'})()};
 var VQ=[{key:'name',ask:'vq_greet'},{key:'service',ask:'vq_service'},{key:'urgency',ask:'vq_urgency'},{key:'phone',ask:'vq_phone'}];
 /* small human touches: varied acknowledgements + a natural close when no phone was given */
 var VACK={
-  en:['Of course — we can certainly help with that.','Absolutely, we handle that all the time.'],
-  es:['Por supuesto, podemos ayudarle con eso.','Claro que sí, nos encargamos de ese tipo de solicitudes a diario.'],
-  ar:['بالتأكيد، يمكننا مساعدتك في ذلك.','بكل تأكيد، نتعامل مع مثل هذه الطلبات يوميًا.']
+  en:['Of course — we can absolutely help with that!','Wonderful, we handle that all the time.','Great choice — that’s exactly what we do.','Lovely, you’re in very good hands for that.'],
+  es:['¡Por supuesto, podemos ayudarle con eso!','¡Perfecto! Nos encargamos de eso a diario.','¡Estupendo! Es justo lo que hacemos.','Con mucho gusto, está en muy buenas manos.'],
+  ar:['بكل سرور! يمكننا مساعدتك في ذلك.','رائع! نتعامل مع مثل هذه الطلبات يوميًا.','اختيار موفّق — هذا بالضبط ما نقوم به.','بكل تأكيد، أنت في أيدٍ أمينة.']
 };
 var VCLOSE_NP={
   en:{normal:'Thank you, {name}. I have logged your enquiry about {service}, and our team will be in touch very soon. Have a wonderful day!',urgent:'Thank you, {name}. I have logged this as an urgent enquiry about {service}, and our team will be in touch right away. Take care!'},
@@ -1895,39 +1901,88 @@ var VCLOSE_NP={
   ar:{normal:'شكرًا لك، {name}. لقد سجّلتُ استفسارك بخصوص {service}، وسيتواصل معك فريقنا قريبًا جدًا. أتمنى لك يومًا رائعًا!',urgent:'شكرًا لك، {name}. لقد سجّلتُ هذا كاستفسار عاجل بخصوص {service}، وسيتواصل معك فريقنا فورًا. اعتنِ بنفسك!'}
 };
 function vRecAvailable(){return typeof window!=='undefined' && !!(window.SpeechRecognition||window.webkitSpeechRecognition)}
-/* prefer the most natural, human, female-sounding voice the device has for the active language */
-var VPREF={
-  en:['google uk english female','microsoft libby','microsoft sonia','microsoft aria','samantha','serena','karen','martha','stephanie','google us english'],
-  es:['google español','microsoft elvira','microsoft dalia','mónica','monica','paulina','marisol','helena'],
-  ar:['google العربية','microsoft hala','microsoft salma','microsoft amany','maged','tarik','laila']
+/* Two voice packs per language — the most natural-sounding named voices each platform ships.
+   FEMALE pack (default) and MALE pack. Ordered best-first; higher = preferred. */
+var VPREF_F={
+  en:['google uk english female','microsoft libby online','microsoft sonia online','microsoft aria online','microsoft libby','microsoft sonia','microsoft aria','samantha','serena','karen','martha','stephanie','fiona','moira','tessa','google us english'],
+  es:['google español','microsoft elvira online','microsoft dalia online','microsoft elvira','microsoft dalia','mónica','monica','paulina','marisol','helena','microsoft sabina'],
+  ar:['google العربية','microsoft hala online','microsoft salma online','microsoft amany online','microsoft hala','microsoft salma','microsoft amany','laila','microsoft naayf']
 };
-function vPickVoice(code){
+var VPREF_M={
+  en:['google uk english male','microsoft ryan online','microsoft guy online','microsoft ryan','microsoft guy','daniel','arthur','george','oliver','microsoft george','alex','fred'],
+  es:['microsoft alvaro online','microsoft jorge online','microsoft alvaro','microsoft jorge','jorge','diego','carlos','microsoft pablo','juan'],
+  ar:['microsoft hamed online','microsoft shakir online','microsoft hamed','microsoft shakir','maged','tarik','microsoft naayf']
+};
+/* words that reliably indicate a voice's gender, used to score + to reject the wrong gender */
+var VNAME_F=/\b(female|woman|libby|sonia|aria|samantha|serena|karen|martha|stephanie|fiona|moira|tessa|elvira|dalia|monica|mónica|paulina|marisol|helena|sabina|hala|salma|amany|laila|zira|jenny|michelle|clara|catherine|susan|hazel|linda|heather|zoe)\b/;
+var VNAME_M=/\b(male|man|ryan|guy|daniel|arthur|george|oliver|alex|fred|david|mark|james|paul|richard|alvaro|jorge|diego|carlos|pablo|juan|hamed|shakir|maged|tarik|naayf|naayef)\b/;
+/* Return the best voice FOR THE TARGET LANGUAGE and gender, or null.
+   CRITICAL: never fall back to a voice of a different language — an English voice reading
+   Arabic/Spanish silently drops every non-Latin character (the "just says Alsaiti Growth" bug).
+   If no matching-language voice exists we return null and the utterance keeps only its .lang,
+   letting the browser's own engine handle it (or, worst case, stay silent) rather than mangle it. */
+function vPickVoice(code,gender){
   try{
     if(!window.speechSynthesis)return null;
     var vs=window.speechSynthesis.getVoices()||[];
+    if(!vs.length)return null;
     var pre=(code||'en').slice(0,2).toLowerCase();
-    var pref=VPREF[pre]||[];
+    gender=(gender==='male')?'male':'female';
+    var want=(gender==='male'?VPREF_M:VPREF_F)[pre]||[];
+    var wantName=(gender==='male'?VNAME_M:VNAME_F), otherName=(gender==='male'?VNAME_F:VNAME_M);
+    /* language-strict: only voices whose lang starts with the target prefix */
     var m=vs.filter(function(v){return (v.lang||'').toLowerCase().indexOf(pre)===0});
-    if(!m.length)m=vs;
+    if(!m.length)return null; /* no native voice — do NOT substitute another language */
     var score=function(v){var n=((v.name||'')+' '+(v.lang||'')).toLowerCase();var s=0;
-      for(var i=0;i<pref.length;i++){if(n.indexOf(pref[i])>=0){s+=40-i;break}}
-      if(/natural|neural|premium|enhanced/.test(n))s+=8;
-      if(/female|libby|sonia|aria|samantha|serena|karen|elvira|dalia|hala|salma|monica|mónica/.test(n))s+=6;
-      if(/google/.test(n))s+=4;
-      if(pre==='en'&&/gb|united kingdom|british/.test(n))s+=3;
-      if(v.localService===false)s+=2;
-      if(/\bmale\b|daniel|arthur|george|jorge|diego|maged|tarik/.test(n))s-=4;
+      for(var i=0;i<want.length;i++){if(n.indexOf(want[i])>=0){s+=60-i;break}}
+      if(wantName.test(n))s+=20;              /* right gender */
+      if(otherName.test(n))s-=30;             /* wrong gender — strongly avoid */
+      if(/natural|neural|premium|enhanced|online/.test(n))s+=10; /* the human-sounding ones */
+      if(/google/.test(n))s+=5;
+      if(v.localService===false)s+=3;         /* cloud voices are usually more natural */
+      if(pre==='en'&&/gb|united kingdom|british/.test(n))s+=2;
       return s};
     m.sort(function(a,b){return score(b)-score(a)});
-    return m[0]||null
+    return m[0]||null;
   }catch(e){return null}
+}
+/* Warm, upbeat, human prosody — never flat/robotic, never sad. Higher pitch reads friendlier;
+   a natural (not slow) rate reads energetic. Tuned per language + gender. */
+function vProsody(lang,gender){
+  gender=(gender==='male')?'male':'female';
+  var p=(gender==='male')?{rate:0.99,pitch:0.94}:{rate:1.02,pitch:1.12};
+  if(lang==='ar'){p=(gender==='male')?{rate:0.93,pitch:0.97}:{rate:0.96,pitch:1.08};}
+  else if(lang==='es'){p=(gender==='male')?{rate:1.0,pitch:0.95}:{rate:1.03,pitch:1.12};}
+  return p;
+}
+/* Say the brand in a script the active voice can actually pronounce, so it flows naturally. */
+function sayBrand(text,lang){
+  if(lang==='ar')return String(text).replace(/Alsaiti Growth/gi,'الصايتي جروث').replace(/Alsaiti/gi,'الصايتي');
+  return String(text);
 }
 function vUnlock(){try{if(window.speechSynthesis&&!VOICE.unlocked){var u=new SpeechSynthesisUtterance(' ');u.volume=0;window.speechSynthesis.speak(u);VOICE.unlocked=true}}catch(e){}}
 /* read long digit runs (phone numbers) one digit at a time so TTS never says "million" */
 function normDigits(s){return String(s||'').replace(/[٠-٩]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-1632+48)}).replace(/[۰-۹]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-1776+48)})}
 function speechClean(text){return String(text).replace(/[+]?\d[\d ]{3,}\d/g,function(m){var ds=m.replace(/[^\d]/g,'');return ds.length>=7?ds.split('').join(' '):m})}
-function say(text){try{if(!window.speechSynthesis)return;var sp=window.speechSynthesis;var u=new SpeechSynthesisUtterance(speechClean(text));u.rate=(LANG==='ar'?0.9:0.95);u.pitch=(LANG==='ar'?1.0:1.06);u.volume=1;u.lang=TTSLANG[LANG]||'en-GB';var v=vPickVoice(u.lang);if(v)u.voice=v;sp.cancel();sp.speak(u)}catch(e){}}
-if(typeof window!=='undefined'&&window.speechSynthesis){try{window.speechSynthesis.onvoiceschanged=function(){}}catch(e){}}
+function say(text){try{
+  if(!window.speechSynthesis)return;
+  var sp=window.speechSynthesis;
+  var lang=LANG, code=TTSLANG[lang]||'en-GB', gender=VOICE.gender||'female';
+  var u=new SpeechSynthesisUtterance(speechClean(sayBrand(text,lang)));
+  u.lang=code;
+  var v=vPickVoice(code,gender);
+  if(v)u.voice=v;                 /* only ever a same-language voice; else browser default engine */
+  var pr=vProsody(lang,gender);
+  u.rate=pr.rate;u.pitch=pr.pitch;u.volume=1;
+  sp.cancel();sp.speak(u);
+}catch(e){}}
+/* Voices load asynchronously — prime the list and re-cache when the browser reports them ready. */
+var VOICES_READY=false;
+function vWarmVoices(){try{if(window.speechSynthesis){var vs=window.speechSynthesis.getVoices();if(vs&&vs.length)VOICES_READY=true}}catch(e){}}
+if(typeof window!=='undefined'&&window.speechSynthesis){try{window.speechSynthesis.onvoiceschanged=function(){vWarmVoices()};vWarmVoices()}catch(e){}}
+/* Speak a short sample so the user hears the chosen voice/language/gender immediately. */
+function vSample(){var s={en:'Hi! This is your AI receptionist — lovely to meet you.',es:'¡Hola! Soy su recepcionista con IA. ¡Encantada de saludarle!',ar:'مرحبًا! معك موظف الاستقبال الذكي. سعدتُ بالتحدث إليك!'};try{vUnlock();say(s[LANG]||s.en)}catch(e){}}
+function voiceGender(g){VOICE.gender=(g==='male')?'male':'female';DB.set('ag_voice_gender',VOICE.gender);var wrap=document.getElementById('vgender');if(wrap){var bs=wrap.querySelectorAll('button');for(var i=0;i<bs.length;i++){bs[i].classList.toggle('on',bs[i].getAttribute('data-g')===VOICE.gender)}}vSample()}
 /* the receptionist "thinks" for a moment before answering — typing dots, then speech */
 function vTyping(on){var tr=document.getElementById('vtranscript');if(!tr)return;var ex=document.getElementById('vtyping');if(ex&&ex.parentNode)ex.parentNode.removeChild(ex);if(on){var d=document.createElement('div');d.id='vtyping';d.className='vmsg bot vtyping';d.innerHTML='<span></span><span></span><span></span>';tr.appendChild(d);tr.scrollTop=tr.scrollHeight}}
 function vBotSay(txt){
@@ -1943,10 +1998,18 @@ function vBotSay(txt){
 function vSetStatus(s){var e=document.getElementById('vstatus');if(e)e.textContent=s}
 function vAddMsg(who,text){VOICE.log.push({who:who,text:text});var t=document.getElementById('vtranscript');if(!t)return;var ph=t.querySelector('.ph');if(ph)t.innerHTML='';var d=document.createElement('div');d.className='vmsg '+who;d.textContent=text;t.appendChild(d);t.scrollTop=t.scrollHeight}
 function voicePage(){
+  try{vWarmVoices()}catch(e){}
+  var g=VOICE.gender||'female';
+  var genderCtl='<div class="vgender" id="vgender">'+
+    '<span class="vgl">'+esc(t('voice_pack'))+'</span>'+
+    '<button type="button" data-g="female" class="'+(g==='female'?'on':'')+'" onclick="voiceGender(\'female\')">'+icon('mic')+' '+esc(t('voice_female'))+'</button>'+
+    '<button type="button" data-g="male" class="'+(g==='male'?'on':'')+'" onclick="voiceGender(\'male\')">'+icon('mic')+' '+esc(t('voice_male'))+'</button>'+
+  '</div>';
   return head(t('v_title'),t('v_sub'))+
     '<div class="grid cols-2" style="align-items:start">'+
       '<div class="card voicecard">'+
         '<div class="vlang">'+langSwitch()+'</div>'+
+        genderCtl+
         '<div id="vstatus" class="vstatus">'+esc(t('v_intro'))+'</div>'+
         '<button id="vmic" class="vmic" onclick="voiceMic()" aria-label="'+esc(t('v_tap_talk'))+'">'+icon('mic')+'</button>'+
         '<div class="row" style="margin-top:16px;justify-content:center"><button class="btn btn-sm btn-primary" onclick="voiceStart()">'+esc(t('v_start'))+'</button><button class="btn btn-sm btn-danger" onclick="voiceEnd()">'+esc(t('v_end'))+'</button></div>'+
@@ -2099,13 +2162,16 @@ var BK_TR={
 (function(){var H={
  en:{hero_new_lead:'New lead',conv_rate_lbl:'New → Won',fr_drop:'Drop',pie_here:'Here',
   auth_secure_ok:'Signed in securely',auth_confirm_email:'Account created — check your email to confirm it, then sign in.',
-  acct_secure:'Secure account',acct_demo:'Demo account (this device only)'},
+  acct_secure:'Secure account',acct_demo:'Demo account (this device only)',
+  voice_pack:'Voice',voice_female:'Female',voice_male:'Male'},
  es:{hero_new_lead:'Nuevo cliente',conv_rate_lbl:'Nuevo → Ganado',fr_drop:'Caída',pie_here:'Aquí',
   auth_secure_ok:'Sesión iniciada de forma segura',auth_confirm_email:'Cuenta creada: confirme su correo y luego inicie sesión.',
-  acct_secure:'Cuenta segura',acct_demo:'Cuenta de demo (solo este dispositivo)'},
+  acct_secure:'Cuenta segura',acct_demo:'Cuenta de demo (solo este dispositivo)',
+  voice_pack:'Voz',voice_female:'Femenina',voice_male:'Masculina'},
  ar:{hero_new_lead:'عميل جديد',conv_rate_lbl:'جديد ← مكسوب',fr_drop:'التراجع',pie_here:'هنا',
   auth_secure_ok:'تم تسجيل الدخول بأمان',auth_confirm_email:'تم إنشاء الحساب — أكِّد بريدك ثم سجّل الدخول.',
-  acct_secure:'حساب آمن',acct_demo:'حساب تجريبي (هذا الجهاز فقط)'}};
+  acct_secure:'حساب آمن',acct_demo:'حساب تجريبي (هذا الجهاز فقط)',
+  voice_pack:'الصوت',voice_female:'أنثى',voice_male:'ذكر'}};
  for(var l in H){if(!TR[l])TR[l]={};for(var k in H[l]){if(TR[l][k]==null)TR[l][k]=H[l][k]}}})();
 
 var BK={
@@ -2982,7 +3048,7 @@ window.crmSetDraft=crmSetDraft;window.crmSetMap=crmSetMap;window.crmToggleSet=cr
 window.crmTestConn=crmTestConn;window.crmPause=crmPause;window.crmResume=crmResume;window.crmDisconnect=crmDisconnect;window.crmRetry=crmRetry;
 window.submitAuth=submitAuth;window.submitLead=submitLead;window.setFilter=setFilter;window.moveStatus=moveStatus;
 window.saveNote=saveNote;window.deleteLead=deleteLead;window.saveProfile=saveProfile;window.resetData=resetData;
-window.liveSearch=liveSearch;window.voiceStart=voiceStart;window.voiceSend=voiceSend;window.voiceListen=voiceListen;window.voiceEnd=voiceEnd;window.voiceMic=voiceMic;
+window.liveSearch=liveSearch;window.voiceStart=voiceStart;window.voiceSend=voiceSend;window.voiceListen=voiceListen;window.voiceEnd=voiceEnd;window.voiceMic=voiceMic;window.voiceGender=voiceGender;window.vSample=vSample;
 window.demoLogin=demoLogin;window.setLang=setLang;window.scrollToId=scrollToId;window.submitContactForm=submitContactForm;
 window.toggleTheme=toggleTheme;window.setTheme=setTheme;
 

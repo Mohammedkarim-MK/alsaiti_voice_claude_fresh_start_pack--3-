@@ -660,6 +660,37 @@ function LeadDetail({ lead, onMove, onNote, onDelete, onBack, crmSyncs, onRetry 
 /* ---------- AI receptionist (voice) — trilingual + smart number speech ---------- */
 const VLANGS = [['en', 'EN'], ['es', 'ES'], ['ar', 'عربي']];
 const VTTS = { en: 'en-GB', es: 'es-ES', ar: 'ar-SA' };
+/* Voice packs (male/female) + gender detection by name — mirrors the web app. */
+const VNAME_F = /(female|libby|sonia|aria|samantha|serena|karen|martha|stephanie|fiona|moira|tessa|elvira|dalia|monica|mónica|paulina|marisol|helena|sabina|hala|salma|amany|laila|zira|jenny|michelle|clara|catherine|susan|hazel|heather|zoe|nora|yara)/i;
+const VNAME_M = /(male|ryan|guy|daniel|arthur|george|oliver|alex|fred|david|mark|james|paul|richard|alvaro|jorge|diego|carlos|pablo|juan|hamed|shakir|maged|tarik|naayf|naayef)/i;
+/* Warm, upbeat, human prosody — never flat, never sad. Tuned per language + gender. */
+function vProsody(lang, gender) {
+  const male = gender === 'male';
+  if (lang === 'ar') return male ? { rate: 0.93, pitch: 0.97 } : { rate: 0.96, pitch: 1.08 };
+  if (lang === 'es') return male ? { rate: 1.0, pitch: 0.95 } : { rate: 1.03, pitch: 1.12 };
+  return male ? { rate: 0.99, pitch: 0.94 } : { rate: 1.02, pitch: 1.12 };
+}
+/* Say the brand in a script the active voice can pronounce, so Arabic flows naturally. */
+function sayBrand(text, lang) {
+  if (lang === 'ar') return String(text).replace(/Alsaiti Growth/gi, 'الصايتي جروث').replace(/Alsaiti/gi, 'الصايتي');
+  return String(text);
+}
+/* Pick an OS voice matching BOTH the language and the requested gender; null if none. */
+function pickVoice(voices, langCode, gender) {
+  if (!voices || !voices.length) return null;
+  const pre = (langCode || 'en').slice(0, 2).toLowerCase();
+  const want = gender === 'male' ? VNAME_M : VNAME_F, avoid = gender === 'male' ? VNAME_F : VNAME_M;
+  const inLang = voices.filter((v) => (v.language || '').toLowerCase().indexOf(pre) === 0);
+  if (!inLang.length) return null; // never substitute another language
+  const score = (v) => {
+    const n = ((v.name || '') + ' ' + (v.identifier || '')).toLowerCase(); let s = 0;
+    if (want.test(n)) s += 20; if (avoid.test(n)) s -= 30;
+    if ((v.quality || '').toLowerCase() === 'enhanced' || /neural|premium|natural/.test(n)) s += 10;
+    return s;
+  };
+  inLang.sort((a, b) => score(b) - score(a));
+  return inLang[0] ? inLang[0].identifier : null;
+}
 // read long digit runs (phone numbers) one digit at a time so TTS never says "million"
 const normDigits = (s) => String(s || '').replace(/[٠-٩]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 1632 + 48)).replace(/[۰-۹]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 1776 + 48));
 const speechClean = (text) => String(text).replace(/[+]?\d[\d ]{3,}\d/g, (m) => { const ds = m.replace(/[^\d]/g, ''); return ds.length >= 7 ? ds.split('').join(' ') : m; });
@@ -668,6 +699,7 @@ const VT = {
   en: {
     title: 'AI receptionist', sub: 'Talk to your AI receptionist — it greets the caller, qualifies them, and creates a lead.',
     start: 'Start call', end: 'End call', intro: 'Tap “Start call” and talk to your AI receptionist.',
+    voicePack: 'Voice', voiceFemale: 'Female', voiceMale: 'Male',
     yourTurn: 'Your turn — type your reply and Send.', reply: 'Type your reply (or use the keyboard mic)…',
     created: 'Lead created — see it in the Leads tab.', ended: 'Call ended.', transcript: 'Transcript',
     transcriptPh: 'The conversation will appear here once you start the call.', toast: 'Voice lead created',
@@ -684,6 +716,7 @@ const VT = {
   es: {
     title: 'Recepcionista con IA', sub: 'Hable con su recepcionista con IA: saluda a la persona que llama, la cualifica y crea un cliente potencial.',
     start: 'Iniciar llamada', end: 'Finalizar llamada', intro: 'Pulse “Iniciar llamada” y hable con su recepcionista con IA.',
+    voicePack: 'Voz', voiceFemale: 'Femenina', voiceMale: 'Masculina',
     yourTurn: 'Es su turno: escriba su respuesta y pulse Enviar.', reply: 'Escriba su respuesta (o use el micro del teclado)…',
     created: 'Cliente potencial creado: véalo en la pestaña Clientes potenciales.', ended: 'Llamada finalizada.', transcript: 'Transcripción',
     transcriptPh: 'La conversación aparecerá aquí en cuanto inicie la llamada.', toast: 'Cliente potencial de voz creado',
@@ -700,6 +733,7 @@ const VT = {
   ar: {
     title: 'موظف الاستقبال الذكي', sub: 'تحدّث مع موظف الاستقبال الذكي — يرحّب بالمتّصل، ويؤهّله، وينشئ عميلًا محتملًا.',
     start: 'بدء المكالمة', end: 'إنهاء المكالمة', intro: 'اضغط “بدء المكالمة” وتحدّث مع موظف الاستقبال الذكي.',
+    voicePack: 'الصوت', voiceFemale: 'أنثى', voiceMale: 'ذكر',
     yourTurn: 'دورك — اكتب ردّك واضغط إرسال.', reply: 'اكتب ردّك (أو استخدم ميكروفون لوحة المفاتيح)…',
     created: 'تم إنشاء عميل محتمل — شاهده في تبويب العملاء المحتملين.', ended: 'انتهت المكالمة.', transcript: 'نص المحادثة',
     transcriptPh: 'ستظهر المحادثة هنا بمجرد أن تبدأ المكالمة.', toast: 'تم إنشاء عميل محتمل عبر الصوت',
@@ -736,7 +770,22 @@ function VoiceScreen({ onCreateLead, showToast }) {
   const [status, setStatus] = useState(VT.en.intro);
   const [input, setInput] = useState('');
   const [active, setActive] = useState(false);
-  const speak = (txt) => { try { Speech.stop(); Speech.speak(speechClean(txt), { language: VTTS[lang], pitch: lang === 'ar' ? 1.0 : 1.06, rate: lang === 'ar' ? 0.9 : 0.95 }); } catch (e) {} };
+  const [gender, setGender] = useState('female');
+  const voicesRef = useRef([]);
+  useEffect(() => { let alive = true; (async () => {
+    try { const g = await store.get('av_voice_gender', 'female'); if (alive && (g === 'male' || g === 'female')) setGender(g); } catch (e) {}
+    try { const vs = await Speech.getAvailableVoicesAsync(); if (alive) voicesRef.current = vs || []; } catch (e) {}
+  })(); return () => { alive = false; }; }, []);
+  const chooseGender = async (g) => { g = g === 'male' ? 'male' : 'female'; setGender(g); try { await store.set('av_voice_gender', g); } catch (e) {}
+    const sample = { en: 'Hi! This is your AI receptionist — lovely to meet you.', es: '¡Hola! Soy su recepcionista con IA. ¡Encantada de saludarle!', ar: 'مرحبًا! معك موظف الاستقبال الذكي. سعدتُ بالتحدث إليك!' };
+    try { Speech.stop(); speakWith(sample[lang] || sample.en, g); } catch (e) {} };
+  const speakWith = (txt, g) => { try {
+    const code = VTTS[lang]; const pr = vProsody(lang, g);
+    const opts = { language: code, pitch: pr.pitch, rate: pr.rate };
+    const vid = pickVoice(voicesRef.current, code, g); if (vid) opts.voice = vid; // same-language, right gender
+    Speech.stop(); Speech.speak(speechClean(sayBrand(txt, lang)), opts);
+  } catch (e) {} };
+  const speak = (txt) => speakWith(txt, gender);
   const add = (who, text) => setTranscript((p) => [...p, { who, text }]);
   /* the receptionist pauses like a human: typing dots, then the reply */
   const botSay = (txt) => {
@@ -805,6 +854,15 @@ function VoiceScreen({ onCreateLead, showToast }) {
           {VLANGS.map(([code, lbl]) => (
             <Pressable key={code} onPress={() => switchLang(code)} style={[s.chip, { marginRight: 0 }, lang === code && s.chipActive]}>
               <Text style={{ color: lang === code ? '#04223f' : C.muted, fontWeight: '700', fontSize: 13 }}>{lbl}</Text>
+            </Pressable>
+          ))}
+        </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+          <Text style={{ color: C.muted, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6 }}>{T.voicePack || 'Voice'}</Text>
+          {[['female', T.voiceFemale || 'Female'], ['male', T.voiceMale || 'Male']].map(([g, lbl]) => (
+            <Pressable key={g} onPress={() => chooseGender(g)} style={[s.chip, { marginRight: 0, flexDirection: 'row', alignItems: 'center', gap: 5 }, gender === g && s.chipActive]}>
+              <Icon name="mic" size={12} color={gender === g ? '#04223f' : C.muted} sw={2} />
+              <Text style={{ color: gender === g ? '#04223f' : C.muted, fontWeight: '700', fontSize: 12.5 }}>{lbl}</Text>
             </Pressable>
           ))}
         </View>
