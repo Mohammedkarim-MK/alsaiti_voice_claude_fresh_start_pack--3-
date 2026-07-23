@@ -1026,29 +1026,26 @@
   :root[data-theme="dark"] .brand:hover .logo{box-shadow:0 0 0 2px rgba(34,227,154,.45),0 6px 16px -6px rgba(34,227,154,.5)}
 
   /* ============================================================
-     LOGO — faceted AG monogram: theme-aware, animated, hover
+     LOGO — faceted AG monogram: theme-aware + a live, looping shine
      ============================================================ */
   .amark{display:inline-grid;place-items:center;width:34px;height:34px;flex-shrink:0;background:none;border:0;box-shadow:none;border-radius:0}
-  .aM{width:100%;height:100%;display:block;overflow:visible;transition:transform .4s cubic-bezier(.2,.8,.2,1)}
-  .aM polygon{stroke:var(--lseam);stroke-width:.9;stroke-linejoin:round;transform-box:fill-box;transform-origin:50% 50%}
+  .aM{width:100%;height:100%;display:block;overflow:visible}
+  .aM polygon{stroke:var(--lseam);stroke-width:1;stroke-linejoin:round;transform-box:fill-box;transform-origin:50% 50%}
   .aM .f1{fill:var(--lf1)}.aM .f2{fill:var(--lf2)}.aM .f3{fill:var(--lf3)}
   .aM .f4{fill:var(--lf4)}.aM .f5{fill:var(--lf5)}.aM .f6{fill:var(--lf6)}
   .aM .fgA{fill:var(--lfgA)}.aM .fgB{fill:var(--lfgB)}
-  .aM .fgA,.aM .fgB{transition:filter .3s ease}
-  /* entrance: facets assemble from the centre, staggered by --i */
-  @keyframes facetIn{from{opacity:0;transform:scale(.35) translateY(5px)}to{opacity:1;transform:none}}
-  .aMg polygon{animation:facetIn .5s cubic-bezier(.2,.9,.3,1.25) calc(var(--i,0)*42ms) backwards}
-  /* hover (nav mark): the whole letter tilts, the gold catches the light */
-  .brand:hover .aM{transform:rotate(-6deg) scale(1.08)}
-  .brand:hover .aM .fgA,.brand:hover .aM .fgB{filter:brightness(1.22) saturate(1.1)}
+  /* facets assemble once, then a highlight sweeps through them forever (staggered by --i,
+     ordered top-left → bottom-right) so the mark always looks alive and metallic. */
+  @keyframes facetIn{from{opacity:0;transform:scale(.4) translateY(5px)}to{opacity:1;transform:none}}
+  @keyframes shine{0%{filter:brightness(1.55) saturate(1.18)}9%{filter:brightness(1)}100%{filter:brightness(1)}}
+  .aMg polygon{animation:facetIn .5s cubic-bezier(.2,.9,.3,1.25) calc(var(--i,0)*32ms) backwards,
+                         shine 4s ease-in-out calc(var(--i,0)*55ms) infinite}
 
   /* full logo lockup on the landing hero */
   .logoLock{display:flex;flex-direction:column;align-items:center;gap:12px;margin:0 auto 30px}
-  .logoLock .aMbig{display:block;width:clamp(92px,13vw,132px);height:auto;animation:floaty 5.5s ease-in-out infinite}
+  .logoLock .aMbig{display:block;width:clamp(96px,13vw,138px);height:auto;animation:floaty 5.5s ease-in-out infinite}
   .logoLock .aM{width:100%;height:auto}
   @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-  .logoLock:hover .aM{transform:scale(1.05) rotate(-3deg)}
-  .logoLock:hover .aM .fgA,.logoLock:hover .aM .fgB{filter:brightness(1.25) saturate(1.12)}
   .wordmark{font-family:var(--serif);font-weight:700;text-transform:uppercase;letter-spacing:.2em;text-indent:.2em;font-size:clamp(30px,5.4vw,54px);line-height:.95;color:var(--heading)}
   .tagline{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.55em;text-transform:uppercase;letter-spacing:.26em;text-indent:.26em;font-size:clamp(8.5px,1.4vw,12px);font-weight:600;color:var(--muted)}
   .tagline i{color:var(--brass);font-style:normal;font-weight:800;letter-spacing:0}
@@ -1056,7 +1053,6 @@
   @media (prefers-reduced-motion:reduce){
     .aMg polygon{animation:none}
     .logoLock .aMbig{animation:none}
-    .aM{transition:none}
   }
 
   /* ============================================================
@@ -1471,23 +1467,7 @@ window.addEventListener('hashchange',render);
 /* Faceted "A" monogram (the ALSAITI mark) — low-poly greens with an ivory seam and a
    gold "G" accent in the crossbar. Colours + seams are theme variables so it restyles for
    light/dark; per-facet --i drives the staggered assemble animation. See the LOGO CSS block. */
-function aLogo(){return '<svg class="aM" viewBox="0 0 100 102" aria-hidden="true"><g class="aMg">'+
-  '<polygon class="f1" style="--i:0" points="50,6 45,32 55,32"/>'+
-  '<polygon class="f1" style="--i:1" points="50,6 36,40 45,32"/>'+
-  '<polygon class="f2" style="--i:2" points="36,40 45,32 40,58"/>'+
-  '<polygon class="f2" style="--i:3" points="36,40 20,70 40,58"/>'+
-  '<polygon class="f4" style="--i:4" points="20,70 40,58 44,72"/>'+
-  '<polygon class="f5" style="--i:5" points="20,70 44,72 30,96"/>'+
-  '<polygon class="f6" style="--i:6" points="20,70 30,96 8,96"/>'+
-  '<polygon class="f2" style="--i:7" points="50,6 64,40 55,32"/>'+
-  '<polygon class="f3" style="--i:8" points="64,40 55,32 60,58"/>'+
-  '<polygon class="f3" style="--i:9" points="64,40 80,70 60,58"/>'+
-  '<polygon class="fgB" style="--i:10" points="80,70 60,58 56,72"/>'+
-  '<polygon class="f5" style="--i:11" points="80,70 56,72 70,96"/>'+
-  '<polygon class="f6" style="--i:12" points="80,70 70,96 92,96"/>'+
-  '<polygon class="fgA" style="--i:13" points="40,58 60,58 56,72"/>'+
-  '<polygon class="fgA" style="--i:14" points="40,58 56,72 44,72"/>'+
-  '</g></svg>'}
+function aLogo(){return '<svg class="aM" viewBox="0 0 120 116" aria-hidden="true"><g class="aMg"><polygon class="f1" style="--i:0" points="58,8 58,20 46,34"/><polygon class="f1" style="--i:1" points="58,8 74,20 58,20"/><polygon class="f2" style="--i:2" points="58,20 58,30 46,34"/><polygon class="f1" style="--i:3" points="74,20 58,30 58,20"/><polygon class="f2" style="--i:4" points="46,34 58,30 58,48"/><polygon class="f2" style="--i:5" points="58,30 74,20 82,40"/><polygon class="f3" style="--i:6" points="49,62 46,34 58,48"/><polygon class="f3" style="--i:7" points="46,34 49,62 34,66"/><polygon class="f2" style="--i:8" points="58,48 58,30 82,40"/><polygon class="f3" style="--i:9" points="74,20 92,34 82,40"/><polygon class="f4" style="--i:10" points="6,110 46,34 34,66"/><polygon class="f3" style="--i:11" points="71,54 58,48 82,40"/><polygon class="f4" style="--i:12" points="34,66 49,62 58,74"/><polygon class="f5" style="--i:13" points="6,110 34,66 20,92"/><polygon class="f3" style="--i:14" points="82,40 92,34 99,50"/><polygon class="fgA" style="--i:15" points="58,74 49,62 60,66"/><polygon class="f5" style="--i:16" points="34,66 52,90 20,92"/><polygon class="f4" style="--i:17" points="93,58 71,54 82,40"/><polygon class="fgB" style="--i:18" points="52,90 34,66 58,74"/><polygon class="fgA" style="--i:19" points="60,66 70,62 67,68"/><polygon class="fgA" style="--i:20" points="58,74 60,66 67,68"/><polygon class="f4" style="--i:21" points="93,58 82,40 99,50"/><polygon class="f6" style="--i:22" points="30,108 6,110 20,92"/><polygon class="f4" style="--i:23" points="92,34 104,60 99,50"/><polygon class="fgB" style="--i:24" points="58,74 67,68 63,80"/><polygon class="fgA" style="--i:25" points="70,62 70,80 67,68"/><polygon class="f5" style="--i:26" points="52,90 30,108 20,92"/><polygon class="fgB" style="--i:27" points="52,90 58,74 63,80"/><polygon class="fgB" style="--i:28" points="67,68 70,80 63,80"/><polygon class="f4" style="--i:29" points="104,60 93,58 99,50"/><polygon class="f5" style="--i:30" points="60,90 52,90 63,80"/><polygon class="fgB" style="--i:31" points="70,80 60,90 63,80"/><polygon class="f5" style="--i:32" points="93,58 104,60 101,72"/><polygon class="f5" style="--i:33" points="60,90 70,80 66,94"/><polygon class="f5" style="--i:34" points="91,83 93,58 101,72"/><polygon class="f5" style="--i:35" points="60,109 60,90 66,94"/><polygon class="f5" style="--i:36" points="70,80 88,97 66,94"/><polygon class="f5" style="--i:37" points="104,60 99,88 101,72"/><polygon class="f6" style="--i:38" points="70,80 91,83 88,97"/><polygon class="f5" style="--i:39" points="99,88 91,83 101,72"/><polygon class="f6" style="--i:40" points="60,109 66,94 74,104"/><polygon class="f5" style="--i:41" points="66,94 88,97 74,104"/><polygon class="f6" style="--i:42" points="91,83 99,88 88,97"/><polygon class="f6" style="--i:43" points="82,105 60,109 74,104"/><polygon class="f6" style="--i:44" points="88,97 82,105 74,104"/><polygon class="f6" style="--i:45" points="99,88 82,105 88,97"/></g></svg>'}
 function brandMark(size){return '<span class="amark"'+(size?' style="width:'+size+'px;height:'+size+'px"':'')+'>'+aLogo()+'</span>'}
 /* Full logo lockup for the landing hero — monogram + ALSAITI wordmark + the brand tagline. */
 function logoLockup(){return '<div class="logoLock">'+
