@@ -33,6 +33,9 @@
     --chart-track:rgba(20,35,28,.08); --chart-grid:rgba(20,35,28,.07);
     color-scheme:light; /* native controls (dropdowns, inputs, scrollbars) render light */
     --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    /* logo monogram — faceted forest greens (top-left lit → bottom-right shadow), ivory seams, brass */
+    --lf1:#2E8A66;--lf2:#237A57;--lf3:#1C6B4E;--lf4:#155941;--lf5:#104735;--lf6:#0B3728;
+    --lfgA:#C6A15B;--lfgB:#A9822F;--lseam:#F7F2E7;
   }
   :root[data-theme="dark"]{
     /* ===== DARK — Modern Fintech: charcoal / electric emerald / cool white ===== */
@@ -49,6 +52,9 @@
     --fn1:#16795A; --fn2:#0FA372; --fn3:#16C98A; --fn4:#22E39A; --fn5:#7FF0CB; --fntext:#06231A;
     --chart-track:rgba(234,242,238,.10); --chart-grid:rgba(234,242,238,.08);
     color-scheme:dark; /* FIX: native controls render dark — no more black text in dark mode */
+    /* logo monogram — electric emeralds on charcoal, near-black seams, warm brass accent */
+    --lf1:#3DEFAE;--lf2:#22E39A;--lf3:#16C98A;--lf4:#12AC77;--lf5:#0E8A63;--lf6:#0A6A4E;
+    --lfgA:#D9BC77;--lfgB:#BE9A4A;--lseam:#0C100E;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -1020,6 +1026,40 @@
   :root[data-theme="dark"] .brand:hover .logo{box-shadow:0 0 0 2px rgba(34,227,154,.45),0 6px 16px -6px rgba(34,227,154,.5)}
 
   /* ============================================================
+     LOGO — faceted AG monogram: theme-aware, animated, hover
+     ============================================================ */
+  .amark{display:inline-grid;place-items:center;width:34px;height:34px;flex-shrink:0;background:none;border:0;box-shadow:none;border-radius:0}
+  .aM{width:100%;height:100%;display:block;overflow:visible;transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+  .aM polygon{stroke:var(--lseam);stroke-width:.9;stroke-linejoin:round;transform-box:fill-box;transform-origin:50% 50%}
+  .aM .f1{fill:var(--lf1)}.aM .f2{fill:var(--lf2)}.aM .f3{fill:var(--lf3)}
+  .aM .f4{fill:var(--lf4)}.aM .f5{fill:var(--lf5)}.aM .f6{fill:var(--lf6)}
+  .aM .fgA{fill:var(--lfgA)}.aM .fgB{fill:var(--lfgB)}
+  .aM .fgA,.aM .fgB{transition:filter .3s ease}
+  /* entrance: facets assemble from the centre, staggered by --i */
+  @keyframes facetIn{from{opacity:0;transform:scale(.35) translateY(5px)}to{opacity:1;transform:none}}
+  .aMg polygon{animation:facetIn .5s cubic-bezier(.2,.9,.3,1.25) calc(var(--i,0)*42ms) backwards}
+  /* hover (nav mark): the whole letter tilts, the gold catches the light */
+  .brand:hover .aM{transform:rotate(-6deg) scale(1.08)}
+  .brand:hover .aM .fgA,.brand:hover .aM .fgB{filter:brightness(1.22) saturate(1.1)}
+
+  /* full logo lockup on the landing hero */
+  .logoLock{display:flex;flex-direction:column;align-items:center;gap:12px;margin:0 auto 30px}
+  .logoLock .aMbig{display:block;width:clamp(92px,13vw,132px);height:auto;animation:floaty 5.5s ease-in-out infinite}
+  .logoLock .aM{width:100%;height:auto}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .logoLock:hover .aM{transform:scale(1.05) rotate(-3deg)}
+  .logoLock:hover .aM .fgA,.logoLock:hover .aM .fgB{filter:brightness(1.25) saturate(1.12)}
+  .wordmark{font-family:var(--serif);font-weight:700;text-transform:uppercase;letter-spacing:.2em;text-indent:.2em;font-size:clamp(30px,5.4vw,54px);line-height:.95;color:var(--heading)}
+  .tagline{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.55em;text-transform:uppercase;letter-spacing:.26em;text-indent:.26em;font-size:clamp(8.5px,1.4vw,12px);font-weight:600;color:var(--muted)}
+  .tagline i{color:var(--brass);font-style:normal;font-weight:800;letter-spacing:0}
+  html[dir="rtl"] .logoLock .wordmark,html[dir="rtl"] .tagline{direction:ltr}
+  @media (prefers-reduced-motion:reduce){
+    .aMg polygon{animation:none}
+    .logoLock .aMbig{animation:none}
+    .aM{transition:none}
+  }
+
+  /* ============================================================
      CHARTS v2 — status BARS + conversion RINGS, on a live background
      ============================================================ */
   /* --- live ambient background inside chart cards (subtle: depth, never noise) --- */
@@ -1428,12 +1468,33 @@ function render(){
 window.addEventListener('hashchange',render);
 
 /* ============================ Landing (what clients see first) ============================ */
-function aLogo(){return '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">'+
-  '<defs><linearGradient id="alg" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse"><stop stop-color="#7FC9A8"/><stop offset="1" stop-color="#17573F"/></linearGradient></defs>'+
-  '<path d="M12 3.6L4.6 20.4" stroke="url(#alg)" stroke-width="2.5"/>'+
-  '<path d="M12 3.6l7.4 16.8" stroke="#2E8A66" stroke-width="2.5"/>'+
-  '<path d="M8.1 14.4h7.8" stroke="#C6A15B" stroke-width="2.2"/></svg>'}
-function brandMark(size){return '<span class="logo"'+(size?' style="width:'+size+'px;height:'+size+'px"':'')+'>'+aLogo()+'</span>'}
+/* Faceted "A" monogram (the ALSAITI mark) — low-poly greens with an ivory seam and a
+   gold "G" accent in the crossbar. Colours + seams are theme variables so it restyles for
+   light/dark; per-facet --i drives the staggered assemble animation. See the LOGO CSS block. */
+function aLogo(){return '<svg class="aM" viewBox="0 0 100 102" aria-hidden="true"><g class="aMg">'+
+  '<polygon class="f1" style="--i:0" points="50,6 45,32 55,32"/>'+
+  '<polygon class="f1" style="--i:1" points="50,6 36,40 45,32"/>'+
+  '<polygon class="f2" style="--i:2" points="36,40 45,32 40,58"/>'+
+  '<polygon class="f2" style="--i:3" points="36,40 20,70 40,58"/>'+
+  '<polygon class="f4" style="--i:4" points="20,70 40,58 44,72"/>'+
+  '<polygon class="f5" style="--i:5" points="20,70 44,72 30,96"/>'+
+  '<polygon class="f6" style="--i:6" points="20,70 30,96 8,96"/>'+
+  '<polygon class="f2" style="--i:7" points="50,6 64,40 55,32"/>'+
+  '<polygon class="f3" style="--i:8" points="64,40 55,32 60,58"/>'+
+  '<polygon class="f3" style="--i:9" points="64,40 80,70 60,58"/>'+
+  '<polygon class="fgB" style="--i:10" points="80,70 60,58 56,72"/>'+
+  '<polygon class="f5" style="--i:11" points="80,70 56,72 70,96"/>'+
+  '<polygon class="f6" style="--i:12" points="80,70 70,96 92,96"/>'+
+  '<polygon class="fgA" style="--i:13" points="40,58 60,58 56,72"/>'+
+  '<polygon class="fgA" style="--i:14" points="40,58 56,72 44,72"/>'+
+  '</g></svg>'}
+function brandMark(size){return '<span class="amark"'+(size?' style="width:'+size+'px;height:'+size+'px"':'')+'>'+aLogo()+'</span>'}
+/* Full logo lockup for the landing hero — monogram + ALSAITI wordmark + the brand tagline. */
+function logoLockup(){return '<div class="logoLock">'+
+  '<span class="amark aMbig">'+aLogo()+'</span>'+
+  '<div class="wordmark">ALSAITI</div>'+
+  '<div class="tagline"><span>INTELLIGENCE</span><i>&middot;</i><span>EFFICIENCY</span><i>&middot;</i><span>ASSISTANCE</span></div>'+
+  '</div>'}
 function stB(s){return ({Booked:'b-Booked',Contacted:'b-Contacted','New':'b-New','Follow-up':'b-Qualified',Won:'b-Won'})[s]||'b-Contacted'}
 function landing(){
   var stats=[['stat_enquiries','47','+12'],['stat_missed','9','+3'],['stat_hot','14','+6'],['stat_followups','86','+22'],['stat_revenue','£18.4k','+24%']];
@@ -1455,6 +1516,7 @@ function landing(){
       '<button class="btn btn-sm btn-primary" onclick="scrollToId(\'sec-contact\')">'+esc(t('book_call'))+'</button>'+
     '</header>'+
     '<section class="hero" id="sec-top">'+
+      logoLockup()+
       '<span class="badge b-New" style="margin-bottom:16px">'+icon('bolt')+' '+esc(t('hero_badge'))+'</span>'+
       '<h1 class="htitle">'+esc(t('hero_title'))+'</h1>'+
       '<p class="hsub">'+esc(t('hero_sub'))+'</p>'+
