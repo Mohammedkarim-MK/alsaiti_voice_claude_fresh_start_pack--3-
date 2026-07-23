@@ -34,3 +34,6 @@ verify_jwt = true
 
 [functions.telnyx-webhook]
 verify_jwt = false
+
+[functions.tts]
+verify_jwt = false

@@ -8,7 +8,7 @@
      connect-src MUST list the backend or the browser blocks every fetch() (Supabase Auth +
      Edge Functions). NOTE: frame-ancestors (clickjacking) only works as an HTTP header, which
      GitHub Pages cannot set — add it at the CDN/host when this moves to a real server. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src 'self' https://*.supabase.co; base-uri 'none'; form-action 'self'; object-src 'none'; frame-src 'none'"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src 'self' https://*.supabase.co; media-src data: blob:; base-uri 'none'; form-action 'self'; object-src 'none'; frame-src 'none'"/>
 <meta name="referrer" content="no-referrer"/>
 <meta name="description" content="Alsaiti Growth — AI receptionists &amp; lead systems that turn enquiries into booked clients. Live trilingual demo (EN / ES / AR)."/>
 <meta property="og:title" content="Alsaiti Growth — AI receptionist &amp; lead dashboard"/>
@@ -254,6 +254,10 @@
   .vgender button svg{width:13px;height:13px}
   .vgender button.on{background:linear-gradient(135deg,var(--primary),var(--glow));color:#fff;box-shadow:0 4px 12px -4px rgba(28,107,78,.5)}
   :root[data-theme="dark"] .vgender button.on{color:#08130D}
+  .vhuman{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:7px 14px;cursor:pointer;transition:all .18s}
+  .vhuman svg{width:13px;height:13px}
+  .vhuman.on{color:var(--brass);border-color:rgba(198,161,91,.4);background:rgba(198,161,91,.1)}
+  :root[data-theme="dark"] .vhuman.on{color:var(--primary);border-color:var(--border-hi);background:rgba(34,227,154,.08)}
   .vtranscript{max-height:340px;overflow:auto;display:flex;flex-direction:column;gap:8px}
   .vmsg{max-width:85%;padding:9px 13px;border-radius:13px;font-size:14px;line-height:1.4}
   .vmsg.bot{background:var(--glass-hi);border:1px solid var(--border);border-bottom-left-radius:4px;align-self:flex-start}
@@ -1964,7 +1968,8 @@ function vUnlock(){try{if(window.speechSynthesis&&!VOICE.unlocked){var u=new Spe
 /* read long digit runs (phone numbers) one digit at a time so TTS never says "million" */
 function normDigits(s){return String(s||'').replace(/[٠-٩]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-1632+48)}).replace(/[۰-۹]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-1776+48)})}
 function speechClean(text){return String(text).replace(/[+]?\d[\d ]{3,}\d/g,function(m){var ds=m.replace(/[^\d]/g,'');return ds.length>=7?ds.split('').join(' '):m})}
-function say(text){try{
+/* Device-voice path (free; quality depends on the device's installed voices). */
+function sayDevice(text){try{
   if(!window.speechSynthesis)return;
   var sp=window.speechSynthesis;
   var lang=LANG, code=TTSLANG[lang]||'en-GB', gender=VOICE.gender||'female';
@@ -1976,6 +1981,33 @@ function say(text){try{
   u.rate=pr.rate;u.pitch=pr.pitch;u.volume=1;
   sp.cancel();sp.speak(u);
 }catch(e){}}
+
+/* ---- Human (neural) voice via the backend TTS function -------------------------------------
+   When the backend is configured AND ultra-realistic voice is on, we fetch genuinely lifelike
+   audio (ElevenLabs / OpenAI) and play it. Falls back to the device voice on ANY problem, so
+   the receptionist always speaks. A small in-memory cache avoids re-synthesising repeats. */
+var HUMAN_VOICE=(function(){var v=DB.get('ag_human_voice',null);return v===null?true:!!v})();
+var TTS_CACHE={}, TTS_AUDIO=null, TTS_UNAVAILABLE=false;
+function humanVoiceOn(){return HUMAN_VOICE && BK.hasProject() && !TTS_UNAVAILABLE}
+function ttsStop(){try{if(TTS_AUDIO){TTS_AUDIO.pause();TTS_AUDIO.currentTime=0}}catch(e){}try{if(window.speechSynthesis)window.speechSynthesis.cancel()}catch(e){}}
+function say(text){
+  var lang=LANG, gender=VOICE.gender||'female';
+  if(!humanVoiceOn()){sayDevice(text);return}
+  var spoken=speechClean(sayBrand(text,lang));
+  var key=lang+'|'+gender+'|'+spoken;
+  var play=function(dataUri){try{ttsStop();var a=new Audio(dataUri);TTS_AUDIO=a;a.play()['catch'](function(){sayDevice(text)})}catch(e){sayDevice(text)}};
+  if(TTS_CACHE[key]){play(TTS_CACHE[key]);return}
+  /* start the device voice as an instant fallback if the network is slow, then swap when ready */
+  var swapped=false;var slow=setTimeout(function(){if(!swapped)sayDevice(text)},1200);
+  try{
+    BK.fn('tts',{body:{text:spoken,lang:lang,gender:gender}}).then(function(r){
+      clearTimeout(slow);
+      if(r&&r.ok&&r.audio){var uri='data:'+(r.mime||'audio/mpeg')+';base64,'+r.audio;TTS_CACHE[key]=uri;swapped=true;try{if(window.speechSynthesis)window.speechSynthesis.cancel()}catch(e){}play(uri)}
+      else{if(r&&r.error==='no_tts_provider')TTS_UNAVAILABLE=true;if(!swapped)sayDevice(text)}
+    })['catch'](function(){clearTimeout(slow);if(!swapped)sayDevice(text)});
+  }catch(e){clearTimeout(slow);sayDevice(text)} /* fetch missing / sync throw → always speak */
+}
+function voiceHuman(on){HUMAN_VOICE=!!on;DB.set('ag_human_voice',HUMAN_VOICE);var b=document.getElementById('vhuman');if(b)b.classList.toggle('on',HUMAN_VOICE);vSample()}
 /* Voices load asynchronously — prime the list and re-cache when the browser reports them ready. */
 var VOICES_READY=false;
 function vWarmVoices(){try{if(window.speechSynthesis){var vs=window.speechSynthesis.getVoices();if(vs&&vs.length)VOICES_READY=true}}catch(e){}}
@@ -2005,11 +2037,15 @@ function voicePage(){
     '<button type="button" data-g="female" class="'+(g==='female'?'on':'')+'" onclick="voiceGender(\'female\')">'+icon('mic')+' '+esc(t('voice_female'))+'</button>'+
     '<button type="button" data-g="male" class="'+(g==='male'?'on':'')+'" onclick="voiceGender(\'male\')">'+icon('mic')+' '+esc(t('voice_male'))+'</button>'+
   '</div>';
+  /* Ultra-realistic (neural) voice — only meaningful once a backend + TTS key are set up. */
+  var humanCtl='<button type="button" id="vhuman" class="vhuman'+(HUMAN_VOICE?' on':'')+'" onclick="voiceHuman(!'+(HUMAN_VOICE?'true':'false')+')" title="'+esc(t('voice_human_hint'))+'">'+
+    icon('bolt')+' '+esc(t('voice_human'))+'</button>';
   return head(t('v_title'),t('v_sub'))+
     '<div class="grid cols-2" style="align-items:start">'+
       '<div class="card voicecard">'+
         '<div class="vlang">'+langSwitch()+'</div>'+
         genderCtl+
+        '<div style="margin:-6px 0 14px">'+humanCtl+'</div>'+
         '<div id="vstatus" class="vstatus">'+esc(t('v_intro'))+'</div>'+
         '<button id="vmic" class="vmic" onclick="voiceMic()" aria-label="'+esc(t('v_tap_talk'))+'">'+icon('mic')+'</button>'+
         '<div class="row" style="margin-top:16px;justify-content:center"><button class="btn btn-sm btn-primary" onclick="voiceStart()">'+esc(t('v_start'))+'</button><button class="btn btn-sm btn-danger" onclick="voiceEnd()">'+esc(t('v_end'))+'</button></div>'+
@@ -2110,7 +2146,7 @@ function vFinish(){
   vBotSay(msg);vSetStatus(t('v_lead_created'));toast(t('v_toast_lead'));
   var m=document.getElementById('vmic');if(m)m.classList.remove('on')
 }
-function voiceEnd(){VOICE.active=false;VOICE.listening=false;if(VOICE.timer){clearTimeout(VOICE.timer);VOICE.timer=null}VOICE.pendingTxt=null;vTyping(false);try{if(VOICE.rec){VOICE.rec.onend=null;VOICE.rec.abort()}}catch(e){}try{if(window.speechSynthesis)window.speechSynthesis.cancel()}catch(e){}vSetStatus(t('v_call_ended'));vListenUI(false)}
+function voiceEnd(){VOICE.active=false;VOICE.listening=false;if(VOICE.timer){clearTimeout(VOICE.timer);VOICE.timer=null}VOICE.pendingTxt=null;vTyping(false);try{if(VOICE.rec){VOICE.rec.onend=null;VOICE.rec.abort()}}catch(e){}ttsStop();vSetStatus(t('v_call_ended'));vListenUI(false)}
 
 /* ===================== CRM Integrations (n8n sync layer — demo simulation of the handoff spec) =====================
    NOTE: This is a faithful front-end simulation of the universal CRM integration system. It creates signed
@@ -2163,15 +2199,15 @@ var BK_TR={
  en:{hero_new_lead:'New lead',conv_rate_lbl:'New → Won',fr_drop:'Drop',pie_here:'Here',
   auth_secure_ok:'Signed in securely',auth_confirm_email:'Account created — check your email to confirm it, then sign in.',
   acct_secure:'Secure account',acct_demo:'Demo account (this device only)',
-  voice_pack:'Voice',voice_female:'Female',voice_male:'Male'},
+  voice_pack:'Voice',voice_female:'Female',voice_male:'Male',voice_human:'Ultra-realistic voice',voice_human_hint:'Genuinely human neural voice — needs a connected backend with a TTS key. Falls back to the device voice otherwise.'},
  es:{hero_new_lead:'Nuevo cliente',conv_rate_lbl:'Nuevo → Ganado',fr_drop:'Caída',pie_here:'Aquí',
   auth_secure_ok:'Sesión iniciada de forma segura',auth_confirm_email:'Cuenta creada: confirme su correo y luego inicie sesión.',
   acct_secure:'Cuenta segura',acct_demo:'Cuenta de demo (solo este dispositivo)',
-  voice_pack:'Voz',voice_female:'Femenina',voice_male:'Masculina'},
+  voice_pack:'Voz',voice_female:'Femenina',voice_male:'Masculina',voice_human:'Voz ultrarrealista',voice_human_hint:'Voz neural realmente humana — requiere un backend conectado con clave de TTS. Si no, usa la voz del dispositivo.'},
  ar:{hero_new_lead:'عميل جديد',conv_rate_lbl:'جديد ← مكسوب',fr_drop:'التراجع',pie_here:'هنا',
   auth_secure_ok:'تم تسجيل الدخول بأمان',auth_confirm_email:'تم إنشاء الحساب — أكِّد بريدك ثم سجّل الدخول.',
   acct_secure:'حساب آمن',acct_demo:'حساب تجريبي (هذا الجهاز فقط)',
-  voice_pack:'الصوت',voice_female:'أنثى',voice_male:'ذكر'}};
+  voice_pack:'الصوت',voice_female:'أنثى',voice_male:'ذكر',voice_human:'صوت شديد الواقعية',voice_human_hint:'صوت عصبوني بشري حقيقي — يحتاج خادمًا متصلًا بمفتاح TTS. وإلا يستخدم صوت الجهاز.'}};
  for(var l in H){if(!TR[l])TR[l]={};for(var k in H[l]){if(TR[l][k]==null)TR[l][k]=H[l][k]}}})();
 
 var BK={
@@ -3048,7 +3084,7 @@ window.crmSetDraft=crmSetDraft;window.crmSetMap=crmSetMap;window.crmToggleSet=cr
 window.crmTestConn=crmTestConn;window.crmPause=crmPause;window.crmResume=crmResume;window.crmDisconnect=crmDisconnect;window.crmRetry=crmRetry;
 window.submitAuth=submitAuth;window.submitLead=submitLead;window.setFilter=setFilter;window.moveStatus=moveStatus;
 window.saveNote=saveNote;window.deleteLead=deleteLead;window.saveProfile=saveProfile;window.resetData=resetData;
-window.liveSearch=liveSearch;window.voiceStart=voiceStart;window.voiceSend=voiceSend;window.voiceListen=voiceListen;window.voiceEnd=voiceEnd;window.voiceMic=voiceMic;window.voiceGender=voiceGender;window.vSample=vSample;
+window.liveSearch=liveSearch;window.voiceStart=voiceStart;window.voiceSend=voiceSend;window.voiceListen=voiceListen;window.voiceEnd=voiceEnd;window.voiceMic=voiceMic;window.voiceGender=voiceGender;window.vSample=vSample;window.voiceHuman=voiceHuman;window.ttsStop=ttsStop;
 window.demoLogin=demoLogin;window.setLang=setLang;window.scrollToId=scrollToId;window.submitContactForm=submitContactForm;
 window.toggleTheme=toggleTheme;window.setTheme=setTheme;
 

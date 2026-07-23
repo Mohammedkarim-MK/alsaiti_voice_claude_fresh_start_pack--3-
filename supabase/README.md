@@ -67,7 +67,7 @@ Set `PUBLIC_FUNCTIONS_URL=https://YOUR_REF.supabase.co/functions/v1` and
 
 ```bash
 supabase functions deploy crm-authorise crm-callback crm-test crm-metadata crm-status \
-  crm-sync-lead telnyx-verify telnyx-search telnyx-order telnyx-webhook
+  crm-sync-lead tts telnyx-verify telnyx-search telnyx-order telnyx-webhook
 ```
 
 `config.toml` already sets `verify_jwt = false` for `crm-callback` (the CRM redirects here with
