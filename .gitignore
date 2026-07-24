@@ -38,3 +38,4 @@ Thumbs.db
 *.p8
 *.jks
 *.mobileprovision
+supabase/.temp/
