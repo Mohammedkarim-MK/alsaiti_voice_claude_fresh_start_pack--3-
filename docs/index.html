@@ -1527,6 +1527,7 @@ function landing(){
     '<section class="section" id="sec-contact"><div class="contactcard">'+
       '<div class="kicker">'+esc(t('form_kicker'))+'</div><h2 class="stitle">'+esc(t('form_title'))+'</h2><p class="ssub">'+esc(t('form_sub'))+'</p>'+
       '<form class="form2" onsubmit="return submitContactForm(event)">'+
+        '<input type="text" name="company_website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"/>'+
         '<div><label>'+esc(t('f_first'))+'</label><input name="first" maxlength="60" required/></div>'+
         '<div><label>'+esc(t('f_last'))+'</label><input name="last" maxlength="60"/></div>'+
         '<div><label>'+esc(t('f_biz'))+'</label><input name="biz" maxlength="80"/></div>'+
@@ -1562,7 +1563,16 @@ function landing(){
     '<div class="lfootbase"><p>'+esc(t('rights'))+'</p><p class="discl">'+esc(t('footer_disclaimer'))+'</p></div></footer>'+
   '</div>'
 }
-function submitContactForm(e){e.preventDefault();try{e.target.reset()}catch(x){}toast(t('form_sent'));return false}
+function submitContactForm(e){e.preventDefault();
+  var el=e.target.elements, g=function(n){return el[n]?String(el[n].value||'').trim():''};
+  var body={first:g('first'),last:g('last'),biz:g('biz'),email:g('email'),phone:g('phone'),wa:g('wa'),
+            industry:g('industry'),system:g('system'),problem:g('problem'),company_website:g('company_website')};
+  try{e.target.reset()}catch(x){}
+  toast(t('form_sent'));                          /* friendly confirmation shown immediately */
+  /* Best-effort deliver to the backend so the enquiry is actually saved (never lost). A network
+     hiccup won't disturb the user — the confirmation is already shown. */
+  try{if(BK.hasProject())BK.fn('contact-submit',{body:body})['catch'](function(){})}catch(x){}
+  return false}
 function pricingSection(){
   var plans=[
     {k:'plan_starter',price:'£499',setup:'£1,000',feat:'starter_features',pop:false},

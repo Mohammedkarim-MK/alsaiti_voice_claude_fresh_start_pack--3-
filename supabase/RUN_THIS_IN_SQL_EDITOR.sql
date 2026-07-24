@@ -489,9 +489,28 @@ revoke all on function public.try_lock_refresh(uuid, integer) from public, anon,
 revoke all on function public.unlock_refresh(uuid) from public, anon, authenticated;
 
 -- ============================================================================
---  Done. Quick verification (should return 4 rows):
+-- ============================================================
+-- 0005_contact_submissions.sql  — website contact-form capture
+-- ============================================================
+create table if not exists public.contact_submissions (
+  id         uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  first_name text, last_name text, business text, email text, phone text, whatsapp text,
+  industry text, system text, message text,
+  source     text not null default 'website_form',
+  user_agent text
+);
+alter table public.contact_submissions enable row level security;
+drop policy if exists contact_submissions_read on public.contact_submissions;
+create policy contact_submissions_read on public.contact_submissions
+  for select to authenticated using (true);
+create index if not exists contact_submissions_created_idx on public.contact_submissions (created_at desc);
+
+
+-- ============================================================================
+--  Done. Quick verification (should return 5 rows):
 -- ============================================================================
 select table_name from information_schema.tables
 where table_schema='public'
-  and table_name in ('workspaces','crm_connections','rate_limits','token_refresh_locks')
+  and table_name in ('workspaces','crm_connections','rate_limits','token_refresh_locks','contact_submissions')
 order by table_name;
