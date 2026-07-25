@@ -20,7 +20,7 @@
     /* ===== LIGHT — Private Wealth: ivory / forest / green / brass (thin) ===== */
     --bg:#F7F2E7; --bg2:#EFE8D7; --primary:#1C6B4E; --cyan:#2E8A66; --glow:#123A2C;
     --purple:#C6A15B; --accent:#C6A15B; --brass:#C6A15B; --heading:#14231C; --text:#22322A; --muted:#6E7A6A;
-    --glass:#FFFFFF; --glass-hi:#FCF9F1; --card:#FFFFFF; --card2:#F3EEDF; --sidebar:#FCF9F1; --topbar:rgba(252,249,241,.85);
+    --glass:#FFFFFF; --glass-hi:#FCF9F1; --card:#FFFFFF; --card2:#F3EEDF; --sidebar:#FCF9F1; --sidebar-solid:#FBF7EC; --topbar:rgba(252,249,241,.85);
     --border:rgba(20,35,28,0.11); --border-hi:rgba(28,107,78,0.42);
     --green:#1C6B4E; --amber:#A8791F; --red:#B4553E;
     --glassborder:rgba(20,35,28,0.09); --glasshi:rgba(255,255,255,0.92);
@@ -41,7 +41,7 @@
     /* ===== DARK — Modern Fintech: charcoal / electric emerald / cool white ===== */
     --bg:#0C100E; --bg2:#0F1512; --primary:#16C98A; --cyan:#22E39A; --glow:#0FA372;
     --purple:#22E39A; --accent:#22E39A; --brass:#22E39A; --heading:#EAF2EE; --text:#DCE7E1; --muted:#8A9A92;
-    --glass:#151B18; --glass-hi:#1B2320; --card:#151B18; --card2:#1A211D; --sidebar:rgba(12,16,14,.92); --topbar:rgba(12,16,14,.85);
+    --glass:#151B18; --glass-hi:#1B2320; --card:#151B18; --card2:#1A211D; --sidebar:rgba(12,16,14,.92); --sidebar-solid:#111714; --topbar:rgba(12,16,14,.85);
     --border:rgba(234,242,238,0.10); --border-hi:rgba(34,227,154,0.40);
     --green:#22E39A; --amber:#D9B45A; --red:#E58063;
     --glassborder:rgba(234,242,238,0.08); --glasshi:rgba(255,255,255,0.05);
@@ -101,7 +101,8 @@
     display:grid;place-items:center;cursor:pointer;color:var(--muted);position:relative}
   .iconbtn svg{width:18px;height:18px}
   .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--glow));
-    display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+    display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;border:none;cursor:pointer;padding:0;transition:.16s}
+  button.avatar:hover{box-shadow:0 0 0 3px var(--border-hi)}
   .content{padding:22px;max-width:1160px;width:100%;margin:0 auto}
   .pagehead{margin-bottom:20px;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
   .pagehead h1{font-size:24px;font-weight:800}
@@ -1057,6 +1058,9 @@
      ============================================================ */
   .amark{display:inline-grid;place-items:center;width:34px;height:34px;flex-shrink:0;background:none;border:0;box-shadow:none;border-radius:0}
   .aM{width:100%;height:100%;display:block;overflow:visible}
+  /* facet fills: the brand sheet's own gradients in light, a lifted set in dark */
+  .aM .f0{fill:url(#agl_0)}.aM .f1{fill:url(#agl_1)}.aM .f2{fill:url(#agl_2)}.aM .f3{fill:url(#agl_3)}.aM .f4{fill:url(#agl_4)}.aM .f5{fill:url(#agl_5)}.aM .f6{fill:url(#agl_6)}.aM .f7{fill:url(#agl_7)}.aM .f8{fill:url(#agl_8)}.aM .f9{fill:url(#agl_9)}.aM .f10{fill:url(#agl_10)}.aM .f11{fill:url(#agl_11)}.aM .f12{fill:url(#agl_12)}.aM .f13{fill:url(#agl_13)}.aM .f14{fill:url(#agl_14)}.aM .f15{fill:url(#agl_15)}.aM .f16{fill:url(#agl_16)}.aM .f17{fill:url(#agl_17)}.aM .f18{fill:url(#agl_18)}.aM .f19{fill:url(#agl_19)}.aM .f20{fill:url(#agl_20)}.aM .f21{fill:url(#agl_21)}.aM .f22{fill:url(#agl_22)}.aM .f23{fill:url(#agl_23)}.aM .f24{fill:url(#agl_24)}.aM .f25{fill:url(#agl_25)}.aM .f26{fill:url(#agl_26)}.aM .f27{fill:url(#agl_27)}
+  :root[data-theme="dark"] .aM .f0{fill:url(#agd_0)}:root[data-theme="dark"] .aM .f1{fill:url(#agd_1)}:root[data-theme="dark"] .aM .f2{fill:url(#agd_2)}:root[data-theme="dark"] .aM .f3{fill:url(#agd_3)}:root[data-theme="dark"] .aM .f4{fill:url(#agd_4)}:root[data-theme="dark"] .aM .f5{fill:url(#agd_5)}:root[data-theme="dark"] .aM .f6{fill:url(#agd_6)}:root[data-theme="dark"] .aM .f7{fill:url(#agd_7)}:root[data-theme="dark"] .aM .f8{fill:url(#agd_8)}:root[data-theme="dark"] .aM .f9{fill:url(#agd_9)}:root[data-theme="dark"] .aM .f10{fill:url(#agd_10)}:root[data-theme="dark"] .aM .f11{fill:url(#agd_11)}:root[data-theme="dark"] .aM .f12{fill:url(#agd_12)}:root[data-theme="dark"] .aM .f13{fill:url(#agd_13)}:root[data-theme="dark"] .aM .f14{fill:url(#agd_14)}:root[data-theme="dark"] .aM .f15{fill:url(#agd_15)}:root[data-theme="dark"] .aM .f16{fill:url(#agd_16)}:root[data-theme="dark"] .aM .f17{fill:url(#agd_17)}:root[data-theme="dark"] .aM .f18{fill:url(#agd_18)}:root[data-theme="dark"] .aM .f19{fill:url(#agd_19)}:root[data-theme="dark"] .aM .f20{fill:url(#agd_20)}:root[data-theme="dark"] .aM .f21{fill:url(#agd_21)}:root[data-theme="dark"] .aM .f22{fill:url(#agd_22)}:root[data-theme="dark"] .aM .f23{fill:url(#agd_23)}:root[data-theme="dark"] .aM .f24{fill:url(#agd_24)}:root[data-theme="dark"] .aM .f25{fill:url(#agd_25)}:root[data-theme="dark"] .aM .f26{fill:url(#agd_26)}:root[data-theme="dark"] .aM .f27{fill:url(#agd_27)}
   /* The facets carry the brand sheet's own per-facet bevel gradients, and the seams are real
      gaps between them (same as the printed identity) — so no stroke, no recolouring. */
   .aM polygon{stroke:none;stroke-linejoin:round;transform-box:fill-box;transform-origin:50% 50%;shape-rendering:geometricPrecision}
@@ -1156,9 +1160,141 @@
   .piePct{text-align:end;font-variant-numeric:tabular-nums;color:var(--muted)}
   .pieDrop{text-align:end;font-variant-numeric:tabular-nums;color:var(--red);font-weight:600;font-size:12.5px}
   @media(max-width:560px){.pieWrap{gap:16px;justify-content:center}.pieHead,.pieRow{grid-template-columns:12px 1fr 34px 40px 46px}}
+  /* ============================================================
+     SETTINGS — one calm column of cards, each doing one job
+     ============================================================ */
+  .setgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;align-items:start}
+  .setcard{padding:20px}
+  .setcard h3{display:flex;align-items:center;justify-content:flex-start;gap:9px;margin:0 0 4px;font-size:15px}
+  .setcard h3 svg{width:17px;height:17px;color:var(--primary);flex-shrink:0}
+  .setlbl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px}
+  .sethint{font-size:12px;line-height:1.55;color:var(--muted);margin:12px 0 0}
+  .optrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+  .optbtn{display:flex;align-items:center;gap:9px;padding:11px 13px;border-radius:12px;cursor:pointer;
+    background:var(--card2);border:1px solid var(--border);color:var(--text);text-align:start;transition:.16s;min-height:46px}
+  .optbtn b{font-size:13.5px;font-weight:650;display:block}
+  .optbtn em{font-size:11.5px;font-style:normal;color:var(--muted);display:block;margin-top:1px}
+  .optbtn .optck{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border);display:grid;place-items:center;flex-shrink:0;transition:.16s}
+  .optbtn .optck svg{width:11px;height:11px;opacity:0;transition:.16s;color:#fff}
+  .optbtn.on{border-color:var(--primary);background:rgba(28,107,78,.10)}
+  .optbtn.on .optck{background:var(--primary);border-color:var(--primary)}
+  .optbtn.on .optck svg{opacity:1}
+  :root[data-theme="dark"] .optbtn.on{background:rgba(34,227,154,.10)}
+  :root[data-theme="dark"] .optbtn.on .optck svg{color:#06231A}
+  @media(hover:hover){.optbtn:hover{border-color:var(--border-hi)}}
+  /* switch rows */
+  .swrow{display:flex;align-items:center;gap:14px;width:100%;padding:12px 2px;background:none;border:none;
+    border-bottom:1px solid var(--border);cursor:pointer;color:var(--text);text-align:start;min-height:54px}
+  .swrow:last-of-type{border-bottom:none}
+  .swtxt{flex:1;min-width:0}
+  .swtxt b{display:block;font-size:13.5px;font-weight:600;line-height:1.35}
+  .swtxt em{display:block;font-style:normal;font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.45}
+  .sw{width:44px;height:26px;border-radius:999px;background:var(--card2);border:1px solid var(--border);
+    flex-shrink:0;position:relative;transition:.2s}
+  .sw i{position:absolute;top:2px;inset-inline-start:2px;width:20px;height:20px;border-radius:50%;
+    background:var(--muted);transition:.2s cubic-bezier(.2,.8,.2,1)}
+  .swrow.on .sw{background:var(--primary);border-color:var(--primary)}
+  .swrow.on .sw i{background:#fff;transform:translateX(18px)}
+  html[dir="rtl"] .swrow.on .sw i{transform:translateX(-18px)}
+  /* password strength */
+  .pmeter{display:flex;align-items:center;gap:10px;margin:-6px 0 12px;font-size:11.5px;color:var(--muted)}
+  .pbars{display:flex;gap:4px;flex:1;max-width:150px}
+  .pbars i{flex:1;height:4px;border-radius:3px;background:var(--chart-track);transition:.2s}
+  .pbars i.on{background:var(--amber)}
+  .pbars i.on.s3{background:var(--primary)}
+  .pbars i.on.s4{background:var(--green)}
+  .bkadv{margin-top:16px;border-top:1px solid var(--border);padding-top:12px}
+  .bkadv summary{font-size:12.5px;color:var(--muted);cursor:pointer;list-style:none}
+  .bkadv summary::-webkit-details-marker{display:none}
+  .bkadv summary::before{content:"▸ ";color:var(--primary)}
+  .bkadv[open] summary::before{content:"▾ "}
+  .cxbanner.ok{background:rgba(28,107,78,.10);border-color:var(--border-hi)}
+  .cxbanner.ok svg{color:var(--primary)}
+  /* language + theme on the public site: quiet, in the footer, out of the nav */
+  .vsetline{display:flex;align-items:center;gap:9px;width:100%;margin-top:14px;padding:11px 13px;border-radius:12px;
+    background:var(--card2);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:12.5px;text-align:start}
+  .vsetline svg{width:15px;height:15px;color:var(--primary);flex-shrink:0}
+  .vsetline span{color:var(--text);font-weight:600}
+  .vsetline em{margin-inline-start:auto;font-style:normal;font-size:11.5px;white-space:nowrap}
+  @media(hover:hover){.vsetline:hover{border-color:var(--border-hi)}}
+  .fprefs{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+
+  /* ============================================================
+     DASHBOARD — a warm greeting and stat cards that show their shape
+     ============================================================ */
+  .greet{display:flex;align-items:baseline;gap:7px;font-size:14px;color:var(--muted);margin:0 0 6px}
+  .greet b{color:var(--heading);font-weight:700}
+  .stat.sx{position:relative;overflow:hidden;isolation:isolate;padding-bottom:14px}
+  .stat.sx::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.55;
+    background:radial-gradient(120% 90% at 100% 0%,var(--sxtint),transparent 62%)}
+  .sx-a{--sxtint:rgba(28,107,78,.22);--sxink:var(--primary)}
+  .sx-b{--sxtint:rgba(198,161,91,.24);--sxink:var(--brass)}
+  .sx-c{--sxtint:rgba(46,138,102,.20);--sxink:var(--cyan)}
+  .sx-d{--sxtint:rgba(13,69,49,.20);--sxink:var(--st-won)}
+  :root[data-theme="dark"] .sx-a{--sxtint:rgba(34,227,154,.16)}
+  :root[data-theme="dark"] .sx-b{--sxtint:rgba(217,180,90,.16)}
+  :root[data-theme="dark"] .sx-c{--sxtint:rgba(22,201,138,.15)}
+  :root[data-theme="dark"] .sx-d{--sxtint:rgba(127,240,203,.13)}
+  .sxtop{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .sxi{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;
+    background:var(--card2);border:1px solid var(--border);color:var(--sxink)}
+  .sxi svg{width:16px;height:16px}
+  .sxd{font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums;padding:3px 8px;border-radius:999px;background:var(--card2)}
+  .sxd.up{color:var(--green)}
+  .sxd.dn{color:var(--red)}
+  .sxd.flat{color:var(--muted)}
+  .stat.sx .label{font-size:12.5px}
+  .stat.sx .value{line-height:1.05;margin-top:2px}
+  .spark{display:block;width:100%;height:26px;margin-top:10px;overflow:visible}
+  .sparkL{fill:none;stroke:var(--sxink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .sparkA{fill:var(--sxink);opacity:.13}
+  .sparkD{fill:var(--sxink)}
+  @media(prefers-reduced-motion:no-preference){
+    .sparkL{stroke-dasharray:200;stroke-dashoffset:200;animation:sparkDraw 1s ease-out .15s forwards}
+    @keyframes sparkDraw{to{stroke-dashoffset:0}}
+  }
+
+  /* ============================================================
+     MOBILE — the drawer was see-through and the chrome was cramped
+     ============================================================ */
+  @media(max-width:760px){
+    /* the drawer sits ON TOP of the page, so it must be fully opaque */
+    .sidebar,:root[data-theme="dark"] .sidebar{background:var(--sidebar-solid);-webkit-backdrop-filter:none;backdrop-filter:none;
+      width:min(84vw,300px);box-shadow:0 0 60px rgba(0,0,0,.45);padding:18px 14px calc(20px + env(safe-area-inset-bottom))}
+    .backdrop.show{background:rgba(0,0,0,.62);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+    /* calmer top bar: no language pill, no theme toggle — they live in Settings now */
+    .topbar{padding:10px 14px calc(10px);gap:10px;background:var(--topbar)}
+    .hamb{width:42px;height:42px;border-radius:12px}
+    .topbar .avatar{cursor:pointer}
+    .content{padding:18px 14px calc(104px + env(safe-area-inset-bottom))}
+    .mobnav{background:var(--sidebar-solid);padding:7px 4px calc(7px + env(safe-area-inset-bottom))}
+    .mobnav button{min-height:50px;border-radius:12px;gap:4px;font-size:10.5px;font-weight:600}
+    .mobnav button svg{width:22px;height:22px}
+    /* one clear column, generous touch targets */
+    .setgrid{grid-template-columns:1fr;gap:14px}
+    .card{padding:18px}
+    /* stack the page header so its action is a proper full-width button, not a stranded one */
+    .pagehead{margin-bottom:16px;flex-wrap:wrap;gap:12px}
+    .pagehead h1{font-size:22px;letter-spacing:-.01em}
+    .pagehead .spacer{display:none}
+    .pagehead>*:not(:first-child){flex:1 1 100%}
+    .pagehead .btn{width:100%;justify-content:center}
+    .greet{font-size:13px}
+    .optbtn{min-height:50px}
+    .btn{min-height:44px}
+    .field input,.field select,.vreply input{min-height:46px;font-size:16px} /* 16px stops iOS zooming on focus */
+    .modalcard{max-height:88vh}
+  }
+  @media(max-width:820px){
+    /* the old navy hardcodes predated the green/ivory palette */
+    .glass,.landing .card,.dashprev,.step,.plan,.contactcard{background:var(--card)}
+    .topbar{background:var(--topbar)}
+    .sidebar,.mobnav{background:var(--sidebar-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
+  }
 </style>
 </head>
 <body>
+<svg id="agdefs" width="0" height="0" aria-hidden="true" focusable="false"><defs><linearGradient id="agl_0" gradientUnits="userSpaceOnUse" x1="90.2" y1="55.5" x2="108.9" y2="8.2"><stop offset="0" stop-color="#2c5a40"/><stop offset="1" stop-color="#345f46"/></linearGradient><linearGradient id="agl_1" gradientUnits="userSpaceOnUse" x1="31.6" y1="100.2" x2="89.4" y2="32.9"><stop offset="0" stop-color="#1e3c2c"/><stop offset="1" stop-color="#264d37"/></linearGradient><linearGradient id="agl_2" gradientUnits="userSpaceOnUse" x1="59" y1="135.1" x2="36.8" y2="107.3"><stop offset="0" stop-color="#152e1e"/><stop offset="1" stop-color="#173324"/></linearGradient><linearGradient id="agl_3" gradientUnits="userSpaceOnUse" x1="75.3" y1="51.3" x2="98.5" y2="53.5"><stop offset="0" stop-color="#2e543d"/><stop offset="1" stop-color="#2e5941"/></linearGradient><linearGradient id="agl_4" gradientUnits="userSpaceOnUse" x1="151.2" y1="32.7" x2="130.3" y2="75.7"><stop offset="0" stop-color="#365942"/><stop offset="1" stop-color="#3a664b"/></linearGradient><linearGradient id="agl_5" gradientUnits="userSpaceOnUse" x1="167.2" y1="151.4" x2="194.1" y2="147.8"><stop offset="0" stop-color="#2c563d"/><stop offset="1" stop-color="#325943"/></linearGradient><linearGradient id="agl_6" gradientUnits="userSpaceOnUse" x1="20.7" y1="119.2" x2="21.7" y2="170.7"><stop offset="0" stop-color="#15291c"/><stop offset="1" stop-color="#153021"/></linearGradient><linearGradient id="agl_7" gradientUnits="userSpaceOnUse" x1="104.8" y1="38.3" x2="130.9" y2="61.3"><stop offset="0" stop-color="#274d39"/><stop offset="1" stop-color="#335d44"/></linearGradient><linearGradient id="agl_8" gradientUnits="userSpaceOnUse" x1="152.9" y1="149.1" x2="168.8" y2="109.2"><stop offset="0" stop-color="#2f563f"/><stop offset="1" stop-color="#355f46"/></linearGradient><linearGradient id="agl_9" gradientUnits="userSpaceOnUse" x1="57.5" y1="102.2" x2="76.8" y2="116.2"><stop offset="0" stop-color="#1a3425"/><stop offset="1" stop-color="#21412f"/></linearGradient><linearGradient id="agl_10" gradientUnits="userSpaceOnUse" x1="21.8" y1="185.6" x2="35.8" y2="163.8"><stop offset="0" stop-color="#14271b"/><stop offset="1" stop-color="#153223"/></linearGradient><linearGradient id="agl_11" gradientUnits="userSpaceOnUse" x1="95" y1="87.9" x2="73.3" y2="84.1"><stop offset="0" stop-color="#294734"/><stop offset="1" stop-color="#264f3b"/></linearGradient><linearGradient id="agl_12" gradientUnits="userSpaceOnUse" x1="171.7" y1="188.6" x2="173.6" y2="162.9"><stop offset="0" stop-color="#172c20"/><stop offset="1" stop-color="#193929"/></linearGradient><linearGradient id="agl_13" gradientUnits="userSpaceOnUse" x1="67.6" y1="129.4" x2="87.3" y2="144.4"><stop offset="0" stop-color="#224534"/><stop offset="1" stop-color="#325841"/></linearGradient><linearGradient id="agl_14" gradientUnits="userSpaceOnUse" x1="38.2" y1="162.6" x2="60.3" y2="169.1"><stop offset="0" stop-color="#132c1f"/><stop offset="1" stop-color="#183324"/></linearGradient><linearGradient id="agl_15"><stop offset="0" stop-color="#183325"/><stop offset="1" stop-color="#183325"/></linearGradient><linearGradient id="agl_16" gradientUnits="userSpaceOnUse" x1="131.2" y1="97" x2="144.7" y2="121.2"><stop offset="0" stop-color="#3a5e48"/><stop offset="1" stop-color="#396549"/></linearGradient><linearGradient id="agl_17" gradientUnits="userSpaceOnUse" x1="103.8" y1="122.7" x2="136.1" y2="114.8"><stop offset="0" stop-color="#254332"/><stop offset="1" stop-color="#2b4a37"/></linearGradient><linearGradient id="agl_18" gradientUnits="userSpaceOnUse" x1="154.3" y1="133.2" x2="143.2" y2="153"><stop offset="0" stop-color="#1c3527"/><stop offset="1" stop-color="#1e3d2d"/></linearGradient><linearGradient id="agl_19" gradientUnits="userSpaceOnUse" x1="115.8" y1="142.9" x2="143.5" y2="132.9"><stop offset="0" stop-color="#1c392a"/><stop offset="1" stop-color="#214230"/></linearGradient><linearGradient id="agl_20" gradientUnits="userSpaceOnUse" x1="86.4" y1="166.6" x2="85.8" y2="146.2"><stop offset="0" stop-color="#4e4f26"/><stop offset="1" stop-color="#7b7031"/></linearGradient><linearGradient id="agl_21" gradientUnits="userSpaceOnUse" x1="127.2" y1="93.9" x2="120.1" y2="72.3"><stop offset="0" stop-color="#a2883c"/><stop offset="1" stop-color="#bb9c49"/></linearGradient><linearGradient id="agl_22" gradientUnits="userSpaceOnUse" x1="157.9" y1="93.2" x2="134.3" y2="83.5"><stop offset="0" stop-color="#927b34"/><stop offset="1" stop-color="#eacb71"/></linearGradient><linearGradient id="agl_23" gradientUnits="userSpaceOnUse" x1="96.8" y1="72.5" x2="113.3" y2="75.7"><stop offset="0" stop-color="#9c8034"/><stop offset="1" stop-color="#ddc370"/></linearGradient><linearGradient id="agl_24" gradientUnits="userSpaceOnUse" x1="108" y1="157.3" x2="96.9" y2="149.5"><stop offset="0" stop-color="#ae9447"/><stop offset="1" stop-color="#e5c66e"/></linearGradient><linearGradient id="agl_25" gradientUnits="userSpaceOnUse" x1="39.8" y1="135.7" x2="59" y2="135.1"><stop offset="0" stop-color="#1e3325"/><stop offset="1" stop-color="#234332"/></linearGradient><linearGradient id="agl_26" gradientUnits="userSpaceOnUse" x1="61.7" y1="152.9" x2="52.6" y2="144.6"><stop offset="0" stop-color="#1d3627"/><stop offset="1" stop-color="#223e2f"/></linearGradient><linearGradient id="agl_27" gradientUnits="userSpaceOnUse" x1="113.5" y1="151.1" x2="121.7" y2="159.7"><stop offset="0" stop-color="#1d3a29"/><stop offset="1" stop-color="#253f2e"/></linearGradient><linearGradient id="agd_0" gradientUnits="userSpaceOnUse" x1="90.2" y1="55.5" x2="108.9" y2="8.2"><stop offset="0" stop-color="#4ebc7f"/><stop offset="1" stop-color="#64ba88"/></linearGradient><linearGradient id="agd_1" gradientUnits="userSpaceOnUse" x1="31.6" y1="100.2" x2="89.4" y2="32.9"><stop offset="0" stop-color="#398f61"/><stop offset="1" stop-color="#42ab71"/></linearGradient><linearGradient id="agd_2" gradientUnits="userSpaceOnUse" x1="59" y1="135.1" x2="36.8" y2="107.3"><stop offset="0" stop-color="#2a7b47"/><stop offset="1" stop-color="#2c8357"/></linearGradient><linearGradient id="agd_3" gradientUnits="userSpaceOnUse" x1="75.3" y1="51.3" x2="98.5" y2="53.5"><stop offset="0" stop-color="#52b278"/><stop offset="1" stop-color="#53b880"/></linearGradient><linearGradient id="agd_4" gradientUnits="userSpaceOnUse" x1="151.2" y1="32.7" x2="130.3" y2="75.7"><stop offset="0" stop-color="#68b082"/><stop offset="1" stop-color="#75bd91"/></linearGradient><linearGradient id="agd_5" gradientUnits="userSpaceOnUse" x1="167.2" y1="151.4" x2="194.1" y2="147.8"><stop offset="0" stop-color="#4fb779"/><stop offset="1" stop-color="#5db484"/></linearGradient><linearGradient id="agd_6" gradientUnits="userSpaceOnUse" x1="20.7" y1="119.2" x2="21.7" y2="170.7"><stop offset="0" stop-color="#2e7146"/><stop offset="1" stop-color="#2a7f50"/></linearGradient><linearGradient id="agd_7" gradientUnits="userSpaceOnUse" x1="104.8" y1="38.3" x2="130.9" y2="61.3"><stop offset="0" stop-color="#46aa75"/><stop offset="1" stop-color="#61b884"/></linearGradient><linearGradient id="agd_8" gradientUnits="userSpaceOnUse" x1="152.9" y1="149.1" x2="168.8" y2="109.2"><stop offset="0" stop-color="#57b37d"/><stop offset="1" stop-color="#68b988"/></linearGradient><linearGradient id="agd_9" gradientUnits="userSpaceOnUse" x1="57.5" y1="102.2" x2="76.8" y2="116.2"><stop offset="0" stop-color="#338256"/><stop offset="1" stop-color="#3d9864"/></linearGradient><linearGradient id="agd_10" gradientUnits="userSpaceOnUse" x1="21.8" y1="185.6" x2="35.8" y2="163.8"><stop offset="0" stop-color="#2d6c43"/><stop offset="1" stop-color="#298353"/></linearGradient><linearGradient id="agd_11" gradientUnits="userSpaceOnUse" x1="95" y1="87.9" x2="73.3" y2="84.1"><stop offset="0" stop-color="#4b9e69"/><stop offset="1" stop-color="#42b079"/></linearGradient><linearGradient id="agd_12" gradientUnits="userSpaceOnUse" x1="171.7" y1="188.6" x2="173.6" y2="162.9"><stop offset="0" stop-color="#31754d"/><stop offset="1" stop-color="#2f8d5f"/></linearGradient><linearGradient id="agd_13" gradientUnits="userSpaceOnUse" x1="67.6" y1="129.4" x2="87.3" y2="144.4"><stop offset="0" stop-color="#3d9f70"/><stop offset="1" stop-color="#5eb380"/></linearGradient><linearGradient id="agd_14" gradientUnits="userSpaceOnUse" x1="38.2" y1="162.6" x2="60.3" y2="169.1"><stop offset="0" stop-color="#27794c"/><stop offset="1" stop-color="#308154"/></linearGradient><linearGradient id="agd_15"><stop offset="0" stop-color="#308156"/><stop offset="1" stop-color="#308156"/></linearGradient><linearGradient id="agd_16" gradientUnits="userSpaceOnUse" x1="131.2" y1="97" x2="144.7" y2="121.2"><stop offset="0" stop-color="#72b48b"/><stop offset="1" stop-color="#72be8d"/></linearGradient><linearGradient id="agd_17" gradientUnits="userSpaceOnUse" x1="103.8" y1="122.7" x2="136.1" y2="114.8"><stop offset="0" stop-color="#459768"/><stop offset="1" stop-color="#4ea36e"/></linearGradient><linearGradient id="agd_18" gradientUnits="userSpaceOnUse" x1="154.3" y1="133.2" x2="143.2" y2="153"><stop offset="0" stop-color="#38835a"/><stop offset="1" stop-color="#379262"/></linearGradient><linearGradient id="agd_19" gradientUnits="userSpaceOnUse" x1="115.8" y1="142.9" x2="143.5" y2="132.9"><stop offset="0" stop-color="#378b5e"/><stop offset="1" stop-color="#3c9867"/></linearGradient><linearGradient id="agd_20" gradientUnits="userSpaceOnUse" x1="86.4" y1="166.6" x2="85.8" y2="146.2"><stop offset="0" stop-color="#9ea04a"/><stop offset="1" stop-color="#bfaf54"/></linearGradient><linearGradient id="agd_21" gradientUnits="userSpaceOnUse" x1="127.2" y1="93.9" x2="120.1" y2="72.3"><stop offset="0" stop-color="#cdb46d"/><stop offset="1" stop-color="#d4be82"/></linearGradient><linearGradient id="agd_22" gradientUnits="userSpaceOnUse" x1="157.9" y1="93.2" x2="134.3" y2="83.5"><stop offset="0" stop-color="#cab05d"/><stop offset="1" stop-color="#f1dea7"/></linearGradient><linearGradient id="agd_23" gradientUnits="userSpaceOnUse" x1="96.8" y1="72.5" x2="113.3" y2="75.7"><stop offset="0" stop-color="#cfb061"/><stop offset="1" stop-color="#ecdaa2"/></linearGradient><linearGradient id="agd_24" gradientUnits="userSpaceOnUse" x1="108" y1="157.3" x2="96.9" y2="149.5"><stop offset="0" stop-color="#ceb97e"/><stop offset="1" stop-color="#f0dba2"/></linearGradient><linearGradient id="agd_25" gradientUnits="userSpaceOnUse" x1="39.8" y1="135.7" x2="59" y2="135.1"><stop offset="0" stop-color="#3e7d52"/><stop offset="1" stop-color="#40996a"/></linearGradient><linearGradient id="agd_26" gradientUnits="userSpaceOnUse" x1="61.7" y1="152.9" x2="52.6" y2="144.6"><stop offset="0" stop-color="#3a8357"/><stop offset="1" stop-color="#409166"/></linearGradient><linearGradient id="agd_27" gradientUnits="userSpaceOnUse" x1="113.5" y1="151.1" x2="121.7" y2="159.7"><stop offset="0" stop-color="#388d5a"/><stop offset="1" stop-color="#478f61"/></linearGradient></defs></svg>
 <div id="bgfx" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="grid"></span></div>
 <div id="root"></div>
 <div id="toast"></div>
@@ -1343,6 +1479,76 @@ var LIVE_TR={
  }
 };
 (function(){for(var l in LIVE_TR){if(!TR[l])TR[l]={};for(var k in LIVE_TR[l]){if(TR[l][k]==null)TR[l][k]=LIVE_TR[l][k]}}})();
+/* ---- Settings, appearance and account security ---- */
+var SET_TR={
+ en:{
+  v_change_in_settings:'Change in Settings',greet_morning:'Good morning,',greet_afternoon:'Good afternoon,',greet_evening:'Good evening,',set_appearance:'Appearance',set_theme:'Theme',set_theme_light:'Light',set_theme_dark:'Dark',
+  set_language:'Language',set_lang_hint:'Changes the dashboard and everything your AI receptionist says.',
+  set_assistant:'AI receptionist',set_voice_test:'Hear this voice',set_voice_hint:'Used for every call the assistant answers.',
+  set_notifications:'Notifications',notif_new:'Email me every new lead',notif_urgent:'Email me urgent leads immediately',
+  notif_daily:'Send a daily summary',notif_hint:'Alerts go to the notification address in your business profile.',
+  set_security:'Account & security',sec_type:'Account type',sec_verified:'Verified — signed in with Alsaiti',
+  sec_local:'Demo account (this device only)',sec_email_state:'Email verification',sec_email_ok:'Verified',sec_email_no:'Not verified',
+  sec_session:'Session',sec_expires:'Signs out automatically after {d} days of inactivity',
+  sec_backend:'Integrations sign-in',sec_same_account:'Integrations use this same account — no second password.',
+  sec_backend_none:'Sign in with a real account to authorise CRM and phone connections.',
+  sec_signin_real:'Sign in properly',sec_danger:'Danger zone',
+  auth_confirm_title:'Check your inbox',
+  auth_confirm_body:'We sent a confirmation link to {e}. Open it to verify your email, then sign in.',
+  auth_resend:'Resend the email',auth_resent:'Confirmation email sent again',auth_back_signin:'Back to sign in',
+  auth_pass_confirm:'Confirm password',auth_pass_mismatch:'The two passwords do not match.',
+  auth_pass_rule:'At least 10 characters, with a letter and a number.',
+  auth_pass_common:'That password is too common — please choose another.',
+  auth_strength:'Password strength',str_weak:'Weak',str_fair:'Fair',str_good:'Good',str_strong:'Strong',
+  bk_uses_account:'Signed in as {e}',bk_uses_account_b:'Integrations authorise with the account you are already signed in with. There is no separate password.',
+  bk_advanced:'Advanced: point at a different Supabase project',bk_project_hint:'Only change this if you run your own backend.'
+ },
+ es:{
+  v_change_in_settings:'Cambiar en Ajustes',greet_morning:'Buenos días,',greet_afternoon:'Buenas tardes,',greet_evening:'Buenas noches,',set_appearance:'Apariencia',set_theme:'Tema',set_theme_light:'Claro',set_theme_dark:'Oscuro',
+  set_language:'Idioma',set_lang_hint:'Cambia el panel y todo lo que dice su recepcionista con IA.',
+  set_assistant:'Recepcionista con IA',set_voice_test:'Escuchar esta voz',set_voice_hint:'Se usa en todas las llamadas que atiende el asistente.',
+  set_notifications:'Notificaciones',notif_new:'Avisarme por correo de cada cliente nuevo',notif_urgent:'Avisarme de inmediato de los urgentes',
+  notif_daily:'Enviar un resumen diario',notif_hint:'Los avisos se envían a la dirección de notificaciones de su perfil.',
+  set_security:'Cuenta y seguridad',sec_type:'Tipo de cuenta',sec_verified:'Verificada — sesión iniciada con Alsaiti',
+  sec_local:'Cuenta de demostración (solo en este dispositivo)',sec_email_state:'Verificación del correo',sec_email_ok:'Verificado',sec_email_no:'Sin verificar',
+  sec_session:'Sesión',sec_expires:'Se cierra automáticamente tras {d} días de inactividad',
+  sec_backend:'Acceso de integraciones',sec_same_account:'Las integraciones usan esta misma cuenta: sin segunda contraseña.',
+  sec_backend_none:'Inicie sesión con una cuenta real para autorizar conexiones de CRM y teléfono.',
+  sec_signin_real:'Iniciar sesión de verdad',sec_danger:'Zona de riesgo',
+  auth_confirm_title:'Revise su correo',
+  auth_confirm_body:'Hemos enviado un enlace de confirmación a {e}. Ábralo para verificar su correo y luego inicie sesión.',
+  auth_resend:'Reenviar el correo',auth_resent:'Correo de confirmación reenviado',auth_back_signin:'Volver a iniciar sesión',
+  auth_pass_confirm:'Confirmar contraseña',auth_pass_mismatch:'Las dos contraseñas no coinciden.',
+  auth_pass_rule:'Al menos 10 caracteres, con una letra y un número.',
+  auth_pass_common:'Esa contraseña es demasiado común: elija otra.',
+  auth_strength:'Seguridad de la contraseña',str_weak:'Débil',str_fair:'Aceptable',str_good:'Buena',str_strong:'Fuerte',
+  bk_uses_account:'Sesión iniciada como {e}',bk_uses_account_b:'Las integraciones se autorizan con la cuenta con la que ya ha iniciado sesión. No hay una contraseña aparte.',
+  bk_advanced:'Avanzado: usar otro proyecto de Supabase',bk_project_hint:'Cámbielo solo si tiene su propio backend.'
+ },
+ ar:{
+  v_change_in_settings:'التغيير من الإعدادات',greet_morning:'صباح الخير،',greet_afternoon:'مساء الخير،',greet_evening:'مساء الخير،',set_appearance:'المظهر',set_theme:'السمة',set_theme_light:'فاتح',set_theme_dark:'داكن',
+  set_language:'اللغة',set_lang_hint:'يغيّر لوحة التحكم وكل ما يقوله موظف الاستقبال الذكي.',
+  set_assistant:'موظف الاستقبال الذكي',set_voice_test:'استمع إلى هذا الصوت',set_voice_hint:'يُستخدم في كل مكالمة يردّ عليها المساعد.',
+  set_notifications:'الإشعارات',notif_new:'أرسل لي بريدًا عند كل عميل محتمل جديد',notif_urgent:'أبلغني فورًا بالعملاء العاجلين',
+  notif_daily:'إرسال ملخّص يومي',notif_hint:'تُرسَل التنبيهات إلى عنوان الإشعارات في ملف نشاطك.',
+  set_security:'الحساب والأمان',sec_type:'نوع الحساب',sec_verified:'موثّق — تم تسجيل الدخول عبر Alsaiti',
+  sec_local:'حساب تجريبي (على هذا الجهاز فقط)',sec_email_state:'توثيق البريد',sec_email_ok:'موثّق',sec_email_no:'غير موثّق',
+  sec_session:'الجلسة',sec_expires:'يتم تسجيل الخروج تلقائيًا بعد {d} أيام من عدم النشاط',
+  sec_backend:'تسجيل دخول التكاملات',sec_same_account:'تستخدم التكاملات هذا الحساب نفسه — بلا كلمة مرور ثانية.',
+  sec_backend_none:'سجّل الدخول بحساب حقيقي لتفويض اتصالات CRM والهاتف.',
+  sec_signin_real:'تسجيل دخول حقيقي',sec_danger:'منطقة الخطر',
+  auth_confirm_title:'تحقّق من بريدك',
+  auth_confirm_body:'أرسلنا رابط تأكيد إلى {e}. افتحه لتوثيق بريدك ثم سجّل الدخول.',
+  auth_resend:'إعادة إرسال البريد',auth_resent:'تم إرسال بريد التأكيد مرة أخرى',auth_back_signin:'العودة لتسجيل الدخول',
+  auth_pass_confirm:'تأكيد كلمة المرور',auth_pass_mismatch:'كلمتا المرور غير متطابقتين.',
+  auth_pass_rule:'عشرة أحرف على الأقل، مع حرف ورقم.',
+  auth_pass_common:'كلمة المرور هذه شائعة جدًا — اختر غيرها.',
+  auth_strength:'قوة كلمة المرور',str_weak:'ضعيفة',str_fair:'مقبولة',str_good:'جيدة',str_strong:'قوية',
+  bk_uses_account:'مسجّل الدخول باسم {e}',bk_uses_account_b:'تُفوَّض التكاملات بالحساب الذي سجّلت الدخول به بالفعل. لا توجد كلمة مرور منفصلة.',
+  bk_advanced:'متقدم: توجيه إلى مشروع Supabase آخر',bk_project_hint:'غيّر هذا فقط إذا كنت تشغّل خادمك الخاص.'
+ }
+};
+(function(){for(var l in SET_TR){if(!TR[l])TR[l]={};for(var k in SET_TR[l]){if(TR[l][k]==null)TR[l][k]=SET_TR[l][k]}}})();
 function setLang(l){try{if(VOICE&&(VOICE.active||VOICE.timer))voiceEnd()}catch(e){}LANG=l;DB.set('ag_lang',l);applyDir();render()}
 function applyDir(){try{document.documentElement.lang=LANG;document.documentElement.dir=(LANG==='ar'?'rtl':'ltr')}catch(e){}}
 /* ---- Theme (light warm-luxury / dark luxury) ---- */
@@ -1427,8 +1633,28 @@ function makeSalt(){
     var s='';for(var i=0;i<a.length;i++){s+=('0'+a[i].toString(16)).slice(-2)}return s}
   catch(e){return (Date.now().toString(36)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)).slice(0,32)}
 }
-function passOK(p){return typeof p==='string'&&p.length>=8&&/[A-Za-z]/.test(p)&&/[0-9]/.test(p)}
-var LOCK_MAX=5,LOCK_MS=5*60000,SESSION_MS=14*86400000;
+/* Common-password blocklist: the handful that show up in every breach dump. */
+var PASS_COMMON=/^(password\d*|passw0rd|letmein\d*|welcome\d*|qwerty\d*|abc123\d*|iloveyou\d*|admin\d*|123456\d*|1234567890|monkey\d*|dragon\d*|football\d*|sunshine\d*|princess\d*|alsaiti\d*)$/i;
+function passOK(p){return typeof p==='string'&&p.length>=10&&/[A-Za-z]/.test(p)&&/[0-9]/.test(p)&&!PASS_COMMON.test(p.trim())}
+/* 0-4 strength score, shown live under the password field so the rule is never a surprise */
+function passScore(p){
+  p=String(p||'');var sc=0;
+  if(p.length>=10)sc++;
+  if(p.length>=14)sc++;
+  if(/[a-z]/.test(p)&&/[A-Z]/.test(p))sc++;
+  if(/[0-9]/.test(p)&&/[^A-Za-z0-9]/.test(p))sc++;
+  if(PASS_COMMON.test(p.trim()))sc=0;
+  return Math.min(4,sc);
+}
+function passMeter(p){
+  var sc=passScore(p),lbl=[t('str_weak'),t('str_weak'),t('str_fair'),t('str_good'),t('str_strong')][sc];
+  var bars='';for(var i=0;i<4;i++)bars+='<i class="'+(i<sc?'on s'+sc:'')+'"></i>';
+  return '<div class="pmeter"><div class="pbars">'+bars+'</div><span>'+esc(t('auth_strength'))+': '+esc(lbl)+'</span></div>';
+}
+function onPassInput(el){
+  var box=document.getElementById('pmeterbox');if(box)box.innerHTML=passMeter(el.value);
+}
+var LOCK_MAX=5,LOCK_MS=5*60000,SESSION_MS=3*86400000; /* idle sign-out after 3 days */
 function lockCheck(email){var lk=DB.get('ag_lock',{});if(!isObj(lk))lk={};var r=lk[email];if(r&&r.until&&r.until>Date.now())throw new Error('Too many failed attempts. Please try again in a few minutes.')}
 function lockFail(email){var lk=DB.get('ag_lock',{});if(!isObj(lk))lk={};var r=Object.prototype.hasOwnProperty.call(lk,email)?lk[email]:{n:0};r.n=(r.n||0)+1;if(r.n>=LOCK_MAX){r.locks=(r.locks||0)+1;r.until=Date.now()+LOCK_MS*Math.min(8,Math.pow(2,r.locks-1));r.n=0}lk[email]=r;DB.set('ag_lock',lk)}
 function lockClear(email){var lk=DB.get('ag_lock',{});if(!isObj(lk))lk={};if(lk[email]){delete lk[email];DB.set('ag_lock',lk)}}
@@ -1438,11 +1664,11 @@ var AUTH={
   users:function(){var u=DB.get('ag_users',{});return isObj(u)?u:{}},
   session:function(){var s=DB.get('ag_session',null);if(s&&(!isObj(s)||typeof s.email!=='string')){DB.del('ag_session');return null}if(s&&s.at&&(Date.now()-s.at)>SESSION_MS){DB.del('ag_session');return null}return s},
   current:function(){var s=AUTH.session();return s?AUTH.users()[s.email]:null},
-  signup:function(name,biz,email,pass){
+  signup:function(name,biz,email,pass,allowWeak){
     email=(email||'').toLowerCase().trim();
     if(!name||!name.trim()||!biz||!biz.trim()||!email) throw new Error('Please fill in every field.');
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||/^(__proto__|constructor|prototype)$/.test(email)) throw new Error('Please enter a valid email address.');
-    if(!passOK(pass)) throw new Error('Password must be at least 8 characters and include a letter and a number.');
+    if(!allowWeak&&!passOK(pass)) throw new Error(PASS_COMMON.test(String(pass).trim())?t('auth_pass_common'):t('auth_pass_rule'));
     var users=AUTH.users();
     if(users[email]) throw new Error('An account with this email already exists.');
     var salt=makeSalt();
@@ -1584,7 +1810,7 @@ function render(){
   var s=AUTH.session();
   var hash=location.hash.replace(/^#\/?/,'')||(s?'dashboard':'landing');
   try{if(VOICE&&(VOICE.active||VOICE.timer)&&hash!=='voice')voiceEnd()}catch(e){}
-  var pub=['landing','login','signup'];
+  var pub=['landing','login','signup','confirm'];
   if(!s && pub.indexOf(hash)<0){location.hash='#/landing';return}
   if(s && pub.indexOf(hash)>=0){location.hash='#/dashboard';return}
   var root=document.getElementById('root');
@@ -1599,8 +1825,7 @@ window.addEventListener('hashchange',render);
 /* Faceted "A" monogram (the ALSAITI mark) — low-poly greens with an ivory seam and a
    gold "G" accent in the crossbar. Colours + seams are theme variables so it restyles for
    light/dark; per-facet --i drives the staggered assemble animation. See the LOGO CSS block. */
-var A_UID=0;
-function aLogo(){var U=(++A_UID);return '<svg class="aM" viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="ag'+U+'_0" gradientUnits="userSpaceOnUse" x1="90.2" y1="55.5" x2="108.9" y2="8.2"><stop offset="0" stop-color="#2c5a40"/><stop offset="1" stop-color="#345f46"/></linearGradient><linearGradient id="ag'+U+'_1" gradientUnits="userSpaceOnUse" x1="31.6" y1="100.2" x2="89.4" y2="32.9"><stop offset="0" stop-color="#1e3c2c"/><stop offset="1" stop-color="#264d37"/></linearGradient><linearGradient id="ag'+U+'_2" gradientUnits="userSpaceOnUse" x1="59" y1="135.1" x2="36.8" y2="107.3"><stop offset="0" stop-color="#152e1e"/><stop offset="1" stop-color="#173324"/></linearGradient><linearGradient id="ag'+U+'_3" gradientUnits="userSpaceOnUse" x1="75.3" y1="51.3" x2="98.5" y2="53.5"><stop offset="0" stop-color="#2e543d"/><stop offset="1" stop-color="#2e5941"/></linearGradient><linearGradient id="ag'+U+'_4" gradientUnits="userSpaceOnUse" x1="151.2" y1="32.7" x2="130.3" y2="75.7"><stop offset="0" stop-color="#365942"/><stop offset="1" stop-color="#3a664b"/></linearGradient><linearGradient id="ag'+U+'_5" gradientUnits="userSpaceOnUse" x1="167.2" y1="151.4" x2="194.1" y2="147.8"><stop offset="0" stop-color="#2c563d"/><stop offset="1" stop-color="#325943"/></linearGradient><linearGradient id="ag'+U+'_6" gradientUnits="userSpaceOnUse" x1="20.7" y1="119.2" x2="21.7" y2="170.7"><stop offset="0" stop-color="#15291c"/><stop offset="1" stop-color="#153021"/></linearGradient><linearGradient id="ag'+U+'_7" gradientUnits="userSpaceOnUse" x1="104.8" y1="38.3" x2="130.9" y2="61.3"><stop offset="0" stop-color="#274d39"/><stop offset="1" stop-color="#335d44"/></linearGradient><linearGradient id="ag'+U+'_8" gradientUnits="userSpaceOnUse" x1="152.9" y1="149.1" x2="168.8" y2="109.2"><stop offset="0" stop-color="#2f563f"/><stop offset="1" stop-color="#355f46"/></linearGradient><linearGradient id="ag'+U+'_9" gradientUnits="userSpaceOnUse" x1="57.5" y1="102.2" x2="76.8" y2="116.2"><stop offset="0" stop-color="#1a3425"/><stop offset="1" stop-color="#21412f"/></linearGradient><linearGradient id="ag'+U+'_10" gradientUnits="userSpaceOnUse" x1="21.8" y1="185.6" x2="35.8" y2="163.8"><stop offset="0" stop-color="#14271b"/><stop offset="1" stop-color="#153223"/></linearGradient><linearGradient id="ag'+U+'_11" gradientUnits="userSpaceOnUse" x1="95" y1="87.9" x2="73.3" y2="84.1"><stop offset="0" stop-color="#294734"/><stop offset="1" stop-color="#264f3b"/></linearGradient><linearGradient id="ag'+U+'_12" gradientUnits="userSpaceOnUse" x1="171.7" y1="188.6" x2="173.6" y2="162.9"><stop offset="0" stop-color="#172c20"/><stop offset="1" stop-color="#193929"/></linearGradient><linearGradient id="ag'+U+'_13" gradientUnits="userSpaceOnUse" x1="67.6" y1="129.4" x2="87.3" y2="144.4"><stop offset="0" stop-color="#224534"/><stop offset="1" stop-color="#325841"/></linearGradient><linearGradient id="ag'+U+'_14" gradientUnits="userSpaceOnUse" x1="38.2" y1="162.6" x2="60.3" y2="169.1"><stop offset="0" stop-color="#132c1f"/><stop offset="1" stop-color="#183324"/></linearGradient><linearGradient id="ag'+U+'_16" gradientUnits="userSpaceOnUse" x1="131.2" y1="97" x2="144.7" y2="121.2"><stop offset="0" stop-color="#3a5e48"/><stop offset="1" stop-color="#396549"/></linearGradient><linearGradient id="ag'+U+'_17" gradientUnits="userSpaceOnUse" x1="103.8" y1="122.7" x2="136.1" y2="114.8"><stop offset="0" stop-color="#254332"/><stop offset="1" stop-color="#2b4a37"/></linearGradient><linearGradient id="ag'+U+'_18" gradientUnits="userSpaceOnUse" x1="154.3" y1="133.2" x2="143.2" y2="153"><stop offset="0" stop-color="#1c3527"/><stop offset="1" stop-color="#1e3d2d"/></linearGradient><linearGradient id="ag'+U+'_19" gradientUnits="userSpaceOnUse" x1="115.8" y1="142.9" x2="143.5" y2="132.9"><stop offset="0" stop-color="#1c392a"/><stop offset="1" stop-color="#214230"/></linearGradient><linearGradient id="ag'+U+'_20" gradientUnits="userSpaceOnUse" x1="86.4" y1="166.6" x2="85.8" y2="146.2"><stop offset="0" stop-color="#4e4f26"/><stop offset="1" stop-color="#7b7031"/></linearGradient><linearGradient id="ag'+U+'_21" gradientUnits="userSpaceOnUse" x1="127.2" y1="93.9" x2="120.1" y2="72.3"><stop offset="0" stop-color="#a2883c"/><stop offset="1" stop-color="#bb9c49"/></linearGradient><linearGradient id="ag'+U+'_22" gradientUnits="userSpaceOnUse" x1="157.9" y1="93.2" x2="134.3" y2="83.5"><stop offset="0" stop-color="#927b34"/><stop offset="1" stop-color="#eacb71"/></linearGradient><linearGradient id="ag'+U+'_23" gradientUnits="userSpaceOnUse" x1="96.8" y1="72.5" x2="113.3" y2="75.7"><stop offset="0" stop-color="#9c8034"/><stop offset="1" stop-color="#ddc370"/></linearGradient><linearGradient id="ag'+U+'_24" gradientUnits="userSpaceOnUse" x1="108" y1="157.3" x2="96.9" y2="149.5"><stop offset="0" stop-color="#ae9447"/><stop offset="1" stop-color="#e5c66e"/></linearGradient><linearGradient id="ag'+U+'_25" gradientUnits="userSpaceOnUse" x1="39.8" y1="135.7" x2="59" y2="135.1"><stop offset="0" stop-color="#1e3325"/><stop offset="1" stop-color="#234332"/></linearGradient><linearGradient id="ag'+U+'_26" gradientUnits="userSpaceOnUse" x1="61.7" y1="152.9" x2="52.6" y2="144.6"><stop offset="0" stop-color="#1d3627"/><stop offset="1" stop-color="#223e2f"/></linearGradient><linearGradient id="ag'+U+'_27" gradientUnits="userSpaceOnUse" x1="113.5" y1="151.1" x2="121.7" y2="159.7"><stop offset="0" stop-color="#1d3a29"/><stop offset="1" stop-color="#253f2e"/></linearGradient></defs><g class="aMg"><polygon style="--i:0" points="80,11.8 122.3,12.7 99.9,61.1" fill="url(#ag'+U+'_0)"/><polygon style="--i:1" points="75.7,19 71.8,76.8 35.5,105.8" fill="url(#ag'+U+'_1)"/><polygon style="--i:7" points="30.1,113.1 67.6,84.3 35.2,154.8" fill="url(#ag'+U+'_2)"/><polygon style="--i:2" points="78.7,17.4 99.1,63.4 97.2,66.9 73.4,74.7" fill="url(#ag'+U+'_3)"/><polygon style="--i:6" points="125.8,19 158.2,90.3 129,67.6" fill="url(#ag'+U+'_4)"/><polygon style="--i:26" points="173.1,117.4 198,169.1 197.8,173.1 167.3,159.9" fill="url(#ag'+U+'_5)"/><polygon style="--i:10" points="2,172.3 28.3,117.4 33.9,160.4" fill="url(#ag'+U+'_6)"/><polygon style="--i:3" points="101.9,65.3 122.7,16.6 127.9,67.1" fill="url(#ag'+U+'_7)"/><polygon style="--i:22" points="144.8,123.4 169.5,108.2 171.6,116.2 165.2,155.6" fill="url(#ag'+U+'_8)"/><polygon style="--i:9" points="56.4,112.1 72.5,82.5 79.1,115.6 60.8,130.8 56.1,120.2" fill="url(#ag'+U+'_9)"/><polygon style="--i:17" points="35.6,161.7 48.7,187.4 4.5,175.7" fill="url(#ag'+U+'_10)"/><polygon style="--i:4" points="77.5,74.2 99.6,66.7 79.6,113.8 72.8,79.6" fill="url(#ag'+U+'_11)"/><polygon style="--i:27" points="167.6,160.8 197,175.7 152.8,188.2" fill="url(#ag'+U+'_12)"/><polygon style="--i:13" points="62.6,133.5 79.4,117.4 89.8,143.9 67.3,148.4" fill="url(#ag'+U+'_13)"/><polygon style="--i:18" points="65.6,154.4 49.5,185.8 37.2,161" fill="url(#ag'+U+'_14)"/><polygon style="--i:25" points="135.1,152.8 165.1,161.9 150.4,185.8" fill="#183325"/><polygon style="--i:16" points="164.4,108.7 144.1,122.9 110.7,107.9" fill="url(#ag'+U+'_16)"/><polygon style="--i:15" points="104.2,107 138.8,124 103.2,126.9" fill="url(#ag'+U+'_17)"/><polygon style="--i:24" points="135.5,146.3 145.7,126.6 162.5,158 136.5,150.9" fill="url(#ag'+U+'_18)"/><polygon style="--i:21" points="115.6,147.1 128.4,126.7 142.3,126.4 133.8,150.1" fill="url(#ag'+U+'_19)"/><polygon style="--i:19" points="69.7,149.6 90.6,144.6 98.8,167.6" fill="url(#ag'+U+'_20)"/><polygon style="--i:8" points="108.3,79.4 128.7,68.7 130.3,93.4" fill="url(#ag'+U+'_21)"/><polygon style="--i:12" points="133.4,93.6 136.3,75 159.7,93.3" fill="url(#ag'+U+'_22)"/><polygon style="--i:5" points="100.7,65.6 116.2,67.8 111.6,77.1 93.3,86.2" fill="url(#ag'+U+'_23)"/><polygon style="--i:20" points="98.5,144.6 113.9,147.8 100.5,166.5 94.4,153.1" fill="url(#ag'+U+'_24)"/><polygon style="--i:11" points="55.4,119.7 60.6,133.4 40.1,153" fill="url(#ag'+U+'_25)"/><polygon style="--i:14" points="62,136.1 66.8,149.6 41.2,157.1" fill="url(#ag'+U+'_26)"/><polygon style="--i:23" points="114.9,147.7 131.1,152 106.4,165.1" fill="url(#ag'+U+'_27)"/></g></svg>'}
+function aLogo(){return '<svg class="aM" viewBox="0 0 200 200" aria-hidden="true"><g class="aMg"><polygon class="f0" style="--i:0" points="80,11.8 122.3,12.7 99.9,61.1"/><polygon class="f1" style="--i:1" points="75.7,19 71.8,76.8 35.5,105.8"/><polygon class="f2" style="--i:7" points="30.1,113.1 67.6,84.3 35.2,154.8"/><polygon class="f3" style="--i:2" points="78.7,17.4 99.1,63.4 97.2,66.9 73.4,74.7"/><polygon class="f4" style="--i:6" points="125.8,19 158.2,90.3 129,67.6"/><polygon class="f5" style="--i:26" points="173.1,117.4 198,169.1 197.8,173.1 167.3,159.9"/><polygon class="f6" style="--i:10" points="2,172.3 28.3,117.4 33.9,160.4"/><polygon class="f7" style="--i:3" points="101.9,65.3 122.7,16.6 127.9,67.1"/><polygon class="f8" style="--i:22" points="144.8,123.4 169.5,108.2 171.6,116.2 165.2,155.6"/><polygon class="f9" style="--i:9" points="56.4,112.1 72.5,82.5 79.1,115.6 60.8,130.8 56.1,120.2"/><polygon class="f10" style="--i:17" points="35.6,161.7 48.7,187.4 4.5,175.7"/><polygon class="f11" style="--i:4" points="77.5,74.2 99.6,66.7 79.6,113.8 72.8,79.6"/><polygon class="f12" style="--i:27" points="167.6,160.8 197,175.7 152.8,188.2"/><polygon class="f13" style="--i:13" points="62.6,133.5 79.4,117.4 89.8,143.9 67.3,148.4"/><polygon class="f14" style="--i:18" points="65.6,154.4 49.5,185.8 37.2,161"/><polygon class="f15" style="--i:25" points="135.1,152.8 165.1,161.9 150.4,185.8"/><polygon class="f16" style="--i:16" points="164.4,108.7 144.1,122.9 110.7,107.9"/><polygon class="f17" style="--i:15" points="104.2,107 138.8,124 103.2,126.9"/><polygon class="f18" style="--i:24" points="135.5,146.3 145.7,126.6 162.5,158 136.5,150.9"/><polygon class="f19" style="--i:21" points="115.6,147.1 128.4,126.7 142.3,126.4 133.8,150.1"/><polygon class="f20" style="--i:19" points="69.7,149.6 90.6,144.6 98.8,167.6"/><polygon class="f21" style="--i:8" points="108.3,79.4 128.7,68.7 130.3,93.4"/><polygon class="f22" style="--i:12" points="133.4,93.6 136.3,75 159.7,93.3"/><polygon class="f23" style="--i:5" points="100.7,65.6 116.2,67.8 111.6,77.1 93.3,86.2"/><polygon class="f24" style="--i:20" points="98.5,144.6 113.9,147.8 100.5,166.5 94.4,153.1"/><polygon class="f25" style="--i:11" points="55.4,119.7 60.6,133.4 40.1,153"/><polygon class="f26" style="--i:14" points="62,136.1 66.8,149.6 41.2,157.1"/><polygon class="f27" style="--i:23" points="114.9,147.7 131.1,152 106.4,165.1"/></g></svg>'}
 function brandMark(size){return '<span class="amark"'+(size?' style="width:'+size+'px;height:'+size+'px"':'')+'>'+aLogo()+'</span>'}
 /* Full logo lockup for the landing hero — monogram + ALSAITI wordmark + the brand tagline. */
 function logoLockup(){return '<div class="logoLock">'+
@@ -1625,7 +1850,7 @@ function landing(){
         '<a onclick="scrollToId(\'sec-price\')">'+esc(t('nav_pricing'))+'</a>'+
         '<a onclick="scrollToId(\'sec-contact\')">'+esc(t('nav_contact'))+'</a>'+
       '</div>'+
-      '<div class="spacer"></div>'+langSwitch()+themeSwitch()+
+      '<div class="spacer"></div>'+
       '<button class="btn btn-sm btn-primary" onclick="scrollToId(\'sec-contact\')">'+esc(t('book_call'))+'</button>'+
     '</header>'+
     '<section class="hero" id="sec-top">'+
@@ -1680,7 +1905,9 @@ function landing(){
       '</div>'+
     '</div></section>'+
     '<footer><div class="lfoot2">'+
-      '<div><div class="brand">'+brandMark(30)+' Alsaiti Growth</div><p class="tag muted">'+esc(t('footer_tag'))+'</p></div>'+
+      '<div><div class="brand">'+brandMark(30)+' Alsaiti Growth</div><p class="tag muted">'+esc(t('footer_tag'))+'</p>'+
+        /* language + theme live down here on the public site (there is no Settings until you sign in) */
+        '<div class="fprefs">'+langSwitch()+themeSwitch()+'</div></div>'+
       '<div><h4>'+esc(t('footer_navigate'))+'</h4>'+
         '<a onclick="scrollToId(\'sec-demos\')">'+esc(t('fn_services'))+'</a>'+
         '<a onclick="scrollToId(\'sec-ind\')">'+esc(t('fn_systems'))+'</a>'+
@@ -1727,13 +1954,31 @@ function pricingSection(){
 function scrollToId(id){var e=document.getElementById(id);if(e)e.scrollIntoView({behavior:'smooth',block:'start'})}
 function demoLogin(dest){
   try{AUTH.login('demo@alsaiti.app','demo1234')}
-  catch(e){try{AUTH.signup('Demo User','Bright Smile Dental','demo@alsaiti.app','demo1234')}catch(e2){}}
+  catch(e){try{AUTH.signup('Demo User','Bright Smile Dental','demo@alsaiti.app','demo1234',true)}catch(e2){}}
+  if(!AUTH.session()){toast('Could not start the demo — please try again');return}
   if(!onboardComplete()){setOnboard({status:'complete',step:12,completed:Date.now(),answers:{crm_mode:'hybrid',business_name:'Bright Smile Dental',public_display_name:'Bright Smile',industry:'Dental clinic',main_email:'demo@alsaiti.app',services:[{name:'Dental implant consult',category:'Implants',value:'High'},{name:'Invisalign consultation',category:'Orthodontics',value:'High'}],req_name:true,req_contact:true,req_service:true,ch_email:true,ev_new:true,ev_urgent:true}})}
   location.hash='#/'+(dest||'dashboard');toast(t('welcome_demo'))
 }
 
 /* ============================ Auth pages ============================ */
+/* After a sign-up that needs email confirmation we show this instead of pretending they are in. */
+var AUTH_PENDING=null;
+function authConfirmPage(){
+  var e=AUTH_PENDING||'';
+  return '<div class="auth"><div class="authcard">'+
+    '<div class="brand" style="justify-content:center;padding-bottom:6px">'+brandMark()+' Alsaiti Growth</div>'+
+    '<div class="cxbanner" style="margin-top:10px">'+icon('mail')+'<span>'+esc(tf('auth_confirm_body',{e:e}))+'</span></div>'+
+    '<h2 style="margin-top:16px">'+esc(t('auth_confirm_title'))+'</h2>'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:14px" onclick="authResend()">'+icon('refresh')+' '+esc(t('auth_resend'))+'</button>'+
+    '<button class="btn btn-sm" style="width:100%;margin-top:10px;justify-content:center" onclick="AUTH_PENDING=null;go(\'login\')">'+esc(t('auth_back_signin'))+'</button>'+
+  '</div></div>';
+}
+function authResend(){
+  if(!AUTH_PENDING)return;
+  BK.resend(AUTH_PENDING).then(function(){toast(t('auth_resent'))})['catch'](function(ex){toast(bkAuthError(ex&&ex.message))});
+}
 function authPage(mode){
+  if(mode==='confirm')return authConfirmPage();
   var isSignup=mode==='signup';
   return '<div class="auth"><form class="authcard" onsubmit="return submitAuth(event,\''+mode+'\')">'+
     '<div class="brand" style="justify-content:center;padding-bottom:6px">'+brandMark()+' Alsaiti Growth</div>'+
@@ -1743,7 +1988,9 @@ function authPage(mode){
     (isSignup?'<div class="field"><label>Your name</label><input name="name" placeholder="Alex Carter" maxlength="60" autocomplete="name" required/></div>'+
               '<div class="field"><label>Business name</label><input name="biz" placeholder="Bright Smile Dental" maxlength="80" autocomplete="organization" required/></div>':'')+
     '<div class="field"><label>Email</label><input name="email" type="email" placeholder="you@business.com" maxlength="120" autocomplete="email" required/></div>'+
-    '<div class="field"><label>Password</label><input name="pass" type="password" placeholder="At least 8 characters (letters &amp; numbers)" minlength="8" maxlength="72" autocomplete="'+(isSignup?'new-password':'current-password')+'" required/></div>'+
+    '<div class="field"><label>Password</label><input name="pass" type="password" placeholder="'+esc(isSignup?t('auth_pass_rule'):'Your password')+'" minlength="'+(isSignup?10:8)+'" maxlength="72" autocomplete="'+(isSignup?'new-password':'current-password')+'"'+(isSignup?' oninput="onPassInput(this)"':'')+' required/></div>'+
+    (isSignup?'<div id="pmeterbox">'+passMeter('')+'</div>'+
+      '<div class="field"><label>'+esc(t('auth_pass_confirm'))+'</label><input name="pass2" type="password" minlength="10" maxlength="72" autocomplete="new-password" required/></div>':'')+
     '<div class="field invalid" id="authErr" style="margin-top:-4px;display:none"><span class="err" style="display:block"></span></div>'+
     '<button class="btn btn-primary" style="width:100%;margin-top:6px">'+(isSignup?'Create account':'Sign in')+'</button>'+
     '<div class="row" style="justify-content:center;margin-top:14px"><button type="button" class="btn btn-sm" onclick="demoLogin()">'+icon('bolt')+' '+esc(t('try_demo'))+'</button></div>'+
@@ -1768,8 +2015,18 @@ function submitAuth(e,mode){
   var f=e.target, el=f.elements, errBox=f.querySelector('#authErr'), err=errBox.querySelector('.err');
   errBox.style.display='none';
   var showErr=function(m){errBox.style.display='block';err.textContent=m};
-  var email=el['email']?el['email'].value:'', pass=el['pass']?el['pass'].value:'';
+  var email=(el['email']?el['email'].value:'').trim(), pass=el['pass']?el['pass'].value:'';
   var name=el['name']?el['name'].value:'', biz=el['biz']?el['biz'].value:'';
+
+  /* verify before we ever call the server: a real address, a password that is actually strong,
+     and typed the same way twice */
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){showErr(t('cx_bad_email').replace('{f}',t('email_label')));return false}
+  if(mode==='signup'){
+    var pass2=el['pass2']?el['pass2'].value:'';
+    if(pass!==pass2){showErr(t('auth_pass_mismatch'));return false}
+    if(PASS_COMMON.test(String(pass).trim())){showErr(t('auth_pass_common'));return false}
+    if(!passOK(pass)){showErr(t('auth_pass_rule'));return false}
+  }
 
   /* REAL auth: when a Supabase project is configured, credentials are verified server-side
      and no password ever lands in this browser's storage. */
@@ -1780,7 +2037,7 @@ function submitAuth(e,mode){
     var p=(mode==='signup')?BK.signUp(email,pass,{full_name:name,business_name:biz}):BK.signIn(email,pass);
     p.then(function(res){
       done();
-      if(mode==='signup'&&res&&res.session===false){showErr(t('auth_confirm_email'));return}
+      if(mode==='signup'&&res&&res.session===false){AUTH_PENDING=email;location.hash='#/confirm';render();return}
       AUTH.adoptExternal(email,name,biz);
       toast(t('auth_secure_ok'));
       if(mode==='signup'){
@@ -1828,9 +2085,9 @@ function shell(active,inner){
     '<div class="main"><div class="topbar">'+
       '<button class="hamb" onclick="toggleMenu()">&#9776;</button>'+
       '<button class="search searchbtn" onclick="go(\'leads\')">'+icon('search')+'<span>'+(UI.q?esc(UI.q):esc(t('search_leads')))+'</span><span class="kbd">⌘K</span></button>'+
-      '<div class="spacer"></div>'+langSwitch()+themeSwitch()+
+      '<div class="spacer"></div>'+
       '<button class="iconbtn" onclick="go(\'new\')" title="'+esc(t('new_lead'))+'">'+icon('plus')+'</button>'+
-      '<div class="avatar">'+esc(initials(u.name))+'</div>'+
+      '<button class="avatar" onclick="go(\'settings\')" title="'+esc(t('settings_title'))+'" aria-label="'+esc(t('settings_title'))+'">'+esc(initials(u.name))+'</button>'+
     '</div><div class="content">'+inner+'</div></div></div>'+
   '<nav class="mobnav">'+mob+'</nav>'
 }
@@ -1852,6 +2109,31 @@ function pageContent(r){
     case'settings':return settingsPage();
     default:return dashboard()
   }
+}
+/* Time-of-day greeting, in the active language. */
+function greetWord(){
+  var h=new Date().getHours();
+  var k=h<12?'greet_morning':h<18?'greet_afternoon':'greet_evening';
+  return t(k);
+}
+/* A tiny seven-day sparkline: area + line + a dot on today. Flat series render as a flat line,
+   which is the truth when nothing has come in yet. */
+function sparkline(series){
+  var v=(series||[]).slice();if(v.length<2)return '';
+  var W=100,H=26,max=Math.max.apply(null,v),min=Math.min.apply(null,v);
+  var span=(max-min)||1;
+  var pts=v.map(function(n,i){
+    var x=i/(v.length-1)*W;
+    var y=H-2-((n-min)/span)*(H-6);
+    return [Math.round(x*10)/10,Math.round(y*10)/10];
+  });
+  var line=pts.map(function(p){return p.join(',')}).join(' ');
+  var area=line+' '+W+','+H+' 0,'+H;
+  var last=pts[pts.length-1];
+  return '<svg class="spark" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" aria-hidden="true">'+
+    '<polygon class="sparkA" points="'+area+'"/>'+
+    '<polyline class="sparkL" points="'+line+'"/>'+
+    '<circle class="sparkD" cx="'+last[0]+'" cy="'+last[1]+'" r="2.1"/></svg>';
 }
 function head(tl,s,right){return '<div class="pagehead"><div><h1>'+esc(tl)+'</h1>'+(s?'<p>'+esc(s)+'</p>':'')+'</div><div class="spacer"></div>'+(right||'')+'</div>'}
 
@@ -1920,13 +2202,28 @@ function dashboard(){
   var urgent=leads.filter(function(l){return l.urgency==='High'&&['New','Contacted','Qualified'].indexOf(l.status)>=0}).length;
   var won=leads.filter(function(l){return l.status==='Won'}).length;
   var active=leads.filter(function(l){return ['New','Contacted','Qualified','Booked'].indexOf(l.status)>=0}).length;
-  var stats=[[t('stat_enquiries'),today],[t('stat_hot'),urgent],[t('pipeline_active'),active],[t('won_label'),won]];
+  /* seven-day series per metric, so each card shows its own shape rather than a bare number */
+  var DAY=86400000, days=[];
+  for(var di=6;di>=0;di--){var d0=new Date();d0.setHours(0,0,0,0);d0=d0.getTime()-di*DAY;days.push([d0,d0+DAY])}
+  var seriesFor=function(pred){return days.map(function(r){return leads.filter(function(l){return l.at>=r[0]&&l.at<r[1]&&pred(l)}).length})};
+  var sAll=seriesFor(function(){return true});
+  var sHot=seriesFor(function(l){return l.urgency==='High'});
+  var sAct=seriesFor(function(l){return ['New','Contacted','Qualified','Booked'].indexOf(l.status)>=0});
+  var sWon=seriesFor(function(l){return l.status==='Won'});
+  var stats=[
+    [t('stat_enquiries'),today,'chat',sAll,'a'],
+    [t('stat_hot'),urgent,'bolt',sHot,'b'],
+    [t('pipeline_active'),active,'activity',sAct,'c'],
+    [t('won_label'),won,'check',sWon,'d']
+  ];
   var counts={};STATUSES.forEach(function(s){counts[s]=leads.filter(function(l){return l.status===s}).length});
   var maxC=Math.max(1,Math.max.apply(null,STATUSES.map(function(s){return counts[s]})));
   var bySource={};SOURCES.forEach(function(s){bySource[s]=leads.filter(function(l){return l.source===s}).length});
   var srcTotal=leads.length||1;
   var attention=leads.filter(function(l){return ['New','Qualified'].indexOf(l.status)>=0}).sort(function(a,b){return b.at-a.at}).slice(0,5);
-  return head(t('dash_title'),t('dash_sub'),
+  var u=AUTH.current()||{};
+  return '<div class="greet"><span class="gwave">'+esc(greetWord())+'</span><b>'+esc(String(u.name||'').split(' ')[0]||'')+'</b></div>'+
+    head(t('dash_title'),t('dash_sub'),
       '<button class="btn btn-primary" onclick="go(\'new\')">'+icon('plus')+' '+esc(t('new_lead'))+'</button>')+
     (onboardComplete()?'':'<div class="setupbanner"><span class="sbi">'+icon('bolt')+'</span><div style="flex:1"><div style="font-weight:800">'+esc(t('ob_banner_t'))+'</div><div class="muted" style="font-size:13px">'+esc(t('ob_banner_s'))+'</div></div><button class="btn btn-primary btn-sm" onclick="obLaunch()">'+esc(t('ob_continue_setup'))+'</button></div>')+
     '<div class="quickacts">'+
@@ -1935,7 +2232,14 @@ function dashboard(){
       '<button class="qa" onclick="go(\'integrations\')"><span class="qai">'+icon('plug')+'</span><span class="qat">'+esc(t('ob_connect_crm'))+'</span></button>'+
       '<button class="qa" onclick="obLaunch()"><span class="qai">'+icon('sliders')+'</span><span class="qat">'+esc(t('ob_setup_tour'))+'</span></button>'+
     '</div>'+
-    '<div class="grid cols-4">'+stats.map(function(s){return '<div class="card stat"><div class="label">'+esc(s[0])+'</div><div class="value">'+s[1]+'</div></div>'}).join('')+'</div>'+
+    '<div class="grid cols-4">'+stats.map(function(st){
+      var ser=st[3],prev=ser[ser.length-2]||0,now=ser[ser.length-1]||0,dl=now-prev;
+      var trend=dl>0?'<span class="sxd up">&#9650; '+dl+'</span>':dl<0?'<span class="sxd dn">&#9660; '+Math.abs(dl)+'</span>':'<span class="sxd flat">&mdash;</span>';
+      return '<div class="card stat sx sx-'+st[4]+'">'+
+        '<div class="sxtop"><span class="sxi">'+icon(st[2])+'</span>'+trend+'</div>'+
+        '<div class="label">'+esc(st[0])+'</div><div class="value">'+st[1]+'</div>'+
+        sparkline(ser)+'</div>';
+    }).join('')+'</div>'+
     '<div class="grid cols-3" style="margin-top:16px">'+
       '<div class="card chartcard" style="grid-column:span 2">'+
         '<h3>'+esc(t('by_status'))+'</h3>'+
@@ -2052,24 +2356,77 @@ function analyticsPage(){
     '</div>'
 }
 
+/* notification preferences live on the business profile */
+function getPrefs(){var p=getProfile();return isObj(p.notif)?p.notif:{lead_new:true,lead_urgent:true,daily:false}}
+function setPref(k,on){var p=getProfile();p.notif=getPrefs();p.notif[k]=!!on;setProfile(p);render()}
+function setToggle(label,hint,key,on){
+  return '<button type="button" class="swrow'+(on?' on':'')+'" onclick="setPref(\''+key+'\','+(on?'false':'true')+')">'+
+    '<span class="swtxt"><b>'+esc(label)+'</b>'+(hint?'<em>'+esc(hint)+'</em>':'')+'</span><span class="sw"><i></i></span></button>';
+}
+function setOption(label,on,onclick,sub){
+  return '<button type="button" class="optbtn'+(on?' on':'')+'" onclick="'+onclick+'">'+
+    '<span class="optck">'+icon('check')+'</span><span><b>'+esc(label)+'</b>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</span></button>';
+}
 function settingsPage(){
-  var u=AUTH.current(), p=getProfile();
+  var u=AUTH.current(), p=getProfile(), pr=getPrefs(), secure=AUTH.isSecure();
   var industries=['Dental clinic','Aesthetic clinic','Plumber / home services','Real estate','Letting agent','Consultant','Other'];
+  var g=VOICE.gender||'female';
   return head(t('settings_title'),t('settings_sub'))+
-    '<div class="grid cols-2">'+
-      '<form class="card" onsubmit="return saveProfile(event)"><h3>'+esc(t('biz_profile'))+'</h3>'+
+    '<div class="setgrid">'+
+      /* ---- appearance: theme + language, the two things that used to clutter the top bar ---- */
+      '<section class="card setcard"><h3>'+icon('sun')+' '+esc(t('set_appearance'))+'</h3>'+
+        '<div class="setlbl">'+esc(t('set_theme'))+'</div>'+
+        '<div class="optrow">'+
+          setOption(t('set_theme_light'),THEME!=='dark','setTheme(\'light\');render()')+
+          setOption(t('set_theme_dark'),THEME==='dark','setTheme(\'dark\');render()')+
+        '</div>'+
+        '<div class="setlbl">'+esc(t('set_language'))+'</div>'+
+        '<div class="optrow">'+LANGS.map(function(l){
+          return setOption(l[1],l[0]===LANG,'setLang(\''+l[0]+'\')');
+        }).join('')+'</div>'+
+        '<p class="sethint">'+esc(t('set_lang_hint'))+'</p>'+
+      '</section>'+
+      /* ---- the assistant's own voice ---- */
+      '<section class="card setcard"><h3>'+icon('mic')+' '+esc(t('set_assistant'))+'</h3>'+
+        '<div class="setlbl">'+esc(t('voice_pack'))+'</div>'+
+        '<div class="optrow">'+
+          setOption(t('voice_female'),g==='female','voiceGender(\'female\');render()')+
+          setOption(t('voice_male'),g==='male','voiceGender(\'male\');render()')+
+        '</div>'+
+        '<button type="button" class="swrow'+(HUMAN_VOICE?' on':'')+'" onclick="voiceHuman(!'+(HUMAN_VOICE?'true':'false')+');render()">'+
+          '<span class="swtxt"><b>'+esc(t('voice_human'))+'</b><em>'+esc(t('voice_human_hint'))+'</em></span><span class="sw"><i></i></span></button>'+
+        '<button type="button" class="btn btn-sm" style="width:100%;margin-top:12px;justify-content:center" onclick="vSample()">'+icon('play')+' '+esc(t('set_voice_test'))+'</button>'+
+        '<p class="sethint">'+esc(t('set_voice_hint'))+'</p>'+
+      '</section>'+
+      /* ---- business profile ---- */
+      '<form class="card setcard" onsubmit="return saveProfile(event)"><h3>'+icon('cog')+' '+esc(t('biz_profile'))+'</h3>'+
         '<div class="field"><label>'+esc(t('biz_name'))+'</label><input name="biz" maxlength="80" value="'+esc(p.biz||u.biz)+'"/></div>'+
-        '<div class="field"><label>'+esc(t('industry_l'))+'</label><select name="industry">'+industries.map(function(i){return '<option'+(i===p.industry?' selected':'')+'>'+i+'</option>'}).join('')+'</select></div>'+
+        '<div class="field"><label>'+esc(t('industry_l'))+'</label><select name="industry">'+industries.map(function(i){return '<option'+(i===p.industry?' selected':'')+'>'+esc(i)+'</option>'}).join('')+'</select></div>'+
         '<div class="field"><label>'+esc(t('notif_email'))+'</label><input name="email" type="email" maxlength="120" value="'+esc(p.email||u.email)+'"/></div>'+
         '<div class="row"><div class="spacer"></div><button class="btn btn-primary">'+esc(t('save'))+'</button></div>'+
       '</form>'+
-      '<div class="card"><h3>'+esc(t('account_t'))+'</h3>'+
+      /* ---- notifications ---- */
+      '<section class="card setcard"><h3>'+icon('bell')+' '+esc(t('set_notifications'))+'</h3>'+
+        setToggle(t('notif_new'),'','lead_new',!!pr.lead_new)+
+        setToggle(t('notif_urgent'),'','lead_urgent',!!pr.lead_urgent)+
+        setToggle(t('notif_daily'),'','daily',!!pr.daily)+
+        '<p class="sethint">'+esc(t('notif_hint'))+'</p>'+
+      '</section>'+
+      /* ---- account & security ---- */
+      '<section class="card setcard"><h3>'+icon('shield')+' '+esc(t('set_security'))+'</h3>'+
         '<div class="kv"><span class="k">'+esc(t('signed_in_as'))+'</span><span>'+esc(u.name)+'</span></div>'+
         '<div class="kv"><span class="k">'+esc(t('email_label'))+'</span><span>'+esc(u.email)+'</span></div>'+
+        '<div class="kv"><span class="k">'+esc(t('sec_type'))+'</span><span class="cs '+(secure?'cs-connected':'cs-demo')+'"><i></i>'+esc(secure?t('sec_verified'):t('sec_local'))+'</span></div>'+
+        '<div class="kv"><span class="k">'+esc(t('sec_email_state'))+'</span><span class="cs '+(secure?'cs-connected':'cs-none')+'"><i></i>'+esc(secure?t('sec_email_ok'):t('sec_email_no'))+'</span></div>'+
+        '<div class="kv"><span class="k">'+esc(t('sec_session'))+'</span><span>'+esc(tf('sec_expires',{d:Math.round(SESSION_MS/86400000)}))+'</span></div>'+
+        '<div class="kv"><span class="k">'+esc(t('sec_backend'))+'</span><span>'+esc(BK.configured()?tf('bk_uses_account',{e:BK.cfg().email||u.email}):t('bk_none'))+'</span></div>'+
+        '<p class="sethint">'+esc(secure?t('sec_same_account'):t('sec_backend_none'))+'</p>'+
+        (secure?'':'<button class="btn btn-sm btn-primary" style="width:100%;margin-top:6px;justify-content:center" onclick="doLogout()">'+icon('shield')+' '+esc(t('sec_signin_real'))+'</button>')+
         '<div class="kv"><span class="k">'+esc(t('leads_stored'))+'</span><span>'+getLeads().length+'</span></div>'+
-        '<button class="btn btn-sm" style="width:100%;margin-top:14px" onclick="doLogout()">'+icon('logout')+' '+esc(t('signout'))+'</button>'+
-        '<button class="btn btn-sm btn-danger" style="width:100%;margin-top:10px" onclick="resetData()">'+esc(t('reset_sample'))+'</button>'+
-      '</div>'+
+        '<button class="btn btn-sm" style="width:100%;margin-top:12px;justify-content:center" onclick="doLogout()">'+icon('logout')+' '+esc(t('signout'))+'</button>'+
+        '<div class="setlbl" style="color:var(--red)">'+esc(t('sec_danger'))+'</div>'+
+        '<button class="btn btn-sm btn-danger" style="width:100%;justify-content:center" onclick="resetData()">'+esc(t('reset_sample'))+'</button>'+
+      '</section>'+
     '</div>'
 }
 function saveProfile(e){e.preventDefault();var el=e.target.elements;setProfile({biz:el['biz'].value.trim(),industry:el['industry'].value,tz:'Europe/London (GMT)',email:el['email'].value.trim()});render();toast('Settings saved');return false}
@@ -2298,20 +2655,13 @@ function vAddMsg(who,text){VOICE.log.push({who:who,text:text});var t=document.ge
 function voicePage(){
   try{vWarmVoices()}catch(e){}
   var g=VOICE.gender||'female';
-  var genderCtl='<div class="vgender" id="vgender">'+
-    '<span class="vgl">'+esc(t('voice_pack'))+'</span>'+
-    '<button type="button" data-g="female" class="'+(g==='female'?'on':'')+'" onclick="voiceGender(\'female\')">'+icon('mic')+' '+esc(t('voice_female'))+'</button>'+
-    '<button type="button" data-g="male" class="'+(g==='male'?'on':'')+'" onclick="voiceGender(\'male\')">'+icon('mic')+' '+esc(t('voice_male'))+'</button>'+
-  '</div>';
-  /* Ultra-realistic (neural) voice — only meaningful once a backend + TTS key are set up. */
-  var humanCtl='<button type="button" id="vhuman" class="vhuman'+(HUMAN_VOICE?' on':'')+'" onclick="voiceHuman(!'+(HUMAN_VOICE?'true':'false')+')" title="'+esc(t('voice_human_hint'))+'">'+
-    icon('bolt')+' '+esc(t('voice_human'))+'</button>';
+  /* The voice pack and ultra-realistic switch live in Settings now — this screen is just the call. */
+  var voiceLine='<button type="button" class="vsetline" onclick="go(\'settings\')">'+icon('mic')+
+    '<span>'+esc(g==='male'?t('voice_male'):t('voice_female'))+(HUMAN_VOICE?' · '+esc(t('voice_human')):'')+'</span>'+
+    '<em>'+esc(t('v_change_in_settings'))+'</em></button>';
   return head(t('v_title'),t('v_sub'))+
     '<div class="grid cols-2" style="align-items:start">'+
       '<div class="card voicecard">'+
-        '<div class="vlang">'+langSwitch()+'</div>'+
-        genderCtl+
-        '<div style="margin:-6px 0 14px">'+humanCtl+'</div>'+
         '<div id="vlive" class="vlive off"><i></i>'+esc(t('v_live_off'))+'</div>'+
         '<div id="vstatus" class="vstatus">'+esc(VOICE.active?t('v_your_turn'):(vRecAvailable()?t('v_intro_live'):t('v_intro')))+'</div>'+
         '<button id="vmic" class="vmic'+(VOICE.phase==='listening'?' on':'')+'" onclick="voiceMic()" aria-label="'+esc(t('v_tap_talk'))+'">'+icon('mic')+'</button>'+
@@ -2320,7 +2670,7 @@ function voicePage(){
           ? '<p class="muted vhint">'+esc(t('v_hands_hint'))+'</p>'
           : '<button id="vspeak" class="btn btn-sm" style="margin-top:12px;width:100%;justify-content:center" onclick="voiceListen()">'+icon('mic')+' '+esc(t('v_speak'))+'</button><p class="muted vhint">'+esc(t('v_no_mic_hint'))+'</p>')+
         '<div class="vreply"><input id="vinput" maxlength="200" placeholder="'+esc(t('v_reply_ph'))+'" onkeydown="if(event.key===\'Enter\'){event.preventDefault();voiceSend()}"/><button class="btn btn-sm btn-primary" onclick="voiceSend()">'+esc(t('v_send'))+'</button></div>'+
-        '<p class="muted" style="font-size:12px;margin-top:12px;text-align:center">'+esc(t('v_sound_hint'))+'</p>'+
+        voiceLine+
       '</div>'+
       '<div class="card"><h3>'+esc(t('v_transcript'))+'</h3><div id="vtranscript" class="vtranscript">'+(VOICE.log.length?VOICE.log.map(function(m){return '<div class="vmsg '+(m.who==='bot'?'bot':'user')+'">'+esc(m.text)+'</div>'}).join(''):'<p class="muted ph">'+esc(t('v_transcript_ph'))+'</p>')+'</div></div>'+
     '</div>'
@@ -2726,6 +3076,13 @@ var BK={
         return {session:false,data:j}; /* email confirmation required */
       });
   },
+  /* Ask Supabase to send the confirmation email again. */
+  resend:function(email){
+    var c=BK.cfg();if(!c.url||!c.anon)return Promise.reject(new Error('no_project'));
+    return fetch(BK.base()+'/auth/v1/resend',{method:'POST',headers:{apikey:c.anon,'Content-Type':'application/json'},
+      body:JSON.stringify({type:'signup',email:email})})
+      .then(function(r){return r.json()['catch'](function(){return{}}).then(function(j){if(!r.ok)throw new Error(j.msg||j.error_description||j.error||('HTTP '+r.status));return j})});
+  },
   signOut:function(){var c=BK.cfg();delete c.token;delete c.refresh;BK.save(c)},
   refresh:function(){
     var c=BK.cfg();if(!c.refresh)return Promise.reject(new Error('no_refresh'));
@@ -2812,18 +3169,42 @@ function bkShowReturnToast(){
   else{toast(t('cs_test_required')+' — '+esc(r.crm||''));CRM_REAL.loaded=false;crmFetchReal(true);}
 }
 /* ---- Backend connection panel ---- */
+/* Integrations authorise with the SAME account the user signed in with — there is no second
+   password to manage. We only ask for credentials when there is no verified session to reuse. */
 function bkOpenPanel(){
-  var m=crmModalEl();if(!m)return;var c=BK.cfg();
-  m.innerHTML='<div class="modal" onclick="if(event.target===this)crmCloseModal()"><div class="modalcard"><div class="modalhead">'+icon('db')+'<h3>'+esc(t('bk_title'))+'</h3><button class="modalx" onclick="crmCloseModal()">'+icon('close')+'</button></div>'+
-    '<div class="modalbody">'+
-      '<p class="wizsub" style="margin-top:-2px">'+esc(t('bk_sub'))+'</p>'+
-      '<div class="field"><label>'+esc(t('bk_project'))+'</label><input id="bkurl" value="'+esc(c.url||'')+'" placeholder="'+esc(t('bk_url_ph'))+'"/></div>'+
+  var m=crmModalEl();if(!m)return;var c=BK.cfg(),u=AUTH.current()||{},signedIn=BK.configured();
+  var body;
+  if(signedIn){
+    body='<div class="cxbanner ok">'+icon('shield')+'<span>'+esc(tf('bk_uses_account',{e:c.email||u.email||''}))+' — '+esc(t('bk_uses_account_b'))+'</span></div>'+
+      '<div class="kv" style="margin-top:14px"><span class="k">'+esc(t('bk_project'))+'</span><span class="mono" style="font-size:12px;word-break:break-all">'+esc(c.url||'')+'</span></div>'+
+      '<div class="wiznav"><button class="btn btn-danger" onclick="bkDisconnect()">'+esc(t('bk_disconnect'))+'</button><div class="spacer"></div>'+
+        '<button class="btn btn-primary" onclick="crmCloseModal();crmFetchReal(true)">'+icon('refresh')+' '+esc(t('bk_refresh'))+'</button></div>'+
+      '<details class="bkadv"><summary>'+esc(t('bk_advanced'))+'</summary>'+
+        '<div class="field"><label>'+esc(t('bk_project'))+'</label><input id="bkurl" value="'+esc(c.url||'')+'" placeholder="'+esc(t('bk_url_ph'))+'"/></div>'+
+        '<div class="field"><label>'+esc(t('bk_anon'))+'</label><input id="bkanon" value="'+esc(c.anon||'')+'" style="font-family:ui-monospace,Menlo,monospace"/></div>'+
+        '<p class="sethint">'+esc(t('bk_project_hint'))+'</p>'+
+        '<button class="btn btn-sm" onclick="bkSaveProject()">'+esc(t('save'))+'</button></details>';
+  }else{
+    body='<p class="wizsub" style="margin-top:-2px">'+esc(t('bk_sub'))+'</p>'+
+      '<div class="cxbanner">'+icon('shield')+'<span>'+esc(t('sec_backend_none'))+'</span></div>'+
+      '<div class="field" style="margin-top:14px"><label>'+esc(t('bk_project'))+'</label><input id="bkurl" value="'+esc(c.url||'')+'" placeholder="'+esc(t('bk_url_ph'))+'"/></div>'+
       '<div class="field"><label>'+esc(t('bk_anon'))+'</label><input id="bkanon" value="'+esc(c.anon||'')+'" style="font-family:ui-monospace,Menlo,monospace"/></div>'+
-      '<div class="obgrid"><div class="field"><label>'+esc(t('bk_email'))+'</label><input id="bkemail" value="'+esc(c.email||'')+'" autocomplete="username"/></div>'+
+      '<div class="obgrid"><div class="field"><label>'+esc(t('bk_email'))+'</label><input id="bkemail" value="'+esc(c.email||u.email||'')+'" autocomplete="username"/></div>'+
         '<div class="field"><label>'+esc(t('bk_password'))+'</label><input id="bkpass" type="password" autocomplete="current-password"/></div></div>'+
       '<p class="muted" style="font-size:11.5px;line-height:1.5;margin-top:2px">'+esc(t('bk_note'))+'</p>'+
-      '<div class="wiznav"><div class="spacer"></div>'+(BK.hasProject()?'<button class="btn btn-danger" onclick="bkDisconnect()">'+esc(t('bk_disconnect'))+'</button>':'')+'<button class="btn btn-primary" onclick="bkConnect()">'+esc(t('bk_save'))+'</button></div>'+
-    '</div></div></div>';
+      '<div class="wiznav"><div class="spacer"></div><button class="btn btn-primary" onclick="bkConnect()">'+esc(t('bk_save'))+'</button></div>';
+  }
+  m.innerHTML='<div class="modal" onclick="if(event.target===this)crmCloseModal()"><div class="modalcard"><div class="modalhead">'+icon('db')+'<h3>'+esc(t('bk_title'))+'</h3><button class="modalx" onclick="crmCloseModal()">'+icon('close')+'</button></div>'+
+    '<div class="modalbody">'+body+'</div></div></div>';
+}
+/* advanced: repoint at a different Supabase project without touching the signed-in session */
+function bkSaveProject(){
+  var d=document,url=String((d.getElementById('bkurl')||{}).value||'').trim(),anon=String((d.getElementById('bkanon')||{}).value||'').trim();
+  var probs=[];
+  if(!/^https:\/\/[a-z0-9-]+\.supabase\.(co|in|net)\/?$/i.test(url))probs.push({field:t('bk_project'),msg:t('bk_bad_url')});
+  if(anon.length<30)probs.push({field:t('bk_anon'),msg:t('bk_bad_anon')});
+  if(probs.length){bkFailModal(tf('cx_fail_t',{p:'Supabase'}),probs);return}
+  var c=BK.cfg();c.url=url.replace(/\/$/,'');c.anon=anon;BK.save(c);crmCloseModal();toast(t('bk_saved'));CRM_REAL.loaded=false;crmFetchReal(true);render();
 }
 /* Same "did not connect + here is exactly what is wrong" popup, for any non-CRM connection. */
 function bkFailModal(title,problems,retry){
