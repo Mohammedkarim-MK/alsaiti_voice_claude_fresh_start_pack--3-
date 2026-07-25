@@ -251,8 +251,22 @@
   .vmic{width:96px;height:96px;border-radius:50%;border:none;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--primary),var(--glow));box-shadow:0 10px 34px rgba(10,135,92,.5);display:grid;place-items:center;margin:0 auto}
   .vmic svg{width:38px;height:38px}
   .vmic.on{animation:vpulse 1.2s infinite;background:linear-gradient(135deg,#ff7a8a,#ff5f57)}
+  .vmic.talking{animation:vtalk 1.6s ease-in-out infinite}
   @keyframes vpulse{0%{box-shadow:0 0 0 0 rgba(255,122,138,.55)}70%{box-shadow:0 0 0 22px rgba(255,122,138,0)}100%{box-shadow:0 0 0 0 rgba(255,122,138,0)}}
+  @keyframes vtalk{0%,100%{box-shadow:0 10px 34px rgba(10,135,92,.5)}50%{box-shadow:0 10px 34px rgba(10,135,92,.5),0 0 0 14px rgba(10,135,92,.14)}}
   #vspeak.on{border-color:var(--red);color:#ff9aa6;background:rgba(255,122,138,.12)}
+  /* live-call state pill — tells the caller whose turn it is without a single button */
+  .vlive{display:inline-flex;align-items:center;gap:8px;margin:0 auto 14px;padding:6px 14px 6px 11px;border-radius:999px;
+    font-size:12px;font-weight:700;letter-spacing:.02em;border:1px solid var(--border);background:var(--card2);color:var(--muted)}
+  .vlive i{width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.55}
+  .vlive.is-listening{color:#e0536a;border-color:rgba(255,122,138,.45);background:rgba(255,122,138,.10)}
+  .vlive.is-listening i{opacity:1;animation:vdot .9s ease-in-out infinite}
+  .vlive.is-speaking{color:var(--primary);border-color:var(--border-hi);background:rgba(28,107,78,.10)}
+  .vlive.is-speaking i{opacity:1;animation:vdot 1.5s ease-in-out infinite}
+  .vlive.is-thinking i{animation:vdot .7s ease-in-out infinite}
+  @keyframes vdot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.55);opacity:.4}}
+  .vhint{font-size:11.5px;line-height:1.5;margin-top:12px;text-align:center}
+  @media (prefers-reduced-motion:reduce){.vmic.on,.vmic.talking,.vlive i{animation:none}}
   .vlang{display:flex;justify-content:center;gap:8px;margin-bottom:16px}
   .vgender{display:inline-flex;align-items:center;gap:6px;margin:0 auto 18px;padding:4px;border:1px solid var(--border);border-radius:999px;background:var(--card2)}
   .vgender .vgl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:0 8px 0 10px}
@@ -557,6 +571,19 @@
   .testcard .row2 .mono{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--cyan);word-break:break-all;text-align:right}
   .okpill{display:inline-flex;align-items:center;gap:6px;color:var(--green);font-weight:700;font-size:13px}
   .okpill svg{width:16px;height:16px}
+  /* connection failed — the popup that names the provider and pinpoints the bad field */
+  .cxfail{border-color:rgba(226,90,110,.42)}
+  .cxbanner{display:flex;gap:10px;align-items:flex-start;padding:13px 14px;border-radius:12px;font-size:13.5px;line-height:1.55;
+    color:var(--text);background:rgba(226,90,110,.10);border:1px solid rgba(226,90,110,.32)}
+  .cxbanner svg{width:18px;height:18px;flex-shrink:0;color:var(--red);margin-top:1px}
+  .cxlist{list-style:none;margin:8px 0 4px;padding:0;display:flex;flex-direction:column;gap:9px}
+  .cxlist li{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--muted)}
+  .cxlist li svg{width:15px;height:15px;flex-shrink:0;color:var(--red);margin-top:2px}
+  .cxlist li b{color:var(--text)}
+  .cxhint{display:flex;gap:7px;align-items:flex-start;font-size:11.5px;line-height:1.5;color:var(--muted);margin-top:6px}
+  .cxhint svg{width:13px;height:13px;flex-shrink:0;margin-top:1px;opacity:.7}
+  .field.bad input{border-color:var(--red);background:rgba(226,90,110,.07)}
+  .field.bad label{color:var(--red)}
   .codebox{font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:1.55;background:rgba(2,8,22,.75);border:1px solid var(--border);border-radius:12px;padding:14px;overflow:auto;white-space:pre;color:#bfe0ff;max-height:300px}
   html[dir="rtl"] .codebox,html[dir="rtl"] .testcard .row2 .mono{direction:ltr;text-align:left}
   /* sync status badge on leads */
@@ -1030,14 +1057,13 @@
      ============================================================ */
   .amark{display:inline-grid;place-items:center;width:34px;height:34px;flex-shrink:0;background:none;border:0;box-shadow:none;border-radius:0}
   .aM{width:100%;height:100%;display:block;overflow:visible}
-  .aM polygon{stroke:var(--lseam);stroke-width:1;stroke-linejoin:round;transform-box:fill-box;transform-origin:50% 50%}
-  /* facet fills — the brand's exact per-facet shades (recolour per theme via the vars above) */
-  .aM .fd{fill:var(--forest-dark)}.aM .fm{fill:var(--forest-main)}.aM .fi{fill:var(--forest-mid)}.aM .fl{fill:var(--forest-light)}
-  .aM .gd{fill:var(--gold-dark)}.aM .gm{fill:var(--gold-main)}.aM .gl{fill:var(--gold-light)}
-  /* facets assemble once, then a highlight sweeps through them forever (staggered by --i,
+  /* The facets carry the brand sheet's own per-facet bevel gradients, and the seams are real
+     gaps between them (same as the printed identity) — so no stroke, no recolouring. */
+  .aM polygon{stroke:none;stroke-linejoin:round;transform-box:fill-box;transform-origin:50% 50%;shape-rendering:geometricPrecision}
+  /* facets assemble once, then a soft highlight sweeps through them forever (staggered by --i,
      ordered top-left → bottom-right) so the mark always looks alive and metallic. */
   @keyframes facetIn{from{opacity:0;transform:scale(.4) translateY(5px)}to{opacity:1;transform:none}}
-  @keyframes shine{0%{filter:brightness(1.55) saturate(1.18)}9%{filter:brightness(1)}100%{filter:brightness(1)}}
+  @keyframes shine{0%{filter:brightness(1.22) saturate(1.06)}9%{filter:brightness(1)}100%{filter:brightness(1)}}
   .aMg polygon{animation:facetIn .5s cubic-bezier(.2,.9,.3,1.25) calc(var(--i,0)*32ms) backwards,
                          shine 4s ease-in-out calc(var(--i,0)*55ms) infinite}
 
@@ -1211,6 +1237,112 @@ var EXTRA_TR={
   tele_managed:'يديره Alsaiti',tele_owned:'ملك للعميل',tele_voiceapi:'Voice API',tele_sip:'trunk SIP',tele_fwd:'تحويل'}
 };
 (function(){for(var l in EXTRA_TR){if(!TR[l])TR[l]={};for(var k in EXTRA_TR[l]){if(TR[l][k]==null)TR[l][k]=EXTRA_TR[l][k]}}})();
+/* ---- Live hands-free call + the receptionist's own answers + connection errors ---- */
+var LIVE_TR={
+ en:{
+  v_your_turn_live:'Just speak when you are ready — I am listening.',v_intro_live:'Tap “Start call” and just talk — the assistant listens, replies out loud and keeps the conversation going. No buttons.',
+  v_live_off:'Not on a call',v_speaking:'Assistant speaking',v_thinking:'Thinking…',v_listening_now:'Listening — go ahead',
+  v_hands_hint:'Hands-free: the mic opens by itself after each reply. Tap the mic to interrupt.',
+  v_no_mic_hint:'This browser has no speech input, so tap “Speak your reply” or type below.',
+  v_still_there:'Are you still there?',v_no_answer:'I could not hear you, so I will let you go. Please call back any time — goodbye!',
+  v_re_name:'So, may I take your name?',v_re_service:'Now, how can we help you today?',
+  v_re_urgency:'And is this urgent, or are you planning ahead?',v_re_phone:'And what is the best number to reach you on?',
+  v_got_name:'Thanks, {name}.',v_got_service:'Got it.',v_got_phone:'I have your number, thank you.',v_got_urgency:'Understood.',
+  v_a_price:'Our systems start at £499 a month for Starter, £799 for Growth and £1,200 for Full Automation, with setup from £1,000 and a minimum four-month agreement.',
+  v_a_hours:'The team is in Monday to Friday, nine to six — but I answer around the clock, so you never miss a slot.',
+  v_a_hours_set:'Our opening hours are {h} — but I answer around the clock.',
+  v_a_where:'We work with businesses across the UK and handle everything remotely, so wherever you are we can help.',
+  v_a_where_set:'You are through to {b}, and we look after clients across the UK.',
+  v_a_services:'We build AI receptionists and lead systems — answering calls, capturing enquiries, following up automatically and showing it all in a live dashboard.',
+  v_a_services_set:'We handle {s} — and I can pass on anything else you need.',
+  v_a_human:'Of course. I will take a couple of details and have someone from the team call you straight back.',
+  v_a_when:'For urgent enquiries the team calls back the same day, and otherwise within one working day.',
+  v_a_email:'You can reach us at contact@alsaitigrowth.com, or I can have the team call you.',
+  v_a_book:'I can absolutely arrange that — the team will confirm a time when they call you back.',
+  v_a_who:'I am the AI receptionist for Alsaiti Growth. I take your details, and a real member of the team follows up personally.',
+  v_a_thanks:'You are very welcome.',v_a_bye:'Thank you for calling Alsaiti Growth. Have a wonderful day — goodbye!',
+  v_a_unknown:'Let me note that down for the team.',
+  cx_fail_t:'{p} did not connect',
+  cx_fail_b:'Make sure you have entered the correct details — we could not verify this {p} connection.',
+  cx_check:'What to check',cx_try_again:'Try again',cx_ok_t:'{p} details verified',
+  cx_step:'Connect your {p} account',cx_step_s:'Enter the credentials from your {p} account. We check them before going any further.',
+  cx_where:'Where to find these',cx_required:'{f} is required.',cx_bad:'{f} does not look right.',
+  cx_bad_url:'{f} must be a full https:// address.',cx_bad_len:'{f} looks too short — expected about {n} characters.',
+  cx_bad_email:'{f} must be a valid email address.',cx_bad_domain:'{f} should be your company domain, like yourcompany.pipedrive.com.',
+  cx_bad_prefix:'{f} should start with “{x}”.',cx_bad_digits:'{f} should be digits only.',
+  cx_demo_note:'Demo check: we validate the format of every field exactly as the live connector does, but no request leaves your browser.',
+  bk_bad_url:'Project URL must look like https://YOUR_REF.supabase.co',bk_bad_anon:'The anon key must be the long publishable key from Project Settings → API.'
+ },
+ es:{
+  v_your_turn_live:'Hable cuando quiera: le estoy escuchando.',v_intro_live:'Pulse «Iniciar llamada» y hable con naturalidad: el asistente escucha, responde en voz alta y mantiene la conversación. Sin botones.',
+  v_live_off:'Sin llamada',v_speaking:'El asistente habla',v_thinking:'Pensando…',v_listening_now:'Escuchando: adelante',
+  v_hands_hint:'Manos libres: el micrófono se abre solo tras cada respuesta. Pulse el micrófono para interrumpir.',
+  v_no_mic_hint:'Este navegador no admite entrada de voz: pulse «Diga su respuesta» o escriba abajo.',
+  v_still_there:'¿Sigue ahí?',v_no_answer:'No he podido oírle, así que le dejo. Vuelva a llamar cuando quiera. ¡Hasta pronto!',
+  v_re_name:'Entonces, ¿me dice su nombre, por favor?',v_re_service:'Y bien, ¿en qué podemos ayudarle hoy?',
+  v_re_urgency:'¿Y es urgente o lo está planificando con antelación?',v_re_phone:'¿Y cuál es el mejor número para localizarle?',
+  v_got_name:'Gracias, {name}.',v_got_service:'Entendido.',v_got_phone:'Ya tengo su número, gracias.',v_got_urgency:'Comprendido.',
+  v_a_price:'Nuestros sistemas empiezan en 499 £ al mes en el plan Starter, 799 £ en Growth y 1.200 £ en Automatización Completa, con una implantación desde 1.000 £ y un compromiso mínimo de cuatro meses.',
+  v_a_hours:'El equipo está de lunes a viernes, de nueve a seis, pero yo respondo las veinticuatro horas, así que no se pierde ninguna consulta.',
+  v_a_hours_set:'Nuestro horario es {h}, pero yo respondo las veinticuatro horas.',
+  v_a_where:'Trabajamos con empresas de todo el país y lo gestionamos todo en remoto, así que podemos ayudarle esté donde esté.',
+  v_a_where_set:'Está hablando con {b}, y atendemos a clientes de todo el país.',
+  v_a_services:'Creamos recepcionistas con IA y sistemas de captación: atendemos llamadas, registramos consultas, hacemos el seguimiento automáticamente y lo mostramos todo en un panel en vivo.',
+  v_a_services_set:'Nos encargamos de {s}, y puedo transmitir cualquier otra cosa que necesite.',
+  v_a_human:'Por supuesto. Tomo un par de datos y hago que alguien del equipo le llame enseguida.',
+  v_a_when:'En los casos urgentes el equipo le devuelve la llamada el mismo día; en el resto, en un día laborable.',
+  v_a_email:'Puede escribirnos a contact@alsaitigrowth.com, o hago que el equipo le llame.',
+  v_a_book:'Claro que sí, puedo organizarlo: el equipo le confirmará la hora cuando le llame.',
+  v_a_who:'Soy la recepcionista con IA de Alsaiti Growth. Yo tomo sus datos y una persona del equipo le atiende personalmente después.',
+  v_a_thanks:'No hay de qué.',v_a_bye:'Gracias por llamar a Alsaiti Growth. ¡Que tenga un día estupendo, hasta pronto!',
+  v_a_unknown:'Se lo anoto al equipo.',
+  cx_fail_t:'{p} no se ha conectado',
+  cx_fail_b:'Compruebe que ha introducido los datos correctos: no hemos podido verificar esta conexión con {p}.',
+  cx_check:'Qué revisar',cx_try_again:'Intentar de nuevo',cx_ok_t:'Datos de {p} verificados',
+  cx_step:'Conecte su cuenta de {p}',cx_step_s:'Introduzca las credenciales de su cuenta de {p}. Las comprobamos antes de continuar.',
+  cx_where:'Dónde encontrarlos',cx_required:'{f} es obligatorio.',cx_bad:'{f} no parece correcto.',
+  cx_bad_url:'{f} debe ser una dirección https:// completa.',cx_bad_len:'{f} parece demasiado corto: se esperaban unos {n} caracteres.',
+  cx_bad_email:'{f} debe ser una dirección de correo válida.',cx_bad_domain:'{f} debe ser el dominio de su empresa, por ejemplo suempresa.pipedrive.com.',
+  cx_bad_prefix:'{f} debe empezar por «{x}».',cx_bad_digits:'{f} debe contener solo dígitos.',
+  cx_demo_note:'Comprobación de demostración: validamos el formato de cada campo igual que el conector real, pero ninguna petición sale de su navegador.',
+  bk_bad_url:'La URL del proyecto debe tener la forma https://SU_REF.supabase.co',bk_bad_anon:'La clave anon debe ser la clave pública larga de Ajustes del proyecto → API.'
+ },
+ ar:{
+  v_your_turn_live:'تحدّث متى شئت — أنا أستمع.',v_intro_live:'اضغط «بدء المكالمة» وتحدّث بشكل طبيعي — يستمع المساعد ويردّ بصوت مسموع ويواصل الحديث. بلا أزرار.',
+  v_live_off:'لا توجد مكالمة',v_speaking:'المساعد يتحدّث',v_thinking:'يفكّر…',v_listening_now:'يستمع — تفضّل',
+  v_hands_hint:'بلا استخدام اليدين: يُفتح الميكروفون تلقائيًا بعد كل ردّ. اضغط الميكروفون للمقاطعة.',
+  v_no_mic_hint:'هذا المتصفح لا يدعم الإدخال الصوتي — اضغط «انطق ردّك» أو اكتب أدناه.',
+  v_still_there:'هل ما زلت معي؟',v_no_answer:'لم أتمكّن من سماعك، لذا سأنهي المكالمة. عاود الاتصال في أي وقت — مع السلامة!',
+  v_re_name:'إذًا، هل لي أن أعرف اسمك؟',v_re_service:'والآن، كيف يمكننا مساعدتك اليوم؟',
+  v_re_urgency:'وهل الأمر عاجل أم أنك تخطّط له مسبقًا؟',v_re_phone:'وما أفضل رقم يمكننا التواصل معك عليه؟',
+  v_got_name:'شكرًا لك، {name}.',v_got_service:'تمام.',v_got_phone:'سجّلتُ رقمك، شكرًا لك.',v_got_urgency:'مفهوم.',
+  v_a_price:'تبدأ أنظمتنا من 499 جنيهًا إسترلينيًا شهريًا لباقة البداية، و799 لباقة النمو، و1200 للأتمتة الكاملة، مع إعداد يبدأ من 1000 جنيه والحد الأدنى للاتفاقية أربعة أشهر.',
+  v_a_hours:'الفريق متاح من الاثنين إلى الجمعة من التاسعة صباحًا حتى السادسة مساءً، أما أنا فأردّ على مدار الساعة فلا يفوتك أي استفسار.',
+  v_a_hours_set:'ساعات عملنا هي {h}، أما أنا فأردّ على مدار الساعة.',
+  v_a_where:'نعمل مع الشركات في جميع أنحاء المملكة المتحدة وندير كل شيء عن بُعد، لذا يمكننا مساعدتك أينما كنت.',
+  v_a_where_set:'أنت متّصل بـ {b}، ونخدم عملاء في جميع أنحاء المملكة المتحدة.',
+  v_a_services:'نبني موظفي استقبال بالذكاء الاصطناعي وأنظمة لالتقاط العملاء المحتملين — نردّ على المكالمات، ونسجّل الاستفسارات، ونتابعها تلقائيًا، ونعرض ذلك كله في لوحة تحكم مباشرة.',
+  v_a_services_set:'نتولّى {s} — ويمكنني نقل أي طلب آخر تحتاجه.',
+  v_a_human:'بكل تأكيد. سآخذ بعض التفاصيل وأجعل أحد أفراد الفريق يعاود الاتصال بك فورًا.',
+  v_a_when:'في الحالات العاجلة يعاود الفريق الاتصال في اليوم نفسه، وفي غير ذلك خلال يوم عمل واحد.',
+  v_a_email:'يمكنك مراسلتنا على contact@alsaitigrowth.com، أو أجعل الفريق يتصل بك.',
+  v_a_book:'بالتأكيد يمكنني ترتيب ذلك — سيؤكّد الفريق الموعد عند معاودة الاتصال بك.',
+  v_a_who:'أنا موظف الاستقبال الذكي لدى Alsaiti Growth. آخذ بياناتك ثم يتابع معك أحد أفراد الفريق شخصيًا.',
+  v_a_thanks:'على الرحب والسعة.',v_a_bye:'شكرًا لاتصالك بـ Alsaiti Growth. أتمنى لك يومًا رائعًا — مع السلامة!',
+  v_a_unknown:'سأدوّن ذلك للفريق.',
+  cx_fail_t:'لم يتم الاتصال بـ {p}',
+  cx_fail_b:'تأكّد من إدخال البيانات الصحيحة — لم نتمكّن من التحقق من هذا الاتصال بـ {p}.',
+  cx_check:'ما ينبغي مراجعته',cx_try_again:'إعادة المحاولة',cx_ok_t:'تم التحقق من بيانات {p}',
+  cx_step:'اربط حسابك في {p}',cx_step_s:'أدخل بيانات الاعتماد من حسابك في {p}. سنتحقق منها قبل المتابعة.',
+  cx_where:'أين تجدها',cx_required:'{f} مطلوب.',cx_bad:'{f} لا يبدو صحيحًا.',
+  cx_bad_url:'يجب أن يكون {f} عنوانًا كاملًا يبدأ بـ https://.',cx_bad_len:'يبدو {f} قصيرًا جدًا — المتوقع نحو {n} حرفًا.',
+  cx_bad_email:'يجب أن يكون {f} بريدًا إلكترونيًا صالحًا.',cx_bad_domain:'ينبغي أن يكون {f} نطاق شركتك، مثل yourcompany.pipedrive.com.',
+  cx_bad_prefix:'ينبغي أن يبدأ {f} بـ «{x}».',cx_bad_digits:'ينبغي أن يحتوي {f} على أرقام فقط.',
+  cx_demo_note:'تحقّق تجريبي: نتحقق من صيغة كل حقل تمامًا كما يفعل الموصّل الحقيقي، لكن لا يغادر أي طلب متصفحك.',
+  bk_bad_url:'ينبغي أن يكون عنوان المشروع بالشكل https://YOUR_REF.supabase.co',bk_bad_anon:'ينبغي أن يكون مفتاح anon هو المفتاح العام الطويل من إعدادات المشروع ← API.'
+ }
+};
+(function(){for(var l in LIVE_TR){if(!TR[l])TR[l]={};for(var k in LIVE_TR[l]){if(TR[l][k]==null)TR[l][k]=LIVE_TR[l][k]}}})();
 function setLang(l){try{if(VOICE&&(VOICE.active||VOICE.timer))voiceEnd()}catch(e){}LANG=l;DB.set('ag_lang',l);applyDir();render()}
 function applyDir(){try{document.documentElement.lang=LANG;document.documentElement.dir=(LANG==='ar'?'rtl':'ltr')}catch(e){}}
 /* ---- Theme (light warm-luxury / dark luxury) ---- */
@@ -1467,7 +1599,8 @@ window.addEventListener('hashchange',render);
 /* Faceted "A" monogram (the ALSAITI mark) — low-poly greens with an ivory seam and a
    gold "G" accent in the crossbar. Colours + seams are theme variables so it restyles for
    light/dark; per-facet --i drives the staggered assemble animation. See the LOGO CSS block. */
-function aLogo(){return '<svg class="aM" viewBox="0 0 200 200" aria-hidden="true"><g class="aMg"><polygon class="fd" style="--i:0" points="100,20 80,55 100,65"/><polygon class="fm" style="--i:1" points="100,20 100,65 120,55"/><polygon class="fi" style="--i:2" points="80,55 58,90 85,90"/><polygon class="fd" style="--i:3" points="80,55 85,90 100,65"/><polygon class="gl" style="--i:4" points="100,65 120,55 132,85"/><polygon class="fl" style="--i:5" points="58,90 65,125 85,90"/><polygon class="fm" style="--i:6" points="58,90 35,130 65,125"/><polygon class="gm" style="--i:7" points="100,65 132,85 108,100"/><polygon class="fi" style="--i:8" points="120,55 150,90 132,85"/><polygon class="fi" style="--i:9" points="35,130 60,175 65,125"/><polygon class="gd" style="--i:10" points="108,100 132,85 142,115"/><polygon class="fd" style="--i:11" points="35,130 28,175 60,175"/><polygon class="gm" style="--i:12" points="108,100 142,115 118,125"/><polygon class="fd" style="--i:13" points="65,125 88,170 88,125"/><polygon class="fd" style="--i:14" points="88,125 118,125 102,145"/><polygon class="fm" style="--i:15" points="65,125 60,175 88,170"/><polygon class="fm" style="--i:16" points="88,125 102,145 88,170"/><polygon class="fl" style="--i:17" points="150,90 172,130 142,115"/><polygon class="gd" style="--i:18" points="102,145 118,125 128,148"/><polygon class="gl" style="--i:19" points="118,125 142,115 158,140"/><polygon class="gd" style="--i:20" points="118,125 158,140 128,148"/><polygon class="fi" style="--i:21" points="142,115 158,140 128,148"/><polygon class="fd" style="--i:22" points="102,145 128,148 120,175"/><polygon class="fm" style="--i:23" points="172,130 148,175 158,140"/><polygon class="fl" style="--i:24" points="128,148 148,175 120,175"/><polygon class="fd" style="--i:25" points="172,130 178,175 148,175"/></g></svg>'}
+var A_UID=0;
+function aLogo(){var U=(++A_UID);return '<svg class="aM" viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="ag'+U+'_0" gradientUnits="userSpaceOnUse" x1="90.2" y1="55.5" x2="108.9" y2="8.2"><stop offset="0" stop-color="#2c5a40"/><stop offset="1" stop-color="#345f46"/></linearGradient><linearGradient id="ag'+U+'_1" gradientUnits="userSpaceOnUse" x1="31.6" y1="100.2" x2="89.4" y2="32.9"><stop offset="0" stop-color="#1e3c2c"/><stop offset="1" stop-color="#264d37"/></linearGradient><linearGradient id="ag'+U+'_2" gradientUnits="userSpaceOnUse" x1="59" y1="135.1" x2="36.8" y2="107.3"><stop offset="0" stop-color="#152e1e"/><stop offset="1" stop-color="#173324"/></linearGradient><linearGradient id="ag'+U+'_3" gradientUnits="userSpaceOnUse" x1="75.3" y1="51.3" x2="98.5" y2="53.5"><stop offset="0" stop-color="#2e543d"/><stop offset="1" stop-color="#2e5941"/></linearGradient><linearGradient id="ag'+U+'_4" gradientUnits="userSpaceOnUse" x1="151.2" y1="32.7" x2="130.3" y2="75.7"><stop offset="0" stop-color="#365942"/><stop offset="1" stop-color="#3a664b"/></linearGradient><linearGradient id="ag'+U+'_5" gradientUnits="userSpaceOnUse" x1="167.2" y1="151.4" x2="194.1" y2="147.8"><stop offset="0" stop-color="#2c563d"/><stop offset="1" stop-color="#325943"/></linearGradient><linearGradient id="ag'+U+'_6" gradientUnits="userSpaceOnUse" x1="20.7" y1="119.2" x2="21.7" y2="170.7"><stop offset="0" stop-color="#15291c"/><stop offset="1" stop-color="#153021"/></linearGradient><linearGradient id="ag'+U+'_7" gradientUnits="userSpaceOnUse" x1="104.8" y1="38.3" x2="130.9" y2="61.3"><stop offset="0" stop-color="#274d39"/><stop offset="1" stop-color="#335d44"/></linearGradient><linearGradient id="ag'+U+'_8" gradientUnits="userSpaceOnUse" x1="152.9" y1="149.1" x2="168.8" y2="109.2"><stop offset="0" stop-color="#2f563f"/><stop offset="1" stop-color="#355f46"/></linearGradient><linearGradient id="ag'+U+'_9" gradientUnits="userSpaceOnUse" x1="57.5" y1="102.2" x2="76.8" y2="116.2"><stop offset="0" stop-color="#1a3425"/><stop offset="1" stop-color="#21412f"/></linearGradient><linearGradient id="ag'+U+'_10" gradientUnits="userSpaceOnUse" x1="21.8" y1="185.6" x2="35.8" y2="163.8"><stop offset="0" stop-color="#14271b"/><stop offset="1" stop-color="#153223"/></linearGradient><linearGradient id="ag'+U+'_11" gradientUnits="userSpaceOnUse" x1="95" y1="87.9" x2="73.3" y2="84.1"><stop offset="0" stop-color="#294734"/><stop offset="1" stop-color="#264f3b"/></linearGradient><linearGradient id="ag'+U+'_12" gradientUnits="userSpaceOnUse" x1="171.7" y1="188.6" x2="173.6" y2="162.9"><stop offset="0" stop-color="#172c20"/><stop offset="1" stop-color="#193929"/></linearGradient><linearGradient id="ag'+U+'_13" gradientUnits="userSpaceOnUse" x1="67.6" y1="129.4" x2="87.3" y2="144.4"><stop offset="0" stop-color="#224534"/><stop offset="1" stop-color="#325841"/></linearGradient><linearGradient id="ag'+U+'_14" gradientUnits="userSpaceOnUse" x1="38.2" y1="162.6" x2="60.3" y2="169.1"><stop offset="0" stop-color="#132c1f"/><stop offset="1" stop-color="#183324"/></linearGradient><linearGradient id="ag'+U+'_16" gradientUnits="userSpaceOnUse" x1="131.2" y1="97" x2="144.7" y2="121.2"><stop offset="0" stop-color="#3a5e48"/><stop offset="1" stop-color="#396549"/></linearGradient><linearGradient id="ag'+U+'_17" gradientUnits="userSpaceOnUse" x1="103.8" y1="122.7" x2="136.1" y2="114.8"><stop offset="0" stop-color="#254332"/><stop offset="1" stop-color="#2b4a37"/></linearGradient><linearGradient id="ag'+U+'_18" gradientUnits="userSpaceOnUse" x1="154.3" y1="133.2" x2="143.2" y2="153"><stop offset="0" stop-color="#1c3527"/><stop offset="1" stop-color="#1e3d2d"/></linearGradient><linearGradient id="ag'+U+'_19" gradientUnits="userSpaceOnUse" x1="115.8" y1="142.9" x2="143.5" y2="132.9"><stop offset="0" stop-color="#1c392a"/><stop offset="1" stop-color="#214230"/></linearGradient><linearGradient id="ag'+U+'_20" gradientUnits="userSpaceOnUse" x1="86.4" y1="166.6" x2="85.8" y2="146.2"><stop offset="0" stop-color="#4e4f26"/><stop offset="1" stop-color="#7b7031"/></linearGradient><linearGradient id="ag'+U+'_21" gradientUnits="userSpaceOnUse" x1="127.2" y1="93.9" x2="120.1" y2="72.3"><stop offset="0" stop-color="#a2883c"/><stop offset="1" stop-color="#bb9c49"/></linearGradient><linearGradient id="ag'+U+'_22" gradientUnits="userSpaceOnUse" x1="157.9" y1="93.2" x2="134.3" y2="83.5"><stop offset="0" stop-color="#927b34"/><stop offset="1" stop-color="#eacb71"/></linearGradient><linearGradient id="ag'+U+'_23" gradientUnits="userSpaceOnUse" x1="96.8" y1="72.5" x2="113.3" y2="75.7"><stop offset="0" stop-color="#9c8034"/><stop offset="1" stop-color="#ddc370"/></linearGradient><linearGradient id="ag'+U+'_24" gradientUnits="userSpaceOnUse" x1="108" y1="157.3" x2="96.9" y2="149.5"><stop offset="0" stop-color="#ae9447"/><stop offset="1" stop-color="#e5c66e"/></linearGradient><linearGradient id="ag'+U+'_25" gradientUnits="userSpaceOnUse" x1="39.8" y1="135.7" x2="59" y2="135.1"><stop offset="0" stop-color="#1e3325"/><stop offset="1" stop-color="#234332"/></linearGradient><linearGradient id="ag'+U+'_26" gradientUnits="userSpaceOnUse" x1="61.7" y1="152.9" x2="52.6" y2="144.6"><stop offset="0" stop-color="#1d3627"/><stop offset="1" stop-color="#223e2f"/></linearGradient><linearGradient id="ag'+U+'_27" gradientUnits="userSpaceOnUse" x1="113.5" y1="151.1" x2="121.7" y2="159.7"><stop offset="0" stop-color="#1d3a29"/><stop offset="1" stop-color="#253f2e"/></linearGradient></defs><g class="aMg"><polygon style="--i:0" points="80,11.8 122.3,12.7 99.9,61.1" fill="url(#ag'+U+'_0)"/><polygon style="--i:1" points="75.7,19 71.8,76.8 35.5,105.8" fill="url(#ag'+U+'_1)"/><polygon style="--i:7" points="30.1,113.1 67.6,84.3 35.2,154.8" fill="url(#ag'+U+'_2)"/><polygon style="--i:2" points="78.7,17.4 99.1,63.4 97.2,66.9 73.4,74.7" fill="url(#ag'+U+'_3)"/><polygon style="--i:6" points="125.8,19 158.2,90.3 129,67.6" fill="url(#ag'+U+'_4)"/><polygon style="--i:26" points="173.1,117.4 198,169.1 197.8,173.1 167.3,159.9" fill="url(#ag'+U+'_5)"/><polygon style="--i:10" points="2,172.3 28.3,117.4 33.9,160.4" fill="url(#ag'+U+'_6)"/><polygon style="--i:3" points="101.9,65.3 122.7,16.6 127.9,67.1" fill="url(#ag'+U+'_7)"/><polygon style="--i:22" points="144.8,123.4 169.5,108.2 171.6,116.2 165.2,155.6" fill="url(#ag'+U+'_8)"/><polygon style="--i:9" points="56.4,112.1 72.5,82.5 79.1,115.6 60.8,130.8 56.1,120.2" fill="url(#ag'+U+'_9)"/><polygon style="--i:17" points="35.6,161.7 48.7,187.4 4.5,175.7" fill="url(#ag'+U+'_10)"/><polygon style="--i:4" points="77.5,74.2 99.6,66.7 79.6,113.8 72.8,79.6" fill="url(#ag'+U+'_11)"/><polygon style="--i:27" points="167.6,160.8 197,175.7 152.8,188.2" fill="url(#ag'+U+'_12)"/><polygon style="--i:13" points="62.6,133.5 79.4,117.4 89.8,143.9 67.3,148.4" fill="url(#ag'+U+'_13)"/><polygon style="--i:18" points="65.6,154.4 49.5,185.8 37.2,161" fill="url(#ag'+U+'_14)"/><polygon style="--i:25" points="135.1,152.8 165.1,161.9 150.4,185.8" fill="#183325"/><polygon style="--i:16" points="164.4,108.7 144.1,122.9 110.7,107.9" fill="url(#ag'+U+'_16)"/><polygon style="--i:15" points="104.2,107 138.8,124 103.2,126.9" fill="url(#ag'+U+'_17)"/><polygon style="--i:24" points="135.5,146.3 145.7,126.6 162.5,158 136.5,150.9" fill="url(#ag'+U+'_18)"/><polygon style="--i:21" points="115.6,147.1 128.4,126.7 142.3,126.4 133.8,150.1" fill="url(#ag'+U+'_19)"/><polygon style="--i:19" points="69.7,149.6 90.6,144.6 98.8,167.6" fill="url(#ag'+U+'_20)"/><polygon style="--i:8" points="108.3,79.4 128.7,68.7 130.3,93.4" fill="url(#ag'+U+'_21)"/><polygon style="--i:12" points="133.4,93.6 136.3,75 159.7,93.3" fill="url(#ag'+U+'_22)"/><polygon style="--i:5" points="100.7,65.6 116.2,67.8 111.6,77.1 93.3,86.2" fill="url(#ag'+U+'_23)"/><polygon style="--i:20" points="98.5,144.6 113.9,147.8 100.5,166.5 94.4,153.1" fill="url(#ag'+U+'_24)"/><polygon style="--i:11" points="55.4,119.7 60.6,133.4 40.1,153" fill="url(#ag'+U+'_25)"/><polygon style="--i:14" points="62,136.1 66.8,149.6 41.2,157.1" fill="url(#ag'+U+'_26)"/><polygon style="--i:23" points="114.9,147.7 131.1,152 106.4,165.1" fill="url(#ag'+U+'_27)"/></g></svg>'}
 function brandMark(size){return '<span class="amark"'+(size?' style="width:'+size+'px;height:'+size+'px"':'')+'>'+aLogo()+'</span>'}
 /* Full logo lockup for the landing hero — monogram + ALSAITI wordmark + the brand tagline. */
 function logoLockup(){return '<div class="logoLock">'+
@@ -1943,7 +2076,9 @@ function saveProfile(e){e.preventDefault();var el=e.target.elements;setProfile({
 function resetData(){if(!confirm('Replace your leads with the sample set?'))return;var s=AUTH.session();DB.del(leadsKey(s.email));DB.del(crmKey(s.email));seedIfNeeded(s.email);render();toast('Sample data restored')}
 
 /* ============================ AI receptionist (voice) ============================ */
-var VOICE={active:false,step:0,data:{},rec:null,unlocked:false,urgent:false,timer:null,log:[],listening:false,retry:{},gender:(function(){var g=DB.get('ag_voice_gender','female');return g==='male'?'male':'female'})()};
+var VOICE={active:false,step:0,data:{},rec:null,unlocked:false,urgent:false,timer:null,log:[],listening:false,retry:{},
+  phase:'idle',hands:false,armTimer:null,empties:0,acks:[],lastBot:'',
+  gender:(function(){var g=DB.get('ag_voice_gender','female');return g==='male'?'male':'female'})()};
 var VQ=[{key:'name',ask:'vq_greet'},{key:'service',ask:'vq_service'},{key:'urgency',ask:'vq_urgency'},{key:'phone',ask:'vq_phone'}];
 /* small human touches: varied acknowledgements + a natural close when no phone was given */
 var VACK={
@@ -2020,9 +2155,16 @@ function vUnlock(){try{if(window.speechSynthesis&&!VOICE.unlocked){var u=new Spe
 /* read long digit runs (phone numbers) one digit at a time so TTS never says "million" */
 function normDigits(s){return String(s||'').replace(/[٠-٩]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-1632+48)}).replace(/[۰-۹]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-1776+48)})}
 function speechClean(text){return String(text).replace(/[+]?\d[\d ]{3,}\d/g,function(m){var ds=m.replace(/[^\d]/g,'');return ds.length>=7?ds.split('').join(' '):m})}
+/* ---- ONE VOICE AT A TIME -------------------------------------------------------------------
+   Every utterance takes a ticket (SPEAK_SEQ). Any newer utterance — or ttsStop() — invalidates
+   the older ticket, so a late network reply or a stale fallback timer can never start a second
+   voice on top of the one you are hearing. `done` fires when the audio actually finishes, which
+   is what lets the call run hands-free (speak → listen → speak …). */
+var SPEAK_SEQ=0, SPEAK_TIMER=null;
 /* Device-voice path (free; quality depends on the device's installed voices). */
-function sayDevice(text){try{
-  if(!window.speechSynthesis)return;
+function sayDevice(text,done,ticket){try{
+  var fin=function(){if((ticket==null||ticket===SPEAK_SEQ)&&typeof done==='function')done()};
+  if(!window.speechSynthesis){setTimeout(fin,Math.min(6000,600+String(text).length*55));return}
   var sp=window.speechSynthesis;
   var lang=LANG, code=TTSLANG[lang]||'en-GB', gender=VOICE.gender||'female';
   var u=new SpeechSynthesisUtterance(speechClean(sayBrand(text,lang)));
@@ -2031,8 +2173,11 @@ function sayDevice(text){try{
   if(v)u.voice=v;                 /* only ever a same-language voice; else browser default engine */
   var pr=vProsody(lang,gender);
   u.rate=pr.rate;u.pitch=pr.pitch;u.volume=1;
+  /* some engines never fire onend — a length-based safety net keeps the call moving */
+  var fired=false,safe=setTimeout(function(){if(!fired){fired=true;fin()}},Math.min(20000,2200+String(text).length*90));
+  u.onend=u.onerror=function(){if(fired)return;fired=true;clearTimeout(safe);fin()};
   sp.cancel();sp.speak(u);
-}catch(e){}}
+}catch(e){if(typeof done==='function')done()}}
 
 /* ---- Human (neural) voice via the backend TTS function -------------------------------------
    When the backend is configured AND ultra-realistic voice is on, we fetch genuinely lifelike
@@ -2041,23 +2186,70 @@ function sayDevice(text){try{
 var HUMAN_VOICE=(function(){var v=DB.get('ag_human_voice',null);return v===null?true:!!v})();
 var TTS_CACHE={}, TTS_AUDIO=null, TTS_UNAVAILABLE=false;
 function humanVoiceOn(){return HUMAN_VOICE && BK.hasProject() && !TTS_UNAVAILABLE}
-function ttsStop(){try{if(TTS_AUDIO){TTS_AUDIO.pause();TTS_AUDIO.currentTime=0}}catch(e){}try{if(window.speechSynthesis)window.speechSynthesis.cancel()}catch(e){}}
-function say(text){
-  var lang=LANG, gender=VOICE.gender||'female';
-  if(!humanVoiceOn()){sayDevice(text);return}
-  var spoken=speechClean(sayBrand(text,lang));
-  var key=lang+'|'+gender+'|'+spoken;
-  var play=function(dataUri){try{ttsStop();var a=new Audio(dataUri);TTS_AUDIO=a;a.play()['catch'](function(){sayDevice(text)})}catch(e){sayDevice(text)}};
-  if(TTS_CACHE[key]){play(TTS_CACHE[key]);return}
-  /* start the device voice as an instant fallback if the network is slow, then swap when ready */
-  var swapped=false;var slow=setTimeout(function(){if(!swapped)sayDevice(text)},1200);
+/* Silence everything and invalidate any utterance still in flight. */
+function ttsStop(){
+  SPEAK_SEQ++;
+  if(SPEAK_TIMER){clearTimeout(SPEAK_TIMER);SPEAK_TIMER=null}
+  try{if(TTS_AUDIO){TTS_AUDIO.onended=null;TTS_AUDIO.onerror=null;TTS_AUDIO.pause();TTS_AUDIO.currentTime=0;TTS_AUDIO=null}}catch(e){}
+  try{if(window.speechSynthesis)window.speechSynthesis.cancel()}catch(e){}
+}
+function ttsKey(text,lang,gender){return lang+'|'+gender+'|'+speechClean(sayBrand(text,lang))}
+/* One request per distinct line, ever. Returns the in-flight promise if there already is one,
+   so prefetching the greeting and then speaking it does not fetch the same audio twice. */
+function ttsFetch(spoken,lang,gender,key){
+  if(TTS_CACHE[key])return Promise.resolve(TTS_CACHE[key]);
+  var inflight=TTS_CACHE['@'+key];
+  if(inflight)return inflight;
+  var p;
   try{
-    BK.fn('tts',{body:{text:spoken,lang:lang,gender:gender}}).then(function(r){
-      clearTimeout(slow);
-      if(r&&r.ok&&r.audio){var uri='data:'+(r.mime||'audio/mpeg')+';base64,'+r.audio;TTS_CACHE[key]=uri;swapped=true;try{if(window.speechSynthesis)window.speechSynthesis.cancel()}catch(e){}play(uri)}
-      else{if(r&&r.error==='no_tts_provider')TTS_UNAVAILABLE=true;if(!swapped)sayDevice(text)}
-    })['catch'](function(){clearTimeout(slow);if(!swapped)sayDevice(text)});
-  }catch(e){clearTimeout(slow);sayDevice(text)} /* fetch missing / sync throw → always speak */
+    p=BK.fn('tts',{body:{text:spoken,lang:lang,gender:gender}}).then(function(r){
+      delete TTS_CACHE['@'+key];
+      if(r&&r.ok&&r.audio){TTS_CACHE[key]='data:'+(r.mime||'audio/mpeg')+';base64,'+r.audio;return TTS_CACHE[key]}
+      if(r&&r.error==='no_tts_provider')TTS_UNAVAILABLE=true;
+      return null;
+    })['catch'](function(){delete TTS_CACHE['@'+key];return null});
+  }catch(e){return Promise.resolve(null)}
+  TTS_CACHE['@'+key]=p;
+  return p;
+}
+/* Warm the cache for lines we know are coming, so the reply starts the instant it is needed. */
+function ttsPrefetch(lines){
+  if(!humanVoiceOn())return;
+  var lang=LANG,gender=VOICE.gender||'female';
+  (lines||[]).forEach(function(txt){
+    if(!txt)return;var spoken=speechClean(sayBrand(txt,lang)),key=lang+'|'+gender+'|'+spoken;
+    ttsFetch(spoken,lang,gender,key);
+  });
+}
+/* Speak `text`; call `done` when the audio has actually finished playing. */
+function say(text,done){
+  ttsStop();                                   /* whatever was talking, stops now */
+  var my=SPEAK_SEQ, lang=LANG, gender=VOICE.gender||'female';
+  var stale=function(){return my!==SPEAK_SEQ};
+  var fin=function(){if(!stale()&&typeof done==='function')done()};
+  if(!humanVoiceOn()){sayDevice(text,done,my);return}
+  var spoken=speechClean(sayBrand(text,lang)), key=lang+'|'+gender+'|'+spoken;
+  var play=function(uri){
+    if(stale())return;
+    try{
+      var a=new Audio(uri);TTS_AUDIO=a;
+      a.onended=function(){if(TTS_AUDIO===a)TTS_AUDIO=null;fin()};
+      a.onerror=function(){if(!stale())sayDevice(text,done,my)};
+      var pr=a.play();
+      if(pr&&pr['catch'])pr['catch'](function(){if(!stale())sayDevice(text,done,my)});
+    }catch(e){if(!stale())sayDevice(text,done,my)}
+  };
+  if(TTS_CACHE[key]){play(TTS_CACHE[key]);return}
+  /* Neural first. If it is slow or unavailable we fall back to the device voice — but only ever
+     ONE of the two speaks, because the fallback checks its ticket before making a sound. */
+  var settled=false;
+  var fallback=function(){if(settled||stale())return;settled=true;SPEAK_TIMER=null;sayDevice(text,done,my)};
+  SPEAK_TIMER=setTimeout(fallback,2200);
+  ttsFetch(spoken,lang,gender,key).then(function(uri){
+    if(settled||stale())return;                  /* device voice already started — never double up */
+    settled=true;if(SPEAK_TIMER){clearTimeout(SPEAK_TIMER);SPEAK_TIMER=null}
+    if(uri)play(uri);else sayDevice(text,done,my);
+  })['catch'](function(){if(settled||stale())return;settled=true;if(SPEAK_TIMER){clearTimeout(SPEAK_TIMER);SPEAK_TIMER=null}sayDevice(text,done,my)});
 }
 function voiceHuman(on){HUMAN_VOICE=!!on;DB.set('ag_human_voice',HUMAN_VOICE);var b=document.getElementById('vhuman');if(b)b.classList.toggle('on',HUMAN_VOICE);vSample()}
 /* Voices load asynchronously — prime the list and re-cache when the browser reports them ready. */
@@ -2065,19 +2257,41 @@ var VOICES_READY=false;
 function vWarmVoices(){try{if(window.speechSynthesis){var vs=window.speechSynthesis.getVoices();if(vs&&vs.length)VOICES_READY=true}}catch(e){}}
 if(typeof window!=='undefined'&&window.speechSynthesis){try{window.speechSynthesis.onvoiceschanged=function(){vWarmVoices()};vWarmVoices()}catch(e){}}
 /* Speak a short sample so the user hears the chosen voice/language/gender immediately. */
-function vSample(){var s={en:'Hi! This is your AI receptionist — lovely to meet you.',es:'¡Hola! Soy su recepcionista con IA. ¡Encantada de saludarle!',ar:'مرحبًا! معك موظف الاستقبال الذكي. سعدتُ بالتحدث إليك!'};try{vUnlock();say(s[LANG]||s.en)}catch(e){}}
+function vSample(){
+  if(VOICE.active)return;   /* never talk over a live call to demo a voice */
+  var s={en:'Hi! This is your AI receptionist — lovely to meet you.',es:'¡Hola! Soy su recepcionista con IA. ¡Encantada de saludarle!',ar:'مرحبًا! معك موظف الاستقبال الذكي. سعدتُ بالتحدث إليك!'};
+  try{vUnlock();say(s[LANG]||s.en)}catch(e){}
+}
 function voiceGender(g){VOICE.gender=(g==='male')?'male':'female';DB.set('ag_voice_gender',VOICE.gender);var wrap=document.getElementById('vgender');if(wrap){var bs=wrap.querySelectorAll('button');for(var i=0;i<bs.length;i++){bs[i].classList.toggle('on',bs[i].getAttribute('data-g')===VOICE.gender)}}vSample()}
 /* the receptionist "thinks" for a moment before answering — typing dots, then speech */
 function vTyping(on){var tr=document.getElementById('vtranscript');if(!tr)return;var ex=document.getElementById('vtyping');if(ex&&ex.parentNode)ex.parentNode.removeChild(ex);if(on){var d=document.createElement('div');d.id='vtyping';d.className='vmsg bot vtyping';d.innerHTML='<span></span><span></span><span></span>';tr.appendChild(d);tr.scrollTop=tr.scrollHeight}}
-function vBotSay(txt){
+/* Where the call is right now — drives the on-screen live indicator. */
+function vPhase(p){VOICE.phase=p;vRenderPhase()}
+function vRenderPhase(){
+  var m=document.getElementById('vmic'),d=document.getElementById('vlive'),p=VOICE.phase||'idle';
+  if(m){m.classList.toggle('on',p==='listening');m.classList.toggle('talking',p==='speaking')}
+  if(d){
+    d.className='vlive '+(VOICE.active?('is-'+p):'off');
+    var lbl=!VOICE.active?t('v_live_off'):p==='listening'?t('v_listening_now'):p==='speaking'?t('v_speaking'):t('v_thinking');
+    d.innerHTML='<i></i>'+esc(lbl);
+  }
+  var s=document.getElementById('vspeak');
+  if(s)s.classList.toggle('on',p==='listening');
+}
+function vBotSay(txt,after){
   /* if a reply is still "typing", flush it into the transcript instead of dropping it */
   if(VOICE.timer){clearTimeout(VOICE.timer);VOICE.timer=null;
     if(VOICE.pendingTxt){vTyping(false);vAddMsg('bot',VOICE.pendingTxt);VOICE.pendingTxt=null}}
-  VOICE.pendingTxt=txt;
-  vTyping(true);
-  var base=(window.V_DELAY!=null?window.V_DELAY:700);
-  var dl=base?base+Math.floor(Math.random()*400):0;
-  VOICE.timer=setTimeout(function(){VOICE.timer=null;VOICE.pendingTxt=null;vTyping(false);vAddMsg('bot',txt);say(txt)},dl)
+  VOICE.pendingTxt=txt;VOICE.lastBot=txt;
+  vTyping(true);vPhase('thinking');
+  /* a real receptionist answers almost immediately — just enough pause to feel human, not slow */
+  var base=(window.V_DELAY!=null?window.V_DELAY:240);
+  var dl=base?base+Math.floor(Math.random()*180):0;
+  VOICE.timer=setTimeout(function(){
+    VOICE.timer=null;VOICE.pendingTxt=null;vTyping(false);vAddMsg('bot',txt);
+    vPhase('speaking');
+    say(txt,function(){if(typeof after==='function')after()});
+  },dl)
 }
 function vSetStatus(s){var e=document.getElementById('vstatus');if(e)e.textContent=s}
 function vAddMsg(who,text){VOICE.log.push({who:who,text:text});var t=document.getElementById('vtranscript');if(!t)return;var ph=t.querySelector('.ph');if(ph)t.innerHTML='';var d=document.createElement('div');d.className='vmsg '+who;d.textContent=text;t.appendChild(d);t.scrollTop=t.scrollHeight}
@@ -2098,33 +2312,57 @@ function voicePage(){
         '<div class="vlang">'+langSwitch()+'</div>'+
         genderCtl+
         '<div style="margin:-6px 0 14px">'+humanCtl+'</div>'+
-        '<div id="vstatus" class="vstatus">'+esc(t('v_intro'))+'</div>'+
-        '<button id="vmic" class="vmic" onclick="voiceMic()" aria-label="'+esc(t('v_tap_talk'))+'">'+icon('mic')+'</button>'+
-        '<div class="row" style="margin-top:16px;justify-content:center"><button class="btn btn-sm btn-primary" onclick="voiceStart()">'+esc(t('v_start'))+'</button><button class="btn btn-sm btn-danger" onclick="voiceEnd()">'+esc(t('v_end'))+'</button></div>'+
-        '<button id="vspeak" class="btn btn-sm" style="margin-top:12px;width:100%;justify-content:center" onclick="voiceListen()">'+icon('mic')+' '+esc(t('v_speak'))+'</button>'+
-        '<div class="vreply"><input id="vinput" maxlength="160" placeholder="'+esc(t('v_reply_ph'))+'" onkeydown="if(event.key===\'Enter\'){event.preventDefault();voiceSend()}"/><button class="btn btn-sm btn-primary" onclick="voiceSend()">'+esc(t('v_send'))+'</button></div>'+
+        '<div id="vlive" class="vlive off"><i></i>'+esc(t('v_live_off'))+'</div>'+
+        '<div id="vstatus" class="vstatus">'+esc(VOICE.active?t('v_your_turn'):(vRecAvailable()?t('v_intro_live'):t('v_intro')))+'</div>'+
+        '<button id="vmic" class="vmic'+(VOICE.phase==='listening'?' on':'')+'" onclick="voiceMic()" aria-label="'+esc(t('v_tap_talk'))+'">'+icon('mic')+'</button>'+
+        '<div class="row" style="margin-top:16px;justify-content:center"><button class="btn btn-sm btn-primary" onclick="voiceStart()">'+icon('phone')+' '+esc(t('v_start'))+'</button><button class="btn btn-sm btn-danger" onclick="voiceEnd()">'+esc(t('v_end'))+'</button></div>'+
+        (vRecAvailable()
+          ? '<p class="muted vhint">'+esc(t('v_hands_hint'))+'</p>'
+          : '<button id="vspeak" class="btn btn-sm" style="margin-top:12px;width:100%;justify-content:center" onclick="voiceListen()">'+icon('mic')+' '+esc(t('v_speak'))+'</button><p class="muted vhint">'+esc(t('v_no_mic_hint'))+'</p>')+
+        '<div class="vreply"><input id="vinput" maxlength="200" placeholder="'+esc(t('v_reply_ph'))+'" onkeydown="if(event.key===\'Enter\'){event.preventDefault();voiceSend()}"/><button class="btn btn-sm btn-primary" onclick="voiceSend()">'+esc(t('v_send'))+'</button></div>'+
         '<p class="muted" style="font-size:12px;margin-top:12px;text-align:center">'+esc(t('v_sound_hint'))+'</p>'+
       '</div>'+
       '<div class="card"><h3>'+esc(t('v_transcript'))+'</h3><div id="vtranscript" class="vtranscript">'+(VOICE.log.length?VOICE.log.map(function(m){return '<div class="vmsg '+(m.who==='bot'?'bot':'user')+'">'+esc(m.text)+'</div>'}).join(''):'<p class="muted ph">'+esc(t('v_transcript_ph'))+'</p>')+'</div></div>'+
     '</div>'
 }
 function voiceStart(){
-  vUnlock();
-  try{if(VOICE.rec){VOICE.rec.onend=null;VOICE.rec.abort()}}catch(e){}
+  vUnlock();ttsStop();
+  if(VOICE.armTimer){clearTimeout(VOICE.armTimer);VOICE.armTimer=null}
+  try{if(VOICE.rec){VOICE.rec.onend=null;VOICE.rec.onresult=null;VOICE.rec.abort()}}catch(e){}
   VOICE.active=true;VOICE.step=0;VOICE.data={};VOICE.urgent=false;VOICE.log=[];VOICE.listening=false;VOICE.retry={};
+  VOICE.empties=0;VOICE.acks=[];VOICE.lastBot='';VOICE.answered=0;
+  VOICE.hands=vRecAvailable();               /* browsers with speech input run the call hands-free */
   var el=document.getElementById('vtranscript');if(el)el.innerHTML='';
-  vAsk();var i=document.getElementById('vinput');if(i)i.focus();
+  ttsPrefetch(vLikelyLines());               /* warm the next few lines so replies start instantly */
+  vAsk();
+  var i=document.getElementById('vinput');if(i&&!VOICE.hands)i.focus();
+}
+/* Lines we are almost certain to speak this call — prefetched so the neural voice never lags. */
+function vLikelyLines(){
+  var out=[],g=obGreeting();
+  out.push(g||tf('vq_greet',{name:t('v_default_name')}));
+  out.push(tf('vq_service',{name:t('v_default_name')}));
+  out.push(t('vq_urgency'));out.push(t('vq_phone'));
+  return out;
 }
 function vAskText(){
   var q=VQ[VOICE.step];
   var name=vCap(VOICE.data.name||'');
-  if(q.key==='name'){var g=obGreeting();if(g)return g;}
+  var lead='';
+  if(VOICE.acks&&VOICE.acks.length){lead=VOICE.acks.join(' ')+' ';VOICE.acks=[]}
+  if(q.key==='name'){var g=obGreeting();if(g)return lead+g;}
   var txt=tf(q.ask,{name:name||t('v_default_name')});
   if(q.key==='urgency'){var acks=VACK[LANG]||VACK.en;txt=acks[Math.floor(Math.random()*acks.length)]+' '+txt}
   if(q.key==='phone'&&VOICE.urgent){txt=t('v_ack_urgent')+' '+txt}
-  return txt;
+  return lead+txt;
 }
-function vAsk(){vSetStatus(t('v_your_turn'));vBotSay(vAskText())}
+/* A shorter way back to the question after the caller asked us something. */
+function vReAskText(){
+  var q=VQ[VOICE.step];
+  return t('v_re_'+q.key)||tf(q.ask,{name:vCap(VOICE.data.name||'')||t('v_default_name')});
+}
+function vTurnMsg(){return (VOICE.hands&&vRecAvailable())?t('v_your_turn_live'):t('v_your_turn')}
+function vAsk(){vSetStatus(vTurnMsg());vBotSay(vAskText(),vArmMic)}
 /* ---- smart validation: reject gibberish and re-ask politely ---- */
 function vHasLetter(s){return /[A-Za-zÀ-ɏ؀-ۿ]/.test(String(s||''))}
 function vDigits(s){return (normDigits(String(s||'')).match(/\d/g)||[]).length}
@@ -2141,41 +2379,225 @@ function vValidate(key,v){
   if(key==='phone')return {ok:vValidPhone(v)||vRefusal(v),msg:'v_retry_phone',max:1};
   return {ok:true};
 }
-function voiceSend(){
-  if(!VOICE.active){vSetStatus(t('v_tap_start_first'));return}
-  var i=document.getElementById('vinput');if(!i)return;var v=(i.value||'').trim();if(!v)return;i.value='';
-  vAddMsg('user',v);
-  var key=VQ[VOICE.step].key,vd=vValidate(key,v);
-  if(!vd.ok){
-    VOICE.retry[key]=(VOICE.retry[key]||0)+1;
-    if(VOICE.retry[key]<=vd.max){vSetStatus(t('v_your_turn'));vBotSay(t(vd.msg));i.focus();return}
-    if(key==='name'||key==='service')v='';
-  }
-  VOICE.data[key]=v;
-  if(key==='urgency'){VOICE.urgent=(vUrgency(v)==='High')}
-  VOICE.step++;
-  if(VOICE.step<VQ.length){vAsk();i.focus()}else{vFinish()}
+/* ---- Understanding: pull real details out of whatever the caller actually said --------------
+   A caller rarely answers one question at a time — "Hi it's Sarah, my boiler's leaking, it's
+   urgent, ring me on 07700 900123" is one sentence containing all four answers. We take
+   everything we can from every utterance and only ask for what is genuinely still missing. */
+var V_NAME_RE={
+  en:/(?:my name'?s?|my name is|this is|it'?s|i am|i'?m|you can call me)\s+([a-z][a-z'’\-]{1,20}(?:\s+[a-z][a-z'’\-]{1,20})?)/i,
+  es:/(?:me llamo|mi nombre es|soy|habla)\s+([a-záéíóúñü][a-záéíóúñü'’\-]{1,20}(?:\s+[a-záéíóúñü][a-záéíóúñü'’\-]{1,20})?)/i,
+  ar:/(?:اسمي|أنا|معك)\s+([ء-ي][ء-ي]{1,20}(?:\s+[ء-ي]{2,20})?)/
+};
+var V_SERVICE_RE={
+  en:/(?:i need|we need|i want|i'?m after|calling about|enquiring about|looking for|need help with|book(?:ing)? (?:a|an)?)\s+([^.,!?]{3,60})/i,
+  es:/(?:necesito|necesitamos|quiero|llamo por|busco|me interesa)\s+([^.,!?]{3,60})/i,
+  ar:/(?:أحتاج|أريد|أتصل بخصوص|أبحث عن|بخصوص)\s+([^.,!?]{3,60})/
+};
+var V_STOP_NAME=/^(yes|no|yeah|ok|okay|hello|hi|hey|thanks|thank|sure|calling|here|there|sorry|si|sí|hola|gracias|claro|نعم|لا|مرحبا|شكرا)$/i;
+function vPhoneIn(s){
+  var d=normDigits(String(s||''));
+  var m=d.match(/[+()\d][\d()\s.\-]{5,}\d/g);
+  if(!m)return '';
+  for(var i=0;i<m.length;i++){if((m[i].match(/\d/g)||[]).length>=7)return m[i].trim()}
+  return '';
 }
-/* big mic: start the call if idle, otherwise start listening */
-function voiceMic(){if(!VOICE.active){voiceStart();return}voiceListen()}
+function vNameIn(s){
+  var re=V_NAME_RE[LANG]||V_NAME_RE.en,m=String(s||'').match(re);
+  if(!m)return '';
+  var n=m[1].trim().replace(/\s+/g,' ');
+  if(V_STOP_NAME.test(n.split(' ')[0]))return '';
+  return n;
+}
+function vServiceIn(s){
+  var re=V_SERVICE_RE[LANG]||V_SERVICE_RE.en,m=String(s||'').match(re);
+  return m?m[1].trim():'';
+}
+/* Only treat urgency as "stated" when the caller was explicit about it. */
+function vUrgencyIn(s){
+  var l=' '+String(s||'').toLowerCase()+' ';
+  if(/(not urgent|no rush|no hay prisa|no es urgente|ليس عاجل|غير عاجل)/.test(l))return l;
+  if(/(urgent|emergency|asap|right now|straight away|today|leaking|flooding|no heating|no hot water|urgente|emergencia|hoy mismo|ahora mismo|عاجل|طارئ|اليوم)/.test(l))return l;
+  return '';
+}
+function vExtract(text,askedKey){
+  var out={};
+  var ph=vPhoneIn(text);if(ph)out.phone=ph;
+  var ur=vUrgencyIn(text);if(ur)out.urgency=String(text);
+  var nm=vNameIn(text);if(nm)out.name=nm;
+  var sv=vServiceIn(text);if(sv)out.service=sv;
+  /* whatever we were actually asking for, the plain utterance is the answer unless we
+     found a cleaner one inside it */
+  if(askedKey==='name'&&!out.name){
+    var bare=String(text).trim();
+    if(/^[^\d]{1,40}$/.test(bare)&&vHasLetter(bare))out.name=bare.replace(/[.,!?]+$/,'');
+  }
+  /* a bare phone number is never the service they need — it is a phone number */
+  if(askedKey==='service'&&!out.service&&vHasLetter(text)&&!(out.phone&&vDigits(text)>=7&&(String(text).match(/[A-Za-zÀ-ɏ؀-ۿ]/g)||[]).length<3))out.service=String(text).trim();
+  if(askedKey==='urgency')out.urgency=String(text).trim();
+  if(askedKey==='phone'&&!out.phone)out.phone=String(text).trim();
+  return out;
+}
+/* ---- Answering: the caller asks US things, and a good receptionist answers ------------------
+   Two tiers, so we never mistake an answer for a question. Phrases in V_SOLO are unambiguous on
+   their own ("goodbye", "can I speak to a real person"). Everything else must ALSO look like a
+   question — otherwise "I need it done today" would be heard as "how soon can you come?". */
+var V_SOLO=[
+  ['bye',     /\b(bye|goodbye|hang up|got to go|gotta go|end the call|adiós|adios|cuelgo|مع السلامة|وداعا)\b/i],
+  ['thanks',  /^(?:that'?s )?(?:great|perfect|lovely|brilliant|ok(?:ay)?|thanks?|thank you|cheers|gracias|perfecto|vale|شكرا|شكرًا|تمام|ممتاز)[.! ]*$/i],
+  ['repeat',  /(say that again|repeat that|pardon|come again|didn'?t (?:hear|catch)|what did you say|repita|otra vez|no le (?:he )?o[ií]do|أعد|كرر|لم أسمع)/i],
+  ['human',   /(speak (?:to|with) (?:a |someone|a human|a person|the manager|an? agent)|real person|human being|talk to (?:someone|a person)|hablar con (?:alguien|una persona)|persona real|أتحدث مع (?:شخص|موظف)|شخص حقيقي)/i],
+  ['who',     /(are you (?:a )?(?:robot|human|real|bot|ai)|who am i (?:speaking|talking) to|is this a (?:machine|robot)|eres (?:un )?(?:robot|humano)|هل أنت (?:روبوت|إنسان|آلي))/i]
+];
+var V_TOPIC=[
+  ['price',   /(how much|cost|price|pricing|quote|charge|fee|expensive|cuánto|cuanto|precio|tarifa|السعر|التكلفة|يكلف)/i],
+  ['hours',   /(open(?:ing)? (?:hours|times)|what time|open|closed|hours|weekend|horario|abren|ساعات العمل|تفتح|مواعيد)/i],
+  ['where',   /(where|your address|location|based|come to me|cover my area|dónde|ubicación|dirección|أين|العنوان|الموقع)/i],
+  ['services',/(what (?:do you|services)|you do|you offer|you handle|help with|servicios|hacen|ofrecen|الخدمات|تقدمون)/i],
+  ['when',    /(how (?:soon|long|quickly)|when can (?:you|someone|somebody)|same day|wait(?:ing)? time|cuánto tard|cuándo pueden|يستغرق|متى يمكنكم)/i],
+  ['email',   /(e-?mail|correo electrónico|البريد الإلكتروني)/i],
+  ['book',    /\b(book|booking|appointment|schedule|slot|reservar|cita|agendar|حجز|موعد)\b/i]
+];
+/* Does this sound like a question at all? */
+var V_Q_CUE=/(\?|\b(what|what'?s|how|when|where|who|which|why|can i|can you|could you|could i|do you|does|did you|is it|is there|are you|are there|will you|would you|any chance|tell me|i'?d like to know|qué|que|cómo|como|cuándo|cuando|dónde|donde|quién|quien|cuánto|cuanto|puede|podría|hay|tienen|ما|ماذا|كيف|متى|أين|هل|كم)\b)/i;
+function vIsQuestion(s){return V_Q_CUE.test(String(s||''))}
+function vIntent(text){
+  var s=String(text||''),i;
+  for(i=0;i<V_SOLO.length;i++){if(V_SOLO[i][1].test(s))return V_SOLO[i][0]}
+  if(!vIsQuestion(s))return '';
+  for(i=0;i<V_TOPIC.length;i++){if(V_TOPIC[i][1].test(s))return V_TOPIC[i][0]}
+  return '';
+}
+/* Answers come from the business's own onboarding profile first, then sensible defaults. */
+function vBizAnswer(kind){
+  var o=(getOnboard()||{}).answers||{},p=getProfile()||{};
+  if(kind==='hours'&&o.opening_hours)return tf('v_a_hours_set',{h:String(o.opening_hours).replace(/\s+/g,' ').slice(0,140)});
+  if(kind==='services'){
+    var svc=o.services;
+    if(Array.isArray(svc)&&svc.length)return tf('v_a_services_set',{s:svc.slice(0,5).join(', ')});
+    if(o.business_description)return String(o.business_description).slice(0,180);
+  }
+  if(kind==='where'&&p.biz)return tf('v_a_where_set',{b:p.biz});
+  return '';
+}
+/* File away any detail the caller volunteered that we had not asked for yet, and remember a
+   short acknowledgement so the next question opens by confirming we caught it. */
+function vKeepExtras(got,skipKey){
+  VOICE.acks=VOICE.acks||[];
+  ['name','service','urgency','phone'].forEach(function(k){
+    if(k===skipKey||VOICE.data[k]!=null||!got[k])return;
+    VOICE.data[k]=String(got[k]).trim();
+    var a=t('v_got_'+k);
+    if(a&&a.indexOf('v_got_')!==0)VOICE.acks.push(fill(a,{v:VOICE.data[k],name:vCap(VOICE.data.name||'')}));
+  });
+  if(VOICE.data.urgency!=null)VOICE.urgent=(vUrgency(VOICE.data.urgency)==='High');
+}
+function vAnswerFor(text){
+  var kind=vIntent(text);
+  if(!kind)return null;
+  if(kind==='repeat')return VOICE.lastBot||t('v_a_unknown');
+  if(kind==='thanks')return t('v_a_thanks');
+  var custom=vBizAnswer(kind);
+  return custom||t('v_a_'+kind)||null;
+}
+function voiceSend(text){
+  if(!VOICE.active){vSetStatus(t('v_tap_start_first'));return}
+  var i=document.getElementById('vinput');
+  var v=String(text!=null?text:(i?i.value:'')||'').trim();
+  if(!v)return;
+  if(i)i.value='';
+  ttsStop();                                   /* the caller spoke — we stop talking, always */
+  vAddMsg('user',v);
+  vPhase('thinking');
+  var key=VQ[VOICE.step].key;
+
+  /* 1 — did the caller say goodbye? close the call properly. */
+  if(vIntent(v)==='bye'){vBotSay(t('v_a_bye'),function(){voiceEnd()});return}
+
+  /* 2 — did the caller ask US something? answer it, keep any details they slipped in, then
+         pick the thread back up in the same breath, so the call never stalls or loops. */
+  var ans=vAnswerFor(v);
+  if(ans){
+    vKeepExtras(vExtract(v,null),null);
+    vSetStatus(vTurnMsg());vBotSay(ans+' '+vReAskText(),vArmMic);return;
+  }
+
+  /* 3 — take every detail out of what they said, not just the one we asked for. */
+  var got=vExtract(v,key);
+  var primary=got[key]!=null?String(got[key]).trim():v;
+  var vd=vValidate(key,primary);
+  if(!vd.ok){
+    /* they answered a different question than the one we asked — keep what they DID give us
+       (a phone number offered early is still a phone number) before asking again */
+    vKeepExtras(got,key);
+    VOICE.retry[key]=(VOICE.retry[key]||0)+1;
+    if(VOICE.retry[key]<=vd.max){vSetStatus(vTurnMsg());vBotSay(t(vd.msg),vArmMic);if(i&&!VOICE.hands)i.focus();return}
+    if(key==='name'||key==='service')primary='';
+  }
+  VOICE.data[key]=primary;
+  vKeepExtras(got,key);
+  /* 4 — skip anything they have already told us. */
+  VOICE.step++;
+  while(VOICE.step<VQ.length&&VOICE.data[VQ[VOICE.step].key]!=null)VOICE.step++;
+  if(VOICE.step<VQ.length){vAsk();if(i&&!VOICE.hands)i.focus()}else{vFinish()}
+}
+/* big mic: start the call if idle; while live it interrupts the assistant and listens (barge-in) */
+function voiceMic(){
+  if(!VOICE.active){voiceStart();return}
+  if(VOICE.phase==='speaking'){ttsStop();vArmMic(60);return}
+  voiceListen();
+}
 function vListenUI(on){var m=document.getElementById('vmic');if(m)m.classList[on?'add':'remove']('on');var b=document.getElementById('vspeak');if(b)b.classList[on?'add':'remove']('on')}
-function voiceListen(){
+/* Hand the mic back to the caller as soon as the assistant stops speaking. The short delay
+   keeps the microphone from hearing the tail of our own voice through the speakers. */
+function vArmMic(delay){
+  if(VOICE.armTimer){clearTimeout(VOICE.armTimer);VOICE.armTimer=null}
+  if(!VOICE.active){vPhase('idle');return}
+  if(!VOICE.hands||!vRecAvailable()){
+    vPhase('idle');vSetStatus(t('v_your_turn'));
+    var i=document.getElementById('vinput');if(i)i.focus();
+    return;
+  }
+  VOICE.armTimer=setTimeout(function(){
+    VOICE.armTimer=null;
+    if(VOICE.active&&VOICE.hands&&!VOICE.listening)voiceListen(true);
+  },delay==null?320:delay);
+}
+function voiceListen(auto){
   if(!VOICE.active){voiceStart();return}
   if(!vRecAvailable()){var i=document.getElementById('vinput');if(i)i.focus();vSetStatus(t('v_no_mic'));return}
   if(VOICE.listening){try{if(VOICE.rec)VOICE.rec.stop()}catch(e){}return}
   try{
-    if(VOICE.rec){try{VOICE.rec.abort()}catch(e){}}
+    if(VOICE.rec){try{VOICE.rec.onend=null;VOICE.rec.onresult=null;VOICE.rec.abort()}catch(e){}}
     var SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=new SR();
     VOICE.rec=rec;VOICE.listening=true;
     rec.lang=TTSLANG[LANG]||'en-GB';rec.interimResults=true;rec.maxAlternatives=1;rec.continuous=false;
-    try{if(window.speechSynthesis)window.speechSynthesis.cancel()}catch(e){}
-    vListenUI(true);vSetStatus(t('v_listening'));
+    ttsStop();                                  /* never listen while we are still talking */
+    vListenUI(true);vPhase('listening');vSetStatus(t('v_listening'));
     var finalT='';
     rec.onresult=function(ev){var interim='';for(var i=ev.resultIndex;i<ev.results.length;i++){var r=ev.results[i];if(r.isFinal)finalT+=r[0].transcript;else interim+=r[0].transcript}var inp=document.getElementById('vinput');if(inp)inp.value=(finalT+' '+interim).trim()};
-    rec.onerror=function(ev){VOICE.listening=false;vListenUI(false);var err=(ev&&ev.error)||'';if(err==='not-allowed'||err==='service-not-allowed'){vSetStatus(t('v_mic_denied'))}else if(err==='no-speech'){vSetStatus(t('v_your_turn'))}else{vSetStatus(t('v_your_turn'))}};
-    rec.onend=function(){VOICE.listening=false;vListenUI(false);var inp=document.getElementById('vinput');if(inp&&inp.value.trim()&&VOICE.active){voiceSend()}else if(VOICE.active){vSetStatus(t('v_your_turn'))}};
+    rec.onerror=function(ev){
+      VOICE.listening=false;vListenUI(false);
+      var err=(ev&&ev.error)||'';
+      if(err==='not-allowed'||err==='service-not-allowed'){
+        VOICE.hands=false;vPhase('idle');vSetStatus(t('v_mic_denied'));
+        var inp=document.getElementById('vinput');if(inp)inp.focus();
+      }
+      /* 'no-speech'/'aborted'/network are handled by onend, which always follows */
+    };
+    rec.onend=function(){
+      VOICE.listening=false;vListenUI(false);
+      if(!VOICE.active){vPhase('idle');return}
+      var inp=document.getElementById('vinput'),said=inp?(inp.value||'').trim():'';
+      if(said){VOICE.empties=0;voiceSend();return}
+      if(!VOICE.hands){vPhase('idle');vSetStatus(t('v_your_turn'));return}
+      /* silence — nudge once, then let the caller go rather than listening forever */
+      VOICE.empties=(VOICE.empties||0)+1;
+      if(VOICE.empties===3){vSetStatus(vTurnMsg());vBotSay(t('v_still_there'),vArmMic);return}
+      if(VOICE.empties>=6){vBotSay(t('v_no_answer'),function(){voiceEnd()});return}
+      vArmMic(400);
+    };
     rec.start()
-  }catch(e){VOICE.listening=false;vListenUI(false);vSetStatus(t('v_your_turn'))}
+  }catch(e){VOICE.listening=false;vListenUI(false);VOICE.hands=false;vPhase('idle');vSetStatus(t('v_your_turn'))}
 }
 function vCap(s){s=(s||'').trim();return s?s.charAt(0).toUpperCase()+s.slice(1):s}
 function vUrgency(s){s=(s||'').toLowerCase();
@@ -2195,10 +2617,21 @@ function vFinish(){
   var msg;
   if(phone){msg=tf(urgency==='High'?'v_close_urgent':'v_close',{name:name,service:service,phone:phone})}
   else{var np=VCLOSE_NP[LANG]||VCLOSE_NP.en;msg=fill(urgency==='High'?np.urgent:np.normal,{name:name,service:service})}
-  vBotSay(msg);vSetStatus(t('v_lead_created'));toast(t('v_toast_lead'));
+  if(VOICE.armTimer){clearTimeout(VOICE.armTimer);VOICE.armTimer=null}
+  VOICE.hands=false;VOICE.listening=false;
+  try{if(VOICE.rec){VOICE.rec.onend=null;VOICE.rec.onresult=null;VOICE.rec.abort()}}catch(e){}
+  vBotSay(msg,function(){vPhase('idle');vSetStatus(t('v_call_ended'))});
+  vSetStatus(t('v_lead_created'));toast(t('v_toast_lead'));
   var m=document.getElementById('vmic');if(m)m.classList.remove('on')
 }
-function voiceEnd(){VOICE.active=false;VOICE.listening=false;if(VOICE.timer){clearTimeout(VOICE.timer);VOICE.timer=null}VOICE.pendingTxt=null;vTyping(false);try{if(VOICE.rec){VOICE.rec.onend=null;VOICE.rec.abort()}}catch(e){}ttsStop();vSetStatus(t('v_call_ended'));vListenUI(false)}
+function voiceEnd(){
+  VOICE.active=false;VOICE.listening=false;VOICE.hands=false;
+  if(VOICE.timer){clearTimeout(VOICE.timer);VOICE.timer=null}
+  if(VOICE.armTimer){clearTimeout(VOICE.armTimer);VOICE.armTimer=null}
+  VOICE.pendingTxt=null;vTyping(false);
+  try{if(VOICE.rec){VOICE.rec.onend=null;VOICE.rec.onresult=null;VOICE.rec.abort()}}catch(e){}
+  ttsStop();vPhase('idle');vSetStatus(t('v_call_ended'));vListenUI(false);
+}
 
 /* ===================== CRM Integrations (n8n sync layer — demo simulation of the handoff spec) =====================
    NOTE: This is a faithful front-end simulation of the universal CRM integration system. It creates signed
@@ -2392,13 +2825,32 @@ function bkOpenPanel(){
       '<div class="wiznav"><div class="spacer"></div>'+(BK.hasProject()?'<button class="btn btn-danger" onclick="bkDisconnect()">'+esc(t('bk_disconnect'))+'</button>':'')+'<button class="btn btn-primary" onclick="bkConnect()">'+esc(t('bk_save'))+'</button></div>'+
     '</div></div></div>';
 }
+/* Same "did not connect + here is exactly what is wrong" popup, for any non-CRM connection. */
+function bkFailModal(title,problems,retry){
+  var m=crmModalEl();if(!m)return;
+  m.innerHTML='<div class="modal" onclick="if(event.target===this)crmCloseModal()"><div class="modalcard cxfail" role="alertdialog" aria-modal="true">'+
+    '<div class="modalhead">'+icon('db')+'<h3>'+esc(title)+'</h3><button class="modalx" onclick="crmCloseModal()">'+icon('close')+'</button></div>'+
+    '<div class="modalbody">'+
+      '<div class="cxbanner">'+icon('shield')+'<span>'+esc(tf('cx_fail_b',{p:'Supabase'}))+'</span></div>'+
+      '<div class="wizlabel" style="margin-top:16px">'+esc(t('cx_check'))+'</div>'+
+      '<ul class="cxlist">'+problems.map(function(pr){return '<li>'+icon('close')+'<span><b>'+esc(pr.field)+'</b> — '+esc(pr.msg)+'</span></li>'}).join('')+'</ul>'+
+      '<div class="wiznav"><div class="spacer"></div><button class="btn btn-primary" onclick="'+esc(retry||'bkOpenPanel()')+'">'+esc(t('cx_try_again'))+'</button></div>'+
+    '</div></div></div>';
+}
 function bkConnect(){
-  var d=document,url=(d.getElementById('bkurl')||{}).value,anon=(d.getElementById('bkanon')||{}).value,em=(d.getElementById('bkemail')||{}).value,pw=(d.getElementById('bkpass')||{}).value;
-  if(!url||!anon){toast(tf('bk_signin_err',{e:'URL + anon key required'}));return}
-  var c=BK.cfg();c.url=url.trim();c.anon=anon.trim();BK.save(c);toast(t('bk_saved'));
+  var d=document,url=String((d.getElementById('bkurl')||{}).value||'').trim(),anon=String((d.getElementById('bkanon')||{}).value||'').trim(),
+      em=String((d.getElementById('bkemail')||{}).value||'').trim(),pw=(d.getElementById('bkpass')||{}).value||'';
+  var probs=[];
+  if(!url)probs.push({field:t('bk_project'),msg:tf('cx_required',{f:t('bk_project')})});
+  else if(!/^https:\/\/[a-z0-9-]+\.supabase\.(co|in|net)\/?$/i.test(url))probs.push({field:t('bk_project'),msg:t('bk_bad_url')});
+  if(!anon)probs.push({field:t('bk_anon'),msg:tf('cx_required',{f:t('bk_anon')})});
+  else if(anon.length<30)probs.push({field:t('bk_anon'),msg:t('bk_bad_anon')});
+  if(em&&!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(em))probs.push({field:t('bk_email'),msg:tf('cx_bad_email',{f:t('bk_email')})});
+  if(probs.length){bkFailModal(tf('cx_fail_t',{p:'Supabase'}),probs);return}
+  var c=BK.cfg();c.url=url.replace(/\/$/,'');c.anon=anon;BK.save(c);toast(t('bk_saved'));
   if(!em||!pw){bkOpenPanel();return}
-  BK.signIn(em.trim(),pw).then(function(){crmCloseModal();CRM_REAL.loaded=false;toast(t('bk_signed_in'));crmFetchReal(true);render();})
-    .catch(function(e){toast(tf('bk_signin_err',{e:String(e.message||e)}))});
+  BK.signIn(em,pw).then(function(){crmCloseModal();CRM_REAL.loaded=false;toast(t('bk_signed_in'));crmFetchReal(true);render();})
+    .catch(function(e){bkFailModal(tf('cx_fail_t',{p:'Supabase'}),[{field:t('bk_password'),msg:String(e.message||e)}])});
 }
 function bkDisconnect(){BK.clear();crmCloseModal();render();toast(t('bk_none'))}
 function bkExplain(prov){
@@ -2455,6 +2907,89 @@ var CRM_SCOPES={
  dynamics:['https://org.crm.dynamics.com/user_impersonation','offline_access'],
  generic_webhook:[],custom_api:[]
 };
+/* ---- Credentials each provider actually needs, and what a valid one looks like --------------
+   Every field is checked with the SAME rule the live connector uses, so a typo is caught here
+   and reported precisely ("API token is 40 characters, yours is 12") instead of failing later
+   with a vague error. `check` returns a translation key + params, or '' when the value is fine. */
+var CRM_CREDS={
+ hubspot:[
+  {k:'token',label:'Private app access token',ph:'pat-eu1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',hint:'HubSpot → Settings → Integrations → Private Apps → your app → Auth.',
+   check:function(v){if(!/^pat-/i.test(v))return ['cx_bad_prefix',{x:'pat-'}];if(v.length<30)return ['cx_bad_len',{n:36}];return ''}},
+  {k:'portal',label:'Hub ID (portal ID)',ph:'24123456',hint:'Top-right account menu in HubSpot — a 6–9 digit number.',
+   check:function(v){if(!/^\d+$/.test(v))return ['cx_bad_digits',{}];if(v.length<6||v.length>9)return ['cx_bad_len',{n:8}];return ''}}
+ ],
+ pipedrive:[
+  {k:'token',label:'API token',ph:'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0',hint:'Pipedrive → your profile → Personal preferences → API. It is 40 hexadecimal characters.',
+   check:function(v){if(!/^[a-f0-9]+$/i.test(v))return ['cx_bad',{}];if(v.length!==40)return ['cx_bad_len',{n:40}];return ''}},
+  {k:'domain',label:'Company domain',ph:'yourcompany.pipedrive.com',hint:'The address you sign in at, without https://.',
+   check:function(v){if(!/^[a-z0-9][a-z0-9-]*\.pipedrive\.com$/i.test(v.replace(/^https?:\/\//,'').replace(/\/.*$/,'')))return ['cx_bad_domain',{}];return ''}}
+ ],
+ highlevel:[
+  {k:'token',label:'API key',ph:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…',hint:'GoHighLevel → Settings → Business Profile → API Key (a JWT, three dot-separated parts).',
+   check:function(v){if(v.split('.').length!==3)return ['cx_bad',{}];if(v.length<60)return ['cx_bad_len',{n:120}];return ''}},
+  {k:'location',label:'Location ID',ph:'ve9EPM428h8vShlRW1KT',hint:'Settings → Company → Location ID (about 20 letters and digits).',
+   check:function(v){if(!/^[A-Za-z0-9]{15,30}$/.test(v))return ['cx_bad_len',{n:20}];return ''}}
+ ],
+ google_sheets:[
+  {k:'sheet',label:'Spreadsheet ID',ph:'1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',hint:'The long id in the sheet URL between /d/ and /edit.',
+   check:function(v){if(!/^[A-Za-z0-9_-]{30,60}$/.test(v))return ['cx_bad_len',{n:44}];return ''}},
+  {k:'email',label:'Service account email',ph:'alsaiti-sync@my-project.iam.gserviceaccount.com',hint:'Share the sheet with this address as an Editor.',
+   check:function(v){if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(v))return ['cx_bad_email',{}];return ''}}
+ ],
+ generic_webhook:[
+  {k:'account',label:'Webhook URL',ph:'https://api.yourapp.com/hooks/alsaiti',hint:'Must be a public https:// endpoint that accepts POST.',
+   check:function(v){if(!/^https:\/\/[^\s]+\.[^\s]{2,}/i.test(v))return ['cx_bad_url',{}];return ''}}
+ ],
+ custom_api:[
+  {k:'account',label:'API endpoint',ph:'https://api.yourcrm.com/v1/leads',hint:'Where we POST each signed lead payload.',
+   check:function(v){if(!/^https:\/\/[^\s]+\.[^\s]{2,}/i.test(v))return ['cx_bad_url',{}];return ''}},
+  {k:'token',label:'API key',ph:'sk_live_…',hint:'Sent as the Authorization: Bearer header. At least 16 characters.',
+   check:function(v){if(v.length<16)return ['cx_bad_len',{n:16}];return ''}}
+ ],
+ salesforce:[
+  {k:'domain',label:'My Domain URL',ph:'https://yourorg.my.salesforce.com',hint:'Setup → My Domain. Include https://.',
+   check:function(v){if(!/^https:\/\/[a-z0-9-]+\.(my\.)?salesforce\.com\/?$/i.test(v))return ['cx_bad_url',{}];return ''}},
+  {k:'token',label:'Consumer key',ph:'3MVG9…',hint:'Setup → App Manager → your connected app → Consumer Key.',
+   check:function(v){if(v.length<40)return ['cx_bad_len',{n:85}];return ''}}
+ ],
+ zoho:[
+  {k:'domain',label:'Data centre',ph:'zoho.eu',hint:'zoho.eu, zoho.com, zoho.in — the domain you sign in at.',
+   check:function(v){if(!/^zoho\.(eu|com|in|com\.au|jp)$/i.test(v))return ['cx_bad_domain',{}];return ''}},
+  {k:'token',label:'Client ID',ph:'1000.ABCDEF…',hint:'Zoho API console → your self-client → Client ID.',
+   check:function(v){if(!/^\d{4}\./.test(v))return ['cx_bad_prefix',{x:'1000.'}];if(v.length<20)return ['cx_bad_len',{n:32}];return ''}}
+ ],
+ dynamics:[
+  {k:'domain',label:'Organisation URL',ph:'https://yourorg.crm11.dynamics.com',hint:'Power Platform admin centre → environment URL.',
+   check:function(v){if(!/^https:\/\/[a-z0-9-]+\.crm\d*\.dynamics\.com\/?$/i.test(v))return ['cx_bad_url',{}];return ''}},
+  {k:'token',label:'Application (client) ID',ph:'00000000-0000-0000-0000-000000000000',hint:'Entra ID → App registrations → your app → Application (client) ID.',
+   check:function(v){if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v))return ['cx_bad',{}];return ''}}
+ ]
+};
+function crmCredFields(provId){return CRM_CREDS[provId]||[]}
+/* Returns [] when everything is valid, else one precise problem per bad field. */
+function crmCredProblems(provId,vals){
+  var out=[];
+  crmCredFields(provId).forEach(function(f){
+    var v=String((vals&&vals[f.k])||'').trim();
+    if(!v){out.push({k:f.k,field:f.label,msg:tf('cx_required',{f:f.label})});return}
+    var bad=f.check(v);
+    if(bad)out.push({k:f.k,field:f.label,msg:tf(bad[0],(function(p){p=p||{};p.f=f.label;return p})(bad[1]))});
+  });
+  return out;
+}
+/* The popup the user asked for: names the provider, says it did not connect, and points at
+   exactly which field is wrong and why — then drops them back into the form to fix it. */
+function crmFailModal(provId,problems){
+  var p=crmProvider(provId)||{name:provId},m=crmModalEl();if(!m)return;
+  m.innerHTML='<div class="modal" onclick="if(event.target===this)crmCloseModal()"><div class="modalcard cxfail" role="alertdialog" aria-modal="true">'+
+    '<div class="modalhead">'+crmLogo(p)+'<h3>'+esc(tf('cx_fail_t',{p:p.name}))+'</h3><button class="modalx" onclick="crmCloseModal()">'+icon('close')+'</button></div>'+
+    '<div class="modalbody">'+
+      '<div class="cxbanner">'+icon('shield')+'<span>'+esc(tf('cx_fail_b',{p:p.name}))+'</span></div>'+
+      '<div class="wizlabel" style="margin-top:16px">'+esc(t('cx_check'))+'</div>'+
+      '<ul class="cxlist">'+problems.map(function(pr){return '<li>'+icon('close')+'<span><b>'+esc(pr.field)+'</b> — '+esc(pr.msg)+'</span></li>'}).join('')+'</ul>'+
+      '<div class="wiznav"><div class="spacer"></div><button class="btn btn-primary" onclick="crmRenderWizard()">'+esc(t('cx_try_again'))+'</button></div>'+
+    '</div></div></div>';
+}
 function crmDefaultMapping(){return CRM_MAP.map(function(m){return {from:m[0],to:m[1]}})}
 function crmProvider(id){for(var i=0;i<CRM_PROVIDERS.length;i++)if(CRM_PROVIDERS[i].id===id)return CRM_PROVIDERS[i];return null}
 function crmLogo(p){return '<span class="provlogo" style="background:linear-gradient(140deg,'+(p.accent||'#1C6B4E')+',rgba(0,0,0,.28))">'+icon(p.icon||'crm')+'</span>'}
@@ -2721,19 +3256,19 @@ function crmCloseModal(){var m=crmModalEl();if(m)m.innerHTML='';CRMWIZ=null}
 function crmDefaultActions(p){var a={contact:true};if(p.entity==='deal'||p.entity==='opportunity'){a.deal=true;a.note=true}return a}
 function crmOpenWizard(provId){
   var p=crmProvider(provId);if(!p||p.kind==='soon')return;
-  CRMWIZ={mode:'connect',provider:provId,connId:null,step:0,
+  CRMWIZ={mode:'connect',provider:provId,connId:null,step:0,badFields:[],
     draft:{account:(p.accounts&&p.accounts[0])||'',triggers:{'lead.created':true},actions:crmDefaultActions(p),mapping:crmDefaultMapping(),
       pipeline:(p.pipelines&&p.pipelines[0])||'',stage:(p.stages&&p.stages[0])||'',owner:(p.owners&&p.owners[0])||'',sheet:(p.sheets&&p.sheets[0])||'',
-      tags:['alsaiti-voice'],authed:false,tested:false,test:null,secret:'whsec_'+crmRand(24)}};
+      creds:{},tags:['alsaiti-voice'],authed:false,tested:false,test:null,secret:'whsec_'+crmRand(24)}};
   crmRenderWizard();
 }
 function crmConfigure(connId){
   var st=crmState(),c=crmFindConn(st,connId);if(!c)return;var p=crmProvider(c.provider)||{};
   var trig={};(c.triggers||[]).forEach(function(x){trig[x]=true});
   var act={};(c.actions||[]).forEach(function(x){act[x]=true});
-  CRMWIZ={mode:'configure',provider:c.provider,connId:connId,step:3,
+  CRMWIZ={mode:'configure',provider:c.provider,connId:connId,step:3,badFields:[],
     draft:{account:c.account,triggers:trig,actions:act,mapping:(c.mapping||crmDefaultMapping()).map(function(mp){return {from:mp.from,to:mp.to}}),
-      pipeline:c.pipeline,stage:c.stage,owner:c.owner,sheet:c.sheet||((p.sheets)?p.sheets[0]:''),tags:c.tags||[],authed:true,tested:true,test:null,secret:'whsec_'+crmRand(24)}};
+      pipeline:c.pipeline,stage:c.stage,owner:c.owner,sheet:c.sheet||((p.sheets)?p.sheets[0]:''),creds:{},tags:c.tags||[],authed:true,tested:true,test:null,secret:'whsec_'+crmRand(24)}};
   crmRenderWizard();
 }
 function crmRenderWizard(){
@@ -2761,9 +3296,20 @@ function crmWizStep(i,p){
     '<div class="card provcard" style="background:var(--card2)"><div class="provhead">'+crmLogo(p)+'<div><div class="provname">'+esc(p.name)+'</div><div class="provmeta">'+esc(p.desc||'')+'</div></div></div></div>';
   if(i===1){
     var hookMode=(p.id==='generic_webhook'||p.id==='custom_api'),b,scopes=CRM_SCOPES[p.id]||[];
-    if(hookMode){b='<div class="field"><label>'+esc(t('wz_hook_url'))+'</label><input value="'+esc(d.account)+'" oninput="crmSetDraft(\'account\',this.value)"/></div>'+
-      '<div class="field"><label>'+esc(t('wz_secret'))+'</label><input readonly value="'+esc(d.secret)+'" style="font-family:ui-monospace,Menlo,monospace"/><p class="muted" style="font-size:12px;margin-top:6px">'+esc(t('wz_secret_note'))+'</p></div>';}
-    else if(d.authed){b='<div class="authsim"><div class="big" style="background:linear-gradient(140deg,'+p.accent+',rgba(0,0,0,.28))">'+icon('check')+'</div><div class="okpill">'+icon('check')+' '+esc(tf('wz2ok',{acct:d.account}))+'</div><p class="muted" style="font-size:12px;margin-top:8px">'+esc(t('wz_authed_note'))+'</p></div>';}
+    if(hookMode||d.authed){
+      /* Real credentials, checked field by field before we let the wizard continue. */
+      var bad={};(CRMWIZ.badFields||[]).forEach(function(k){bad[k]=1});
+      b=(d.authed&&!hookMode?'<div class="okpill" style="margin-bottom:14px">'+icon('check')+' '+esc(tf('wz2ok',{acct:d.account}))+'</div>':'')+
+        '<div class="wiztitle" style="font-size:15px;margin-top:2px">'+esc(tf('cx_step',{p:p.name}))+'</div>'+
+        '<p class="wizsub">'+esc(tf('cx_step_s',{p:p.name}))+'</p>'+
+        crmCredFields(p.id).map(function(f){
+          return '<div class="field'+(bad[f.k]?' bad':'')+'"><label>'+esc(f.label)+'</label>'+
+            '<input id="cxf_'+esc(f.k)+'" value="'+esc((d.creds&&d.creds[f.k])||'')+'" placeholder="'+esc(f.ph)+'" spellcheck="false" autocapitalize="off" autocomplete="off" style="font-family:ui-monospace,Menlo,monospace;font-size:13px" oninput="crmSetCred(\''+f.k+'\',this.value)"/>'+
+            '<p class="cxhint">'+icon('shield')+'<span>'+esc(f.hint)+'</span></p></div>';
+        }).join('')+
+        (hookMode?'<div class="field"><label>'+esc(t('wz_secret'))+'</label><input readonly value="'+esc(d.secret)+'" style="font-family:ui-monospace,Menlo,monospace"/><p class="muted" style="font-size:12px;margin-top:6px">'+esc(t('wz_secret_note'))+'</p></div>':'')+
+        '<p class="muted" style="font-size:11.5px;line-height:1.5">'+esc(t('cx_demo_note'))+'</p>';
+    }
     else{b=(CRMWIZ.declined?'<p class="wizsub" style="color:var(--red);margin-top:-4px">'+esc(t('wz_declined'))+'</p>':'')+
       '<p class="wizsub" style="margin-top:-2px">'+esc(t('wz_scopes'))+'</p>'+
       '<div class="scopelist">'+scopes.map(function(sc){return '<div class="scoperow">'+icon('check')+'<code>'+esc(sc)+'</code></div>'}).join('')+'</div>'+
@@ -2810,11 +3356,28 @@ function crmWizStep(i,p){
 function crmWizBack(){if(!CRMWIZ)return;var min=(CRMWIZ.mode==='configure'?3:0);if(CRMWIZ.step>min){CRMWIZ.step--;crmRenderWizard()}}
 function crmWizNext(){
   if(!CRMWIZ)return;var p=crmProvider(CRMWIZ.provider);
-  if(CRMWIZ.step===1){var hookMode=(p.id==='generic_webhook'||p.id==='custom_api');if(!hookMode&&!CRMWIZ.draft.authed){crmSimAuth();return}}
+  if(CRMWIZ.step===1){
+    var hookMode=(p.id==='generic_webhook'||p.id==='custom_api');
+    if(!hookMode&&!CRMWIZ.draft.authed){crmSimAuth();return}
+    /* Verify the credentials before anything else — a typo stops here, named and explained. */
+    var probs=crmCredProblems(p.id,CRMWIZ.draft.creds||{});
+    if(probs.length){
+      CRMWIZ.badFields=probs.map(function(x){return x.k});
+      crmFailModal(p.id,probs);
+      return;
+    }
+    CRMWIZ.badFields=[];
+    /* hook providers keep using `account` as the destination URL */
+    if(CRMWIZ.draft.creds&&CRMWIZ.draft.creds.account)CRMWIZ.draft.account=CRMWIZ.draft.creds.account;
+    toast(tf('cx_ok_t',{p:p.name}));
+  }
   if(CRMWIZ.step<8){CRMWIZ.step++;crmRenderWizard();return}
   crmActivate();
 }
 function crmSetDraft(k,v){if(CRMWIZ)CRMWIZ.draft[k]=v}
+function crmSetCred(k,v){if(!CRMWIZ)return;CRMWIZ.draft.creds=CRMWIZ.draft.creds||{};CRMWIZ.draft.creds[k]=v;
+  if(CRMWIZ.badFields&&CRMWIZ.badFields.length){CRMWIZ.badFields=CRMWIZ.badFields.filter(function(x){return x!==k});
+    var el=document.getElementById('cxf_'+k);if(el&&el.parentNode&&el.parentNode.classList)el.parentNode.classList.remove('bad')}}
 function crmSetMap(idx,v){if(CRMWIZ&&CRMWIZ.draft.mapping[idx])CRMWIZ.draft.mapping[idx].to=v}
 function crmToggleSet(kind,val,el){if(!CRMWIZ)return;var d=CRMWIZ.draft[kind];d[val]=!d[val];if(el&&el.classList)el.classList.toggle('on',d[val])}
 function crmSimAuth(){if(!CRMWIZ)return;var p=crmProvider(CRMWIZ.provider);CRMWIZ.draft.authed=true;if(!CRMWIZ.draft.account)CRMWIZ.draft.account=(p.accounts&&p.accounts[0])||'Connected account';crmRenderWizard()}
@@ -2828,7 +3391,17 @@ function crmActivate(){
     if(c){c.triggers=trigs;c.actions=acts;c.mapping=d.mapping;c.pipeline=d.pipeline;c.stage=d.stage;c.owner=d.owner;c.account=d.account;c.tested_at=Date.now()}
     crmSave(st);crmCloseModal();render();toast(t('wz_save'));return;
   }
-  var conn={id:'conn_'+crmRand(10),provider:p.id,name:p.name,status:'demo',demo:true,account:d.account,
+  /* label the connection with the account the credentials actually point at, and keep only a
+     masked fingerprint of the secret — never the secret itself */
+  var cr=d.creds||{},acct=d.account;
+  if(cr.domain)acct=String(cr.domain).replace(/^https?:\/\//,'').replace(/\/$/,'');
+  else if(cr.portal)acct='Hub '+cr.portal;
+  else if(cr.location)acct='Location '+cr.location;
+  else if(cr.sheet)acct='Sheet …'+String(cr.sheet).slice(-6);
+  else if(cr.account)acct=cr.account;
+  d.account=acct||d.account;
+  var mask=cr.token?String(cr.token).slice(0,4)+'…'+String(cr.token).slice(-4):'';
+  var conn={id:'conn_'+crmRand(10),provider:p.id,name:p.name,status:'demo',demo:true,account:d.account,cred_hint:mask,
     portal:(p.id==='hubspot'?String(20000000+Math.floor(Math.random()*9000000)):''),
     sync_enabled:true,triggers:trigs,actions:acts,pipeline:d.pipeline,stage:d.stage,owner:d.owner,sheet:d.sheet,
     tags:d.tags||[],mapping:d.mapping,synced:0,last_success:null,last_failure:null,last_error:null,connected_at:Date.now(),tested_at:Date.now(),health:'healthy'};

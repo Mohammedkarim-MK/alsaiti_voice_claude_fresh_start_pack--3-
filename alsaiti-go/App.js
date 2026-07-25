@@ -4,7 +4,7 @@ import {
   Platform, Dimensions, KeyboardAvoidingView, ActivityIndicator, Alert, Modal,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Path, Circle, Rect, Defs, RadialGradient, Stop, Polygon } from 'react-native-svg';
+import Svg, { Path, Circle, Rect, Defs, RadialGradient, LinearGradient as SvgLinearGradient, Stop, Polygon } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Speech from 'expo-speech';
 
@@ -59,39 +59,52 @@ function Icon({ name, size = 22, color = C.text, sw = 1.8 }) {
 
 /* ---------- Brand mark: the faceted ALSAITI "AG" monogram (matches the website) ----------
    Low-poly A woven with a G — emerald facets, a gold crossbar/spur, thin seams. Pure vector. */
+/* The ALSAITI brand mark, traced facet-by-facet from the identity sheet:
+   28 low-poly facets, each with the sheet's own bevel gradient. Seams are the gaps. */
 const A_FACETS = [
-  ['#0A4327', '100,20 80,55 100,65'],
-  ['#0A9B59', '100,20 100,65 120,55'],
-  ['#12B86B', '80,55 58,90 85,90'],
-  ['#0A4327', '80,55 85,90 100,65'],
-  ['#F2D06B', '100,65 120,55 132,85'],
-  ['#2ED17F', '58,90 65,125 85,90'],
-  ['#0A9B59', '58,90 35,130 65,125'],
-  ['#E6C34E', '100,65 132,85 108,100'],
-  ['#12B86B', '120,55 150,90 132,85'],
-  ['#12B86B', '35,130 60,175 65,125'],
-  ['#B8942A', '108,100 132,85 142,115'],
-  ['#0A4327', '35,130 28,175 60,175'],
-  ['#E6C34E', '108,100 142,115 118,125'],
-  ['#0A4327', '65,125 88,170 88,125'],
-  ['#0A4327', '88,125 118,125 102,145'],
-  ['#0A9B59', '65,125 60,175 88,170'],
-  ['#0A9B59', '88,125 102,145 88,170'],
-  ['#2ED17F', '150,90 172,130 142,115'],
-  ['#B8942A', '102,145 118,125 128,148'],
-  ['#F2D06B', '118,125 142,115 158,140'],
-  ['#B8942A', '118,125 158,140 128,148'],
-  ['#12B86B', '142,115 158,140 128,148'],
-  ['#0A4327', '102,145 128,148 120,175'],
-  ['#0A9B59', '172,130 148,175 158,140'],
-  ['#2ED17F', '128,148 148,175 120,175'],
-  ['#0A4327', '172,130 178,175 148,175'],
+  { p: '80,11.8 122.3,12.7 99.9,61.1', a: '#2c5a40', b: '#345f46', x1: 90.2, y1: 55.5, x2: 108.9, y2: 8.2 },
+  { p: '75.7,19 71.8,76.8 35.5,105.8', a: '#1e3c2c', b: '#264d37', x1: 31.6, y1: 100.2, x2: 89.4, y2: 32.9 },
+  { p: '30.1,113.1 67.6,84.3 35.2,154.8', a: '#152e1e', b: '#173324', x1: 59, y1: 135.1, x2: 36.8, y2: 107.3 },
+  { p: '78.7,17.4 99.1,63.4 97.2,66.9 73.4,74.7', a: '#2e543d', b: '#2e5941', x1: 75.3, y1: 51.3, x2: 98.5, y2: 53.5 },
+  { p: '125.8,19 158.2,90.3 129,67.6', a: '#365942', b: '#3a664b', x1: 151.2, y1: 32.7, x2: 130.3, y2: 75.7 },
+  { p: '173.1,117.4 198,169.1 197.8,173.1 167.3,159.9', a: '#2c563d', b: '#325943', x1: 167.2, y1: 151.4, x2: 194.1, y2: 147.8 },
+  { p: '2,172.3 28.3,117.4 33.9,160.4', a: '#15291c', b: '#153021', x1: 20.7, y1: 119.2, x2: 21.7, y2: 170.7 },
+  { p: '101.9,65.3 122.7,16.6 127.9,67.1', a: '#274d39', b: '#335d44', x1: 104.8, y1: 38.3, x2: 130.9, y2: 61.3 },
+  { p: '144.8,123.4 169.5,108.2 171.6,116.2 165.2,155.6', a: '#2f563f', b: '#355f46', x1: 152.9, y1: 149.1, x2: 168.8, y2: 109.2 },
+  { p: '56.4,112.1 72.5,82.5 79.1,115.6 60.8,130.8 56.1,120.2', a: '#1a3425', b: '#21412f', x1: 57.5, y1: 102.2, x2: 76.8, y2: 116.2 },
+  { p: '35.6,161.7 48.7,187.4 4.5,175.7', a: '#14271b', b: '#153223', x1: 21.8, y1: 185.6, x2: 35.8, y2: 163.8 },
+  { p: '77.5,74.2 99.6,66.7 79.6,113.8 72.8,79.6', a: '#294734', b: '#264f3b', x1: 95, y1: 87.9, x2: 73.3, y2: 84.1 },
+  { p: '167.6,160.8 197,175.7 152.8,188.2', a: '#172c20', b: '#193929', x1: 171.7, y1: 188.6, x2: 173.6, y2: 162.9 },
+  { p: '62.6,133.5 79.4,117.4 89.8,143.9 67.3,148.4', a: '#224534', b: '#325841', x1: 67.6, y1: 129.4, x2: 87.3, y2: 144.4 },
+  { p: '65.6,154.4 49.5,185.8 37.2,161', a: '#132c1f', b: '#183324', x1: 38.2, y1: 162.6, x2: 60.3, y2: 169.1 },
+  { p: '135.1,152.8 165.1,161.9 150.4,185.8', a: '#183325', b: '#183325', x1: 0, y1: 0, x2: 1, y2: 0 },
+  { p: '164.4,108.7 144.1,122.9 110.7,107.9', a: '#3a5e48', b: '#396549', x1: 131.2, y1: 97, x2: 144.7, y2: 121.2 },
+  { p: '104.2,107 138.8,124 103.2,126.9', a: '#254332', b: '#2b4a37', x1: 103.8, y1: 122.7, x2: 136.1, y2: 114.8 },
+  { p: '135.5,146.3 145.7,126.6 162.5,158 136.5,150.9', a: '#1c3527', b: '#1e3d2d', x1: 154.3, y1: 133.2, x2: 143.2, y2: 153 },
+  { p: '115.6,147.1 128.4,126.7 142.3,126.4 133.8,150.1', a: '#1c392a', b: '#214230', x1: 115.8, y1: 142.9, x2: 143.5, y2: 132.9 },
+  { p: '69.7,149.6 90.6,144.6 98.8,167.6', a: '#4e4f26', b: '#7b7031', x1: 86.4, y1: 166.6, x2: 85.8, y2: 146.2 },
+  { p: '108.3,79.4 128.7,68.7 130.3,93.4', a: '#a2883c', b: '#bb9c49', x1: 127.2, y1: 93.9, x2: 120.1, y2: 72.3 },
+  { p: '133.4,93.6 136.3,75 159.7,93.3', a: '#927b34', b: '#eacb71', x1: 157.9, y1: 93.2, x2: 134.3, y2: 83.5 },
+  { p: '100.7,65.6 116.2,67.8 111.6,77.1 93.3,86.2', a: '#9c8034', b: '#ddc370', x1: 96.8, y1: 72.5, x2: 113.3, y2: 75.7 },
+  { p: '98.5,144.6 113.9,147.8 100.5,166.5 94.4,153.1', a: '#ae9447', b: '#e5c66e', x1: 108, y1: 157.3, x2: 96.9, y2: 149.5 },
+  { p: '55.4,119.7 60.6,133.4 40.1,153', a: '#1e3325', b: '#234332', x1: 39.8, y1: 135.7, x2: 59, y2: 135.1 },
+  { p: '62,136.1 66.8,149.6 41.2,157.1', a: '#1d3627', b: '#223e2f', x1: 61.7, y1: 152.9, x2: 52.6, y2: 144.6 },
+  { p: '114.9,147.7 131.1,152 106.4,165.1', a: '#1d3a29', b: '#253f2e', x1: 113.5, y1: 151.1, x2: 121.7, y2: 159.7 },
 ];
 function ALogo({ size = 34 }) {
+  const uid = React.useMemo(() => 'ag' + Math.floor(Math.random() * 1e9).toString(36), []);
   return (
     <Svg width={size} height={size} viewBox="0 0 200 200">
+      <Defs>
+        {A_FACETS.map((f, i) => (
+          <SvgLinearGradient key={i} id={uid + '_' + i} x1={f.x1} y1={f.y1} x2={f.x2} y2={f.y2} gradientUnits="userSpaceOnUse">
+            <Stop offset="0" stopColor={f.a} />
+            <Stop offset="1" stopColor={f.b} />
+          </SvgLinearGradient>
+        ))}
+      </Defs>
       {A_FACETS.map((f, i) => (
-        <Polygon key={i} points={f[1]} fill={f[0]} stroke="#E8EEE9" strokeWidth={0.6} strokeLinejoin="round" />
+        <Polygon key={i} points={f.p} fill={'url(#' + uid + '_' + i + ')'} />
       ))}
     </Svg>
   );
@@ -239,6 +252,89 @@ const VRETRY = {
   es: { name: 'Perdone, no he captado bien su nombre. ¿Me podría decir su nombre, por favor?', service: 'Quiero anotarlo correctamente. ¿En qué podemos ayudarle hoy?', urgency: 'Solo para priorizarlo bien: ¿es urgente o lo está planificando con antelación?', phone: 'Mmm, eso no parece un número de teléfono. ¿Cuál es el mejor número para localizarle, con el prefijo incluido?' },
   ar: { name: 'عذرًا، لم ألتقط اسمك جيدًا — هل لي أن أعرف اسمك، من فضلك؟', service: 'أريد تدوين ذلك بدقة — كيف يمكننا مساعدتك اليوم؟', urgency: 'فقط لأرتّب الأولوية بشكل صحيح: هل الأمر عاجل أم أنك تخطّط له مسبقًا؟', phone: 'يبدو أن هذا ليس رقم هاتف. ما أفضل رقم يمكننا التواصل معك عليه، مع رمز المنطقة؟' },
 };
+
+/* ---------- Understanding: take every detail out of whatever the caller said ---------- */
+const V_NAME_RE_N = {
+  en: /(?:my name'?s?|my name is|this is|it'?s|i am|i'?m|you can call me)\s+([a-z][a-z'’\-]{1,20}(?:\s+[a-z][a-z'’\-]{1,20})?)/i,
+  es: /(?:me llamo|mi nombre es|soy|habla)\s+([a-záéíóúñü][a-záéíóúñü'’\-]{1,20}(?:\s+[a-záéíóúñü][a-záéíóúñü'’\-]{1,20})?)/i,
+  ar: /(?:اسمي|أنا|معك)\s+([ء-ي][ء-ي]{1,20}(?:\s+[ء-ي]{2,20})?)/,
+};
+const V_SERVICE_RE_N = {
+  en: /(?:i need|we need|i want|i'?m after|calling about|enquiring about|looking for|need help with|book(?:ing)? (?:a|an)?)\s+([^.,!?]{3,60})/i,
+  es: /(?:necesito|necesitamos|quiero|llamo por|busco|me interesa)\s+([^.,!?]{3,60})/i,
+  ar: /(?:أحتاج|أريد|أتصل بخصوص|أبحث عن|بخصوص)\s+([^.,!?]{3,60})/,
+};
+const V_STOP_NAME_N = /^(yes|no|yeah|ok|okay|hello|hi|hey|thanks|thank|sure|calling|here|there|sorry|si|sí|hola|gracias|claro|نعم|لا|مرحبا|شكرا)$/i;
+function vPhoneInN(str) {
+  const d = normDigits(String(str || ''));
+  const m = d.match(/[+()\d][\d()\s.\-]{5,}\d/g);
+  if (!m) return '';
+  for (let i = 0; i < m.length; i++) if ((m[i].match(/\d/g) || []).length >= 7) return m[i].trim();
+  return '';
+}
+function vNameInN(str, lang) {
+  const m = String(str || '').match(V_NAME_RE_N[lang] || V_NAME_RE_N.en);
+  if (!m) return '';
+  const n = m[1].trim().replace(/\s+/g, ' ');
+  return V_STOP_NAME_N.test(n.split(' ')[0]) ? '' : n;
+}
+function vServiceInN(str, lang) {
+  const m = String(str || '').match(V_SERVICE_RE_N[lang] || V_SERVICE_RE_N.en);
+  return m ? m[1].trim() : '';
+}
+function vUrgencyInN(str) {
+  const l = ' ' + String(str || '').toLowerCase() + ' ';
+  if (/(not urgent|no rush|no hay prisa|no es urgente|ليس عاجل|غير عاجل)/.test(l)) return l;
+  if (/(urgent|emergency|asap|right now|straight away|today|leaking|flooding|no heating|no hot water|urgente|emergencia|hoy mismo|ahora mismo|عاجل|طارئ|اليوم)/.test(l)) return l;
+  return '';
+}
+function vExtractN(text, askedKey, lang) {
+  const out = {};
+  const ph = vPhoneInN(text); if (ph) out.phone = ph;
+  if (vUrgencyInN(text)) out.urgency = String(text);
+  const nm = vNameInN(text, lang); if (nm) out.name = nm;
+  const sv = vServiceInN(text, lang); if (sv) out.service = sv;
+  if (askedKey === 'name' && !out.name) {
+    const bare = String(text).trim();
+    if (/^[^\d]{1,40}$/.test(bare) && vHasLetter(bare)) out.name = bare.replace(/[.,!?]+$/, '');
+  }
+  /* a bare phone number is never the service they need — it is a phone number */
+  if (askedKey === 'service' && !out.service && vHasLetter(text) &&
+      !(out.phone && vDigitsCount(text) >= 7 && (String(text).match(/[A-Za-zÀ-ɏ؀-ۿ]/g) || []).length < 3)) {
+    out.service = String(text).trim();
+  }
+  if (askedKey === 'urgency') out.urgency = String(text).trim();
+  if (askedKey === 'phone' && !out.phone) out.phone = String(text).trim();
+  return out;
+}
+/* ---------- Answering the caller's own questions ----------
+   V_SOLO_N phrases stand alone; everything else must also sound like a question, so
+   "I need it done today" is never mistaken for "how soon can you come?". */
+const V_SOLO_N = [
+  ['bye', /\b(bye|goodbye|hang up|got to go|gotta go|end the call|adiós|adios|cuelgo|مع السلامة|وداعا)\b/i],
+  ['thanks', /^(?:that'?s )?(?:great|perfect|lovely|brilliant|ok(?:ay)?|thanks?|thank you|cheers|gracias|perfecto|vale|شكرا|شكرًا|تمام|ممتاز)[.! ]*$/i],
+  ['repeat', /(say that again|repeat that|pardon|come again|didn'?t (?:hear|catch)|what did you say|repita|otra vez|no le (?:he )?o[ií]do|أعد|كرر|لم أسمع)/i],
+  ['human', /(speak (?:to|with) (?:a |someone|a human|a person|the manager|an? agent)|real person|human being|talk to (?:someone|a person)|hablar con (?:alguien|una persona)|persona real|أتحدث مع (?:شخص|موظف)|شخص حقيقي)/i],
+  ['who', /(are you (?:a )?(?:robot|human|real|bot|ai)|who am i (?:speaking|talking) to|is this a (?:machine|robot)|eres (?:un )?(?:robot|humano)|هل أنت (?:روبوت|إنسان|آلي))/i],
+];
+const V_TOPIC_N = [
+  ['price', /(how much|cost|price|pricing|quote|charge|fee|expensive|cuánto|cuanto|precio|tarifa|السعر|التكلفة|يكلف)/i],
+  ['hours', /(open(?:ing)? (?:hours|times)|what time|open|closed|hours|weekend|horario|abren|ساعات العمل|تفتح|مواعيد)/i],
+  ['where', /(where|your address|location|based|come to me|cover my area|dónde|ubicación|dirección|أين|العنوان|الموقع)/i],
+  ['services', /(what (?:do you|services)|you do|you offer|you handle|help with|servicios|hacen|ofrecen|الخدمات|تقدمون)/i],
+  ['when', /(how (?:soon|long|quickly)|when can (?:you|someone|somebody)|same day|wait(?:ing)? time|cuánto tard|cuándo pueden|يستغرق|متى يمكنكم)/i],
+  ['email', /(e-?mail|correo electrónico|البريد الإلكتروني)/i],
+  ['book', /\b(book|booking|appointment|schedule|slot|reservar|cita|agendar|حجز|موعد)\b/i],
+];
+const V_Q_CUE_N = /(\?|\b(what|what'?s|how|when|where|who|which|why|can i|can you|could you|could i|do you|does|did you|is it|is there|are you|are there|will you|would you|any chance|tell me|i'?d like to know|qué|que|cómo|como|cuándo|cuando|dónde|donde|quién|quien|cuánto|cuanto|puede|podría|hay|tienen|ما|ماذا|كيف|متى|أين|هل|كم)\b)/i;
+function vIntentN(text) {
+  const str = String(text || '');
+  for (let i = 0; i < V_SOLO_N.length; i++) if (V_SOLO_N[i][1].test(str)) return V_SOLO_N[i][0];
+  if (!V_Q_CUE_N.test(str)) return '';
+  for (let i = 0; i < V_TOPIC_N.length; i++) if (V_TOPIC_N[i][1].test(str)) return V_TOPIC_N[i][0];
+  return '';
+}
+
 function vHasLetter(s) { return /[A-Za-zÀ-ɏ؀-ۿ]/.test(String(s || '')); }
 function vDigitsCount(s) { return (normDigits(String(s || '')).match(/\d/g) || []).length; }
 function validName(s) { s = String(s || '').trim(); return s.length >= 1 && s.length <= 60 && vHasLetter(s); }
@@ -278,6 +374,57 @@ const CRM_PROVIDERS = [
   { id: 'dynamics', name: 'Microsoft Dynamics 365', accent: '#0B53CE', icon: 'grid', kind: 'soon', desc: 'Leads, opportunities & tasks' },
   { id: 'custom_api', name: 'Custom API', accent: '#7E6FEF', icon: 'code', kind: 'custom', entity: 'record', desc: 'Any API or webhook-based system' },
 ];
+
+/* ---------- Credentials each CRM actually needs, checked before we claim a connection ----------
+   Same rules the live connector uses, so a typo is caught here and named precisely. */
+const CRM_CREDS_N = {
+  hubspot: [
+    { k: 'token', label: 'Private app access token', ph: 'pat-eu1-xxxxxxxx-xxxx-xxxx', hint: 'HubSpot → Settings → Integrations → Private Apps → Auth.',
+      check: (v) => (!/^pat-/i.test(v) ? 'must start with “pat-”' : v.length < 30 ? 'looks too short — expected about 36 characters' : '') },
+    { k: 'portal', label: 'Hub ID (portal ID)', ph: '24123456', hint: 'Top-right account menu in HubSpot — 6 to 9 digits.',
+      check: (v) => (!/^\d+$/.test(v) ? 'should be digits only' : (v.length < 6 || v.length > 9) ? 'should be 6 to 9 digits' : '') },
+  ],
+  pipedrive: [
+    { k: 'token', label: 'API token', ph: '40 hexadecimal characters', hint: 'Pipedrive → profile → Personal preferences → API.',
+      check: (v) => (!/^[a-f0-9]+$/i.test(v) ? 'should only contain 0-9 and a-f' : v.length !== 40 ? 'must be exactly 40 characters (yours is ' + v.length + ')' : '') },
+    { k: 'domain', label: 'Company domain', ph: 'yourcompany.pipedrive.com', hint: 'The address you sign in at, without https://.',
+      check: (v) => (!/^[a-z0-9][a-z0-9-]*\.pipedrive\.com$/i.test(String(v).replace(/^https?:\/\//, '').replace(/\/.*$/, '')) ? 'should look like yourcompany.pipedrive.com' : '') },
+  ],
+  highlevel: [
+    { k: 'token', label: 'API key', ph: 'eyJhbGciOiJIUzI1NiIs…', hint: 'GoHighLevel → Settings → Business Profile → API Key.',
+      check: (v) => (v.split('.').length !== 3 ? 'should be a JWT with three dot-separated parts' : v.length < 60 ? 'looks too short' : '') },
+    { k: 'location', label: 'Location ID', ph: 've9EPM428h8vShlRW1KT', hint: 'Settings → Company → Location ID.',
+      check: (v) => (!/^[A-Za-z0-9]{15,30}$/.test(v) ? 'should be about 20 letters and digits' : '') },
+  ],
+  google_sheets: [
+    { k: 'sheet', label: 'Spreadsheet ID', ph: '1BxiMVs0XRA5nFMdKvBd…', hint: 'The id in the sheet URL between /d/ and /edit.',
+      check: (v) => (!/^[A-Za-z0-9_-]{30,60}$/.test(v) ? 'should be about 44 characters from the sheet URL' : '') },
+    { k: 'email', label: 'Service account email', ph: 'sync@project.iam.gserviceaccount.com', hint: 'Share the sheet with this address as an Editor.',
+      check: (v) => (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(v) ? 'must be a valid email address' : '') },
+  ],
+  generic_webhook: [
+    { k: 'account', label: 'Webhook URL', ph: 'https://api.yourapp.com/hooks/alsaiti', hint: 'A public https:// endpoint that accepts POST.',
+      check: (v) => (!/^https:\/\/[^\s]+\.[^\s]{2,}/i.test(v) ? 'must be a full https:// address' : '') },
+  ],
+  custom_api: [
+    { k: 'account', label: 'API endpoint', ph: 'https://api.yourcrm.com/v1/leads', hint: 'Where we POST each signed lead payload.',
+      check: (v) => (!/^https:\/\/[^\s]+\.[^\s]{2,}/i.test(v) ? 'must be a full https:// address' : '') },
+    { k: 'token', label: 'API key', ph: 'sk_live_…', hint: 'Sent as the Authorization: Bearer header.',
+      check: (v) => (v.length < 16 ? 'looks too short — at least 16 characters' : '') },
+  ],
+};
+function crmCredFieldsN(id) { return CRM_CREDS_N[id] || []; }
+function crmCredProblemsN(id, vals) {
+  const out = [];
+  crmCredFieldsN(id).forEach((f) => {
+    const v = String((vals && vals[f.k]) || '').trim();
+    if (!v) { out.push({ k: f.k, field: f.label, msg: 'is required' }); return; }
+    const bad = f.check(v);
+    if (bad) out.push({ k: f.k, field: f.label, msg: bad });
+  });
+  return out;
+}
+
 const CRM_TRIGGERS = [['lead.created', 'When a lead is created'], ['lead.qualified', 'When a lead is qualified'], ['lead.booked', 'When a lead is booked'], ['lead.won', 'When a lead is won'], ['lead.status_changed', 'When status changes'], ['call.completed', 'When a call completes'], ['chat.completed', 'When a chat completes']];
 const CRM_ACTIONS = [['contact', 'Create / update contact'], ['company', 'Create company / organisation'], ['deal', 'Create deal / opportunity'], ['note', 'Add note'], ['task', 'Create task / activity'], ['tags', 'Apply tags'], ['owner', 'Assign owner'], ['workflow', 'Trigger workflow']];
 const crmProviderN = (id) => CRM_PROVIDERS.find((p) => p.id === id) || null;
@@ -735,6 +882,59 @@ function pickVoice(voices, langCode, gender) {
 const normDigits = (s) => String(s || '').replace(/[٠-٩]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 1632 + 48)).replace(/[۰-۹]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 1776 + 48));
 const speechClean = (text) => String(text).replace(/[+]?\d[\d ]{3,}\d/g, (m) => { const ds = m.replace(/[^\d]/g, ''); return ds.length >= 7 ? ds.split('').join(' ') : m; });
 const fillTpl = (str, p) => String(str).replace(/\{(\w+)\}/g, (m, k) => (p[k] != null ? p[k] : m));
+
+/* ---------- What the receptionist says back when the caller asks a question ---------- */
+const VANS_N = {
+  en: {
+    price: 'Our systems start at £499 a month for Starter, £799 for Growth and £1,200 for Full Automation, with setup from £1,000 and a minimum four-month agreement.',
+    hours: 'The team is in Monday to Friday, nine to six — but I answer around the clock, so you never miss a slot.',
+    where: 'We work with businesses across the UK and handle everything remotely, so wherever you are we can help.',
+    services: 'We build AI receptionists and lead systems — answering calls, capturing enquiries, following up automatically and showing it all in a live dashboard.',
+    human: 'Of course. I will take a couple of details and have someone from the team call you straight back.',
+    when: 'For urgent enquiries the team calls back the same day, and otherwise within one working day.',
+    email: 'You can reach us at contact@alsaitigrowth.com, or I can have the team call you.',
+    book: 'I can absolutely arrange that — the team will confirm a time when they call you back.',
+    who: 'I am the AI receptionist for Alsaiti Growth. I take your details, and a real member of the team follows up personally.',
+    thanks: 'You are very welcome.', bye: 'Thank you for calling Alsaiti Growth. Have a wonderful day — goodbye!',
+    unknown: 'Let me note that down for the team.',
+    reName: 'So, may I take your name?', reService: 'Now, how can we help you today?',
+    reUrgency: 'And is this urgent, or are you planning ahead?', rePhone: 'And what is the best number to reach you on?',
+    gotName: 'Thanks, {name}.', gotService: 'Got it.', gotPhone: 'I have your number, thank you.', gotUrgency: 'Understood.',
+  },
+  es: {
+    price: 'Nuestros sistemas empiezan en 499 £ al mes en el plan Starter, 799 £ en Growth y 1.200 £ en Automatización Completa, con una implantación desde 1.000 £ y un compromiso mínimo de cuatro meses.',
+    hours: 'El equipo está de lunes a viernes, de nueve a seis, pero yo respondo las veinticuatro horas, así que no se pierde ninguna consulta.',
+    where: 'Trabajamos con empresas de todo el país y lo gestionamos todo en remoto, así que podemos ayudarle esté donde esté.',
+    services: 'Creamos recepcionistas con IA y sistemas de captación: atendemos llamadas, registramos consultas, hacemos el seguimiento automáticamente y lo mostramos todo en un panel en vivo.',
+    human: 'Por supuesto. Tomo un par de datos y hago que alguien del equipo le llame enseguida.',
+    when: 'En los casos urgentes el equipo le devuelve la llamada el mismo día; en el resto, en un día laborable.',
+    email: 'Puede escribirnos a contact@alsaitigrowth.com, o hago que el equipo le llame.',
+    book: 'Claro que sí, puedo organizarlo: el equipo le confirmará la hora cuando le llame.',
+    who: 'Soy la recepcionista con IA de Alsaiti Growth. Yo tomo sus datos y una persona del equipo le atiende personalmente después.',
+    thanks: 'No hay de qué.', bye: 'Gracias por llamar a Alsaiti Growth. ¡Que tenga un día estupendo, hasta pronto!',
+    unknown: 'Se lo anoto al equipo.',
+    reName: 'Entonces, ¿me dice su nombre, por favor?', reService: 'Y bien, ¿en qué podemos ayudarle hoy?',
+    reUrgency: '¿Y es urgente o lo está planificando con antelación?', rePhone: '¿Y cuál es el mejor número para localizarle?',
+    gotName: 'Gracias, {name}.', gotService: 'Entendido.', gotPhone: 'Ya tengo su número, gracias.', gotUrgency: 'Comprendido.',
+  },
+  ar: {
+    price: 'تبدأ أنظمتنا من 499 جنيهًا إسترلينيًا شهريًا لباقة البداية، و799 لباقة النمو، و1200 للأتمتة الكاملة، مع إعداد يبدأ من 1000 جنيه والحد الأدنى للاتفاقية أربعة أشهر.',
+    hours: 'الفريق متاح من الاثنين إلى الجمعة من التاسعة صباحًا حتى السادسة مساءً، أما أنا فأردّ على مدار الساعة فلا يفوتك أي استفسار.',
+    where: 'نعمل مع الشركات في جميع أنحاء المملكة المتحدة وندير كل شيء عن بُعد، لذا يمكننا مساعدتك أينما كنت.',
+    services: 'نبني موظفي استقبال بالذكاء الاصطناعي وأنظمة لالتقاط العملاء المحتملين — نردّ على المكالمات، ونسجّل الاستفسارات، ونتابعها تلقائيًا، ونعرض ذلك كله في لوحة تحكم مباشرة.',
+    human: 'بكل تأكيد. سآخذ بعض التفاصيل وأجعل أحد أفراد الفريق يعاود الاتصال بك فورًا.',
+    when: 'في الحالات العاجلة يعاود الفريق الاتصال في اليوم نفسه، وفي غير ذلك خلال يوم عمل واحد.',
+    email: 'يمكنك مراسلتنا على contact@alsaitigrowth.com، أو أجعل الفريق يتصل بك.',
+    book: 'بالتأكيد يمكنني ترتيب ذلك — سيؤكّد الفريق الموعد عند معاودة الاتصال بك.',
+    who: 'أنا موظف الاستقبال الذكي لدى Alsaiti Growth. آخذ بياناتك ثم يتابع معك أحد أفراد الفريق شخصيًا.',
+    thanks: 'على الرحب والسعة.', bye: 'شكرًا لاتصالك بـ Alsaiti Growth. أتمنى لك يومًا رائعًا — مع السلامة!',
+    unknown: 'سأدوّن ذلك للفريق.',
+    reName: 'إذًا، هل لي أن أعرف اسمك؟', reService: 'والآن، كيف يمكننا مساعدتك اليوم؟',
+    reUrgency: 'وهل الأمر عاجل أم أنك تخطّط له مسبقًا؟', rePhone: 'وما أفضل رقم يمكننا التواصل معك عليه؟',
+    gotName: 'شكرًا لك، {name}.', gotService: 'تمام.', gotPhone: 'سجّلتُ رقمك، شكرًا لك.', gotUrgency: 'مفهوم.',
+  },
+};
+
 const VT = {
   en: {
     title: 'AI receptionist', sub: 'Talk to your AI receptionist — it greets the caller, qualifies them, and creates a lead.',
@@ -819,39 +1019,73 @@ function VoiceScreen({ onCreateLead, showToast }) {
   const chooseGender = async (g) => { g = g === 'male' ? 'male' : 'female'; setGender(g); try { await store.set('av_voice_gender', g); } catch (e) {}
     const sample = { en: 'Hi! This is your AI receptionist — lovely to meet you.', es: '¡Hola! Soy su recepcionista con IA. ¡Encantada de saludarle!', ar: 'مرحبًا! معك موظف الاستقبال الذكي. سعدتُ بالتحدث إليك!' };
     try { Speech.stop(); speakWith(sample[lang] || sample.en, g); } catch (e) {} };
-  const speakWith = (txt, g) => { try {
-    const code = VTTS[lang]; const pr = vProsody(lang, g);
-    const opts = { language: code, pitch: pr.pitch, rate: pr.rate };
-    const vid = pickVoice(voicesRef.current, code, g); if (vid) opts.voice = vid; // same-language, right gender
-    Speech.stop(); Speech.speak(speechClean(sayBrand(txt, lang)), opts);
-  } catch (e) {} };
-  const speak = (txt) => speakWith(txt, gender);
+  /* Every utterance takes a ticket; a newer one invalidates the older, so a late callback can
+     never start a second voice on top of the one you are hearing. `done` fires when it ends. */
+  const speakWith = (txt, g, done) => {
+    voice.seq = (voice.seq || 0) + 1;
+    const my = voice.seq;
+    const fin = () => { if (my === voice.seq && typeof done === 'function') done(); };
+    try {
+      const code = VTTS[lang]; const pr = vProsody(lang, g);
+      const opts = { language: code, pitch: pr.pitch, rate: pr.rate, onDone: fin, onStopped: () => {}, onError: fin };
+      const vid = pickVoice(voicesRef.current, code, g); if (vid) opts.voice = vid; // same-language, right gender
+      Speech.stop();
+      Speech.speak(speechClean(sayBrand(txt, lang)), opts);
+    } catch (e) { fin(); }
+  };
+  const speak = (txt, done) => speakWith(txt, gender, done);
   const add = (who, text) => setTranscript((p) => [...p, { who, text }]);
   /* the receptionist pauses like a human: typing dots, then the reply */
-  const botSay = (txt) => {
+  const botSay = (txt, after) => {
     /* if a reply is still "typing", flush it into the transcript instead of dropping it */
     if (voice.timer) {
       clearTimeout(voice.timer); voice.timer = null;
       if (voice.pendingTxt) { const pt = voice.pendingTxt; voice.pendingTxt = null; setTranscript((p) => [...p.filter((m) => m.who !== 'typing'), { who: 'bot', text: pt }]); }
     }
-    voice.pendingTxt = txt;
+    voice.pendingTxt = txt; voice.lastBot = txt;
     setTranscript((p) => [...p.filter((m) => m.who !== 'typing'), { who: 'typing' }]);
     voice.timer = setTimeout(() => {
       voice.timer = null; voice.pendingTxt = null;
       setTranscript((p) => [...p.filter((m) => m.who !== 'typing'), { who: 'bot', text: txt }]);
-      speak(txt);
-    }, 650 + Math.floor(Math.random() * 400));
+      speak(txt, after);
+    }, 240 + Math.floor(Math.random() * 180));
   };
   const askText = () => {
     const which = QORDER[voice.step];
     const name = cap(voice.data.name || '') || T.defName;
+    let lead = '';
+    if (voice.acks && voice.acks.length) { lead = voice.acks.join(' ') + ' '; voice.acks = []; }
     let txt = fillTpl(T[which], { name });
     if (which === 'urgency') { const acks = VACK_N[lang] || VACK_N.en; txt = acks[Math.floor(Math.random() * acks.length)] + ' ' + txt; }
     if (which === 'phone' && voice.urgent) txt = T.ack + ' ' + txt;
-    return txt;
+    return lead + txt;
+  };
+  const reAskText = () => {
+    const A = VANS_N[lang] || VANS_N.en;
+    const which = QORDER[voice.step];
+    return A['re' + which.charAt(0).toUpperCase() + which.slice(1)] || askText();
+  };
+  /* file away details the caller volunteered that we had not asked for yet */
+  const keepExtras = (got, skipKey) => {
+    const A = VANS_N[lang] || VANS_N.en;
+    voice.acks = voice.acks || [];
+    ['name', 'service', 'urgency', 'phone'].forEach((k) => {
+      if (k === skipKey || voice.data[k] != null || !got[k]) return;
+      voice.data[k] = String(got[k]).trim();
+      const a = A['got' + k.charAt(0).toUpperCase() + k.slice(1)];
+      if (a) voice.acks.push(fillTpl(a, { name: cap(voice.data.name || ''), v: voice.data[k] }));
+    });
+    if (voice.data.urgency != null) voice.urgent = parseUrgency(voice.data.urgency) === 'High';
+  };
+  const answerFor = (text) => {
+    const kind = vIntentN(text);
+    if (!kind) return null;
+    const A = VANS_N[lang] || VANS_N.en;
+    if (kind === 'repeat') return voice.lastBot || A.unknown;
+    return A[kind] || A.unknown;
   };
   const ask = () => { botSay(askText()); setStatus(T.yourTurn); };
-  const start = () => { voice.active = true; voice.step = 0; voice.data = {}; voice.urgent = false; voice.retry = {}; setActive(true); setTranscript([]); ask(); };
+  const start = () => { try { Speech.stop(); } catch (e) {} voice.active = true; voice.step = 0; voice.data = {}; voice.urgent = false; voice.retry = {}; voice.acks = []; voice.lastBot = ''; setActive(true); setTranscript([]); ask(); };
   const finish = () => {
     voice.active = false; setActive(false);
     const d = voice.data;
@@ -870,17 +1104,27 @@ function VoiceScreen({ onCreateLead, showToast }) {
   };
   const send = () => {
     const v = input.trim(); if (!v || !voice.active) return; setInput(''); add('user', v);
+    try { Speech.stop(); } catch (e) {}
     const key = QKEY[voice.step];
-    const vd = validateAnswer(key, v);
-    let val = v;
+    /* the caller said goodbye */
+    if (vIntentN(v) === 'bye') { const A = VANS_N[lang] || VANS_N.en; botSay(A.bye, end); return; }
+    /* the caller asked US something — answer it, keep any details, and carry straight on */
+    const ans = answerFor(v);
+    if (ans) { keepExtras(vExtractN(v, null, lang), null); setStatus(T.yourTurn); botSay(ans + ' ' + reAskText()); return; }
+    const got = vExtractN(v, key, lang);
+    let val = got[key] != null ? String(got[key]).trim() : v;
+    const vd = validateAnswer(key, val);
     if (!vd.ok) {
+      /* they answered a different question than the one we asked — keep what they DID give us */
+      keepExtras(got, key);
       voice.retry[key] = (voice.retry[key] || 0) + 1;
       if (voice.retry[key] <= vd.max) { setStatus(T.yourTurn); botSay((VRETRY[lang] || VRETRY.en)[vd.field]); return; }
       if (key === 'name' || key === 'service') val = '';
     }
     voice.data[key] = val;
-    if (key === 'urgency') voice.urgent = parseUrgency(val) === 'High';
+    keepExtras(got, key);
     voice.step += 1;
+    while (voice.step < QORDER.length && voice.data[QKEY[voice.step]] != null) voice.step += 1;
     if (voice.step < QORDER.length) ask(); else finish();
   };
   const end = () => { voice.active = false; setActive(false); if (voice.timer) { clearTimeout(voice.timer); voice.timer = null; } voice.pendingTxt = null; setTranscript((p) => p.filter((m) => m.who !== 'typing')); try { Speech.stop(); } catch (e) {} setStatus(T.ended); };
@@ -1020,13 +1264,32 @@ function Integrations({ crm, mode, onSetMode, onConnect, onPause, onResume, onDi
   const connectedIds = {}; conns.forEach((c) => { connectedIds[c.provider] = true; });
   const avail = CRM_PROVIDERS.filter((p) => !connectedIds[p.id]);
   const summary = [['Active', active], ['Synced', syncedTotal], ['Success', succ + '%']];
-  const openWiz = (p) => setWiz({ provider: p.id, triggers: { 'lead.created': true, 'lead.status_changed': true }, actions: { contact: true, ...((p.entity === 'deal' || p.entity === 'opportunity') ? { deal: true, note: true } : {}) } });
+  const openWiz = (p) => setWiz({ provider: p.id, creds: {}, bad: [], triggers: { 'lead.created': true, 'lead.status_changed': true }, actions: { contact: true, ...((p.entity === 'deal' || p.entity === 'opportunity') ? { deal: true, note: true } : {}) } });
+  const setCred = (k, v) => setWiz((w) => ({ ...w, creds: { ...w.creds, [k]: v }, bad: (w.bad || []).filter((x) => x !== k) }));
   const toggle = (grp, k) => setWiz((w) => ({ ...w, [grp]: { ...w[grp], [k]: !w[grp][k] } }));
   const wizP = wiz ? crmProviderN(wiz.provider) : null;
   const activate = () => {
+    /* verify the credentials before we ever say "connected" */
+    const probs = crmCredProblemsN(wizP.id, wiz.creds || {});
+    if (probs.length) {
+      setWiz((w) => ({ ...w, bad: probs.map((p) => p.k) }));
+      Alert.alert(
+        wizP.name + ' did not connect',
+        'Make sure you have entered the correct details — we could not verify this ' + wizP.name + ' connection.\n\nWhat to check:\n' +
+          probs.map((p) => '• ' + p.field + ' ' + p.msg).join('\n'),
+        [{ text: 'Try again' }]
+      );
+      return;
+    }
     const triggers = Object.keys(wiz.triggers).filter((k) => wiz.triggers[k]);
     const actions = Object.keys(wiz.actions).filter((k) => wiz.actions[k]);
-    const account = (wizP.kind === 'custom' || wizP.id === 'generic_webhook') ? 'https://api.yourapp.com/hooks/alsaiti' : (wizP.id === 'hubspot' ? 'Bright Smile Dental' : wizP.name + ' workspace');
+    const cr = wiz.creds || {};
+    const account = cr.domain ? String(cr.domain).replace(/^https?:\/\//, '').replace(/\/$/, '')
+      : cr.portal ? 'Hub ' + cr.portal
+      : cr.location ? 'Location ' + cr.location
+      : cr.sheet ? 'Sheet …' + String(cr.sheet).slice(-6)
+      : cr.account ? cr.account
+      : wizP.name + ' workspace';
     onConnect({ provider: wizP.id, name: wizP.name, account, triggers, actions });
     setWiz(null);
   };
@@ -1121,6 +1384,29 @@ function Integrations({ crm, mode, onSetMode, onConnect, onPause, onResume, onDi
                   <Pressable onPress={() => setWiz(null)}><Icon name="close" size={18} color={C.muted} /></Pressable>
                 </View>
                 <ScrollView style={{ maxHeight: 360 }} showsVerticalScrollIndicator={false}>
+                  {crmCredFieldsN(wizP.id).length ? (
+                    <>
+                      <Text style={s.section2}>Connect your {wizP.name} account</Text>
+                      {crmCredFieldsN(wizP.id).map((f) => {
+                        const isBad = (wiz.bad || []).indexOf(f.k) >= 0;
+                        return (
+                          <View key={f.k} style={{ marginBottom: 12 }}>
+                            <Text style={[s.label, isBad && { color: '#ff9aa6' }]}>{f.label}</Text>
+                            <TextInput
+                              value={(wiz.creds && wiz.creds[f.k]) || ''}
+                              onChangeText={(v) => setCred(f.k, v)}
+                              placeholder={f.ph}
+                              placeholderTextColor={C.muted}
+                              autoCapitalize="none"
+                              autoCorrect={false}
+                              style={[s.input, isBad && { borderColor: 'rgba(255,122,138,0.7)' }]}
+                            />
+                            <Text style={[s.leadMeta, { marginTop: 4 }]}>{f.hint}</Text>
+                          </View>
+                        );
+                      })}
+                    </>
+                  ) : null}
                   <Text style={s.section2}>Sync triggers</Text>
                   {CRM_TRIGGERS.map(([id, label]) => (
                     <Pressable key={id} onPress={() => toggle('triggers', id)} style={[s.checkRow, wiz.triggers[id] && s.checkRowOn]}>
