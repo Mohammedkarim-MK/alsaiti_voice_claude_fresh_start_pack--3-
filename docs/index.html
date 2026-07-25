@@ -2530,7 +2530,25 @@ function sayBrand(text,lang){
   if(lang==='ar')return String(text).replace(/Alsaiti Growth/gi,'الصايتي جروث').replace(/Alsaiti/gi,'الصايتي');
   return String(text);
 }
-function vUnlock(){try{if(window.speechSynthesis&&!VOICE.unlocked){var u=new SpeechSynthesisUtterance(' ');u.volume=0;window.speechSynthesis.speak(u);VOICE.unlocked=true}}catch(e){}}
+/* One audio element for the whole session, unlocked inside the user's tap.
+   Safari/iOS only let an <audio> play if playback began during a user gesture. The neural clip
+   arrives ~1s later, after the fetch, so an element created at THAT point is blocked and we fell
+   back to the device voice — which is why the assistant did not sound like ElevenLabs. Unlocking
+   one element up front and reusing it (just swapping .src) keeps the gesture permission. */
+var TTS_EL=null, TTS_SILENCE='data:audio/wav;base64,UklGRjQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YRAAAACAgICAgICAgICAgICAgICA';
+function vUnlock(){
+  try{if(window.speechSynthesis&&!VOICE.unlocked){var u=new SpeechSynthesisUtterance(' ');u.volume=0;window.speechSynthesis.speak(u);VOICE.unlocked=true}}catch(e){}
+  try{
+    if(!TTS_EL){
+      TTS_EL=new Audio();
+      TTS_EL.preload='auto';
+      TTS_EL.playsInline=true;try{TTS_EL.setAttribute('playsinline','')}catch(e){}
+      TTS_EL.src=TTS_SILENCE;
+      var p=TTS_EL.play();
+      if(p&&p['catch'])p['catch'](function(){});
+    }
+  }catch(e){}
+}
 /* read long digit runs (phone numbers) one digit at a time so TTS never says "million" */
 function normDigits(s){return String(s||'').replace(/[٠-٩]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-1632+48)}).replace(/[۰-۹]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-1776+48)})}
 function speechClean(text){return String(text).replace(/[+]?\d[\d ]{3,}\d/g,function(m){var ds=m.replace(/[^\d]/g,'');return ds.length>=7?ds.split('').join(' '):m})}
@@ -2611,9 +2629,13 @@ function say(text,done){
   var play=function(uri){
     if(stale())return;
     try{
-      var a=new Audio(uri);TTS_AUDIO=a;
+      /* reuse the gesture-unlocked element — a fresh Audio() here would be blocked on iOS */
+      if(!TTS_EL){TTS_EL=new Audio();TTS_EL.playsInline=true}
+      var a=TTS_EL;TTS_AUDIO=a;
       a.onended=function(){if(TTS_AUDIO===a)TTS_AUDIO=null;fin()};
       a.onerror=function(){if(!stale())sayDevice(text,done,my)};
+      a.src=uri;
+      try{a.currentTime=0}catch(e){}
       var pr=a.play();
       if(pr&&pr['catch'])pr['catch'](function(){if(!stale())sayDevice(text,done,my)});
     }catch(e){if(!stale())sayDevice(text,done,my)}
@@ -2623,7 +2645,9 @@ function say(text,done){
      ONE of the two speaks, because the fallback checks its ticket before making a sound. */
   var settled=false;
   var fallback=function(){if(settled||stale())return;settled=true;SPEAK_TIMER=null;sayDevice(text,done,my)};
-  SPEAK_TIMER=setTimeout(fallback,2200);
+  /* the real ElevenLabs round trip is ~1s on wifi; allow for a phone on mobile data before
+     giving the line to the device voice (the prefetch means most lines are already cached) */
+  SPEAK_TIMER=setTimeout(fallback,3000);
   ttsFetch(spoken,lang,gender,key).then(function(uri){
     if(settled||stale())return;                  /* device voice already started — never double up */
     settled=true;if(SPEAK_TIMER){clearTimeout(SPEAK_TIMER);SPEAK_TIMER=null}
