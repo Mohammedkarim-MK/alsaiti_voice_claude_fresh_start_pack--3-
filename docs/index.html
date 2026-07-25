@@ -19,10 +19,10 @@
   :root{
     /* ===== LIGHT — Private Wealth: ivory / forest / green / brass (thin) ===== */
     --bg:#F7F2E7; --bg2:#EFE8D7; --primary:#1C6B4E; --cyan:#2E8A66; --glow:#123A2C;
-    --purple:#C6A15B; --accent:#C6A15B; --brass:#C6A15B; --heading:#14231C; --text:#22322A; --muted:#6E7A6A;
+    --purple:#C6A15B; --accent:#C6A15B; --brass:#C6A15B; --brass-ink:#82611E; --heading:#14231C; --text:#22322A; --muted:#5E6B5A;
     --glass:#FFFFFF; --glass-hi:#FCF9F1; --card:#FFFFFF; --card2:#F3EEDF; --sidebar:#FCF9F1; --sidebar-solid:#FBF7EC; --topbar:rgba(252,249,241,.85);
     --border:rgba(20,35,28,0.11); --border-hi:rgba(28,107,78,0.42);
-    --green:#1C6B4E; --amber:#A8791F; --red:#B4553E;
+    --green:#1C6B4E; --amber:#8A6117; --red:#9E4029;
     --glassborder:rgba(20,35,28,0.09); --glasshi:rgba(255,255,255,0.92);
     --shadow:rgba(18,42,32,0.16); --shadow2:rgba(18,42,32,0.06);
     /* charts — VALIDATED ordinal ramp (single hue, monotone L, light end clears surface)
@@ -40,7 +40,7 @@
   :root[data-theme="dark"]{
     /* ===== DARK — Modern Fintech: charcoal / electric emerald / cool white ===== */
     --bg:#0C100E; --bg2:#0F1512; --primary:#16C98A; --cyan:#22E39A; --glow:#0FA372;
-    --purple:#22E39A; --accent:#22E39A; --brass:#22E39A; --heading:#EAF2EE; --text:#DCE7E1; --muted:#8A9A92;
+    --purple:#22E39A; --accent:#22E39A; --brass:#22E39A; --brass-ink:#22E39A; --heading:#EAF2EE; --text:#DCE7E1; --muted:#8A9A92;
     --glass:#151B18; --glass-hi:#1B2320; --card:#151B18; --card2:#1A211D; --sidebar:rgba(12,16,14,.92); --sidebar-solid:#111714; --topbar:rgba(12,16,14,.85);
     --border:rgba(234,242,238,0.10); --border-hi:rgba(34,227,154,0.40);
     --green:#22E39A; --amber:#D9B45A; --red:#E58063;
@@ -135,7 +135,7 @@
   .b-Qualified{background:rgba(168,121,31,.15);color:#8A6416}
   .b-Booked{background:rgba(92,196,151,.14);color:#7bf0b4}
   .b-Won{background:rgba(92,196,151,.2);color:var(--green)}
-  .b-Lost{background:rgba(255,122,138,.14);color:#ff9aa6}
+  .b-Lost{background:rgba(255,122,138,.14);color:var(--red)}
   .b-Spam{background:rgba(148,163,199,.1);color:#8ea0bd}
 
   /* Table */
@@ -162,7 +162,7 @@
   .btn-sm{padding:7px 12px;font-size:13px}
   .btn-lg{padding:13px 22px;font-size:15px}
   .btn-ghost{background:none}
-  .btn-danger{border-color:rgba(255,122,138,.5);color:#ff9aa6}
+  .btn-danger{border-color:rgba(255,122,138,.5);color:var(--red)}
   .btn-danger:hover{background:rgba(255,122,138,.12);border-color:var(--red)}
   .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .spacer{flex:1}
@@ -179,7 +179,7 @@
     border:1px solid var(--border);color:var(--text);font-size:14px;outline:none;font-family:inherit}
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary)}
   .field textarea{resize:vertical;min-height:72px}
-  .field .err{color:#ff9aa6;font-size:12.5px;margin-top:6px;display:none}
+  .field .err{color:var(--red);font-size:12.5px;margin-top:6px;display:none}
   .field.invalid .err{display:block}
   .field.invalid input{border-color:var(--red)}
 
@@ -255,7 +255,7 @@
   .vmic.talking{animation:vtalk 1.6s ease-in-out infinite}
   @keyframes vpulse{0%{box-shadow:0 0 0 0 rgba(255,122,138,.55)}70%{box-shadow:0 0 0 22px rgba(255,122,138,0)}100%{box-shadow:0 0 0 0 rgba(255,122,138,0)}}
   @keyframes vtalk{0%,100%{box-shadow:0 10px 34px rgba(10,135,92,.5)}50%{box-shadow:0 10px 34px rgba(10,135,92,.5),0 0 0 14px rgba(10,135,92,.14)}}
-  #vspeak.on{border-color:var(--red);color:#ff9aa6;background:rgba(255,122,138,.12)}
+  #vspeak.on{border-color:var(--red);color:var(--red);background:rgba(255,122,138,.12)}
   /* live-call state pill — tells the caller whose turn it is without a single button */
   .vlive{display:inline-flex;align-items:center;gap:8px;margin:0 auto 14px;padding:6px 14px 6px 11px;border-radius:999px;
     font-size:12px;font-weight:700;letter-spacing:.02em;border:1px solid var(--border);background:var(--card2);color:var(--muted)}
@@ -277,7 +277,7 @@
   :root[data-theme="dark"] .vgender button.on{color:#08130D}
   .vhuman{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:7px 14px;cursor:pointer;transition:all .18s}
   .vhuman svg{width:13px;height:13px}
-  .vhuman.on{color:var(--brass);border-color:rgba(198,161,91,.4);background:rgba(198,161,91,.1)}
+  .vhuman.on{color:var(--brass-ink);border-color:rgba(198,161,91,.4);background:rgba(198,161,91,.1)}
   :root[data-theme="dark"] .vhuman.on{color:var(--primary);border-color:var(--border-hi);background:rgba(34,227,154,.08)}
   .vtranscript{max-height:340px;overflow:auto;display:flex;flex-direction:column;gap:8px}
   .vmsg{max-width:85%;padding:9px 13px;border-radius:13px;font-size:14px;line-height:1.4}
@@ -413,7 +413,7 @@
   .mtr .c3{width:74px}.mtr .c4{width:92px;text-align:right}
   .mth .c1{flex:1.4}.mth .c2{flex:1.6}.mth .c3{width:74px}.mth .c4{width:92px;text-align:right}
   .utag{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px}
-  .u-hot{color:#ff9aa6;background:rgba(255,122,138,.15);border:1px solid rgba(255,122,138,.35)}
+  .u-hot{color:var(--red);background:rgba(255,122,138,.15);border:1px solid rgba(255,122,138,.35)}
   .u-warm{color:var(--amber);background:rgba(251,191,90,.14);border:1px solid rgba(251,191,90,.32)}
   @media(max-width:760px){.mockstats{grid-template-columns:repeat(2,1fr)}.mtr .c2{display:none}.mocktable{font-size:12px}}
 
@@ -506,7 +506,7 @@
   .cs-paused{color:var(--muted);background:rgba(150,160,166,.15)}
   .cs-attention{color:var(--amber);background:rgba(251,191,90,.12);border-color:rgba(251,191,90,.3)}
   .cs-expired{color:#ffb27a;background:rgba(255,150,90,.12);border-color:rgba(255,150,90,.3)}
-  .cs-error{color:#ff9aa6;background:rgba(255,122,138,.12);border-color:rgba(255,122,138,.32)}
+  .cs-error{color:var(--red);background:rgba(255,122,138,.12);border-color:rgba(255,122,138,.32)}
   .cs-disabled,.cs-disconnected,.cs-none{color:var(--muted);background:rgba(148,163,199,.1)}
   .cs-soon{color:#5A6870;background:rgba(90,104,112,.13);border-color:rgba(90,104,112,.28)}
   .connmeta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 14px;margin:6px 0 2px}
@@ -592,7 +592,7 @@
   .syb svg{width:11px;height:11px}
   .sy-synced{color:var(--green);background:rgba(92,196,151,.1);border-color:rgba(92,196,151,.28)}
   .sy-pending{color:var(--cyan);background:rgba(46,138,102,.1);border-color:rgba(46,138,102,.28)}
-  .sy-failed{color:#ff9aa6;background:rgba(255,122,138,.1);border-color:rgba(255,122,138,.3)}
+  .sy-failed{color:var(--red);background:rgba(255,122,138,.1);border-color:rgba(255,122,138,.3)}
   .sy-none{color:var(--muted);background:rgba(148,163,199,.08)}
   .syncrec{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border)}
   .syncrec:first-child{border-top:none}
@@ -669,8 +669,11 @@
   :root[data-theme="dark"] body{background-image:
     radial-gradient(1100px 620px at 84% -12%, rgba(34,227,154,.14), transparent 60%),
     radial-gradient(920px 520px at -8% 12%, rgba(34,227,154,.07), transparent 58%);}
-  /* smooth theme switch + premium micro-motion */
-  body,.card,.sidebar,.topbar,.btn,.badge,.navlink,.leaditem,.qa,.plan,.step,.provcard{transition:background-color .35s ease,border-color .35s ease,color .25s ease,box-shadow .3s ease,transform .18s ease}
+  /* Smooth theme switch + premium micro-motion.
+     `color` is deliberately NOT transitioned here: these elements take their colour from a
+     custom property, and a running colour transition pins the old computed value when only the
+     variable changes — so text kept the previous theme's colour until the next reload. */
+  body,.card,.sidebar,.topbar,.btn,.badge,.navlink,.leaditem,.qa,.plan,.step,.provcard{transition:background-color .35s ease,border-color .35s ease,box-shadow .3s ease,transform .18s ease}
   /* refined serif headings for a branded, editorial feel */
   .htitle,.stitle,.pagehead h1,.authcard h2,.obh,.brand,.wiztitle{font-family:var(--serif);letter-spacing:.1px}
   .pagehead h1,.card h3,.stitle{color:var(--heading)}
@@ -1026,7 +1029,7 @@
   /* ---- Sidebar: private-members club ---- */
   .sidebar{background:linear-gradient(180deg,var(--glass-hi),var(--sidebar) 42%)}
   :root[data-theme="dark"] .sidebar{background:linear-gradient(180deg,rgba(34,227,154,.07),rgba(12,16,14,.94) 46%)}
-  .navsec{color:var(--brass);letter-spacing:.14em;font-weight:700;display:flex;align-items:center;gap:8px}
+  .navsec{color:var(--brass-ink);letter-spacing:.14em;font-weight:700;display:flex;align-items:center;gap:8px}
   .navsec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(198,161,91,.35),transparent)}
   .navlink{overflow:visible}
   .navlink::before{content:"";position:absolute;inset-inline-start:-10px;top:22%;bottom:22%;width:3px;border-radius:3px;
@@ -1078,7 +1081,7 @@
   @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
   .wordmark{font-family:var(--serif);font-weight:700;text-transform:uppercase;letter-spacing:.2em;text-indent:.2em;font-size:clamp(30px,5.4vw,54px);line-height:.95;color:var(--heading)}
   .tagline{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.55em;text-transform:uppercase;letter-spacing:.26em;text-indent:.26em;font-size:clamp(8.5px,1.4vw,12px);font-weight:600;color:var(--muted)}
-  .tagline i{color:var(--brass);font-style:normal;font-weight:800;letter-spacing:0}
+  .tagline i{color:var(--brass-ink);font-style:normal;font-weight:800;letter-spacing:0}
   html[dir="rtl"] .logoLock .wordmark,html[dir="rtl"] .tagline{direction:ltr}
   @media (prefers-reduced-motion:reduce){
     .aMg polygon{animation:none}
@@ -1218,6 +1221,12 @@
   .vsetline em{margin-inline-start:auto;font-style:normal;font-size:11.5px;white-space:nowrap}
   @media(hover:hover){.vsetline:hover{border-color:var(--border-hi)}}
   .fprefs{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+  /* visually hidden but still submitted — safe in both text directions */
+  .honeypot{position:absolute;width:1px;height:1px;padding:0;margin:-1px;border:0;overflow:hidden;
+    clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;opacity:0;pointer-events:none}
+  /* Decorative glows and sweeps bled ~12px past the viewport and gave the page a sideways
+     scroll on a phone. `clip` (not `hidden`) so it never becomes a scroll container. */
+  .landing{overflow-x:hidden;overflow-x:clip}
 
   /* ============================================================
      DASHBOARD — a warm greeting and stat cards that show their shape
@@ -1265,6 +1274,7 @@
     /* calmer top bar: no language pill, no theme toggle — they live in Settings now */
     .topbar{padding:10px 14px calc(10px);gap:10px;background:var(--topbar)}
     .hamb{width:42px;height:42px;border-radius:12px}
+    .topbar .iconbtn,.topbar .avatar{width:42px;height:42px}
     .topbar .avatar{cursor:pointer}
     .content{padding:18px 14px calc(104px + env(safe-area-inset-bottom))}
     .mobnav{background:var(--sidebar-solid);padding:7px 4px calc(7px + env(safe-area-inset-bottom))}
@@ -1282,6 +1292,7 @@
     .greet{font-size:13px}
     .optbtn{min-height:50px}
     .btn{min-height:44px}
+    .btn-sm{min-width:44px}   /* short labels like "All" were a 40px-wide target */
     .field input,.field select,.vreply input{min-height:46px;font-size:16px} /* 16px stops iOS zooming on focus */
     .modalcard{max-height:88vh}
   }
@@ -1579,7 +1590,7 @@ function animateStats(){try{if(typeof requestAnimationFrame!=='function')return;
 function t(k){var d=TR[LANG]||{};if(d[k]!=null)return d[k];if(TR.en[k]!=null)return TR.en[k];return k}
 function fill(s,p){p=p||{};return String(s).replace(/\{(\w+)\}/g,function(m,n){return p[n]!=null?p[n]:m})}
 function tf(k,p){return fill(t(k),p)}
-function langSwitch(){return '<div class="langsw">'+LANGS.map(function(l){return '<button class="'+(l[0]===LANG?'on':'')+'" onclick="setLang(\''+l[0]+'\')">'+l[1]+'</button>'}).join('')+'</div>'}
+function langSwitch(){return '<div class="langsw">'+LANGS.map(function(l){return '<button class="'+(l[0]===LANG?'on':'')+'" onclick="setLang(\''+jsq(l[0])+'\')">'+l[1]+'</button>'}).join('')+'</div>'}
 
 /* ============================ Constants ============================ */
 var STATUSES=["New","Contacted","Qualified","Booked","Won","Lost","Spam"];
@@ -1741,12 +1752,20 @@ function seedIfNeeded(email){
 
 /* ============================ Helpers ============================ */
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+/* For a value dropped inside a '…' JS string that itself sits inside an HTML attribute —
+   onclick="openLead('<HERE>')". esc() is wrong here: the parser turns &#39; back into a bare
+   quote and the handler breaks (or runs). Escape for JS first, then for HTML. */
+function jsq(s){
+  return String(s==null?'':s)
+    .replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r/g,'\\r').replace(/\n/g,'\\n')
+    .replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]});
+}
 function initials(n){return String(n||'?').trim().split(/\s+/).map(function(w){return w[0]}).slice(0,2).join('').toUpperCase()}
 function ago(t){var s=Math.floor((Date.now()-t)/1000);
   if(s<60)return 'just now';var m=Math.floor(s/60);if(m<60)return m+'m ago';
   var h=Math.floor(m/60);if(h<24)return h+'h ago';var d=Math.floor(h/24);
   if(d===1)return 'Yesterday';return d+'d ago'}
-function scoreColor(v){return v>75?'var(--green)':v>50?'var(--cyan)':'#ff9aa6'}
+function scoreColor(v){return v>75?'var(--green)':v>50?'var(--primary)':'var(--red)'}
 var TOAST_T=null;
 function toast(msg){var el=document.getElementById('toast');
   el.innerHTML=icon('check')+'<span>'+esc(msg)+'</span>';el.classList.add('show');
@@ -1885,7 +1904,9 @@ function landing(){
     '<section class="section" id="sec-contact"><div class="contactcard">'+
       '<div class="kicker">'+esc(t('form_kicker'))+'</div><h2 class="stitle">'+esc(t('form_title'))+'</h2><p class="ssub">'+esc(t('form_sub'))+'</p>'+
       '<form class="form2" onsubmit="return submitContactForm(event)">'+
-        '<input type="text" name="company_website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"/>'+
+        /* Spam honeypot. It must take no space and no position: left:-9999px flips under RTL and
+           pushed the page into a 10,000px sideways scroll in Arabic. Clip it instead. */
+        '<input type="text" name="company_website" tabindex="-1" autocomplete="off" aria-hidden="true" class="honeypot"/>'+
         '<div><label>'+esc(t('f_first'))+'</label><input name="first" maxlength="60" required/></div>'+
         '<div><label>'+esc(t('f_last'))+'</label><input name="last" maxlength="60"/></div>'+
         '<div><label>'+esc(t('f_biz'))+'</label><input name="biz" maxlength="80"/></div>'+
@@ -2070,8 +2091,8 @@ function mobModel(){return [['dashboard','nav_dashboard','grid'],['leads','nav_l
 function shell(active,inner){
   var u=AUTH.current(), p=getProfile();
   var side=navModel().map(function(g){return '<div class="navsec">'+esc(t(g[0]))+'</div>'+g[1].map(function(it){
-    return '<button class="navlink '+(it[0]===active?'active':'')+'" onclick="go(\''+it[0]+'\')">'+icon(it[2])+'<span>'+esc(t(it[1]))+'</span></button>'}).join('')}).join('');
-  var mob=mobModel().map(function(it){return '<button class="'+(it[0]===active?'active':'')+'" onclick="go(\''+it[0]+'\')">'+icon(it[2])+'<span>'+esc(t(it[1]))+'</span></button>'}).join('');
+    return '<button class="navlink '+(it[0]===active?'active':'')+'" onclick="go(\''+jsq(it[0])+'\')">'+icon(it[2])+'<span>'+esc(t(it[1]))+'</span></button>'}).join('')}).join('');
+  var mob=mobModel().map(function(it){return '<button class="'+(it[0]===active?'active':'')+'" onclick="go(\''+jsq(it[0])+'\')">'+icon(it[2])+'<span>'+esc(t(it[1]))+'</span></button>'}).join('');
   return '<div class="backdrop '+(UI.menu?'show':'')+'" onclick="toggleMenu()"></div>'+
   '<div class="app"><aside class="sidebar '+(UI.menu?'open':'')+'">'+
     '<div class="brand">'+brandMark()+' Alsaiti Growth</div>'+side+
@@ -2254,19 +2275,20 @@ function dashboard(){
 }
 
 function leadList(list){
-  return '<div class="leadlist">'+list.map(function(l){ return '<button class="leaditem" onclick="openLead(\''+l.id+'\')">'+
+  return '<div class="leadlist">'+list.map(function(l){ return '<button class="leaditem" onclick="openLead(\''+jsq(l.id)+'\')">'+
       '<span class="av">'+esc(initials(l.name))+'</span>'+
       '<span class="li-main">'+
-        '<span class="li-top"><span class="name">'+esc(l.name)+'</span><span class="badge b-'+l.status+'">'+l.status+'</span></span>'+
+        '<span class="li-top"><span class="name">'+esc(l.name)+'</span><span class="badge b-'+esc(l.status)+'">'+esc(l.status)+'</span></span>'+
         '<span class="li-sub">'+esc(l.service||'—')+'</span>'+
-        '<span class="li-meta">'+srcIcon(l.source)+'<span>&middot; '+esc(l.urgency)+'</span><span>&middot; '+ago(l.at)+'</span>'+crmLeadBadge(l.id)+'<span class="score" style="color:'+scoreColor(l.score)+';margin-left:auto">'+l.score+'</span></span>'+
+        '<span class="li-meta">'+srcIcon(l.source)+'<span>&middot; '+esc(l.urgency)+'</span><span>&middot; '+ago(l.at)+'</span>'+crmLeadBadge(l.id)+'<span class="score" style="color:'+scoreColor(l.score)+';margin-left:auto">'+(+l.score||0)+'</span></span>'+
       '</span>'+
     '</button>'}).join('')+'</div>'
 }
 function chipsHtml(){
   var chips=['All'].concat(STATUSES), leads=getLeads();
   return chips.map(function(c){var on=UI.filter===c;
-    return '<button class="btn btn-sm" style="'+(on?'border-color:var(--primary);color:#fff':'')+'" onclick="setFilter(\''+c+'\')">'+c+(c!=='All'?' <span class="muted" style="margin-left:4px">'+leads.filter(function(l){return l.status===c}).length+'</span>':'')+'</button>'}).join('')
+    /* the selected chip used white text on a light button — fill it instead so the label reads */
+    return '<button class="btn btn-sm'+(on?' btn-primary':'')+'" onclick="setFilter(\''+jsq(c)+'\')">'+esc(c)+(c!=='All'?' <span class="'+(on?'':'muted')+'" style="margin-inline-start:4px">'+leads.filter(function(l){return l.status===c}).length+'</span>':'')+'</button>'}).join('')
 }
 function leadResults(){
   var q=UI.q.toLowerCase().trim();
@@ -2319,19 +2341,19 @@ function leadDetail(){
   var leads=getLeads(), l=leads.filter(function(x){return x.id===UI.leadId})[0];
   if(!l)return head('Lead not found','')+emptyState('That lead no longer exists','It may have been deleted.',t('back'),'go(\'leads\')');
   var info=[[t('phone_label'),l.phone||'—'],[t('email_label'),l.email||'—'],[t('service_l'),l.service],[t('urgency_l'),l.urgency],[t('source_l'),l.source],[t('assignee_l'),l.assignee||'—'],[t('captured_l'),new Date(l.at).toLocaleString()]];
-  return '<div class="row" style="margin-bottom:14px"><button class="btn btn-sm" onclick="go(\'leads\')">'+icon('back')+' '+esc(t('back'))+'</button><div class="spacer"></div><span class="badge b-'+l.status+'">'+l.status+'</span></div>'+
-    '<div class="pagehead"><div><h1>'+esc(l.name)+'</h1><p>'+esc(l.id)+' &middot; lead score <b style="color:'+scoreColor(l.score)+'">'+l.score+'</b> &middot; '+ago(l.at)+'</p></div></div>'+
+  return '<div class="row" style="margin-bottom:14px"><button class="btn btn-sm" onclick="go(\'leads\')">'+icon('back')+' '+esc(t('back'))+'</button><div class="spacer"></div><span class="badge b-'+esc(l.status)+'">'+esc(l.status)+'</span></div>'+
+    '<div class="pagehead"><div><h1>'+esc(l.name)+'</h1><p>'+esc(l.id)+' &middot; lead score <b style="color:'+scoreColor(l.score)+'">'+(+l.score||0)+'</b> &middot; '+ago(l.at)+'</p></div></div>'+
     '<div class="grid cols-3">'+
       '<div style="grid-column:span 2;display:flex;flex-direction:column;gap:16px">'+
         '<div class="card"><h3>'+esc(t('summary_t'))+'</h3><p style="font-size:14px;line-height:1.6">'+esc(l.summary||'—')+'</p></div>'+
         '<div class="card"><h3>'+esc(t('internal_notes'))+'</h3><div class="field" style="margin-top:0"><textarea id="noteBox" placeholder="'+esc(t('add_note_ph'))+'">'+esc(l.notes||'')+'</textarea></div>'+
-          '<div class="row"><div class="spacer"></div><button class="btn btn-sm btn-primary" onclick="saveNote(\''+l.id+'\')">'+esc(t('save'))+'</button></div></div>'+
+          '<div class="row"><div class="spacer"></div><button class="btn btn-sm btn-primary" onclick="saveNote(\''+jsq(l.id)+'\')">'+esc(t('save'))+'</button></div></div>'+
       '</div>'+
       '<div style="display:flex;flex-direction:column;gap:16px">'+
-        '<div class="card"><h3>'+esc(t('move_status'))+'</h3><div class="row">'+STATUSES.map(function(s){return '<button class="btn btn-sm" style="'+(s===l.status?'border-color:var(--primary);color:#fff':'')+'" onclick="moveStatus(\''+l.id+'\',\''+s+'\')">'+s+'</button>'}).join('')+'</div></div>'+
+        '<div class="card"><h3>'+esc(t('move_status'))+'</h3><div class="row">'+STATUSES.map(function(s){return '<button class="btn btn-sm" style="'+(s===l.status?'border-color:var(--primary);color:#fff':'')+'" onclick="moveStatus(\''+jsq(l.id)+'\',\''+jsq(s)+'\')">'+s+'</button>'}).join('')+'</div></div>'+
         '<div class="card"><h3>'+esc(t('details_t'))+'</h3>'+info.map(function(i){return '<div class="kv"><span class="k">'+esc(i[0])+'</span><span style="text-align:right">'+esc(i[1])+'</span></div>'}).join('')+'</div>'+
         crmLeadCard(l)+
-        '<button class="btn btn-danger" onclick="deleteLead(\''+l.id+'\')">'+icon('trash')+' '+esc(t('delete_lead'))+'</button>'+
+        '<button class="btn btn-danger" onclick="deleteLead(\''+jsq(l.id)+'\')">'+icon('trash')+' '+esc(t('delete_lead'))+'</button>'+
       '</div></div>'
 }
 function moveStatus(id,st){var leads=getLeads(),moved=null;leads.forEach(function(l){if(l.id===id){l.status=st;moved=l}});setLeads(leads);if(moved)crmEmitStatus(moved);render();toast(t('moved_to')+' '+st)}
@@ -2360,7 +2382,7 @@ function analyticsPage(){
 function getPrefs(){var p=getProfile();return isObj(p.notif)?p.notif:{lead_new:true,lead_urgent:true,daily:false}}
 function setPref(k,on){var p=getProfile();p.notif=getPrefs();p.notif[k]=!!on;setProfile(p);render()}
 function setToggle(label,hint,key,on){
-  return '<button type="button" class="swrow'+(on?' on':'')+'" onclick="setPref(\''+key+'\','+(on?'false':'true')+')">'+
+  return '<button type="button" class="swrow'+(on?' on':'')+'" onclick="setPref(\''+jsq(key)+'\','+(on?'false':'true')+')">'+
     '<span class="swtxt"><b>'+esc(label)+'</b>'+(hint?'<em>'+esc(hint)+'</em>':'')+'</span><span class="sw"><i></i></span></button>';
 }
 function setOption(label,on,onclick,sub){
@@ -3238,7 +3260,7 @@ function bkExplain(prov){
   var p=crmProvider(prov)||{name:prov};var m=crmModalEl();if(!m)return;
   m.innerHTML='<div class="modal" onclick="if(event.target===this)crmCloseModal()"><div class="modalcard"><div class="modalhead">'+icon('shield')+'<h3>'+esc(t('bk_demo_t'))+'</h3><button class="modalx" onclick="crmCloseModal()">'+icon('close')+'</button></div>'+
     '<div class="modalbody"><p class="wizsub">'+esc(tf('bk_demo_b',{p:p.name}))+'</p>'+
-    '<div class="wiznav" style="margin-top:14px"><button class="btn" onclick="crmCloseModal();crmOpenWizard(\''+prov+'\')">'+esc(t('bk_preview_demo'))+'</button><div class="spacer"></div><button class="btn btn-primary" onclick="bkOpenPanel()">'+icon('db')+' '+esc(t('bk_connect_backend'))+'</button></div>'+
+    '<div class="wiznav" style="margin-top:14px"><button class="btn" onclick="crmCloseModal();crmOpenWizard(\''+jsq(prov)+'\')">'+esc(t('bk_preview_demo'))+'</button><div class="spacer"></div><button class="btn btn-primary" onclick="bkOpenPanel()">'+icon('db')+' '+esc(t('bk_connect_backend'))+'</button></div>'+
     '</div></div></div>';
 }
 function bkCard(){
@@ -3253,7 +3275,7 @@ function crmRealCard(c){
   var p=crmProvider(c.provider)||{name:c.provider,accent:'#1C6B4E',icon:'crm'};var meta=crmStateMeta(c.status);
   var md=isObj(c.metadata)?c.metadata:{};var pipes=(md.pipelines||[]).length,owners=(md.owners||[]).length,fields=(md.fields||[]).length;
   var acts='';
-  if(c.status==='test_required'||c.status==='attention_required')acts+='<button class="btn btn-sm btn-primary" onclick="crmRunRealTest(\''+c.id+'\')">'+icon('activity')+' '+esc(t('bk_run_test'))+'</button>';
+  if(c.status==='test_required'||c.status==='attention_required')acts+='<button class="btn btn-sm btn-primary" onclick="crmRunRealTest(\''+jsq(c.id)+'\')">'+icon('activity')+' '+esc(t('bk_run_test'))+'</button>';
   acts+='<button class="btn btn-sm" onclick="crmFetchReal(true)">'+icon('refresh')+' '+esc(t('bk_refresh'))+'</button>';
   return '<div class="card provcard">'+
     '<div class="provhead">'+crmLogo(p)+'<div><div class="provname">'+esc(p.name)+'</div><div class="provmeta">'+esc(c.external_account_name||'')+'</div></div>'+
@@ -3595,10 +3617,10 @@ function crmConnCard(c){
     '</div>'+
     (c.tags&&c.tags.length?'<div class="taglist">'+c.tags.map(function(tg){return '<span class="tagpill">'+esc(tg)+'</span>'}).join('')+'</div>':'')+
     '<div class="connactions">'+
-      '<button class="btn btn-sm" onclick="crmTestConn(\''+c.id+'\')">'+icon('activity')+' '+esc(t('c_test'))+'</button>'+
-      '<button class="btn btn-sm" onclick="crmConfigure(\''+c.id+'\')">'+icon('sliders')+' '+esc(t('c_configure'))+'</button>'+
-      (paused?'<button class="btn btn-sm" onclick="crmResume(\''+c.id+'\')">'+icon('play')+' '+esc(t('c_resume'))+'</button>':'<button class="btn btn-sm" onclick="crmPause(\''+c.id+'\')">'+icon('pause')+' '+esc(t('c_pause'))+'</button>')+
-      '<button class="btn btn-sm btn-danger" onclick="crmDisconnect(\''+c.id+'\')">'+esc(t('c_disconnect'))+'</button>'+
+      '<button class="btn btn-sm" onclick="crmTestConn(\''+jsq(c.id)+'\')">'+icon('activity')+' '+esc(t('c_test'))+'</button>'+
+      '<button class="btn btn-sm" onclick="crmConfigure(\''+jsq(c.id)+'\')">'+icon('sliders')+' '+esc(t('c_configure'))+'</button>'+
+      (paused?'<button class="btn btn-sm" onclick="crmResume(\''+jsq(c.id)+'\')">'+icon('play')+' '+esc(t('c_resume'))+'</button>':'<button class="btn btn-sm" onclick="crmPause(\''+jsq(c.id)+'\')">'+icon('pause')+' '+esc(t('c_pause'))+'</button>')+
+      '<button class="btn btn-sm btn-danger" onclick="crmDisconnect(\''+jsq(c.id)+'\')">'+esc(t('c_disconnect'))+'</button>'+
     '</div></div>';
 }
 function crmAvailCard(p){
@@ -3612,7 +3634,7 @@ function crmAvailCard(p){
     (soon?'<p class="muted" style="font-size:12.5px;line-height:1.5">'+esc(t('soon_note'))+'</p>':'')+
     '<div class="connactions">'+
       (soon?'<button class="btn btn-sm" disabled style="opacity:.5;cursor:default">'+esc(t('st_soon'))+'</button>':
-        '<button class="btn btn-sm btn-primary" onclick="crmConnect(\''+p.id+'\')">'+icon('plug')+' '+esc(hook?t('c_connect_api'):t('c_connect'))+'</button>')+
+        '<button class="btn btn-sm btn-primary" onclick="crmConnect(\''+jsq(p.id)+'\')">'+icon('plug')+' '+esc(hook?t('c_connect_api'):t('c_connect'))+'</button>')+
     '</div></div>';
 }
 function crmLogsCard(st){
@@ -3624,7 +3646,7 @@ function crmLogsCard(st){
         var p=crmProvider(a.provider)||{name:a.provider},ok=a.status==='success';
         return '<tr><td><span class="src">'+icon('bolt')+esc(a.event_type)+'</span></td><td>'+esc(p.name)+'</td><td>'+esc(a.lead_name||'—')+'</td>'+
           '<td><span class="syb '+(ok?'sy-synced':'sy-failed')+'">'+icon(ok?'check':'close')+' '+esc(ok?String(a.code):(a.code+' '+(a.error||'')))+'</span></td>'+
-          '<td style="text-align:right;white-space:nowrap">'+(ok?'<button class="btn btn-sm" onclick="crmViewEvent(\''+a.event_id+'\')">'+esc(t('c_view_event'))+'</button>':'<button class="btn btn-sm" onclick="crmRetry(\''+a.conn+'\',\''+a.lead_id+'\')">'+icon('refresh')+' '+esc(t('c_retry'))+'</button>')+'</td></tr>';
+          '<td style="text-align:right;white-space:nowrap">'+(ok?'<button class="btn btn-sm" onclick="crmViewEvent(\''+jsq(a.event_id)+'\')">'+esc(t('c_view_event'))+'</button>':'<button class="btn btn-sm" onclick="crmRetry(\''+jsq(a.conn)+'\',\''+jsq(a.lead_id)+'\')">'+icon('refresh')+' '+esc(t('c_retry'))+'</button>')+'</td></tr>';
       }).join('')+'</tbody></table></div>';
   }
   return '<div class="card" style="margin-top:22px"><h3>'+esc(t('integ_activity'))+'</h3>'+body+'</div>';
@@ -3669,7 +3691,7 @@ function crmWizNav(i){
   return '<div class="wiznav">'+backBtn+'<div class="spacer"></div><button class="btn btn-primary" onclick="crmWizNext()">'+esc(nextLabel)+(last?'':' '+icon('arrow'))+'</button></div>';
 }
 function crmChk(kind,val,label,desc,on){
-  return '<button type="button" class="chk'+(on?' on':'')+'" onclick="crmToggleSet(\''+kind+'\',\''+val+'\',this)"><span class="box">'+icon('check')+'</span><span><span class="ct">'+esc(label)+'</span>'+(desc?'<span class="cd">'+esc(desc)+'</span>':'')+'</span></button>';
+  return '<button type="button" class="chk'+(on?' on':'')+'" onclick="crmToggleSet(\''+jsq(kind)+'\',\''+jsq(val)+'\',this)"><span class="box">'+icon('check')+'</span><span><span class="ct">'+esc(label)+'</span>'+(desc?'<span class="cd">'+esc(desc)+'</span>':'')+'</span></button>';
 }
 function crmWizStep(i,p){
   var d=CRMWIZ.draft;
@@ -3685,7 +3707,7 @@ function crmWizStep(i,p){
         '<p class="wizsub">'+esc(tf('cx_step_s',{p:p.name}))+'</p>'+
         crmCredFields(p.id).map(function(f){
           return '<div class="field'+(bad[f.k]?' bad':'')+'"><label>'+esc(f.label)+'</label>'+
-            '<input id="cxf_'+esc(f.k)+'" value="'+esc((d.creds&&d.creds[f.k])||'')+'" placeholder="'+esc(f.ph)+'" spellcheck="false" autocapitalize="off" autocomplete="off" style="font-family:ui-monospace,Menlo,monospace;font-size:13px" oninput="crmSetCred(\''+f.k+'\',this.value)"/>'+
+            '<input id="cxf_'+esc(f.k)+'" value="'+esc((d.creds&&d.creds[f.k])||'')+'" placeholder="'+esc(f.ph)+'" spellcheck="false" autocapitalize="off" autocomplete="off" style="font-family:ui-monospace,Menlo,monospace;font-size:13px" oninput="crmSetCred(\''+jsq(f.k)+'\',this.value)"/>'+
             '<p class="cxhint">'+icon('shield')+'<span>'+esc(f.hint)+'</span></p></div>';
         }).join('')+
         (hookMode?'<div class="field"><label>'+esc(t('wz_secret'))+'</label><input readonly value="'+esc(d.secret)+'" style="font-family:ui-monospace,Menlo,monospace"/><p class="muted" style="font-size:12px;margin-top:6px">'+esc(t('wz_secret_note'))+'</p></div>':'')+
@@ -3822,9 +3844,9 @@ function crmLeadCard(lead){
     var p=crmProvider(r.provider)||{name:r.provider,accent:'#1C6B4E',icon:'crm'},ok=r.status==='synced';
     var idline=ok?((r.ext.contact?('#'+r.ext.contact):'')+(r.ext.deal?(' · deal #'+r.ext.deal):'')):(r.error?r.error.code:'');
     return '<div class="syncrec">'+crmLogo(p)+'<div class="sm"><div class="t">'+esc(p.name)+' <span class="syb '+(ok?'sy-synced':'sy-failed')+'" style="margin-left:6px">'+icon(ok?'check':'close')+' '+esc(ok?t('sync_synced'):t('sync_failed'))+'</span></div><div class="d">'+esc(idline)+'</div></div>'+
-      (ok?(r.url?'<a class="btn btn-sm" href="'+esc(r.url)+'" target="_blank" rel="noopener noreferrer">'+icon('external')+'</a>':''):'<button class="btn btn-sm" onclick="crmRetry(\''+r.connection_id+'\',\''+lead.id+'\')">'+icon('refresh')+' '+esc(t('c_retry'))+'</button>')+'</div>';
+      (ok?(r.url?'<a class="btn btn-sm" href="'+esc(r.url)+'" target="_blank" rel="noopener noreferrer">'+icon('external')+'</a>':''):'<button class="btn btn-sm" onclick="crmRetry(\''+jsq(r.connection_id)+'\',\''+jsq(lead.id)+'\')">'+icon('refresh')+' '+esc(t('c_retry'))+'</button>')+'</div>';
   }).join('');
-  var realBtn=(BK.configured()&&crmRealConnected())?'<button class="btn btn-sm btn-primary" style="margin-top:12px" onclick="crmSyncLeadReal(\''+lead.id+'\')">'+icon('send')+' '+esc(t('bk_sync_real'))+'</button>':'';
+  var realBtn=(BK.configured()&&crmRealConnected())?'<button class="btn btn-sm btn-primary" style="margin-top:12px" onclick="crmSyncLeadReal(\''+jsq(lead.id)+'\')">'+icon('send')+' '+esc(t('bk_sync_real'))+'</button>':'';
   return '<div class="card"><h3>'+esc(t('crm_sync'))+'</h3>'+inner+realBtn+'</div>';
 }
 
@@ -3852,10 +3874,10 @@ function obAddSvc(){if(!OB)obLoad();var n=document.getElementById('ob_sv_name'),
 function obRemoveSvc(i){if(!OB)obLoad();OB.answers.services.splice(i,1);obSave();render()}
 function obGreeting(){var o=getOnboard();return (o&&o.answers&&o.answers.assistant_greeting)?o.answers.assistant_greeting:''}
 function obVal(k){return (OB&&OB.answers[k]!=null)?OB.answers[k]:''}
-function obInput(label,name,ph,type){return '<div class="obf"><label>'+esc(label)+'</label><input type="'+(type||'text')+'" value="'+esc(obVal(name))+'" placeholder="'+esc(ph||'')+'" onchange="obSet(\''+name+'\',this.value)"/></div>'}
-function obArea(label,name,ph){return '<div class="obf"><label>'+esc(label)+'</label><textarea placeholder="'+esc(ph||'')+'" onchange="obSet(\''+name+'\',this.value)">'+esc(obVal(name))+'</textarea></div>'}
-function obSelF(label,name,opts){return '<div class="obf"><label>'+esc(label)+'</label><select onchange="obSet(\''+name+'\',this.value)">'+opts.map(function(o){return '<option'+(o===obVal(name)?' selected':'')+'>'+esc(o)+'</option>'}).join('')+'</select></div>'}
-function obTog(label,name){return '<label class="obtog"><input type="checkbox" '+(obVal(name)?'checked':'')+' onchange="obSetChk(\''+name+'\',this)"/> <span>'+esc(label)+'</span></label>'}
+function obInput(label,name,ph,type){return '<div class="obf"><label>'+esc(label)+'</label><input type="'+(type||'text')+'" value="'+esc(obVal(name))+'" placeholder="'+esc(ph||'')+'" onchange="obSet(\''+jsq(name)+'\',this.value)"/></div>'}
+function obArea(label,name,ph){return '<div class="obf"><label>'+esc(label)+'</label><textarea placeholder="'+esc(ph||'')+'" onchange="obSet(\''+jsq(name)+'\',this.value)">'+esc(obVal(name))+'</textarea></div>'}
+function obSelF(label,name,opts){return '<div class="obf"><label>'+esc(label)+'</label><select onchange="obSet(\''+jsq(name)+'\',this.value)">'+opts.map(function(o){return '<option'+(o===obVal(name)?' selected':'')+'>'+esc(o)+'</option>'}).join('')+'</select></div>'}
+function obTog(label,name){return '<label class="obtog"><input type="checkbox" '+(obVal(name)?'checked':'')+' onchange="obSetChk(\''+jsq(name)+'\',this)"/> <span>'+esc(label)+'</span></label>'}
 function obStepHtml(i){
   var a=OB.answers;
   if(i===0)return '<div class="obh">'+esc(t('ob_s0_t'))+'</div><p class="obsub">'+esc(t('ob_s0_s'))+'</p><div style="margin-top:18px"><span class="badge b-New">'+icon('clock')+' '+esc(t('ob_est_time'))+'</span></div>';
@@ -3891,13 +3913,13 @@ function obStepHtml(i){
     obSelF('Which calls should the AI answer?','which_calls',['All calls','Missed calls only','After-hours only','Overflow only'])+obInput('Human transfer number','human_transfer','+44 …')+obInput('Urgent transfer number','urgent_transfer','+44 …');
   if(i===9){
     var mode=a.crm_mode||'hybrid';
-    var opt=function(m,tk,dk,tag){return '<button class="obopt '+(mode===m?'on':'')+'" onclick="obSetMode(\''+m+'\')"><div class="ot">'+(mode===m?icon('check'):icon('crm'))+' '+esc(t(tk))+(tag?'<span class="obtag">'+esc(t(tag))+'</span>':'')+'</div><div class="od">'+esc(t(dk))+'</div></button>'};
+    var opt=function(m,tk,dk,tag){return '<button class="obopt '+(mode===m?'on':'')+'" onclick="obSetMode(\''+jsq(m)+'\')"><div class="ot">'+(mode===m?icon('check'):icon('crm'))+' '+esc(t(tk))+(tag?'<span class="obtag">'+esc(t(tag))+'</span>':'')+'</div><div class="od">'+esc(t(dk))+'</div></button>'};
     var conns=crmState().conns.filter(function(c){return c.status!=='disconnected'});
     return '<div class="obh">'+esc(t('ob_s9_t'))+'</div><p class="obsub">'+esc(t('ob_s9_s'))+'</p>'+
       '<div class="obmode">'+opt('internal','ob_crm_int_t','ob_crm_int_d','')+opt('external','ob_crm_ext_t','ob_crm_ext_d','')+opt('hybrid','ob_crm_hyb_t','ob_crm_hyb_d','most_popular')+'</div>'+
       (mode!=='internal'?'<div style="margin-top:16px"><div class="obsub" style="margin-bottom:8px"><b style="color:var(--text)">'+esc(t('ob_crm_connect'))+'</b></div>'+
         (conns.length?conns.map(function(c){var p=crmProvider(c.provider)||{name:c.provider,accent:'#1C6B4E',icon:'crm'};return '<div class="obsvc">'+crmLogo(p)+'<div class="si"><div class="sn">'+esc(p.name)+'</div><div class="sd">'+esc(c.account||'')+'</div></div><span class="cs cs-connected"><i></i>'+esc(t('st_connected'))+'</span></div>'}).join(''):'')+
-        '<div class="row" style="margin-top:8px">'+CRM_PROVIDERS.filter(function(p){return p.kind==='core'}).slice(0,4).map(function(p){return '<button class="btn btn-sm" onclick="crmOpenWizard(\''+p.id+'\')">'+icon('plug')+' '+esc(p.name)+'</button>'}).join('')+'</div></div>':'<p class="obsub" style="margin-top:12px">'+esc(t('ob_crm_int_note'))+'</p>');
+        '<div class="row" style="margin-top:8px">'+CRM_PROVIDERS.filter(function(p){return p.kind==='core'}).slice(0,4).map(function(p){return '<button class="btn btn-sm" onclick="crmOpenWizard(\''+jsq(p.id)+'\')">'+icon('plug')+' '+esc(p.name)+'</button>'}).join('')+'</div></div>':'<p class="obsub" style="margin-top:12px">'+esc(t('ob_crm_int_note'))+'</p>');
   }
   if(i===10)return '<div class="obh">'+esc(t('ob_s10_t'))+'</div><p class="obsub">'+esc(t('ob_s10_s'))+'</p>'+
     '<p class="obsub" style="margin-top:12px"><b style="color:var(--text)">Channels</b></p>'+obTog('Email','ch_email')+obTog('In-app','ch_inapp')+
@@ -3907,7 +3929,7 @@ function obStepHtml(i){
     var stat=function(keys){var any=keys.some(function(k){var v=a[k];return Array.isArray(v)?v.length>0:(v!=null&&v!=='')});return any?['rs-ok',t('ob_st_complete')]:['rs-skip',t('ob_st_skipped')]};
     return '<div class="obh">'+esc(t('ob_s11_t'))+'</div><p class="obsub">'+esc(t('ob_s11_s'))+'</p><div class="obreview">'+sec.map(function(x){var st=stat(x[1]);return '<div class="obrev"><span class="rk">'+esc(x[0])+'</span><span class="rs '+st[0]+'">'+esc(st[1])+'</span></div>'}).join('')+'</div>';
   }
-  var test=OB.test, ic=function(ok){return ok==='ok'?'check':ok==='skipped'?'clock':'close'}, col=function(ok){return ok==='ok'?'var(--green)':ok==='skipped'?'var(--muted)':'#ff9aa6'};
+  var test=OB.test, ic=function(ok){return ok==='ok'?'check':ok==='skipped'?'clock':'close'}, col=function(ok){return ok==='ok'?'var(--green)':ok==='skipped'?'var(--muted)':'var(--red)'};
   var line=function(ok,label){return '<div class="obcheck"><span style="color:'+col(ok)+'">'+icon(ic(ok))+'</span> <span>'+esc(label)+'</span></div>'};
   return '<div class="obh">'+esc(t('ob_s12_t'))+'</div><p class="obsub">'+esc(t('ob_s12_s'))+'</p>'+
     (test?'<div class="card" style="margin-top:16px">'+line('ok',t('ob_chk_created'))+line('ok',t('ob_chk_dash'))+line('ok',t('ob_chk_notif'))+line(test.crm==='ok'?'ok':(test.crm==='skipped'?'skipped':'fail'),test.crm==='ok'?t('ob_chk_crm_ok'):(test.crm==='skipped'?t('ob_chk_crm_skip'):t('ob_chk_crm_none')))+'</div>':'')+
@@ -4001,9 +4023,9 @@ function teleNumCard(n){
     '</div>'+
     '<div class="provmeta" style="margin:2px 0 6px">'+esc(t('num_caps'))+': '+esc(caps)+' · '+esc(t('num_routing'))+': '+esc(n.routing||'—')+'</div>'+
     '<div class="connactions">'+
-      '<button class="btn btn-sm" onclick="teleTestCall(\''+n.id+'\')">'+icon('phone')+' '+esc(t('num_testcall'))+'</button>'+
-      '<button class="btn btn-sm" onclick="teleAssign(\''+n.id+'\')">'+icon('mic')+' '+esc(t('num_assign'))+'</button>'+
-      '<button class="btn btn-sm btn-danger" onclick="teleRelease(\''+n.id+'\')">'+esc(t('num_release'))+'</button>'+
+      '<button class="btn btn-sm" onclick="teleTestCall(\''+jsq(n.id)+'\')">'+icon('phone')+' '+esc(t('num_testcall'))+'</button>'+
+      '<button class="btn btn-sm" onclick="teleAssign(\''+jsq(n.id)+'\')">'+icon('mic')+' '+esc(t('num_assign'))+'</button>'+
+      '<button class="btn btn-sm btn-danger" onclick="teleRelease(\''+jsq(n.id)+'\')">'+esc(t('num_release'))+'</button>'+
     '</div></div>';
 }
 function teleCallsCard(st){
