@@ -492,12 +492,14 @@
   .crmsum{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
   .provgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
   .provcard{display:flex;flex-direction:column;gap:12px}
-  .provhead{display:flex;align-items:center;gap:12px}
+  .provhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
+  .provhead>div{min-width:0}
+  .provhead .cs{flex-shrink:0}
   .provlogo{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;color:#fff;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 6px 16px -6px rgba(0,0,0,.6)}
   .provlogo svg{width:24px;height:24px}
-  .provname{font-weight:700;font-size:15px}
-  .provmeta{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .provname{font-weight:700;font-size:15px;overflow-wrap:anywhere}
+  .provmeta{font-size:12.5px;color:var(--muted);margin-top:1px;overflow-wrap:anywhere}
   .provhead .spacer{flex:1}
   .cs{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;border:1px solid var(--border);white-space:nowrap}
   .cs i{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block;flex-shrink:0}
@@ -1493,7 +1495,7 @@ var LIVE_TR={
 /* ---- Settings, appearance and account security ---- */
 var SET_TR={
  en:{
-  v_change_in_settings:'Change in Settings',greet_morning:'Good morning,',greet_afternoon:'Good afternoon,',greet_evening:'Good evening,',set_appearance:'Appearance',set_theme:'Theme',set_theme_light:'Light',set_theme_dark:'Dark',
+  v_change_in_settings:'Change in Settings',export_csv:"Export",export_ok:"Exported {n} leads",export_none:"There are no leads to export yet",export_fail:"Could not create the file",created_l:"Created",status_l:"Status",assignee_l:"Owner",notes_t:"Notes",edit_lead:"Edit lead",edit_lead_sub:"Change the details. Status, score and history are kept.",lead_updated:"Lead updated",lead_gone:"That lead no longer exists",auth_forgot:"Forgot your password?",auth_forgot_sent:"Reset link sent — check your inbox",auth_forgot_need_email:"Enter your email address first, then tap “Forgot your password?”.",auth_forgot_no_backend:"Password reset needs a real account — the demo account is local to this device.",auth_change_pass:"Change password",notif_delivery:"Delivery needs an email provider connected to your backend — these preferences are saved and applied once it is.",greet_morning:'Good morning,',greet_afternoon:'Good afternoon,',greet_evening:'Good evening,',set_appearance:'Appearance',set_theme:'Theme',set_theme_light:'Light',set_theme_dark:'Dark',
   set_language:'Language',set_lang_hint:'Changes the dashboard and everything your AI receptionist says.',
   set_assistant:'AI receptionist',set_voice_test:'Hear this voice',set_voice_hint:'Used for every call the assistant answers.',
   set_notifications:'Notifications',notif_new:'Email me every new lead',notif_urgent:'Email me urgent leads immediately',
@@ -1515,7 +1517,7 @@ var SET_TR={
   bk_advanced:'Advanced: point at a different Supabase project',bk_project_hint:'Only change this if you run your own backend.'
  },
  es:{
-  v_change_in_settings:'Cambiar en Ajustes',greet_morning:'Buenos días,',greet_afternoon:'Buenas tardes,',greet_evening:'Buenas noches,',set_appearance:'Apariencia',set_theme:'Tema',set_theme_light:'Claro',set_theme_dark:'Oscuro',
+  v_change_in_settings:'Cambiar en Ajustes',export_csv:"Exportar",export_ok:"{n} clientes exportados",export_none:"Aún no hay clientes que exportar",export_fail:"No se pudo crear el archivo",created_l:"Creado",status_l:"Estado",assignee_l:"Responsable",notes_t:"Notas",edit_lead:"Editar cliente",edit_lead_sub:"Cambie los datos. Se conservan el estado, la puntuación y el historial.",lead_updated:"Cliente actualizado",lead_gone:"Ese cliente ya no existe",auth_forgot:"¿Ha olvidado su contraseña?",auth_forgot_sent:"Enlace de restablecimiento enviado: revise su correo",auth_forgot_need_email:"Introduzca primero su correo y luego pulse «¿Ha olvidado su contraseña?».",auth_forgot_no_backend:"Restablecer la contraseña requiere una cuenta real: la cuenta de demostración es local a este dispositivo.",auth_change_pass:"Cambiar contraseña",notif_delivery:"El envío requiere un proveedor de correo conectado a su backend; estas preferencias se guardan y se aplicarán en cuanto lo esté.",greet_morning:'Buenos días,',greet_afternoon:'Buenas tardes,',greet_evening:'Buenas noches,',set_appearance:'Apariencia',set_theme:'Tema',set_theme_light:'Claro',set_theme_dark:'Oscuro',
   set_language:'Idioma',set_lang_hint:'Cambia el panel y todo lo que dice su recepcionista con IA.',
   set_assistant:'Recepcionista con IA',set_voice_test:'Escuchar esta voz',set_voice_hint:'Se usa en todas las llamadas que atiende el asistente.',
   set_notifications:'Notificaciones',notif_new:'Avisarme por correo de cada cliente nuevo',notif_urgent:'Avisarme de inmediato de los urgentes',
@@ -1537,7 +1539,7 @@ var SET_TR={
   bk_advanced:'Avanzado: usar otro proyecto de Supabase',bk_project_hint:'Cámbielo solo si tiene su propio backend.'
  },
  ar:{
-  v_change_in_settings:'التغيير من الإعدادات',greet_morning:'صباح الخير،',greet_afternoon:'مساء الخير،',greet_evening:'مساء الخير،',set_appearance:'المظهر',set_theme:'السمة',set_theme_light:'فاتح',set_theme_dark:'داكن',
+  v_change_in_settings:'التغيير من الإعدادات',export_csv:"تصدير",export_ok:"تم تصدير {n} عميلًا",export_none:"لا يوجد عملاء للتصدير بعد",export_fail:"تعذّر إنشاء الملف",created_l:"تاريخ الإنشاء",status_l:"الحالة",assignee_l:"المسؤول",notes_t:"ملاحظات",edit_lead:"تعديل العميل",edit_lead_sub:"غيّر البيانات. تبقى الحالة والتقييم والسجل كما هي.",lead_updated:"تم تحديث العميل",lead_gone:"لم يعد هذا العميل موجودًا",auth_forgot:"هل نسيت كلمة المرور؟",auth_forgot_sent:"تم إرسال رابط إعادة التعيين — تحقّق من بريدك",auth_forgot_need_email:"أدخل بريدك الإلكتروني أولًا ثم اضغط «هل نسيت كلمة المرور؟».",auth_forgot_no_backend:"تتطلب إعادة تعيين كلمة المرور حسابًا حقيقيًا — الحساب التجريبي محلي على هذا الجهاز.",auth_change_pass:"تغيير كلمة المرور",notif_delivery:"يتطلب الإرسال مزوّد بريد متصلًا بخادمك — تُحفظ هذه التفضيلات وتُطبّق بمجرد توفّره.",greet_morning:'صباح الخير،',greet_afternoon:'مساء الخير،',greet_evening:'مساء الخير،',set_appearance:'المظهر',set_theme:'السمة',set_theme_light:'فاتح',set_theme_dark:'داكن',
   set_language:'اللغة',set_lang_hint:'يغيّر لوحة التحكم وكل ما يقوله موظف الاستقبال الذكي.',
   set_assistant:'موظف الاستقبال الذكي',set_voice_test:'استمع إلى هذا الصوت',set_voice_hint:'يُستخدم في كل مكالمة يردّ عليها المساعد.',
   set_notifications:'الإشعارات',notif_new:'أرسل لي بريدًا عند كل عميل محتمل جديد',notif_urgent:'أبلغني فورًا بالعملاء العاجلين',
@@ -1819,7 +1821,7 @@ function srcIcon(s){var map={"Voice call":"phone","Website chat":"chat","Contact
   return '<span class="src">'+icon(map[s]||'form')+esc(s)+'</span>'}
 
 /* ============================ Router ============================ */
-var UI={menu:false,leadId:null,filter:'All',q:''};
+var UI={menu:false,leadId:null,filter:'All',q:'',edit:null};
 function go(route){UI.menu=false;var h='#/'+route;if(location.hash===h){render()}else{location.hash=h}}
 function openLead(id){UI.leadId=id;go('lead')}
 
@@ -1829,6 +1831,7 @@ function render(){
   var s=AUTH.session();
   var hash=location.hash.replace(/^#\/?/,'')||(s?'dashboard':'landing');
   try{if(VOICE&&(VOICE.active||VOICE.timer)&&hash!=='voice')voiceEnd()}catch(e){}
+  if(hash!=='new')UI.edit=null;   /* leaving the form ends the edit */
   var pub=['landing','login','signup','confirm'];
   if(!s && pub.indexOf(hash)<0){location.hash='#/landing';return}
   if(s && pub.indexOf(hash)>=0){location.hash='#/dashboard';return}
@@ -1994,9 +1997,30 @@ function authConfirmPage(){
     '<button class="btn btn-sm" style="width:100%;margin-top:10px;justify-content:center" onclick="AUTH_PENDING=null;go(\'login\')">'+esc(t('auth_back_signin'))+'</button>'+
   '</div></div>';
 }
+/* Send the reset email for whatever address is already typed in, asking for it if blank. */
+function authForgot(){
+  var f=document.querySelector('.authcard'), el=f?f.elements:null;
+  var email=(el&&el['email']?String(el['email'].value||''):'').trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){
+    var box=f?f.querySelector('#authErr'):null;
+    if(box){box.style.display='block';box.querySelector('.err').textContent=t('auth_forgot_need_email')}
+    if(el&&el['email'])el['email'].focus();
+    return;
+  }
+  if(!BK.hasProject()){toast(t('auth_forgot_no_backend'));return}
+  BK.recover(email)
+    .then(function(){AUTH_PENDING=email;toast(t('auth_forgot_sent'));location.hash='#/confirm';render();})
+    ['catch'](function(ex){toast(bkAuthError(ex&&ex.message))});
+}
 function authResend(){
   if(!AUTH_PENDING)return;
   BK.resend(AUTH_PENDING).then(function(){toast(t('auth_resent'))})['catch'](function(ex){toast(bkAuthError(ex&&ex.message))});
+}
+/* Signed-in users change their password from Settings, through the same Supabase endpoint. */
+function accountResetPassword(){
+  var u=AUTH.current();if(!u)return;
+  if(!BK.hasProject()||!AUTH.isSecure()){toast(t('auth_forgot_no_backend'));return}
+  BK.recover(u.email).then(function(){toast(t('auth_forgot_sent'))})['catch'](function(ex){toast(bkAuthError(ex&&ex.message))});
 }
 function authPage(mode){
   if(mode==='confirm')return authConfirmPage();
@@ -2014,6 +2038,7 @@ function authPage(mode){
       '<div class="field"><label>'+esc(t('auth_pass_confirm'))+'</label><input name="pass2" type="password" minlength="10" maxlength="72" autocomplete="new-password" required/></div>':'')+
     '<div class="field invalid" id="authErr" style="margin-top:-4px;display:none"><span class="err" style="display:block"></span></div>'+
     '<button class="btn btn-primary" style="width:100%;margin-top:6px">'+(isSignup?'Create account':'Sign in')+'</button>'+
+    (isSignup?'':'<div style="text-align:center;margin-top:10px"><span class="link" style="font-size:13px" onclick="authForgot()">'+esc(t('auth_forgot'))+'</span></div>')+
     '<div class="row" style="justify-content:center;margin-top:14px"><button type="button" class="btn btn-sm" onclick="demoLogin()">'+icon('bolt')+' '+esc(t('try_demo'))+'</button></div>'+
     '<p class="muted" style="text-align:center;font-size:13px;margin-top:14px">'+
       (isSignup?'Have an account? <span class="link" onclick="go(\'login\')">'+esc(t('signin'))+'</span>':'New here? <span class="link" onclick="go(\'signup\')">'+esc(t('get_started'))+'</span>')+
@@ -2123,7 +2148,7 @@ function pageContent(r){
     case'leads':return leadsPage();
     case'voice':return voicePage();
     case'lead':return leadDetail();
-    case'new':return newLeadPage();
+    case'new':return newLeadPage(UI.edit?getLeads().filter(function(l){return l.id===UI.edit})[0]:null);
     case'analytics':return analyticsPage();
     case'integrations':return integrationsPage();
     case'phone':return telephonyPage();
@@ -2299,7 +2324,8 @@ function leadResults(){
 }
 function leadsPage(){
   return head(t('leads_title'),t('leads_sub'),
-      '<button class="btn btn-primary" onclick="go(\'new\')">'+icon('plus')+' '+esc(t('new_lead'))+'</button>')+
+      '<button class="btn" onclick="exportLeads()">'+icon('sheet')+' '+esc(t('export_csv'))+'</button>'+
+      '<button class="btn btn-primary" style="margin-inline-start:8px" onclick="go(\'new\')">'+icon('plus')+' '+esc(t('new_lead'))+'</button>')+
     '<div class="field searchwrap" style="margin:0 0 12px">'+icon('search')+'<input id="leadSearch" maxlength="80" placeholder="'+esc(t('search_leads'))+'" value="'+esc(UI.q)+'" oninput="liveSearch(this.value)"/></div>'+
     '<div class="row" id="leadChips" style="margin-bottom:14px">'+chipsHtml()+'</div>'+
     '<div id="leadResults">'+leadResults()+'</div>'
@@ -2311,30 +2337,82 @@ function emptyState(tl,s,btn,action){
     (btn?'<button class="btn btn-primary" style="margin-top:16px" onclick="'+action+'">'+icon('plus')+' '+esc(btn)+'</button>':'')+'</div></div>'
 }
 
-function newLeadPage(){
-  return head(t('new_lead'),t('new_lead_sub'))+
-    '<form class="card" style="max-width:640px" onsubmit="return submitLead(event)">'+
+/* ---- Export ------------------------------------------------------------------------------
+   A spreadsheet treats a cell starting with = + - or @ as a formula, so an exported lead could
+   run something on the machine that opens it. Every field is quoted and any leading formula
+   character is neutralised with a leading apostrophe. */
+function csvCell(v){
+  var out=String(v==null?'':v);
+  if(/^[=+\-@\t\r]/.test(out))out="'"+out;
+  return '"'+out.replace(/"/g,'""')+'"';
+}
+function leadsToCsv(list){
+  var cols=[['name',t('name_l')],['service',t('service_l')],['status',t('status_l')],['urgency',t('urgency_l')],
+            ['score',t('lead_field_score')],['source',t('source_l')],['phone',t('phone_label')],['email',t('email_label')],
+            ['assignee',t('assignee_l')],['summary',t('summary_t')],['notes',t('notes_t')]];
+  var rows=[cols.map(function(c){return csvCell(c[1])}).concat(csvCell(t('created_l'))).join(',')];
+  list.forEach(function(l){
+    var r=cols.map(function(c){return csvCell(l[c[0]])});
+    var d=new Date(Number(l.at)||0);
+    r.push(csvCell(isNaN(d.getTime())||!l.at?'':d.toISOString()));
+    rows.push(r.join(','));
+  });
+  return rows.join('\r\n');
+}
+function exportLeads(){
+  var list=getLeads();
+  if(!list.length){toast(t('export_none'));return}
+  try{
+    /* BOM so Excel opens UTF-8 (Arabic/Spanish names) correctly */
+    var blob=new Blob(['\ufeff'+leadsToCsv(list)],{type:'text/csv;charset=utf-8'});
+    var url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url;a.download='alsaiti-leads-'+new Date().toISOString().slice(0,10)+'.csv';
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){try{document.body.removeChild(a);URL.revokeObjectURL(url)}catch(e){}},0);
+    toast(tf('export_ok',{n:list.length}));
+  }catch(e){toast(t('export_fail'))}
+}
+function newLeadPage(edit){
+  var L=edit||{};
+  var isEdit=!!(edit&&edit.id);
+  return head(isEdit?t('edit_lead'):t('new_lead'),isEdit?t('edit_lead_sub'):t('new_lead_sub'))+
+    '<form class="card" style="max-width:640px" onsubmit="return submitLead(event,\''+jsq(L.id||'')+'\')">'+
       '<div class="grid cols-2" style="gap:0 16px">'+
-        '<div class="field"><label>'+esc(t('name_l'))+' *</label><input name="name" required maxlength="80"/></div>'+
-        '<div class="field"><label>'+esc(t('service_l'))+' *</label><input name="service" required maxlength="120"/></div>'+
-        '<div class="field"><label>'+esc(t('phone_label'))+'</label><input name="phone" maxlength="25" placeholder="+44 …"/></div>'+
-        '<div class="field"><label>'+esc(t('email_label'))+'</label><input name="email" type="email" maxlength="120" placeholder="name@example.com"/></div>'+
-        '<div class="field"><label>'+esc(t('urgency_l'))+'</label><select name="urgency">'+URGENCIES.map(function(u){return '<option>'+u+'</option>'}).join('')+'</select></div>'+
-        '<div class="field"><label>'+esc(t('source_l'))+'</label><select name="source">'+SOURCES.map(function(s){return '<option'+(s==='Manual import'?' selected':'')+'>'+s+'</option>'}).join('')+'</select></div>'+
+        '<div class="field"><label>'+esc(t('name_l'))+' *</label><input name="name" required maxlength="80" value="'+esc(L.name||'')+'"/></div>'+
+        '<div class="field"><label>'+esc(t('service_l'))+' *</label><input name="service" required maxlength="120" value="'+esc(L.service||'')+'"/></div>'+
+        '<div class="field"><label>'+esc(t('phone_label'))+'</label><input name="phone" maxlength="25" placeholder="+44 …" value="'+esc(L.phone||'')+'"/></div>'+
+        '<div class="field"><label>'+esc(t('email_label'))+'</label><input name="email" type="email" maxlength="120" placeholder="name@example.com" value="'+esc(L.email||'')+'"/></div>'+
+        '<div class="field"><label>'+esc(t('urgency_l'))+'</label><select name="urgency">'+URGENCIES.map(function(u){return '<option'+(u===L.urgency?' selected':'')+'>'+u+'</option>'}).join('')+'</select></div>'+
+        '<div class="field"><label>'+esc(t('source_l'))+'</label><select name="source">'+SOURCES.map(function(s){return '<option'+(s===(L.source||'Manual import')?' selected':'')+'>'+s+'</option>'}).join('')+'</select></div>'+
       '</div>'+
-      '<div class="field"><label>'+esc(t('summary_t'))+'</label><textarea name="summary"></textarea></div>'+
+      '<div class="field"><label>'+esc(t('summary_t'))+'</label><textarea name="summary">'+esc(L.summary||'')+'</textarea></div>'+
       '<div class="row" style="margin-top:6px"><button type="button" class="btn" onclick="history.length>1?history.back():go(\'leads\')">'+esc(t('cancel'))+'</button><div class="spacer"></div><button class="btn btn-primary">'+icon('check')+' '+esc(t('save'))+'</button></div>'+
     '</form>'
 }
-function submitLead(e){
+function submitLead(e,editId){
   e.preventDefault();var el=e.target.elements;
   var leads=getLeads();
   var urg=el['urgency'].value;
+  var fields={name:el['name'].value.trim(),service:el['service'].value.trim(),urgency:urg,source:el['source'].value,
+    phone:el['phone'].value.trim(),email:el['email'].value.trim(),summary:el['summary'].value.trim()};
+  if(editId){
+    /* editing keeps the lead's identity, status, score, notes and history */
+    var found=null;
+    leads.forEach(function(l){if(l.id===editId){found=l;for(var k in fields)l[k]=fields[k]}});
+    if(!found){toast(t('lead_gone'));go('leads');return false}
+    setLeads(leads);crmEmit('lead.status_changed',found);toast(t('lead_updated'));openLead(editId);render();return false;
+  }
   var score=urg==='High'?Math.floor(80+Math.random()*15):urg==='Medium'?Math.floor(60+Math.random()*18):Math.floor(40+Math.random()*18);
-  var nl={id:uid(),name:el['name'].value.trim(),service:el['service'].value.trim(),urgency:urg,source:el['source'].value,
-    status:'New',score:score,at:Date.now(),phone:el['phone'].value.trim(),email:el['email'].value.trim(),summary:el['summary'].value.trim(),notes:'',assignee:'Unassigned'};
+  var nl={id:uid(),status:'New',score:score,at:Date.now(),notes:'',assignee:'Unassigned'};
+  for(var k2 in fields)nl[k2]=fields[k2];
   leads.unshift(nl);
   setLeads(leads);crmEmit('lead.created',nl);toast(t('lead_added'));go('leads');return false
+}
+/* open the same form prefilled from an existing lead */
+function editLead(id){
+  var l=getLeads().filter(function(x){return x.id===id})[0];
+  if(!l){toast(t('lead_gone'));return}
+  UI.edit=id;location.hash='#/new';render();
 }
 
 function leadDetail(){
@@ -2353,7 +2431,8 @@ function leadDetail(){
         '<div class="card"><h3>'+esc(t('move_status'))+'</h3><div class="row">'+STATUSES.map(function(s){return '<button class="btn btn-sm" style="'+(s===l.status?'border-color:var(--primary);color:#fff':'')+'" onclick="moveStatus(\''+jsq(l.id)+'\',\''+jsq(s)+'\')">'+s+'</button>'}).join('')+'</div></div>'+
         '<div class="card"><h3>'+esc(t('details_t'))+'</h3>'+info.map(function(i){return '<div class="kv"><span class="k">'+esc(i[0])+'</span><span style="text-align:right">'+esc(i[1])+'</span></div>'}).join('')+'</div>'+
         crmLeadCard(l)+
-        '<button class="btn btn-danger" onclick="deleteLead(\''+jsq(l.id)+'\')">'+icon('trash')+' '+esc(t('delete_lead'))+'</button>'+
+        '<button class="btn" onclick="editLead(\''+jsq(l.id)+'\')">'+icon('cog')+' '+esc(t('edit_lead'))+'</button>'+
+        '<button class="btn btn-danger" style="margin-inline-start:8px" onclick="deleteLead(\''+jsq(l.id)+'\')">'+icon('trash')+' '+esc(t('delete_lead'))+'</button>'+
       '</div></div>'
 }
 function moveStatus(id,st){var leads=getLeads(),moved=null;leads.forEach(function(l){if(l.id===id){l.status=st;moved=l}});setLeads(leads);if(moved)crmEmitStatus(moved);render();toast(t('moved_to')+' '+st)}
@@ -2433,6 +2512,7 @@ function settingsPage(){
         setToggle(t('notif_urgent'),'','lead_urgent',!!pr.lead_urgent)+
         setToggle(t('notif_daily'),'','daily',!!pr.daily)+
         '<p class="sethint">'+esc(t('notif_hint'))+'</p>'+
+        '<p class="sethint" style="color:var(--amber)">'+esc(t('notif_delivery'))+'</p>'+
       '</section>'+
       /* ---- account & security ---- */
       '<section class="card setcard"><h3>'+icon('shield')+' '+esc(t('set_security'))+'</h3>'+
@@ -2445,6 +2525,7 @@ function settingsPage(){
         '<p class="sethint">'+esc(secure?t('sec_same_account'):t('sec_backend_none'))+'</p>'+
         (secure?'':'<button class="btn btn-sm btn-primary" style="width:100%;margin-top:6px;justify-content:center" onclick="doLogout()">'+icon('shield')+' '+esc(t('sec_signin_real'))+'</button>')+
         '<div class="kv"><span class="k">'+esc(t('leads_stored'))+'</span><span>'+getLeads().length+'</span></div>'+
+        (AUTH.isSecure()?'<button class="btn btn-sm" style="width:100%;margin-top:12px;justify-content:center" onclick="accountResetPassword()">'+icon('shield')+' '+esc(t('auth_change_pass'))+'</button>':'')+
         '<button class="btn btn-sm" style="width:100%;margin-top:12px;justify-content:center" onclick="doLogout()">'+icon('logout')+' '+esc(t('signout'))+'</button>'+
         '<div class="setlbl" style="color:var(--red)">'+esc(t('sec_danger'))+'</div>'+
         '<button class="btn btn-sm btn-danger" style="width:100%;justify-content:center" onclick="resetData()">'+esc(t('reset_sample'))+'</button>'+
@@ -2868,8 +2949,14 @@ function vBizAnswer(kind){
   var o=(getOnboard()||{}).answers||{},p=getProfile()||{};
   if(kind==='hours'&&o.opening_hours)return tf('v_a_hours_set',{h:String(o.opening_hours).replace(/\s+/g,' ').slice(0,140)});
   if(kind==='services'){
+    /* onboarding stores services as {name,category,value} objects — joining them raw made the
+       receptionist say "We handle [object Object]". Take the name (and tolerate plain strings). */
     var svc=o.services;
-    if(Array.isArray(svc)&&svc.length)return tf('v_a_services_set',{s:svc.slice(0,5).join(', ')});
+    if(Array.isArray(svc)&&svc.length){
+      var names=svc.map(function(x){return (x&&typeof x==='object')?String(x.name||'').trim():String(x||'').trim()})
+                   .filter(Boolean).slice(0,5);
+      if(names.length)return tf('v_a_services_set',{s:names.join(', ')});
+    }
     if(o.business_description)return String(o.business_description).slice(0,180);
   }
   if(kind==='where'&&p.biz)return tf('v_a_where_set',{b:p.biz});
@@ -3127,6 +3214,14 @@ var BK={
     var c=BK.cfg();if(!c.url||!c.anon)return Promise.reject(new Error('no_project'));
     return fetch(BK.base()+'/auth/v1/resend',{method:'POST',headers:{apikey:c.anon,'Content-Type':'application/json'},
       body:JSON.stringify({type:'signup',email:email})})
+      .then(function(r){return r.json()['catch'](function(){return{}}).then(function(j){if(!r.ok)throw new Error(j.msg||j.error_description||j.error||('HTTP '+r.status));return j})});
+  },
+  /* Ask Supabase to email a password-reset link. Returns 200 whether or not the address
+     exists, so this cannot be used to discover which emails have accounts. */
+  recover:function(email){
+    var c=BK.cfg();if(!c.url||!c.anon)return Promise.reject(new Error('no_project'));
+    return fetch(BK.base()+'/auth/v1/recover',{method:'POST',headers:{apikey:c.anon,'Content-Type':'application/json'},
+      body:JSON.stringify({email:email})})
       .then(function(r){return r.json()['catch'](function(){return{}}).then(function(j){if(!r.ok)throw new Error(j.msg||j.error_description||j.error||('HTTP '+r.status));return j})});
   },
   signOut:function(){var c=BK.cfg();delete c.token;delete c.refresh;BK.save(c)},
