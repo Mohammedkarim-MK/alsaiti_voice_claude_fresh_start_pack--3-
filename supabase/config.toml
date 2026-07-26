@@ -38,5 +38,8 @@ verify_jwt = false
 [functions.tts]
 verify_jwt = false
 
+[functions.lead-notify]
+verify_jwt = true
+
 [functions.contact-submit]
 verify_jwt = false

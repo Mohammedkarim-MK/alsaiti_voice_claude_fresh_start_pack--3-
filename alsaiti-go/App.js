@@ -9,16 +9,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Speech from 'expo-speech';
 
 /* ---------- Brand palette (mirrors alsaitigrowth.com) ---------- */
+// Brand palette — the same tokens as the web app's dark theme (charcoal + electric emerald +
+// warm brass), so the phone app and the dashboard look like one product.
 const C = {
-  bg: '#020B1F', card: 'rgba(11,27,58,0.72)', cardHi: 'rgba(15,34,68,0.9)',
-  primary: '#3AA6FF', cyan: '#59C7FF', glow: '#1E90FF', text: '#F5F9FF', muted: '#93A8C7',
-  border: 'rgba(83,167,255,0.18)', borderHi: 'rgba(89,199,255,0.4)',
-  green: '#57E39A', amber: '#FBBF5A', red: '#FF7A8A',
+  bg: '#0C100E', card: '#151B18', cardHi: '#1B2320',
+  primary: '#16C98A', cyan: '#22E39A', glow: '#0FA372', text: '#DCE7E1', muted: '#8A9A92',
+  border: 'rgba(234,242,238,0.10)', borderHi: 'rgba(34,227,154,0.40)',
+  green: '#22E39A', amber: '#D9B45A', red: '#E58063',
+  onPrimary: '#06231A',   // text drawn on top of the primary/emerald fills
 };
 const STATUSES = ['New', 'Contacted', 'Qualified', 'Booked', 'Won', 'Lost', 'Spam'];
 const SOURCES = ['Voice call', 'Website chat', 'Contact form', 'Manual import', 'API', 'CRM'];
 const URGENCIES = ['High', 'Medium', 'Low'];
-const STATUS_COLOR = { New: C.cyan, Contacted: '#C3D3EA', Qualified: '#B6A9FF', Booked: '#7BF0B4', Won: C.green, Lost: '#FF9AA6', Spam: '#8EA0BD' };
+const STATUS_COLOR = { New: C.cyan, Contacted: '#7FF0CB', Qualified: '#16C98A', Booked: '#7BF0B4', Won: C.green, Lost: '#FF9AA6', Spam: '#8EA0BD' };
 
 /* ---------- Icons ---------- */
 const ICONS = {
@@ -189,7 +192,7 @@ function authErrorText(m) {
 const uid = () => 'LD-' + Math.random().toString(36).slice(2, 7).toUpperCase();
 const initials = (n) => String(n || '?').trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
 const cap = (s) => { s = (s || '').trim(); return s ? s[0].toUpperCase() + s.slice(1) : s; };
-const scoreColor = (v) => (v > 75 ? C.green : v > 50 ? C.cyan : '#ff9aa6');
+const scoreColor = (v) => (v > 75 ? C.green : v > 50 ? C.cyan : C.red);
 function legacyHash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return String(h); }
 /* Salted, iterated SHA-256 password hashing (replaces the old reversible/weak scheme) */
 function sha256hex(str) {
@@ -533,10 +536,10 @@ const Badge = ({ label, color }) => (
 );
 const Chip = ({ label, active, onPress }) => (
   <Pressable onPress={onPress} style={[s.chip, active && s.chipActive]}>
-    <Text style={{ color: active ? '#04223f' : C.muted, fontSize: 13, fontWeight: '700' }}>{label}</Text>
+    <Text style={{ color: active ? C.onPrimary : C.muted, fontSize: 13, fontWeight: '700' }}>{label}</Text>
   </Pressable>
 );
-const GradientBtn = ({ label, icon, onPress, colors = [C.primary, C.glow], textColor = '#04223f', style }) => (
+const GradientBtn = ({ label, icon, onPress, colors = [C.primary, C.glow], textColor = C.onPrimary, style }) => (
   <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }, style]}>
     <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.gradBtn}>
       {icon ? <Icon name={icon} size={18} color={textColor} sw={2} /> : null}
@@ -561,7 +564,7 @@ const H = ({ title, sub, right }) => (
   </View>
 );
 function LeadCard({ lead, onPress, sync }) {
-  const syncColor = sync === 'synced' ? C.green : sync === 'failed' ? '#ff9aa6' : C.cyan;
+  const syncColor = sync === 'synced' ? C.green : sync === 'failed' ? C.red : C.cyan;
   const syncLabel = sync === 'synced' ? 'Synced' : sync === 'failed' ? 'Failed' : 'Pending';
   return (
     <Pressable onPress={onPress} style={s.leadCard}>
@@ -650,7 +653,7 @@ function AuthScreen({ mode, error, onSubmit, onSwitch, onBack }) {
           {isSignup ? <Field label="Business name" value={biz} onChangeText={setBiz} placeholder="Bright Smile Dental" /> : null}
           <Field label="Email" value={email} onChangeText={setEmail} placeholder="you@business.com" autoCapitalize="none" keyboardType="email-address" />
           <Field label="Password" value={pass} onChangeText={setPass} placeholder="At least 8 characters (letters & numbers)" secureTextEntry />
-          {error ? <Text style={{ color: '#ff9aa6', fontSize: 13, marginBottom: 8 }}>{error}</Text> : null}
+          {error ? <Text style={{ color: C.red, fontSize: 13, marginBottom: 8 }}>{error}</Text> : null}
           <GradientBtn label={isSignup ? 'Create account' : 'Sign in'} onPress={() => onSubmit({ name, biz, email, pass })} />
           <Pressable onPress={onSwitch} style={{ marginTop: 14, alignItems: 'center' }}>
             <Text style={{ color: C.muted, fontSize: 13 }}>{isSignup ? 'Have an account? ' : 'New here? '}<Text style={{ color: C.cyan, fontWeight: '700' }}>{isSignup ? 'Sign in' : 'Create account'}</Text></Text>
@@ -837,7 +840,7 @@ function LeadDetail({ lead, onMove, onNote, onDelete, onBack, crmSyncs, onRetry 
           <GradientBtn label="Save note" onPress={() => onNote(lead.id, note)} style={{ marginTop: 10 }} />
         </Card>
         <Pressable onPress={() => Alert.alert('Delete lead', 'This cannot be undone.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: () => onDelete(lead.id) }])} style={s.dangerBtn}>
-          <Icon name="trash" size={16} color="#ff9aa6" /><Text style={{ color: '#ff9aa6', fontWeight: '700' }}>Delete lead</Text>
+          <Icon name="trash" size={16} color="#ff9aa6" /><Text style={{ color: C.red, fontWeight: '700' }}>Delete lead</Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -1001,24 +1004,19 @@ const VCLOSE_NP_N = {
   es: { normal: 'Gracias, {name}. He registrado su consulta sobre {service} y nuestro equipo se pondrá en contacto con usted muy pronto. ¡Que tenga un día estupendo!', urgent: 'Gracias, {name}. He registrado esto como una consulta urgente sobre {service} y nuestro equipo se pondrá en contacto de inmediato. ¡Cuídese!' },
   ar: { normal: 'شكرًا لك، {name}. لقد سجّلتُ استفسارك بخصوص {service}، وسيتواصل معك فريقنا قريبًا جدًا. أتمنى لك يومًا رائعًا!', urgent: 'شكرًا لك، {name}. لقد سجّلتُ هذا كاستفسار عاجل بخصوص {service}، وسيتواصل معك فريقنا فورًا. اعتنِ بنفسك!' },
 };
-function VoiceScreen({ onCreateLead, showToast }) {
-  const [lang, setLang] = useState('en');
-  const T = VT[lang];
+function VoiceScreen({ onCreateLead, showToast, lang = 'en', gender = 'female', humanVoice = true, onboard }) {
+  const T = VT[lang] || VT.en;
   const rtl = lang === 'ar';
   const voice = useRef({ active: false, step: 0, data: {}, urgent: false, timer: null, pendingTxt: null, retry: {} }).current;
   const [transcript, setTranscript] = useState([]);
   const [status, setStatus] = useState(VT.en.intro);
   const [input, setInput] = useState('');
   const [active, setActive] = useState(false);
-  const [gender, setGender] = useState('female');
   const voicesRef = useRef([]);
   useEffect(() => { let alive = true; (async () => {
-    try { const g = await store.get('av_voice_gender', 'female'); if (alive && (g === 'male' || g === 'female')) setGender(g); } catch (e) {}
     try { const vs = await Speech.getAvailableVoicesAsync(); if (alive) voicesRef.current = vs || []; } catch (e) {}
   })(); return () => { alive = false; }; }, []);
-  const chooseGender = async (g) => { g = g === 'male' ? 'male' : 'female'; setGender(g); try { await store.set('av_voice_gender', g); } catch (e) {}
-    const sample = { en: 'Hi! This is your AI receptionist — lovely to meet you.', es: '¡Hola! Soy su recepcionista con IA. ¡Encantada de saludarle!', ar: 'مرحبًا! معك موظف الاستقبال الذكي. سعدتُ بالتحدث إليك!' };
-    try { Speech.stop(); speakWith(sample[lang] || sample.en, g); } catch (e) {} };
+
   /* Every utterance takes a ticket; a newer one invalidates the older, so a late callback can
      never start a second voice on top of the one you are hearing. `done` fires when it ends. */
   const speakWith = (txt, g, done) => {
@@ -1055,6 +1053,8 @@ function VoiceScreen({ onCreateLead, showToast }) {
     const name = cap(voice.data.name || '') || T.defName;
     let lead = '';
     if (voice.acks && voice.acks.length) { lead = voice.acks.join(' ') + ' '; voice.acks = []; }
+    const custom = (onboard && onboard.answers && onboard.answers.assistant_greeting) || '';
+    if (which === 'name' && custom) return lead + String(custom).slice(0, 240);
     let txt = fillTpl(T[which], { name });
     if (which === 'urgency') { const acks = VACK_N[lang] || VACK_N.en; txt = acks[Math.floor(Math.random() * acks.length)] + ' ' + txt; }
     if (which === 'phone' && voice.urgent) txt = T.ack + ' ' + txt;
@@ -1077,12 +1077,26 @@ function VoiceScreen({ onCreateLead, showToast }) {
     });
     if (voice.data.urgency != null) voice.urgent = parseUrgency(voice.data.urgency) === 'High';
   };
+  /* Prefer what the business actually told us during onboarding over the generic answer. */
+  const bizAnswer = (kind) => {
+    const a = (onboard && onboard.answers) || {};
+    if (kind === 'hours' && a.opening_hours) return 'Our opening hours are ' + String(a.opening_hours).replace(/\s+/g, ' ').slice(0, 140) + ' — but I answer around the clock.';
+    if (kind === 'services') {
+      const names = (Array.isArray(a.services) ? a.services : [])
+        .map((x) => (x && typeof x === 'object' ? String(x.name || '').trim() : String(x || '').trim()))
+        .filter(Boolean).slice(0, 5);
+      if (names.length) return 'We handle ' + names.join(', ') + ' — and I can pass on anything else you need.';
+      if (a.business_description) return String(a.business_description).slice(0, 180);
+    }
+    if (kind === 'where' && a.business_name) return 'You are through to ' + String(a.business_name).slice(0, 80) + ', and we look after clients across the UK.';
+    return '';
+  };
   const answerFor = (text) => {
     const kind = vIntentN(text);
     if (!kind) return null;
     const A = VANS_N[lang] || VANS_N.en;
     if (kind === 'repeat') return voice.lastBot || A.unknown;
-    return A[kind] || A.unknown;
+    return bizAnswer(kind) || A[kind] || A.unknown;
   };
   const ask = () => { botSay(askText()); setStatus(T.yourTurn); };
   const start = () => { try { Speech.stop(); } catch (e) {} voice.active = true; voice.step = 0; voice.data = {}; voice.urgent = false; voice.retry = {}; voice.acks = []; voice.lastBot = ''; setActive(true); setTranscript([]); ask(); };
@@ -1128,28 +1142,14 @@ function VoiceScreen({ onCreateLead, showToast }) {
     if (voice.step < QORDER.length) ask(); else finish();
   };
   const end = () => { voice.active = false; setActive(false); if (voice.timer) { clearTimeout(voice.timer); voice.timer = null; } voice.pendingTxt = null; setTranscript((p) => p.filter((m) => m.who !== 'typing')); try { Speech.stop(); } catch (e) {} setStatus(T.ended); };
-  const switchLang = (l) => { if (voice.active || voice.timer) end(); setLang(l); setTranscript([]); setStatus(VT[l].intro); };
+  /* language changed in Settings while a call was live: end it cleanly */
+  useEffect(() => { if (voice.active || voice.timer) end(); setTranscript([]); setStatus((VT[lang] || VT.en).intro); }, [lang]);
   useEffect(() => () => { if (voice.timer) clearTimeout(voice.timer); try { Speech.stop(); } catch (e) {} }, []);
   return (
     <KeyboardAvoidingView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <H title={T.title} sub={T.sub} />
-        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
-          {VLANGS.map(([code, lbl]) => (
-            <Pressable key={code} onPress={() => switchLang(code)} style={[s.chip, { marginRight: 0 }, lang === code && s.chipActive]}>
-              <Text style={{ color: lang === code ? '#04223f' : C.muted, fontWeight: '700', fontSize: 13 }}>{lbl}</Text>
-            </Pressable>
-          ))}
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-          <Text style={{ color: C.muted, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6 }}>{T.voicePack || 'Voice'}</Text>
-          {[['female', T.voiceFemale || 'Female'], ['male', T.voiceMale || 'Male']].map(([g, lbl]) => (
-            <Pressable key={g} onPress={() => chooseGender(g)} style={[s.chip, { marginRight: 0, flexDirection: 'row', alignItems: 'center', gap: 5 }, gender === g && s.chipActive]}>
-              <Icon name="mic" size={12} color={gender === g ? '#04223f' : C.muted} sw={2} />
-              <Text style={{ color: gender === g ? '#04223f' : C.muted, fontWeight: '700', fontSize: 12.5 }}>{lbl}</Text>
-            </Pressable>
-          ))}
-        </View>
+        {/* Language and voice pack live in Settings now — this screen is just the call. */}
         <Card style={{ alignItems: 'center' }}>
           <Pressable onPress={active ? end : start}>
             <LinearGradient colors={[C.primary, C.glow]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.vmic}><Icon name="mic" size={38} color="#fff" sw={2} /></LinearGradient>
@@ -1157,9 +1157,17 @@ function VoiceScreen({ onCreateLead, showToast }) {
           <Text style={{ color: C.muted, fontSize: 13, textAlign: 'center', marginTop: 14 }}>{status}</Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
             <Pressable onPress={start} style={s.ghostBtn}><Text style={s.ghostBtnText}>{T.start}</Text></Pressable>
-            <Pressable onPress={end} style={[s.ghostBtn, { borderColor: 'rgba(255,122,138,0.5)' }]}><Text style={[s.ghostBtnText, { color: '#ff9aa6' }]}>{T.end}</Text></Pressable>
+            <Pressable onPress={end} style={[s.ghostBtn, { borderColor: 'rgba(255,122,138,0.5)' }]}><Text style={[s.ghostBtnText, { color: C.red }]}>{T.end}</Text></Pressable>
           </View>
           <Text style={{ color: C.muted, fontSize: 11.5, textAlign: 'center', marginTop: 12 }}>{T.sound}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: C.border, alignSelf: 'stretch' }}>
+            <Icon name="mic" size={14} color={C.primary} sw={2} />
+            <Text style={{ color: C.text, fontSize: 12.5, fontWeight: '600' }}>
+              {(gender === 'male' ? (T.voiceMale || 'Male') : (T.voiceFemale || 'Female')) + (humanVoice ? ' · Ultra-realistic' : '')}
+            </Text>
+            <View style={{ flex: 1 }} />
+            <Text style={{ color: C.muted, fontSize: 11.5 }}>Change in More</Text>
+          </View>
         </Card>
         {active ? (
           <View style={s.voiceInput}>
@@ -1201,8 +1209,8 @@ function Analytics({ leads }) {
         {funnel.map((f, i) => (
           <React.Fragment key={f[0]}>
             <LinearGradient colors={[FUNNEL_COLORS[i % FUNNEL_COLORS.length], FUNNEL_COLORS[(i + 1) % FUNNEL_COLORS.length]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ width: Math.max(46, f[1]) + '%', borderRadius: 12, paddingVertical: 12, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Text style={{ color: '#052033', fontWeight: '800', fontSize: 13 }}>{f[0]}  <Text style={{ fontSize: 12 }}>({f[2]})</Text></Text>
-              <Text style={{ color: '#052033', fontWeight: '800', fontSize: 14 }}>{f[1]}%</Text>
+              <Text style={{ color: C.onPrimary, fontWeight: '800', fontSize: 13 }}>{f[0]}  <Text style={{ fontSize: 12 }}>({f[2]})</Text></Text>
+              <Text style={{ color: C.onPrimary, fontWeight: '800', fontSize: 14 }}>{f[1]}%</Text>
             </LinearGradient>
             {i < funnel.length - 1 ? <Text style={{ color: C.muted, fontSize: 11.5, marginVertical: 5, fontWeight: '600' }}>↓ {funnel[i + 1][2]} continued · {f[2] > 0 ? Math.round((f[2] - funnel[i + 1][2]) / f[2] * 100) : 0}% drop-off</Text> : null}
           </React.Fragment>
@@ -1213,13 +1221,89 @@ function Analytics({ leads }) {
 }
 
 /* ---------- Settings ---------- */
-function Settings({ profile, user, leadCount, onSave, onLogout, onReset }) {
+/* A radio-style option, matching the web app's Settings */
+function OptBtn({ label, on, onPress }) {
+  return (
+    <Pressable onPress={onPress} style={{ flex: 1, minWidth: 120, flexDirection: 'row', alignItems: 'center', gap: 9,
+      paddingVertical: 11, paddingHorizontal: 13, borderRadius: 12, minHeight: 46,
+      backgroundColor: on ? 'rgba(34,227,154,0.10)' : C.cardHi, borderWidth: 1, borderColor: on ? C.primary : C.border }}>
+      <View style={{ width: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center',
+        borderWidth: 1.5, borderColor: on ? C.primary : C.border, backgroundColor: on ? C.primary : 'transparent' }}>
+        {on ? <Icon name="check" size={11} color={C.onPrimary} sw={3} /> : null}
+      </View>
+      <Text style={{ color: C.text, fontSize: 13.5, fontWeight: '600' }}>{label}</Text>
+    </Pressable>
+  );
+}
+/* A labelled switch row */
+function SwitchRow({ label, hint, on, onToggle }) {
+  return (
+    <Pressable onPress={onToggle} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12, minHeight: 54, borderBottomWidth: 1, borderBottomColor: C.border }}>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text style={{ color: C.text, fontSize: 13.5, fontWeight: '600' }}>{label}</Text>
+        {hint ? <Text style={{ color: C.muted, fontSize: 11.5, marginTop: 2, lineHeight: 16 }}>{hint}</Text> : null}
+      </View>
+      <View style={{ width: 44, height: 26, borderRadius: 999, padding: 2, justifyContent: 'center',
+        backgroundColor: on ? C.primary : C.cardHi, borderWidth: 1, borderColor: on ? C.primary : C.border }}>
+        <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: on ? '#fff' : C.muted, marginLeft: on ? 18 : 0 }} />
+      </View>
+    </Pressable>
+  );
+}
+const SET_LABEL = { marginTop: 16, marginBottom: 8, color: C.muted, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8 };
+
+function Settings({ profile, user, leadCount, onSave, onLogout, onReset,
+  lang = 'en', onLang, gender = 'female', onGender, humanVoice = true, onHumanVoice, notif = {}, onNotif }) {
   const [biz, setBiz] = useState(profile?.biz || user?.biz || '');
+  const T = VT[lang] || VT.en;
+  const sample = { en: 'Hi! This is your AI receptionist — lovely to meet you.', es: '¡Hola! Soy su recepcionista con IA. ¡Encantada de saludarle!', ar: 'مرحبًا! معك موظف الاستقبال الذكي. سعدتُ بالتحدث إليك!' };
+  const hearVoice = () => {
+    try {
+      Speech.stop();
+      const pr = vProsody(lang, gender);
+      const opts = { language: VTTS[lang], pitch: pr.pitch, rate: pr.rate };
+      Speech.speak(speechClean(sayBrand(sample[lang] || sample.en, lang)), opts);
+    } catch (e) {}
+  };
   return (
     <KeyboardAvoidingView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
-        <H title="Settings" sub="Your business profile and account." />
+        <H title="Settings" sub="Your assistant, your business profile and your account." />
+
         <Card>
+          <Text style={s.cardTitle}>AI receptionist</Text>
+          <Text style={SET_LABEL}>Language</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {VLANGS.map(([code, lbl]) => <OptBtn key={code} label={lbl} on={lang === code} onPress={() => onLang && onLang(code)} />)}
+          </View>
+          <Text style={{ color: C.muted, fontSize: 11.5, lineHeight: 16, marginTop: 10 }}>
+            Changes everything your AI receptionist says on a call.
+          </Text>
+          <Text style={SET_LABEL}>Voice</Text>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <OptBtn label={T.voiceFemale || 'Female'} on={gender === 'female'} onPress={() => onGender && onGender('female')} />
+            <OptBtn label={T.voiceMale || 'Male'} on={gender === 'male'} onPress={() => onGender && onGender('male')} />
+          </View>
+          <View style={{ marginTop: 6 }}>
+            <SwitchRow label="Ultra-realistic voice" hint="Genuinely human neural voice when a backend with a TTS key is connected. Falls back to the device voice otherwise."
+              on={!!humanVoice} onToggle={() => onHumanVoice && onHumanVoice(!humanVoice)} />
+          </View>
+          <Pressable onPress={hearVoice} style={[s.ghostBtn, { marginTop: 12, alignItems: 'center', paddingVertical: 12, flexDirection: 'row', justifyContent: 'center', gap: 8 }]}>
+            <Icon name="play" size={15} color={C.text} /><Text style={s.ghostBtnText}>Hear this voice</Text>
+          </Pressable>
+        </Card>
+
+        <Card style={{ marginTop: 12 }}>
+          <Text style={s.cardTitle}>Notifications</Text>
+          <SwitchRow label="Alert me about every new lead" on={notif.lead_new !== false} onToggle={() => onNotif && onNotif('lead_new', notif.lead_new === false)} />
+          <SwitchRow label="Alert me about urgent leads immediately" on={notif.lead_urgent !== false} onToggle={() => onNotif && onNotif('lead_urgent', notif.lead_urgent === false)} />
+          <SwitchRow label="Send a daily summary" on={!!notif.daily} onToggle={() => onNotif && onNotif('daily', !notif.daily)} />
+          <Text style={{ color: C.amber, fontSize: 11.5, lineHeight: 16, marginTop: 10 }}>
+            Delivery needs an email provider connected to your backend — these preferences are saved and applied once it is.
+          </Text>
+        </Card>
+
+        <Card style={{ marginTop: 12 }}>
           <Text style={s.cardTitle}>Business profile</Text>
           <Field label="Business name" value={biz} onChangeText={setBiz} />
           <GradientBtn label="Save changes" onPress={() => onSave({ ...profile, biz })} />
@@ -1230,7 +1314,7 @@ function Settings({ profile, user, leadCount, onSave, onLogout, onReset }) {
           <View style={s.kv}><Text style={s.kvK}>Email</Text><Text style={s.kvV}>{user?.email}</Text></View>
           <View style={s.kv}><Text style={s.kvK}>Leads stored</Text><Text style={s.kvV}>{leadCount}</Text></View>
           <Pressable onPress={onLogout} style={[s.ghostBtn, { marginTop: 14, alignItems: 'center', paddingVertical: 12, flexDirection: 'row', justifyContent: 'center', gap: 8 }]}><Icon name="logout" size={16} color={C.text} /><Text style={s.ghostBtnText}>Sign out</Text></Pressable>
-          <Pressable onPress={() => Alert.alert('Reset data', 'Replace your leads with the sample set?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Reset', style: 'destructive', onPress: onReset }])} style={[s.ghostBtn, { marginTop: 10, alignItems: 'center', paddingVertical: 12, borderColor: 'rgba(255,122,138,0.5)' }]}><Text style={[s.ghostBtnText, { color: '#ff9aa6' }]}>Reset sample data</Text></Pressable>
+          <Pressable onPress={() => Alert.alert('Reset data', 'Replace your leads with the sample set?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Reset', style: 'destructive', onPress: onReset }])} style={[s.ghostBtn, { marginTop: 10, alignItems: 'center', paddingVertical: 12, borderColor: 'rgba(255,122,138,0.5)' }]}><Text style={[s.ghostBtnText, { color: C.red }]}>Reset sample data</Text></Pressable>
         </Card>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -1299,7 +1383,7 @@ function Integrations({ crm, mode, onSetMode, onConnect, onPause, onResume, onDi
       <View style={s.modeRow}>
         {[['internal', 'Built-in'], ['external', 'External'], ['hybrid', 'Hybrid']].map((mm) => {
           const on = (mode || 'hybrid') === mm[0];
-          return (<Pressable key={mm[0]} onPress={() => onSetMode(mm[0])} style={[s.modeBtn, on && s.modeBtnOn]}><Text style={[s.modeText, on && { color: '#04223f' }]}>{mm[1]}</Text></Pressable>);
+          return (<Pressable key={mm[0]} onPress={() => onSetMode(mm[0])} style={[s.modeBtn, on && s.modeBtnOn]}><Text style={[s.modeText, on && { color: C.onPrimary }]}>{mm[1]}</Text></Pressable>);
         })}
       </View>
       <View style={{ flexDirection: 'row', gap: 10, marginBottom: 14 }}>
@@ -1336,7 +1420,7 @@ function Integrations({ crm, mode, onSetMode, onConnect, onPause, onResume, onDi
               {paused
                 ? <Pressable onPress={() => onResume(c.id)} style={s.smallBtn}><Text style={s.smallBtnText}>Resume</Text></Pressable>
                 : <Pressable onPress={() => onPause(c.id)} style={s.smallBtn}><Text style={s.smallBtnText}>Pause</Text></Pressable>}
-              <Pressable onPress={() => onDisconnect(c.id, p.name)} style={[s.smallBtn, { borderColor: 'rgba(255,122,138,0.5)' }]}><Text style={[s.smallBtnText, { color: '#ff9aa6' }]}>Disconnect</Text></Pressable>
+              <Pressable onPress={() => onDisconnect(c.id, p.name)} style={[s.smallBtn, { borderColor: 'rgba(255,122,138,0.5)' }]}><Text style={[s.smallBtnText, { color: C.red }]}>Disconnect</Text></Pressable>
             </View>
           </Card>
         );
@@ -1352,7 +1436,7 @@ function Integrations({ crm, mode, onSetMode, onConnect, onPause, onResume, onDi
               <StatusPill kind={soon ? 'soon' : 'none'} />
             </View>
             <Pressable disabled={soon} onPress={() => openWiz(p)} style={[soon ? s.smallBtn : s.connectBtn, { marginTop: 12, opacity: soon ? 0.5 : 1, alignSelf: 'flex-start' }]}>
-              <Text style={soon ? s.smallBtnText : { color: '#04223f', fontWeight: '700', fontSize: 13 }}>{soon ? 'Coming soon' : (p.kind === 'custom' ? 'Connect API' : 'Connect')}</Text>
+              <Text style={soon ? s.smallBtnText : { color: C.onPrimary, fontWeight: '700', fontSize: 13 }}>{soon ? 'Coming soon' : (p.kind === 'custom' ? 'Connect API' : 'Connect')}</Text>
             </Pressable>
           </Card>
         );
@@ -1364,7 +1448,7 @@ function Integrations({ crm, mode, onSetMode, onConnect, onPause, onResume, onDi
             const ok = a.status === 'success'; const p = crmProviderN(a.provider) || { name: a.provider };
             return (
               <View key={a.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, borderTopWidth: 1, borderTopColor: C.border }}>
-                <Icon name={ok ? 'check' : 'close'} size={15} color={ok ? C.green : '#ff9aa6'} sw={2.2} />
+                <Icon name={ok ? 'check' : 'close'} size={15} color={ok ? C.green : C.red} sw={2.2} />
                 <View style={{ flex: 1, minWidth: 0 }}><Text style={{ color: C.text, fontSize: 13, fontWeight: '600' }} numberOfLines={1}>{a.event_type}</Text><Text style={s.leadMeta} numberOfLines={1}>{p.name} · {a.lead_name || '—'}</Text></View>
                 {ok ? <Text style={{ color: C.green, fontWeight: '700', fontSize: 12 }}>{a.code}</Text>
                   : <Pressable onPress={() => onRetry(a.conn, a.lead_id)} style={s.smallBtn}><Text style={s.smallBtnText}>Retry</Text></Pressable>}
@@ -1391,7 +1475,7 @@ function Integrations({ crm, mode, onSetMode, onConnect, onPause, onResume, onDi
                         const isBad = (wiz.bad || []).indexOf(f.k) >= 0;
                         return (
                           <View key={f.k} style={{ marginBottom: 12 }}>
-                            <Text style={[s.label, isBad && { color: '#ff9aa6' }]}>{f.label}</Text>
+                            <Text style={[s.label, isBad && { color: C.red }]}>{f.label}</Text>
                             <TextInput
                               value={(wiz.creds && wiz.creds[f.k]) || ''}
                               onChangeText={(v) => setCred(f.k, v)}
@@ -1464,7 +1548,7 @@ function Onboarding({ onboard, crm, onSetMode, onConnectCrm, onActivate, onExit 
   let content;
   if (step === 0) content = (<><Text style={s.h1}>Welcome to Alsaiti Voice</Text><Text style={[s.sub, { marginTop: 8, fontSize: 14.5 }]}>We will ask a few questions about your business so we can configure your lead dashboard, AI assistant and CRM.</Text><View style={[s.badge, { alignSelf: 'flex-start', marginTop: 16, borderColor: C.borderHi, backgroundColor: 'rgba(58,166,255,0.14)' }]}><Icon name="clock" size={13} color={C.cyan} /><Text style={{ color: C.cyan, fontWeight: '700', fontSize: 12 }}>About 2 minutes</Text></View></>);
   else if (step === 1) content = (<><Text style={s.h1}>Your business</Text>{obF('Company name', a.business_name, (v) => set('business_name', v), 'Bright Smile Dental')}{obF('Website', a.website_url, (v) => set('website_url', v), 'https://…')}{obF('Main phone', a.main_phone, (v) => set('main_phone', v), '+44 …')}{obF('Main email', a.main_email, (v) => set('main_email', v), 'you@business.com')}{obSelChips('Industry', ['Dental clinic', 'Aesthetic clinic', 'Home services', 'Real estate', 'Consultant', 'Other'], a.industry, (v) => set('industry', v))}</>);
-  else if (step === 2) content = (<><Text style={s.h1}>Services</Text><Text style={[s.sub, { marginTop: 8 }]}>Add the services customers enquire about.</Text>{(a.services || []).map((sv2, i) => (<View key={i} style={s.obSvc}><View style={{ flex: 1 }}><Text style={{ color: C.text, fontWeight: '700' }}>{sv2.name}</Text><Text style={s.leadMeta}>{sv2.category} · {sv2.value}</Text></View><Pressable onPress={() => removeSvc(i)}><Icon name="trash" size={16} color="#ff9aa6" /></Pressable></View>))}<View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}><TextInput value={svc} onChangeText={setSvc} placeholder="Service name" placeholderTextColor={C.muted} style={[s.input, { flex: 1 }]} /><Pressable onPress={addSvc} style={s.connectBtn}><Text style={{ color: '#04223f', fontWeight: '700' }}>Add</Text></Pressable></View></>);
+  else if (step === 2) content = (<><Text style={s.h1}>Services</Text><Text style={[s.sub, { marginTop: 8 }]}>Add the services customers enquire about.</Text>{(a.services || []).map((sv2, i) => (<View key={i} style={s.obSvc}><View style={{ flex: 1 }}><Text style={{ color: C.text, fontWeight: '700' }}>{sv2.name}</Text><Text style={s.leadMeta}>{sv2.category} · {sv2.value}</Text></View><Pressable onPress={() => removeSvc(i)}><Icon name="trash" size={16} color="#ff9aa6" /></Pressable></View>))}<View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}><TextInput value={svc} onChangeText={setSvc} placeholder="Service name" placeholderTextColor={C.muted} style={[s.input, { flex: 1 }]} /><Pressable onPress={addSvc} style={s.connectBtn}><Text style={{ color: C.onPrimary, fontWeight: '700' }}>Add</Text></Pressable></View></>);
   else if (step === 3) content = (<><Text style={s.h1}>AI receptionist</Text>{obF('Assistant name', a.assistant_name, (v) => set('assistant_name', v), 'Alsaiti receptionist')}{obFArea('Greeting', a.assistant_greeting, (v) => set('assistant_greeting', v), 'Good day, thank you for calling…')}{obSelChips('Tone', ['Friendly', 'Professional', 'Formal'], a.tone, (v) => set('tone', v))}{obTogRow('Assistant discloses it is an AI', !!a.ai_disclosure, () => tog('ai_disclosure'))}</>);
   else if (step === 4) content = (<><Text style={s.h1}>Manage leads</Text><Text style={[s.sub, { marginTop: 8 }]}>Use the built-in CRM, connect your own, or both.</Text>{[['internal', 'Built-in Alsaiti Voice CRM', 'Manage leads, notes, tasks and pipeline here. No external CRM needed.'], ['external', 'Connect an existing CRM', 'Keep using your CRM — we send new leads and updates into it.'], ['hybrid', 'Use both (recommended)', 'Alsaiti Voice is your inbox and also syncs to your external CRM.']].map((o) => (<Pressable key={o[0]} onPress={() => setMode(o[0])} style={[s.obOpt, mode === o[0] && s.obOptOn]}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Icon name={mode === o[0] ? 'check' : 'crm'} size={16} color={mode === o[0] ? C.cyan : C.muted} /><Text style={{ color: C.text, fontWeight: '800', fontSize: 14, flex: 1 }}>{o[1]}</Text></View><Text style={[s.leadMeta, { marginTop: 5 }]}>{o[2]}</Text></Pressable>))}{mode !== 'internal' ? (<View style={{ marginTop: 8 }}>{conns.map((c) => { const p = crmProviderN(c.provider) || { name: c.provider, accent: C.primary, icon: 'crm' }; return (<View key={c.id} style={s.obSvc}><ProviderLogo p={p} size={30} /><Text style={{ color: C.text, fontWeight: '700', flex: 1, marginLeft: 8 }}>{p.name}</Text><Text style={{ color: C.green, fontWeight: '700', fontSize: 12 }}>Connected</Text></View>); })}<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>{CRM_PROVIDERS.filter((p) => p.kind === 'core').slice(0, 3).map((p) => (<Pressable key={p.id} onPress={() => onConnectCrm({ provider: p.id, name: p.name, account: p.id === 'hubspot' ? 'Bright Smile Dental' : p.name + ' workspace', triggers: ['lead.created', 'lead.status_changed'], actions: ['contact', 'deal', 'note'] })} style={s.smallBtn}><Text style={s.smallBtnText}>Connect {p.name}</Text></Pressable>))}</View></View>) : null}</>);
   else if (step === 5) content = (<><Text style={s.h1}>Notifications</Text><Text style={[s.sub, { marginTop: 8 }]}>How and when we should alert your team.</Text>{obTogRow('Email', a.ch_email !== false, () => tog('ch_email'))}{obTogRow('New lead', !!a.ev_new, () => tog('ev_new'))}{obTogRow('Urgent lead', !!a.ev_urgent, () => tog('ev_urgent'))}{obTogRow('CRM sync failed', !!a.ev_crmfail, () => tog('ev_crmfail'))}{obTogRow('Daily summary', !!a.ev_daily, () => tog('ev_daily'))}</>);
@@ -1496,6 +1580,26 @@ const TABS = [['dashboard', 'Home', 'grid'], ['leads', 'Leads', 'users'], ['voic
 
 export default function App() {
   const [booted, setBooted] = useState(false);
+  /* Assistant + notification preferences live here so the Settings screen can change them and
+     the receptionist screen simply uses them — the same split the web app has. */
+  const [vLang, setVLang] = useState('en');
+  const [vGender, setVGender] = useState('female');
+  const [humanVoice, setHumanVoice] = useState(true);
+  const [notif, setNotif] = useState({ lead_new: true, lead_urgent: true, daily: false });
+  useEffect(() => { let alive = true; (async () => {
+    const [l, g, h, nf] = await Promise.all([
+      store.get('av_lang', 'en'), store.get('av_voice_gender', 'female'),
+      store.get('av_human_voice', true), store.get('av_notif', null)]);
+    if (!alive) return;
+    if (l === 'en' || l === 'es' || l === 'ar') setVLang(l);
+    if (g === 'male' || g === 'female') setVGender(g);
+    setHumanVoice(h !== false);
+    if (nf && typeof nf === 'object') setNotif((p) => ({ ...p, ...nf }));
+  })(); return () => { alive = false; }; }, []);
+  const changeLang = (l) => { setVLang(l); store.set('av_lang', l); };
+  const changeGender = (g) => { setVGender(g); store.set('av_voice_gender', g); };
+  const changeHuman = (v) => { setHumanVoice(v); store.set('av_human_voice', v); };
+  const changeNotif = (k, v) => setNotif((p) => { const nx = { ...p, [k]: v }; store.set('av_notif', nx); return nx; });
   const usersRef = useRef({});
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -1702,11 +1806,13 @@ export default function App() {
     let screenEl;
     if (screen === 'dashboard') screenEl = <Dashboard leads={leads} crm={crm} onboard={onboard} onOpen={openLead} onNew={() => setScreen('new')} onTest={dashTestLead} onSetup={onboardLaunch} />;
     else if (screen === 'leads') screenEl = <Leads leads={leads} crm={crm} onOpen={openLead} onNew={() => setScreen('new')} />;
-    else if (screen === 'voice') screenEl = <VoiceScreen onCreateLead={(l) => { saveLeads([l, ...leads]); crmEmitLead('lead.created', l); }} showToast={showToast} />;
+    else if (screen === 'voice') screenEl = <VoiceScreen lang={vLang} gender={vGender} humanVoice={humanVoice} onboard={onboard} onCreateLead={(l) => { saveLeads([l, ...leads]); crmEmitLead('lead.created', l); }} showToast={showToast} />;
     else if (screen === 'integrations') screenEl = <Integrations crm={crm} mode={crm.mode} onSetMode={crmSetMode} onConnect={crmConnect} onPause={(id) => crmSetEnabled(id, false)} onResume={(id) => crmSetEnabled(id, true)} onDisconnect={crmDisconnectConn} onTest={crmTest} onRetry={crmRetrySync} />;
     else if (screen === 'onboarding') screenEl = <Onboarding onboard={onboard} crm={crm} onSetMode={crmSetMode} onConnectCrm={crmConnect} onActivate={onboardActivate} onExit={async (st, ans) => { await persistOnboard({ status: (onboard && onboard.status === 'complete') ? 'complete' : 'in_progress', step: st, answers: ans }); setScreen('dashboard'); }} />;
     else if (screen === 'analytics') screenEl = <Analytics leads={leads} />;
-    else if (screen === 'settings') screenEl = <Settings profile={profile} user={user} leadCount={leads.length} onSave={saveProfile} onLogout={logout} onReset={resetData} />;
+    else if (screen === 'settings') screenEl = <Settings profile={profile} user={user} leadCount={leads.length} onSave={saveProfile} onLogout={logout} onReset={resetData}
+      lang={vLang} onLang={changeLang} gender={vGender} onGender={changeGender}
+      humanVoice={humanVoice} onHumanVoice={changeHuman} notif={notif} onNotif={changeNotif} />;
     else if (screen === 'new') screenEl = <NewLead onSave={addLead} onCancel={() => setScreen('leads')} />;
     else if (screen === 'lead') { const l = leads.find((x) => x.id === activeId); screenEl = l ? <LeadDetail lead={l} crmSyncs={crmLeadSyncs(crm, l.id)} onRetry={crmRetrySync} onMove={moveStatus} onNote={saveNote} onDelete={deleteLead} onBack={() => setScreen('leads')} /> : <Dashboard leads={leads} crm={crm} onboard={onboard} onOpen={openLead} onNew={() => setScreen('new')} onTest={dashTestLead} onSetup={onboardLaunch} />; }
     else screenEl = <Dashboard leads={leads} crm={crm} onboard={onboard} onOpen={openLead} onNew={() => setScreen('new')} onTest={dashTestLead} onSetup={onboardLaunch} />;

@@ -29,16 +29,18 @@ export function userClient(req: Request): SupabaseClient {
 
 // Resolve the caller's user id + a workspace they belong to (owner or member).
 // Throws if unauthenticated or not a member of any workspace.
-export async function resolveWorkspace(req: Request): Promise<{ userId: string; workspaceId: string }> {
+export async function resolveWorkspace(req: Request): Promise<{ userId: string; workspaceId: string; email: string }> {
   const uc = userClient(req);
   const { data: userData, error: userErr } = await uc.auth.getUser();
   if (userErr || !userData?.user) throw new Error('unauthenticated');
   const userId = userData.user.id;
+  // the verified address on the account — the only address we will ever email
+  const email = String(userData.user.email || '').toLowerCase();
   // RLS lets a member see only their own workspaces; take the first (owned first).
   const { data: ws, error } = await uc.from('workspaces').select('id, owner_id').order('created_at', { ascending: true }).limit(1);
   if (error) throw error;
   if (!ws || !ws.length) throw new Error('no_workspace');
-  return { userId, workspaceId: ws[0].id };
+  return { userId, workspaceId: ws[0].id, email };
 }
 
 const CRED_PREFIX = 'crmcred://';
