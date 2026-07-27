@@ -208,7 +208,8 @@
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   #toast svg{width:17px;height:17px;color:var(--green)}
 
-  .kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--border);font-size:14px}
+  .kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--border);font-size:14px;flex-wrap:wrap;min-width:0}
+  .kv>*{min-width:0}
   .kv:first-child{border-top:none}
   .kv .k{color:var(--muted)}
 
@@ -493,6 +494,7 @@
 
   /* ===================== CRM Integrations ===================== */
   .crmsum{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+  .crmsum>*{min-width:0;overflow-wrap:anywhere}
   .provgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
   .provcard{display:flex;flex-direction:column;gap:12px}
   .provhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
@@ -504,7 +506,8 @@
   .provname{font-weight:700;font-size:16px;overflow-wrap:anywhere}
   .provmeta{font-size:13px;color:var(--muted);margin-top:1px;overflow-wrap:anywhere}
   .provhead .spacer{flex:1}
-  .cs{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;border:1px solid var(--border);white-space:nowrap}
+  .cs{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;border:1px solid var(--border);white-space:nowrap;max-width:100%}
+  @media(max-width:560px){.cs{white-space:normal;text-align:center}}
   .cs i{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block;flex-shrink:0}
   .cs-connected{color:var(--green);background:rgba(92,196,151,.12);border-color:rgba(92,196,151,.32)}
   .cs-connecting{color:var(--cyan);background:rgba(46,138,102,.12);border-color:rgba(46,138,102,.32)}
@@ -1069,13 +1072,15 @@
   .aM polygon{stroke:none;stroke-linejoin:round;transform-box:fill-box;transform-origin:50% 50%;shape-rendering:geometricPrecision}
   /* facets assemble once, then a soft highlight sweeps through them forever (staggered by --i,
      ordered top-left → bottom-right) so the mark always looks alive and metallic. */
-  
-  
-  /* The mark is still. It is a logo, not an animation. */
+  @keyframes facetIn{from{opacity:0;transform:scale(.4) translateY(5px)}to{opacity:1;transform:none}}
+  @keyframes shine{0%{filter:brightness(1.22) saturate(1.06)}9%{filter:brightness(1)}100%{filter:brightness(1)}}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .aMg polygon{animation:facetIn .5s cubic-bezier(.2,.9,.3,1.25) calc(var(--i,0)*32ms) backwards,
+                         shine 4s ease-in-out calc(var(--i,0)*55ms) infinite}
 
   /* full logo lockup on the landing hero */
   .logoLock{display:flex;flex-direction:column;align-items:center;gap:12px;margin:0 auto 30px}
-  .logoLock .aMbig{display:block;width:clamp(84px,10vw,112px);height:auto}
+  .logoLock .aMbig{display:block;width:clamp(96px,13vw,138px);height:auto;animation:floaty 5.5s ease-in-out infinite}
   .logoLock .aM{width:100%;height:auto}
   
   .wordmark{font-family:var(--serif);font-weight:700;text-transform:uppercase;letter-spacing:.2em;text-indent:.2em;font-size:clamp(30px,5.4vw,54px);line-height:.95;color:var(--heading)}
@@ -1891,6 +1896,7 @@ function landing(){
       '<button class="btn btn-sm btn-primary" onclick="scrollToId(\'sec-contact\')">'+esc(t('book_call'))+'</button>'+
     '</header>'+
     '<section class="hero" id="sec-top">'+
+      logoLockup()+
       '<span class="badge b-New" style="margin-bottom:16px">'+icon('bolt')+' '+esc(t('hero_badge'))+'</span>'+
       '<h1 class="htitle">'+esc(t('hero_title'))+'</h1>'+
       '<p class="hsub">'+esc(t('hero_sub'))+'</p>'+
