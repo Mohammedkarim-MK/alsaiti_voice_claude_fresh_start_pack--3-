@@ -1,5 +1,10 @@
 # Security posture — Alsaiti Growth
 
+> **Superseded in part.** A second audit on 2026-07-27, against the go-live handoff, found that
+> every Edge Function depended on the **legacy** Supabase keys — so disabling them would have
+> taken the backend down. See [`handover/SECURITY.md`](handover/SECURITY.md) for that finding, the
+> safe migration order, and the current state. This file remains accurate on everything else.
+
 Last audited: 2026-07-21. Scope: the whole repo — web app (`docs/index.html`), native app
 (`alsaiti-go/`), backend (`supabase/`), and full git history.
 

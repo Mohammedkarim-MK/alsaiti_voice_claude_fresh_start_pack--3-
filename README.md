@@ -16,6 +16,19 @@ This repository is the shared workspace for the team.
 | `alsaiti_voice_claude_fresh_start/` | Product spec + phased build plan (`00`–`11`) and `.env.example`. |
 | `alsaiti-mobile/` | Assets (e.g. QR image). |
 | `attachments/` | Reference material. |
+| `handover/` | Go-live handover docs: status, security, integrations, testing, operations. |
+| `brand/` | Logo PNGs (light, dark, transparent) rendered from the vector mark. |
+
+## Going live
+
+Start with [`handover/IMPLEMENTATION_STATUS.md`](handover/IMPLEMENTATION_STATUS.md) — it marks
+every requirement in the go-live handoff as Done, Blocked by owner, Deferred or N/A, and lists the
+owner actions in priority order. The other four files cover
+[security](handover/SECURITY.md), [integrations](handover/INTEGRATIONS.md),
+[testing](handover/TESTING.md) and [operations](handover/OPERATIONS.md).
+
+These sit in `handover/` rather than `docs/` because `docs/` is the GitHub Pages web root —
+anything placed there is published on the customer-facing site.
 | `HOW_TO_TEST.md` | How to test the apps on phone / tablet / desktop. |
 
 ## Running the mobile app (alsaiti-go)
