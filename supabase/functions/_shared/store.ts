@@ -15,16 +15,48 @@ function env(k: string): string {
   return v;
 }
 
+/** First of `names` that is set. Lets us prefer a new key and fall back to the legacy one. */
+function envAny(names: string[]): string {
+  // deno-lint-ignore no-explicit-any
+  const e = (globalThis as any).Deno?.env;
+  for (const n of names) { const v = e ? e.get(n) : undefined; if (v) return v; }
+  throw new Error(`Missing env: none of ${names.join(', ')} is set`);
+}
+
+/**
+ * KEY MIGRATION (handoff §4.1, SEC-02).
+ *
+ * Supabase injects SUPABASE_SERVICE_ROLE_KEY and SUPABASE_ANON_KEY into every hosted function
+ * automatically — and those are the LEGACY keys. Until this change, every function in this
+ * project read them directly, which meant clicking "disable legacy API keys" in the dashboard
+ * would have taken the entire backend down at once: contact form, TTS, CRM, telephony.
+ *
+ * Preferring the new names makes that migration safe and reversible:
+ *   1. Set SUPABASE_SECRET_KEY (sb_secret_…) and SUPABASE_PUBLISHABLE_KEY (sb_publishable_…)
+ *      as function secrets. Everything immediately starts using them.
+ *   2. Smoke-test. If anything misbehaves, unset them and the legacy path resumes instantly.
+ *   3. Only once step 2 is clean, disable the legacy keys in the dashboard.
+ *
+ * Do not skip to step 3. The legacy names must keep working until step 1 is verified.
+ */
 export function serviceClient(): SupabaseClient {
-  return createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'), { auth: { persistSession: false } });
+  return createClient(
+    env('SUPABASE_URL'),
+    envAny(['SUPABASE_SECRET_KEY', 'SUPABASE_SERVICE_ROLE_KEY']),
+    { auth: { persistSession: false } },
+  );
 }
 
 export function userClient(req: Request): SupabaseClient {
   const authHeader = req.headers.get('Authorization') || '';
-  return createClient(env('SUPABASE_URL'), env('SUPABASE_ANON_KEY'), {
-    auth: { persistSession: false },
-    global: { headers: { Authorization: authHeader } },
-  });
+  return createClient(
+    env('SUPABASE_URL'),
+    envAny(['SUPABASE_PUBLISHABLE_KEY', 'SUPABASE_ANON_KEY']),
+    {
+      auth: { persistSession: false },
+      global: { headers: { Authorization: authHeader } },
+    },
+  );
 }
 
 // Resolve the caller's user id + a workspace they belong to (owner or member).

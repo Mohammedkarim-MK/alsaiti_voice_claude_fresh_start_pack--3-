@@ -39,3 +39,9 @@ Thumbs.db
 *.jks
 *.mobileprovision
 supabase/.temp/
+
+# Handoff §4.3 — never commit database dumps or provider credential exports
+*.dump
+*.sql.gz
+supabase/.branches/
+supabase/functions/.env
