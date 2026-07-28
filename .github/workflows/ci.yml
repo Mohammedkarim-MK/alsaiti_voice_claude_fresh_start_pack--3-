@@ -1,0 +1,96 @@
+# Handoff §4.3 and §19.
+#
+# Until now every acceptance suite was run by hand, so a regression could reach `main` unnoticed,
+# and there was no automated secret scanning at all. This runs both on every push and pull request.
+#
+# Note: GitHub Pages publishing is configured from the repository settings (Pages → deploy from
+# branch `main`, folder `/docs`), NOT from a workflow. This file does not touch deployment — it
+# only gates quality. Adding a Pages workflow here would take over publishing and change how
+# deploys behave, so it is deliberately left alone.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A newer push makes an in-flight run irrelevant. Don't burn minutes finishing it.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history: a credential removed from the working tree but still present in an
+          # earlier commit is not fixed, and rotating it is not enough on its own.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Scan the working tree
+        run: node tests/secret-scan.js
+
+      - name: Scan the full history
+        # Checks every blob ever committed. Kept separate from the working-tree scan because the
+        # remediation differs: a hit here needs history rewritten, not just a file edited.
+        run: |
+          set -euo pipefail
+          echo "scanning $(git rev-list --count --all) commits"
+          PATTERN='sb_secret_[A-Za-z0-9_-]{12,}|sbp_[A-Za-z0-9]{16,}|sk_live_[A-Za-z0-9]{16,}|re_[A-Za-z0-9]{24,}|SG\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}|AKIA[A-Z0-9]{16}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY'
+          if git rev-list --all | xargs -r git grep -I -n -E "$PATTERN" 2>/dev/null | head -40 | grep .; then
+            echo "::error::credential value found in git history - rotate at the provider AND rewrite history"
+            exit 1
+          fi
+          echo "history clean"
+
+  tests:
+    name: Acceptance suites
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: tests/package.json
+
+      - name: Install
+        working-directory: tests
+        run: npm install --no-audit --no-fund
+
+      - name: Run every suite
+        working-directory: tests
+        # ~4 minutes locally. The runner prints a per-suite summary and exits non-zero if any fail.
+        run: node run.js
+
+  functions:
+    name: Edge Functions type-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Type-check every function
+        # These deploy to Deno, not Node. A type error currently only surfaces at deploy time,
+        # which is a slow way to find out you mistyped a column name.
+        run: |
+          set -euo pipefail
+          fail=0
+          for f in supabase/functions/*/index.ts; do
+            echo "--- $f"
+            deno check --no-lock "$f" || fail=1
+          done
+          exit $fail

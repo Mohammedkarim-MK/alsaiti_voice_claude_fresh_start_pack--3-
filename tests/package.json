@@ -1,0 +1,14 @@
+{
+  "name": "alsaiti-voice-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Acceptance suites for the Alsaiti Voice web app. Boots the real docs/index.html in jsdom and drives it.",
+  "scripts": {
+    "test": "node run.js",
+    "scan": "node secret-scan.js",
+    "check": "node secret-scan.js && node run.js"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1"
+  }
+}

@@ -61,20 +61,39 @@ git checkout <good-commit> -- supabase/functions/<name> && supabase functions de
 so reverting the code without touching the database is safe. Anything destructive needs a written
 forward-fix before it is applied.
 
-## Monitoring — the honest position
+## Monitoring
 
-**There is none.** No error monitoring, no uptime checks, no alerting. If the contact form starts
-returning 502, nobody finds out until someone notices the enquiries stopped.
+There is a health endpoint now. **There is still no external monitor watching it** — that part is
+an owner action and takes about two minutes.
 
-MON-01 in §19 is a mandatory gate and it currently fails. Before taking public traffic, at minimum:
+### The endpoint
 
-- An uptime check on `POST /functions/v1/contact-submit` — it is the endpoint that loses money
-  when it breaks.
-- Error monitoring on the Edge Functions with the release commit attached.
-- An alert on `contact_submissions` where `notification_status <> 'sent'` for more than an hour.
-  Migration `0006` adds a partial index for exactly this query.
+```
+POST https://jnxvwdcvnwigowafdxvl.supabase.co/functions/v1/health
+```
 
-Until those exist, check manually:
+Public, so an uptime service can watch it without a credential — the check that tells you the
+lead pipeline is broken must not itself depend on the lead pipeline. **The status code is the
+signal:** `200` healthy, `503` degraded or down. Any uptime service alerts on non-2xx, so this
+needs no other configuration.
+
+It checks database reachability, whether lead alerts can actually be sent (provider key plus
+`LEAD_NOTIFICATION_TO`), how many enquiries in the last 24 hours were saved but never announced,
+and which providers are configured. Anonymous callers get a bare status; per-check detail requires
+a JWT, because "which provider is unconfigured" is a map of where to attack.
+
+The same data renders in the app under **Settings → System health**, so a degraded backend is
+visible where someone will actually see it.
+
+### Still to do — owner action
+
+1. Point an uptime service (Better Stack, Cronitor, UptimeRobot — any of them) at the health URL,
+   5-minute interval, alert on non-2xx.
+2. Add error monitoring with the release commit attached (`SENTRY_DSN`).
+
+Until (1) exists, nothing pages anyone. A degraded state is *visible* but not *announced*.
+
+### Checking by hand
 
 ```sql
 -- enquiries whose alert never went out
@@ -131,14 +150,35 @@ redirecting · `404` = **not deployed**.
 
 ## Data retention
 
-Committed to in the Privacy Policy, and **not yet automated**:
+Committed to in the Privacy Policy, and now enforced by `public.retention_sweep()` (migration
+`0007`):
 
-| Data | Retention |
-|---|---|
-| Contact enquiries | 24 months from last contact |
-| Lead records | Life of the account, plus 90 days |
-| Rate-limit and abuse rows | 30 days |
-| Logs | Supabase default |
+| Data | Retention | Swept |
+|---|---|---|
+| Contact enquiries | 24 months | yes |
+| Delivery history (`notifications`) | 24 months | yes |
+| Rate-limit and abuse rows | 30 days | yes |
+| Raw provider webhook payloads | 90 days | yes |
+| OAuth state sessions | 7 days | yes |
+| Lead records | Life of the account, plus 90 days | via `ON DELETE CASCADE` |
+| `audit_logs` | kept | **deliberately not swept** — a retention job must not quietly erase a security record |
 
-There is no scheduled job enforcing any of this. Someone has to build one, or delete by hand, or
-the policy is a promise the system does not keep.
+Scheduled daily at 03:17 via `pg_cron`, **if that extension is enabled**. The migration does not
+fail when it is absent — it raises a notice and moves on. So check:
+
+```sql
+select jobname, schedule from cron.job where jobname = 'alsaiti_retention_sweep';
+```
+
+No row means nothing is enforcing retention and the Privacy Policy is currently a promise the
+system does not keep. Either enable `pg_cron` (Database → Extensions) and re-run migration `0007`,
+or call `select public.retention_sweep();` from an external scheduler daily.
+
+Run it by hand any time — it returns what it deleted:
+
+```sql
+select * from public.retention_sweep();
+```
+
+**If you change a retention period, change the Privacy Policy in the same commit.** The periods in
+`0007` and the ones on the website have to agree, or the published policy is wrong.

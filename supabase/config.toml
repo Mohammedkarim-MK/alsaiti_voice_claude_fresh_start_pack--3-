@@ -43,3 +43,9 @@ verify_jwt = true
 
 [functions.contact-submit]
 verify_jwt = false
+
+# Public so an external uptime monitor can watch it without a credential — the check that tells
+# you the lead pipeline is broken must not depend on the lead pipeline working. Anonymous callers
+# get a coarse status only; detail needs a JWT.
+[functions.health]
+verify_jwt = false

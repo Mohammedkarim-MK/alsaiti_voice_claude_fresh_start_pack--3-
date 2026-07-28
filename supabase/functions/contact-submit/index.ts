@@ -13,6 +13,7 @@ import { preflight, json, fail } from '../_shared/http.ts';
 import { enforceLimit, ipBucket, clientIp } from '../_shared/ratelimit.ts';
 import { serviceClient } from '../_shared/store.ts';
 import { EMAIL_RE, contactAlert, sendEmail, replyToAddress, emailProvider } from '../_shared/email.ts';
+import { correlationId, logger } from '../_shared/log.ts';
 
 const LIMIT = { limit: 8, windowSeconds: 60 };                 // per IP — humans fill forms slowly
 const EMAIL_TIMEOUT_MS = 5000;                                 // never make a visitor wait on a provider
@@ -46,8 +47,13 @@ Deno.serve(async (req: Request) => {
   const pre = preflight(req); if (pre) return pre;
   if (req.method !== 'POST') return fail('method_not_allowed', 405);
 
+  // One id for this enquiry, carried through the logs and stored on the row, so a visitor's
+  // "I submitted at 14:20" can actually be traced end to end (§17.1).
+  const cid = correlationId(req);
+  const log = logger('contact-submit', cid);
+
   const limited = await enforceLimit(ipBucket(req, 'contact'), LIMIT);
-  if (limited) return limited;
+  if (limited) { log.warn('rate_limited'); return limited; }
 
   try {
     const b = await req.json().catch(() => ({}));
@@ -62,9 +68,10 @@ Deno.serve(async (req: Request) => {
        we reject only what is genuinely unusable: no way to reply at all, or an email address
        that cannot be one. Everything else is stored and let a human judge it. */
     if (!honeypot) {
-      if (!first && !biz) return fail('missing_name', 400);
-      if (!email && !phone && !wa) return fail('missing_contact', 400);
-      if (email && !EMAIL_RE.test(email)) return fail('invalid_email', 400);
+      const reject = (code: string) => { log.warn('rejected', { error_code: code }); return fail(code, 400); };
+      if (!first && !biz) return reject('missing_name');
+      if (!email && !phone && !wa) return reject('missing_contact');
+      if (email && !EMAIL_RE.test(email)) return reject('invalid_email');
     }
 
     /* -- idempotency (§5.2, FORM-02) --------------------------------------------------------
@@ -100,6 +107,7 @@ Deno.serve(async (req: Request) => {
       consent_version: cap(b.consent_version, 40),
       consent_at: cap(b.consent, 500) ? new Date().toISOString() : null,
       notification_status: 'pending',
+      correlation_id: cid,
     };
 
     const { data: saved, error } = await sb.from('contact_submissions')
@@ -113,7 +121,11 @@ Deno.serve(async (req: Request) => {
       if (won) return json({ ok: true, reference: won.reference, duplicate: true,
                              notification: won.notification_status });
     }
-    if (error || !saved) return fail('store_failed', 502, error?.message);
+    if (error || !saved) {
+      log.error('store_failed', { error_code: 'store_failed', detail: error?.message });
+      return fail('store_failed', 502, error?.message);
+    }
+    log.info('stored', { reference: saved.reference, honeypot });
 
     // The enquiry is safe from here on. Nothing below is allowed to turn this into a failure.
     if (honeypot) return json({ ok: true, reference: saved.reference, notification: 'skipped' });
@@ -145,13 +157,14 @@ Deno.serve(async (req: Request) => {
         await sb.from('notifications').insert({
           category: 'contact_form', channel: 'email', recipient: to, subject: mail.subject,
           status: 'sent', provider: sent.provider, provider_id: sent.id ?? null, attempts: 1,
-          related_table: 'contact_submissions', related_id: saved.id,
+          related_table: 'contact_submissions', related_id: saved.id, correlation_id: cid,
         });
+        log.info('notified', { provider: sent.provider, provider_id: sent.id });
       } catch (e) {
         // The enquiry is already committed. A provider outage downgrades the notification,
         // never the enquiry (§5.1, FORM-05).
         const msg = String((e as Error)?.message || e).slice(0, 300);
-        console.error('contact notification failed:', msg);
+        log.error('notify_failed', { error_code: 'notify_failed', detail: msg });
         notification = 'retry_required';
         await sb.from('contact_submissions').update({
           notification_status: 'retry_required', notification_error: msg, notification_attempts: 1,
@@ -159,13 +172,15 @@ Deno.serve(async (req: Request) => {
         await sb.from('notifications').insert({
           category: 'contact_form', channel: 'email', recipient: to, subject: mail.subject,
           status: 'retry_required', attempts: 1, last_error: msg,
-          related_table: 'contact_submissions', related_id: saved.id,
+          related_table: 'contact_submissions', related_id: saved.id, correlation_id: cid,
         });
       }
     }
 
-    return json({ ok: true, reference: saved.reference, notification });
+    return json({ ok: true, reference: saved.reference, notification, correlation_id: cid });
   } catch (e) {
-    return fail('contact_failed', 502, String((e as Error)?.message || e));
+    const msg = String((e as Error)?.message || e);
+    log.error('contact_failed', { error_code: 'contact_failed', detail: msg });
+    return fail('contact_failed', 502, msg);
   }
 });

@@ -4,29 +4,54 @@ Handoff §19. What runs, what it proves, and which gates still need a live proje
 
 ## Running the suites
 
-The harnesses are jsdom scripts that boot the real `docs/index.html` and drive it. They live in
-the session scratchpad rather than the repo — they are development tooling, not shipped code.
-Requires `npm i jsdom` in a scratch directory.
+They live in `tests/` and boot the real `docs/index.html` in jsdom, then drive it. Every suite is
+a standalone script that exits non-zero on failure, so the runner just sequences them.
 
 ```bash
-node formtest.js && node truthtest.js && node signuptest.js && node legaltest.js && node a11y_labels.js
+cd tests && npm install && npm run check
 ```
+
+`npm run check` = secret scan, then every suite. `npm test` runs the suites alone; `npm run scan`
+the scanner alone. To run one suite: `node run.js contact-form`.
 
 | Suite | Checks | Covers |
 |---|---|---|
-| `formtest.js` | 39 | FORM-01..07 |
-| `truthtest.js` | 25 | §2 truth labels, Appendix B, §13 |
-| `signuptest.js` | 16 | §6.1, §6.2 |
-| `legaltest.js` | 40 | §18, §20.1 |
-| `a11y_labels.js` | 29 controls | A11Y-01 accessible names |
-| `settingstest.js` | 61 | Settings, auth, password rules |
-| `livetest.js` | 71 | Lead lifecycle, voice, CRM events |
-| `sweep.js` | 21 | Every screen × theme × language |
-| `newfeatures.js` | 35 | Export, edit, reset, notifications |
-| `voicetest.js` | 22 | One-voice guarantee, hands-free calling |
-| `audit_features` / `audit_data` / `audit_runtime` | behavioural | Clicks 214 controls across 8 screens |
+| `contact-form.test.js` | 39 | FORM-01..07 |
+| `truth-labels.test.js` | 25 | §2 truth labels, Appendix B, §13 |
+| `legal-pages.test.js` | 40 | §18, §20.1 |
+| `health.test.js` | 19 | §17.1, MON-01, correlation ids |
+| `auth-i18n.test.js` | 18 | §14.2 auth translations |
+| `signup.test.js` | 16 | §6.1, §6.2 |
+| `settings.test.js` | 61 | Settings, auth, password rules |
+| `lead-lifecycle.test.js` | 71 | Lead lifecycle, voice, CRM events |
+| `features.test.js` | 35 | Export, edit, reset, notifications |
+| `voice.test.js` | 22 | One-voice guarantee, hands-free calling |
+| `screens-sweep.test.js` | 21 | Every screen × theme × language |
+| `a11y-labels.test.js` | 29 controls | A11Y-01 accessible names |
 
-**All green as of 27 July 2026.**
+**12/12 suites passing as of 27 July 2026.** Whole run is about four minutes.
+
+## CI
+
+`.github/workflows/ci.yml` runs on every push to `main` and every pull request:
+
+| Job | What it does |
+|---|---|
+| **Secret scan** | `tests/secret-scan.js` over the working tree, then a separate pass over every blob in git history |
+| **Acceptance suites** | All 12, via `tests/run.js` |
+| **Edge Functions type-check** | `deno check` on each `supabase/functions/*/index.ts` |
+
+Two notes on it. The scanner matches credential *values*, not variable names — matching names
+would flag `.env.example`, every doc and every legitimate `Deno.env.get('RESEND_API_KEY')`, and a
+scanner that cries wolf gets switched off. And the history job is separate from the working-tree
+job on purpose: a hit in history needs the history rewritten, not just a file edited.
+
+**The Deno job has never actually run** — Deno is not installed on the machine this was written
+on, so CI will be its first execution. If it fails on the first push, that is the reason.
+
+The workflow deliberately does not touch deployment. Pages publishes from repository settings
+(branch `main`, folder `/docs`); adding a Pages workflow would take that over and change how
+deploys behave.
 
 ## Test accounts
 
