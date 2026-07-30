@@ -112,7 +112,9 @@ export const telnyx = {
   },
 };
 
-function b64ToBytes(b64: string): Uint8Array {
+/* `<ArrayBuffer>` is required: a bare `Uint8Array` widens to `Uint8Array<ArrayBufferLike>` under
+   TypeScript 5.7+, which is not a valid `BufferSource` for the Web Crypto calls above. */
+function b64ToBytes(b64: string): Uint8Array<ArrayBuffer> {
   const bin = atob(b64);
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);

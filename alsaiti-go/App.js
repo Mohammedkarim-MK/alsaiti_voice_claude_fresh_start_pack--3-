@@ -530,7 +530,7 @@ const Avatar = ({ name, size = 38 }) => (
 );
 const Badge = ({ label, color }) => (
   <View style={[s.badge, { borderColor: color + '66', backgroundColor: color + '22' }]}>
-    <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: color }} />
+    <View style={{ width: 6, height: 6, borderRadius: 4, backgroundColor: color }} />
     <Text style={{ color, fontSize: 11, fontWeight: '700' }}>{label}</Text>
   </View>
 );
@@ -582,7 +582,7 @@ function LeadCard({ lead, onPress, sync }) {
           <Text style={s.leadMeta}>· {ago(lead.at)}</Text>
           {sync ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: syncColor }} />
+              <View style={{ width: 6, height: 6, borderRadius: 4, backgroundColor: syncColor }} />
               <Text style={{ color: syncColor, fontSize: 10, fontWeight: '700' }}>{syncLabel}</Text>
             </View>
           ) : null}
@@ -609,7 +609,7 @@ function Landing({ onDemo, onGetStarted, onSignin }) {
         <View style={{ flex: 1 }} />
         <Pressable onPress={onSignin} style={s.ghostBtn}><Text style={s.ghostBtnText}>Sign in</Text></Pressable>
       </View>
-      <View style={{ alignItems: 'center', paddingVertical: 34 }}>
+      <View style={{ alignItems: 'center', paddingVertical: 32 }}>
         <View style={[s.badge, { borderColor: C.borderHi, backgroundColor: 'rgba(58,166,255,0.14)', marginBottom: 16 }]}>
           <Icon name="bolt" size={13} color={C.cyan} sw={2} /><Text style={{ color: C.cyan, fontSize: 11, fontWeight: '700' }}>AI voice & chat lead capture</Text>
         </View>
@@ -639,13 +639,13 @@ function AuthScreen({ mode, error, onSubmit, onSwitch, onBack }) {
   const isSignup = mode === 'signup';
   return (
     <KeyboardAvoidingView style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: 22, paddingTop: 40 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ padding: 24, paddingTop: 40 }} keyboardShouldPersistTaps="handled">
         <Pressable onPress={onBack} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 10 }}>
           <Icon name="back" size={18} color={C.muted} /><Text style={{ color: C.muted }}>Back</Text>
         </Pressable>
         <View style={{ alignItems: 'center', marginBottom: 8 }}>
           <ALogo size={48} />
-          <Text style={{ color: C.text, fontSize: 21, fontWeight: '800', marginTop: 12 }}>{isSignup ? 'Create your account' : 'Welcome back'}</Text>
+          <Text style={{ color: C.text, fontSize: 22, fontWeight: '800', marginTop: 12 }}>{isSignup ? 'Create your account' : 'Welcome back'}</Text>
           <Text style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>{isSignup ? 'Start capturing every enquiry.' : 'Sign in to your lead workspace.'}</Text>
         </View>
         <Card style={{ marginTop: 14 }}>
@@ -687,7 +687,7 @@ function StatusDonut({ counts, total }) {
       </View>
       <View style={{ flex: 1, minWidth: 150 }}>
         {STATUSES.map((st) => { const v = counts[st] || 0, pct = Math.round(v / tot * 100); return (
-          <View key={st} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 5, borderTopWidth: st === 'New' ? 0 : 1, borderTopColor: C.border }}>
+          <View key={st} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6, borderTopWidth: st === 'New' ? 0 : 1, borderTopColor: C.border }}>
             <View style={{ width: 11, height: 11, borderRadius: 4, backgroundColor: STATUS_COLOR[st] || C.muted }} />
             <Text style={{ color: C.text, fontSize: 13, flex: 1 }}>{st}</Text>
             <Text style={{ color: C.text, fontWeight: '800', fontSize: 13 }}>{v}</Text>
@@ -1159,14 +1159,14 @@ function VoiceScreen({ onCreateLead, showToast, lang = 'en', gender = 'female', 
             <Pressable onPress={start} style={s.ghostBtn}><Text style={s.ghostBtnText}>{T.start}</Text></Pressable>
             <Pressable onPress={end} style={[s.ghostBtn, { borderColor: 'rgba(255,122,138,0.5)' }]}><Text style={[s.ghostBtnText, { color: C.red }]}>{T.end}</Text></Pressable>
           </View>
-          <Text style={{ color: C.muted, fontSize: 11.5, textAlign: 'center', marginTop: 12 }}>{T.sound}</Text>
+          <Text style={{ color: C.muted, fontSize: 11, textAlign: 'center', marginTop: 12 }}>{T.sound}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: C.border, alignSelf: 'stretch' }}>
             <Icon name="mic" size={14} color={C.primary} sw={2} />
-            <Text style={{ color: C.text, fontSize: 12.5, fontWeight: '600' }}>
+            <Text style={{ color: C.text, fontSize: 12, fontWeight: '600' }}>
               {(gender === 'male' ? (T.voiceMale || 'Male') : (T.voiceFemale || 'Female')) + (humanVoice ? ' · Ultra-realistic' : '')}
             </Text>
             <View style={{ flex: 1 }} />
-            <Text style={{ color: C.muted, fontSize: 11.5 }}>Change in More</Text>
+            <Text style={{ color: C.muted, fontSize: 11 }}>Change in More</Text>
           </View>
         </Card>
         {active ? (
@@ -1212,7 +1212,7 @@ function Analytics({ leads }) {
               <Text style={{ color: C.onPrimary, fontWeight: '800', fontSize: 13 }}>{f[0]}  <Text style={{ fontSize: 12 }}>({f[2]})</Text></Text>
               <Text style={{ color: C.onPrimary, fontWeight: '800', fontSize: 14 }}>{f[1]}%</Text>
             </LinearGradient>
-            {i < funnel.length - 1 ? <Text style={{ color: C.muted, fontSize: 11.5, marginVertical: 5, fontWeight: '600' }}>↓ {funnel[i + 1][2]} continued · {f[2] > 0 ? Math.round((f[2] - funnel[i + 1][2]) / f[2] * 100) : 0}% drop-off</Text> : null}
+            {i < funnel.length - 1 ? <Text style={{ color: C.muted, fontSize: 11, marginVertical: 6, fontWeight: '600' }}>↓ {funnel[i + 1][2]} continued · {f[2] > 0 ? Math.round((f[2] - funnel[i + 1][2]) / f[2] * 100) : 0}% drop-off</Text> : null}
           </React.Fragment>
         ))}
       </Card>
@@ -1225,13 +1225,13 @@ function Analytics({ leads }) {
 function OptBtn({ label, on, onPress }) {
   return (
     <Pressable onPress={onPress} style={{ flex: 1, minWidth: 120, flexDirection: 'row', alignItems: 'center', gap: 9,
-      paddingVertical: 11, paddingHorizontal: 13, borderRadius: 12, minHeight: 46,
+      paddingVertical: 12, paddingHorizontal: 12, borderRadius: 12, minHeight: 46,
       backgroundColor: on ? 'rgba(34,227,154,0.10)' : C.cardHi, borderWidth: 1, borderColor: on ? C.primary : C.border }}>
-      <View style={{ width: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center',
+      <View style={{ width: 18, height: 18, borderRadius: 8, alignItems: 'center', justifyContent: 'center',
         borderWidth: 1.5, borderColor: on ? C.primary : C.border, backgroundColor: on ? C.primary : 'transparent' }}>
         {on ? <Icon name="check" size={11} color={C.onPrimary} sw={3} /> : null}
       </View>
-      <Text style={{ color: C.text, fontSize: 13.5, fontWeight: '600' }}>{label}</Text>
+      <Text style={{ color: C.text, fontSize: 13, fontWeight: '600' }}>{label}</Text>
     </Pressable>
   );
 }
@@ -1240,12 +1240,12 @@ function SwitchRow({ label, hint, on, onToggle }) {
   return (
     <Pressable onPress={onToggle} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12, minHeight: 54, borderBottomWidth: 1, borderBottomColor: C.border }}>
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={{ color: C.text, fontSize: 13.5, fontWeight: '600' }}>{label}</Text>
-        {hint ? <Text style={{ color: C.muted, fontSize: 11.5, marginTop: 2, lineHeight: 16 }}>{hint}</Text> : null}
+        <Text style={{ color: C.text, fontSize: 13, fontWeight: '600' }}>{label}</Text>
+        {hint ? <Text style={{ color: C.muted, fontSize: 11, marginTop: 2, lineHeight: 16 }}>{hint}</Text> : null}
       </View>
       <View style={{ width: 44, height: 26, borderRadius: 999, padding: 2, justifyContent: 'center',
         backgroundColor: on ? C.primary : C.cardHi, borderWidth: 1, borderColor: on ? C.primary : C.border }}>
-        <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: on ? '#fff' : C.muted, marginLeft: on ? 18 : 0 }} />
+        <View style={{ width: 20, height: 20, borderRadius: 12, backgroundColor: on ? '#fff' : C.muted, marginLeft: on ? 18 : 0 }} />
       </View>
     </Pressable>
   );
@@ -1276,7 +1276,7 @@ function Settings({ profile, user, leadCount, onSave, onLogout, onReset,
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {VLANGS.map(([code, lbl]) => <OptBtn key={code} label={lbl} on={lang === code} onPress={() => onLang && onLang(code)} />)}
           </View>
-          <Text style={{ color: C.muted, fontSize: 11.5, lineHeight: 16, marginTop: 10 }}>
+          <Text style={{ color: C.muted, fontSize: 11, lineHeight: 16, marginTop: 10 }}>
             Changes everything your AI receptionist says on a call.
           </Text>
           <Text style={SET_LABEL}>Voice</Text>
@@ -1298,7 +1298,7 @@ function Settings({ profile, user, leadCount, onSave, onLogout, onReset,
           <SwitchRow label="Alert me about every new lead" on={notif.lead_new !== false} onToggle={() => onNotif && onNotif('lead_new', notif.lead_new === false)} />
           <SwitchRow label="Alert me about urgent leads immediately" on={notif.lead_urgent !== false} onToggle={() => onNotif && onNotif('lead_urgent', notif.lead_urgent === false)} />
           <SwitchRow label="Send a daily summary" on={!!notif.daily} onToggle={() => onNotif && onNotif('daily', !notif.daily)} />
-          <Text style={{ color: C.amber, fontSize: 11.5, lineHeight: 16, marginTop: 10 }}>
+          <Text style={{ color: C.amber, fontSize: 11, lineHeight: 16, marginTop: 10 }}>
             Delivery needs an email provider connected to your backend — these preferences are saved and applied once it is.
           </Text>
         </Card>
@@ -1333,8 +1333,8 @@ const CS_META = { connected: { c: C.green, label: 'Connected' }, paused: { c: '#
 function StatusPill({ kind }) {
   const m = CS_META[kind] || CS_META.none;
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: m.c + '55', backgroundColor: m.c + '1f', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3 }}>
-      {kind !== 'soon' ? <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: m.c }} /> : null}
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: m.c + '55', backgroundColor: m.c + '1f', borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4 }}>
+      {kind !== 'soon' ? <View style={{ width: 6, height: 6, borderRadius: 4, backgroundColor: m.c }} /> : null}
       <Text style={{ color: m.c, fontSize: 11, fontWeight: '700' }}>{m.label}</Text>
     </View>
   );
@@ -1392,10 +1392,10 @@ function Integrations({ crm, mode, onSetMode, onConnect, onPause, onResume, onDi
         ))}
       </View>
       <Card style={{ marginBottom: 6, flexDirection: 'row', gap: 12 }}>
-        <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: 'rgba(58,166,255,0.14)', alignItems: 'center', justifyContent: 'center' }}><Icon name="shield" size={18} color={C.cyan} /></View>
+        <View style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: 'rgba(58,166,255,0.14)', alignItems: 'center', justifyContent: 'center' }}><Icon name="shield" size={18} color={C.cyan} /></View>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: C.text, fontWeight: '700', fontSize: 13.5 }}>Your data stays safe</Text>
-          <Text style={[s.body, { marginTop: 3 }]}>Supabase is the source of truth. n8n routes signed events to your CRM. If a CRM is offline, leads stay safe and sync retries automatically.</Text>
+          <Text style={{ color: C.text, fontWeight: '700', fontSize: 13 }}>Your data stays safe</Text>
+          <Text style={[s.body, { marginTop: 4 }]}>Supabase is the source of truth. n8n routes signed events to your CRM. If a CRM is offline, leads stay safe and sync retries automatically.</Text>
         </View>
       </Card>
       {conns.length ? <Text style={s.section}>Connected</Text> : null}
@@ -1464,7 +1464,7 @@ function Integrations({ crm, mode, onSetMode, onConnect, onPause, onResume, onDi
               <>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 }}>
                   <ProviderLogo p={wizP} size={38} />
-                  <Text style={{ color: C.text, fontWeight: '800', fontSize: 16, flex: 1 }}>Connect {wizP.name}</Text>
+                  <Text style={{ color: C.text, fontWeight: '800', fontSize: 17, flex: 1 }}>Connect {wizP.name}</Text>
                   <Pressable onPress={() => setWiz(null)}><Icon name="close" size={18} color={C.muted} /></Pressable>
                 </View>
                 <ScrollView style={{ maxHeight: 360 }} showsVerticalScrollIndicator={false}>
@@ -1546,11 +1546,11 @@ function Onboarding({ onboard, crm, onSetMode, onConnectCrm, onActivate, onExit 
   const pct = Math.round(step / (total - 1) * 100);
   const conns = crm.conns.filter((c) => c.status !== 'disconnected');
   let content;
-  if (step === 0) content = (<><Text style={s.h1}>Welcome to Alsaiti Voice</Text><Text style={[s.sub, { marginTop: 8, fontSize: 14.5 }]}>We will ask a few questions about your business so we can configure your lead dashboard, AI assistant and CRM.</Text><View style={[s.badge, { alignSelf: 'flex-start', marginTop: 16, borderColor: C.borderHi, backgroundColor: 'rgba(58,166,255,0.14)' }]}><Icon name="clock" size={13} color={C.cyan} /><Text style={{ color: C.cyan, fontWeight: '700', fontSize: 12 }}>About 2 minutes</Text></View></>);
+  if (step === 0) content = (<><Text style={s.h1}>Welcome to Alsaiti Voice</Text><Text style={[s.sub, { marginTop: 8, fontSize: 14 }]}>We will ask a few questions about your business so we can configure your lead dashboard, AI assistant and CRM.</Text><View style={[s.badge, { alignSelf: 'flex-start', marginTop: 16, borderColor: C.borderHi, backgroundColor: 'rgba(58,166,255,0.14)' }]}><Icon name="clock" size={13} color={C.cyan} /><Text style={{ color: C.cyan, fontWeight: '700', fontSize: 12 }}>About 2 minutes</Text></View></>);
   else if (step === 1) content = (<><Text style={s.h1}>Your business</Text>{obF('Company name', a.business_name, (v) => set('business_name', v), 'Bright Smile Dental')}{obF('Website', a.website_url, (v) => set('website_url', v), 'https://…')}{obF('Main phone', a.main_phone, (v) => set('main_phone', v), '+44 …')}{obF('Main email', a.main_email, (v) => set('main_email', v), 'you@business.com')}{obSelChips('Industry', ['Dental clinic', 'Aesthetic clinic', 'Home services', 'Real estate', 'Consultant', 'Other'], a.industry, (v) => set('industry', v))}</>);
   else if (step === 2) content = (<><Text style={s.h1}>Services</Text><Text style={[s.sub, { marginTop: 8 }]}>Add the services customers enquire about.</Text>{(a.services || []).map((sv2, i) => (<View key={i} style={s.obSvc}><View style={{ flex: 1 }}><Text style={{ color: C.text, fontWeight: '700' }}>{sv2.name}</Text><Text style={s.leadMeta}>{sv2.category} · {sv2.value}</Text></View><Pressable onPress={() => removeSvc(i)}><Icon name="trash" size={16} color="#ff9aa6" /></Pressable></View>))}<View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}><TextInput value={svc} onChangeText={setSvc} placeholder="Service name" placeholderTextColor={C.muted} style={[s.input, { flex: 1 }]} /><Pressable onPress={addSvc} style={s.connectBtn}><Text style={{ color: C.onPrimary, fontWeight: '700' }}>Add</Text></Pressable></View></>);
   else if (step === 3) content = (<><Text style={s.h1}>AI receptionist</Text>{obF('Assistant name', a.assistant_name, (v) => set('assistant_name', v), 'Alsaiti receptionist')}{obFArea('Greeting', a.assistant_greeting, (v) => set('assistant_greeting', v), 'Good day, thank you for calling…')}{obSelChips('Tone', ['Friendly', 'Professional', 'Formal'], a.tone, (v) => set('tone', v))}{obTogRow('Assistant discloses it is an AI', !!a.ai_disclosure, () => tog('ai_disclosure'))}</>);
-  else if (step === 4) content = (<><Text style={s.h1}>Manage leads</Text><Text style={[s.sub, { marginTop: 8 }]}>Use the built-in CRM, connect your own, or both.</Text>{[['internal', 'Built-in Alsaiti Voice CRM', 'Manage leads, notes, tasks and pipeline here. No external CRM needed.'], ['external', 'Connect an existing CRM', 'Keep using your CRM — we send new leads and updates into it.'], ['hybrid', 'Use both (recommended)', 'Alsaiti Voice is your inbox and also syncs to your external CRM.']].map((o) => (<Pressable key={o[0]} onPress={() => setMode(o[0])} style={[s.obOpt, mode === o[0] && s.obOptOn]}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Icon name={mode === o[0] ? 'check' : 'crm'} size={16} color={mode === o[0] ? C.cyan : C.muted} /><Text style={{ color: C.text, fontWeight: '800', fontSize: 14, flex: 1 }}>{o[1]}</Text></View><Text style={[s.leadMeta, { marginTop: 5 }]}>{o[2]}</Text></Pressable>))}{mode !== 'internal' ? (<View style={{ marginTop: 8 }}>{conns.map((c) => { const p = crmProviderN(c.provider) || { name: c.provider, accent: C.primary, icon: 'crm' }; return (<View key={c.id} style={s.obSvc}><ProviderLogo p={p} size={30} /><Text style={{ color: C.text, fontWeight: '700', flex: 1, marginLeft: 8 }}>{p.name}</Text><Text style={{ color: C.green, fontWeight: '700', fontSize: 12 }}>Connected</Text></View>); })}<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>{CRM_PROVIDERS.filter((p) => p.kind === 'core').slice(0, 3).map((p) => (<Pressable key={p.id} onPress={() => onConnectCrm({ provider: p.id, name: p.name, account: p.id === 'hubspot' ? 'Bright Smile Dental' : p.name + ' workspace', triggers: ['lead.created', 'lead.status_changed'], actions: ['contact', 'deal', 'note'] })} style={s.smallBtn}><Text style={s.smallBtnText}>Connect {p.name}</Text></Pressable>))}</View></View>) : null}</>);
+  else if (step === 4) content = (<><Text style={s.h1}>Manage leads</Text><Text style={[s.sub, { marginTop: 8 }]}>Use the built-in CRM, connect your own, or both.</Text>{[['internal', 'Built-in Alsaiti Voice CRM', 'Manage leads, notes, tasks and pipeline here. No external CRM needed.'], ['external', 'Connect an existing CRM', 'Keep using your CRM — we send new leads and updates into it.'], ['hybrid', 'Use both (recommended)', 'Alsaiti Voice is your inbox and also syncs to your external CRM.']].map((o) => (<Pressable key={o[0]} onPress={() => setMode(o[0])} style={[s.obOpt, mode === o[0] && s.obOptOn]}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Icon name={mode === o[0] ? 'check' : 'crm'} size={16} color={mode === o[0] ? C.cyan : C.muted} /><Text style={{ color: C.text, fontWeight: '800', fontSize: 14, flex: 1 }}>{o[1]}</Text></View><Text style={[s.leadMeta, { marginTop: 6 }]}>{o[2]}</Text></Pressable>))}{mode !== 'internal' ? (<View style={{ marginTop: 8 }}>{conns.map((c) => { const p = crmProviderN(c.provider) || { name: c.provider, accent: C.primary, icon: 'crm' }; return (<View key={c.id} style={s.obSvc}><ProviderLogo p={p} size={30} /><Text style={{ color: C.text, fontWeight: '700', flex: 1, marginLeft: 8 }}>{p.name}</Text><Text style={{ color: C.green, fontWeight: '700', fontSize: 12 }}>Connected</Text></View>); })}<View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>{CRM_PROVIDERS.filter((p) => p.kind === 'core').slice(0, 3).map((p) => (<Pressable key={p.id} onPress={() => onConnectCrm({ provider: p.id, name: p.name, account: p.id === 'hubspot' ? 'Bright Smile Dental' : p.name + ' workspace', triggers: ['lead.created', 'lead.status_changed'], actions: ['contact', 'deal', 'note'] })} style={s.smallBtn}><Text style={s.smallBtnText}>Connect {p.name}</Text></Pressable>))}</View></View>) : null}</>);
   else if (step === 5) content = (<><Text style={s.h1}>Notifications</Text><Text style={[s.sub, { marginTop: 8 }]}>How and when we should alert your team.</Text>{obTogRow('Email', a.ch_email !== false, () => tog('ch_email'))}{obTogRow('New lead', !!a.ev_new, () => tog('ev_new'))}{obTogRow('Urgent lead', !!a.ev_urgent, () => tog('ev_urgent'))}{obTogRow('CRM sync failed', !!a.ev_crmfail, () => tog('ev_crmfail'))}{obTogRow('Daily summary', !!a.ev_daily, () => tog('ev_daily'))}</>);
   else { const rev = [['Business', !!a.business_name], ['Services', (a.services || []).length > 0], ['AI assistant', !!a.assistant_name || !!a.assistant_greeting], ['CRM mode', !!a.crm_mode], ['Notifications', !!a.ch_email || !!a.ev_new]]; content = (<><Text style={s.h1}>Review & go live</Text><Text style={[s.sub, { marginTop: 8 }]}>Check everything, then activate. You can change anything later in Settings.</Text>{rev.map((r) => (<View key={r[0]} style={s.obRev}><Text style={{ color: C.text, fontWeight: '700', flex: 1 }}>{r[0]}</Text><Text style={{ color: r[1] ? C.green : C.muted, fontWeight: '700', fontSize: 12 }}>{r[1] ? 'Complete' : 'Skipped'}</Text></View>))}<Text style={[s.sub, { marginTop: 12 }]}>Tap Activate to create your workspace and go live.</Text></>); }
   return (
@@ -1821,7 +1821,7 @@ export default function App() {
       <View style={{ flex: 1 }}>
         <View style={s.topbar}>
           <LinearGradient colors={[C.primary, C.glow]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.logo}><Icon name="mic" size={18} color="#fff" sw={2} /></LinearGradient>
-          <View><Text style={{ color: C.text, fontWeight: '700', fontSize: 15 }}>Alsaiti Growth</Text><Text style={{ color: C.muted, fontSize: 10.5 }}>{profile?.biz || user?.biz}</Text></View>
+          <View><Text style={{ color: C.text, fontWeight: '700', fontSize: 15 }}>Alsaiti Growth</Text><Text style={{ color: C.muted, fontSize: 10 }}>{profile?.biz || user?.biz}</Text></View>
           <View style={{ flex: 1 }} />
           <Avatar name={user?.name || 'A'} size={36} />
         </View>
@@ -1832,7 +1832,7 @@ export default function App() {
             return (
               <Pressable key={t[0]} style={s.tab} onPress={() => setScreen(t[0])}>
                 <View style={[s.tabIcon, on && s.tabIconOn]}><Icon name={t[2]} size={20} color={on ? C.cyan : C.muted} sw={on ? 2.1 : 1.8} /></View>
-                <Text style={{ fontSize: 9.5, fontWeight: on ? '700' : '500', color: on ? C.cyan : C.muted, marginTop: 3 }}>{t[1]}</Text>
+                <Text style={{ fontSize: 10, fontWeight: on ? '700' : '500', color: on ? C.cyan : C.muted, marginTop: 4 }}>{t[1]}</Text>
               </Pressable>
             );
           })}
@@ -1856,78 +1856,78 @@ export default function App() {
 const shadow = (e, col = '#000') => Platform.select({ ios: { shadowColor: col, shadowOpacity: 0.35, shadowRadius: e, shadowOffset: { width: 0, height: e / 2 } }, android: { elevation: e } });
 const s = StyleSheet.create({
   safe: { flex: 1, paddingTop: Platform.OS === 'android' ? 28 : 0 },
-  scroll: { padding: 16, paddingBottom: 34 },
-  h1: { color: C.text, fontSize: 23, fontWeight: '800' },
+  scroll: { padding: 16, paddingBottom: 32 },
+  h1: { color: C.text, fontSize: 22, fontWeight: '800' },
   sub: { color: C.muted, fontSize: 13, marginTop: 4 },
   section: { color: C.muted, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1.2, marginTop: 20, marginBottom: 10 },
   body: { color: C.text, fontSize: 14, lineHeight: 20 },
-  card: { backgroundColor: C.card, borderWidth: 1, borderColor: C.border, borderRadius: 18, padding: 16, ...shadow(5) },
+  card: { backgroundColor: C.card, borderWidth: 1, borderColor: C.border, borderRadius: 16, padding: 16, ...shadow(5) },
   cardTitle: { color: C.text, fontSize: 15, fontWeight: '700', marginBottom: 8 },
   logo: { width: 36, height: 36, borderRadius: 11, alignItems: 'center', justifyContent: 'center', ...shadow(8, C.glow) },
   topbar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: C.border },
-  iconBtn: { width: 38, height: 38, borderRadius: 11, borderWidth: 1, borderColor: C.border, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center' },
+  iconBtn: { width: 44, height: 44, borderRadius: 12, borderWidth: 1, borderColor: C.border, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center' },
   statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   stat: { width: '47%', flexGrow: 1 },
   statLabel: { color: C.muted, fontSize: 12 },
-  statValue: { color: C.text, fontSize: 26, fontWeight: '800', marginTop: 6 },
-  badge: { flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3 },
+  statValue: { color: C.text, fontSize: 28, fontWeight: '800', marginTop: 6 },
+  badge: { flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 4 },
   barTrack: { flex: 1, height: 9, borderRadius: 999, backgroundColor: 'rgba(148,163,199,0.18)', overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 999, backgroundColor: C.primary },
-  leadCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderWidth: 1, borderColor: C.border, borderRadius: 14, padding: 12, marginBottom: 10, ...shadow(4) },
+  leadCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderWidth: 1, borderColor: C.border, borderRadius: 16, padding: 12, marginBottom: 10, ...shadow(4) },
   leadName: { color: C.text, fontSize: 15, fontWeight: '600' },
   leadSub: { color: C.muted, fontSize: 13, marginTop: 2 },
   leadMeta: { color: C.muted, fontSize: 12 },
-  chip: { borderWidth: 1, borderColor: C.border, borderRadius: 11, paddingHorizontal: 13, paddingVertical: 7, marginRight: 8, backgroundColor: C.card },
+  chip: { borderWidth: 1, borderColor: C.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, minHeight: 40, justifyContent: 'center', marginRight: 8, backgroundColor: C.card },
   chipActive: { backgroundColor: C.cyan, borderColor: C.cyan, ...shadow(5, C.glow) },
   search: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 12 },
   label: { color: C.muted, fontSize: 13, marginBottom: 6 },
-  input: { backgroundColor: 'rgba(2,11,31,0.6)', borderWidth: 1, borderColor: C.border, borderRadius: 11, paddingHorizontal: 13, paddingVertical: 11, color: C.text, fontSize: 14 },
+  input: { backgroundColor: 'rgba(2,11,31,0.6)', borderWidth: 1, borderColor: C.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, color: C.text, fontSize: 14 },
   gradBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 12, paddingVertical: 14, ...shadow(8, C.glow) },
   gradBtnText: { fontWeight: '800', fontSize: 15 },
-  ghostBtn: { borderWidth: 1, borderColor: C.border, backgroundColor: C.card, borderRadius: 11, paddingHorizontal: 16, paddingVertical: 9 },
+  ghostBtn: { borderWidth: 1, borderColor: C.border, backgroundColor: C.card, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 8 },
   ghostBtnText: { color: C.text, fontWeight: '700', fontSize: 14 },
-  dangerBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderWidth: 1, borderColor: 'rgba(255,122,138,0.5)', borderRadius: 12, paddingVertical: 13, marginTop: 14 },
-  kv: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 9, borderTopWidth: 1, borderTopColor: C.border },
+  dangerBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderWidth: 1, borderColor: 'rgba(255,122,138,0.5)', borderRadius: 12, paddingVertical: 12, marginTop: 14 },
+  kv: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderTopWidth: 1, borderTopColor: C.border },
   kvK: { color: C.muted, fontSize: 13 },
   kvV: { color: C.text, fontSize: 13, fontWeight: '600' },
   featIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(58,166,255,0.14)', borderWidth: 1, borderColor: C.border, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
   heroTitle: { color: C.text, fontSize: 34, fontWeight: '800', textAlign: 'center', lineHeight: 38 },
   heroSub: { color: C.muted, fontSize: 15, textAlign: 'center', marginTop: 14, lineHeight: 22 },
-  vmic: { width: 96, height: 96, borderRadius: 48, alignItems: 'center', justifyContent: 'center', ...shadow(10, C.glow) },
+  vmic: { width: 96, height: 96, borderRadius: 999, alignItems: 'center', justifyContent: 'center', ...shadow(10, C.glow) },
   voiceInput: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: C.card, borderWidth: 1, borderColor: C.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, marginTop: 12 },
-  sendBtn: { width: 38, height: 38, borderRadius: 10, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center' },
-  bubble: { maxWidth: '88%', paddingHorizontal: 12, paddingVertical: 9, borderRadius: 13, marginBottom: 8 },
+  sendBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center' },
+  bubble: { maxWidth: '88%', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, marginBottom: 8 },
   bubbleBot: { backgroundColor: C.cardHi, borderWidth: 1, borderColor: C.border, alignSelf: 'flex-start', borderBottomLeftRadius: 4 },
   bubbleUser: { backgroundColor: C.primary, alignSelf: 'flex-end', borderBottomRightRadius: 4 },
   tabbar: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: C.border, backgroundColor: 'rgba(7,23,53,0.96)', paddingVertical: 8, paddingBottom: 8 },
   tab: { flex: 1, alignItems: 'center', paddingVertical: 2 },
-  tabIcon: { width: 40, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  tabIcon: { width: 40, height: 30, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   tabIconOn: { backgroundColor: 'rgba(89,199,255,0.14)', borderWidth: 1, borderColor: 'rgba(89,199,255,0.28)' },
-  smallBtn: { borderWidth: 1, borderColor: C.border, backgroundColor: C.card, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7 },
+  smallBtn: { borderWidth: 1, borderColor: C.border, backgroundColor: C.card, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, minHeight: 44, justifyContent: 'center' },
   smallBtnText: { color: C.text, fontWeight: '700', fontSize: 13 },
-  connectBtn: { backgroundColor: C.cyan, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8, ...shadow(5, C.glow) },
-  section2: { color: C.cyan, fontSize: 11.5, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginTop: 8, marginBottom: 8 },
-  modalWrap: { flex: 1, backgroundColor: 'rgba(2,8,22,0.7)', alignItems: 'center', justifyContent: 'center', padding: 18 },
-  modalCard: { width: '100%', maxWidth: 460, backgroundColor: '#0B1730', borderWidth: 1, borderColor: C.borderHi, borderRadius: 18, padding: 18, ...shadow(14) },
-  checkRow: { flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, borderColor: C.border, borderRadius: 11, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 8, backgroundColor: 'rgba(2,11,31,0.4)' },
+  connectBtn: { backgroundColor: C.cyan, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 8, ...shadow(5, C.glow) },
+  section2: { color: C.cyan, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginTop: 8, marginBottom: 8 },
+  modalWrap: { flex: 1, backgroundColor: 'rgba(2,8,22,0.7)', alignItems: 'center', justifyContent: 'center', padding: 16 },
+  modalCard: { width: '100%', maxWidth: 460, backgroundColor: '#0B1730', borderWidth: 1, borderColor: C.borderHi, borderRadius: 16, padding: 16, ...shadow(14) },
+  checkRow: { flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, borderColor: C.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 8, backgroundColor: 'rgba(2,11,31,0.4)' },
   checkRowOn: { borderColor: C.primary, backgroundColor: 'rgba(58,166,255,0.1)' },
-  checkBox: { width: 20, height: 20, borderRadius: 6, borderWidth: 1.5, borderColor: C.borderHi, alignItems: 'center', justifyContent: 'center' },
+  checkBox: { width: 20, height: 20, borderRadius: 8, borderWidth: 1.5, borderColor: C.borderHi, alignItems: 'center', justifyContent: 'center' },
   checkBoxOn: { backgroundColor: C.primary, borderColor: C.primary },
   setupBanner: { flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: C.borderHi, borderRadius: 16, padding: 14, marginBottom: 14, backgroundColor: 'rgba(58,166,255,0.12)' },
-  setupIcon: { width: 40, height: 40, borderRadius: 11, backgroundColor: 'rgba(58,166,255,0.18)', alignItems: 'center', justifyContent: 'center' },
+  setupIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(58,166,255,0.18)', alignItems: 'center', justifyContent: 'center' },
   quickRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
-  qa: { flex: 1, borderWidth: 1, borderColor: C.border, borderRadius: 14, padding: 12, backgroundColor: C.card, gap: 8 },
-  qaIcon: { width: 34, height: 34, borderRadius: 10, backgroundColor: 'rgba(58,166,255,0.14)', alignItems: 'center', justifyContent: 'center' },
-  qaText: { color: C.text, fontSize: 12.5, fontWeight: '700' },
+  qa: { flex: 1, borderWidth: 1, borderColor: C.border, borderRadius: 16, padding: 12, backgroundColor: C.card, gap: 8 },
+  qaIcon: { width: 34, height: 34, borderRadius: 12, backgroundColor: 'rgba(58,166,255,0.14)', alignItems: 'center', justifyContent: 'center' },
+  qaText: { color: C.text, fontSize: 12, fontWeight: '700' },
   modeRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
-  modeBtn: { flex: 1, borderWidth: 1, borderColor: C.border, borderRadius: 11, paddingVertical: 9, alignItems: 'center', backgroundColor: C.card },
+  modeBtn: { flex: 1, borderWidth: 1, borderColor: C.border, borderRadius: 12, paddingVertical: 8, minHeight: 44, justifyContent: 'center', alignItems: 'center', backgroundColor: C.card },
   modeBtnOn: { backgroundColor: C.cyan, borderColor: C.cyan },
   modeText: { color: C.muted, fontWeight: '700', fontSize: 13 },
-  obStepno: { color: C.cyan, fontSize: 12.5, fontWeight: '700' },
+  obStepno: { color: C.cyan, fontSize: 12, fontWeight: '700' },
   obProg: { height: 6, borderRadius: 999, backgroundColor: 'rgba(148,163,199,0.2)', overflow: 'hidden' },
   obProgFill: { height: '100%', borderRadius: 999, backgroundColor: C.cyan },
-  obSvc: { flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, borderColor: C.border, borderRadius: 12, padding: 11, marginTop: 8, backgroundColor: 'rgba(2,11,31,0.4)' },
-  obOpt: { borderWidth: 1, borderColor: C.border, borderRadius: 14, padding: 14, marginTop: 10, backgroundColor: 'rgba(2,11,31,0.4)' },
+  obSvc: { flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, borderColor: C.border, borderRadius: 12, padding: 12, marginTop: 8, backgroundColor: 'rgba(2,11,31,0.4)' },
+  obOpt: { borderWidth: 1, borderColor: C.border, borderRadius: 16, padding: 14, marginTop: 10, backgroundColor: 'rgba(2,11,31,0.4)' },
   obOptOn: { borderColor: C.borderHi, backgroundColor: 'rgba(58,166,255,0.1)' },
   obRev: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: C.border, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginTop: 8, backgroundColor: 'rgba(2,11,31,0.4)' },
   toast: { position: 'absolute', left: 20, right: 20, bottom: 30, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 9, backgroundColor: C.cardHi, borderWidth: 1, borderColor: C.borderHi, borderRadius: 12, paddingVertical: 12, ...shadow(12) },

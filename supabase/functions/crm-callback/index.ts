@@ -9,7 +9,7 @@ import { enforceLimit, ipBucket, LIMITS } from '../_shared/ratelimit.ts';
 import { store } from '../_shared/store.ts';
 import { decryptJson, sha256b64url } from '../_shared/crypto.ts';
 import { getProviderConfig, exchangeCode, callbackUrl, tokenExpiryIso, CrmProvider } from '../_shared/providers.ts';
-import { hubspot } from '../_shared/hubspot.ts';
+import { hubspot, ProviderIdentity } from '../_shared/hubspot.ts';
 
 function appReturn(base: string | undefined, params: Record<string, string>): string {
   // deno-lint-ignore no-explicit-any
@@ -74,7 +74,9 @@ Deno.serve(async (req: Request) => {
     await store.audit(session.workspace_id, provider, 'token_exchange_succeeded');
 
     // Identity + metadata (HubSpot is the reference connector; others load on first metadata call).
-    let identity = { accountId: 'unknown', accountName: cfg.displayName, userId: undefined as string | undefined, userName: undefined as string | undefined };
+    // Typed as ProviderIdentity rather than inferred: the inferred literal makes userId/userName
+    // REQUIRED (`string | undefined`), which the interface's optional properties cannot satisfy.
+    let identity: ProviderIdentity = { accountId: 'unknown', accountName: cfg.displayName };
     let metadata: Record<string, unknown> = {};
     if (provider === 'hubspot') {
       identity = await hubspot.getIdentity(tokens);

@@ -13,7 +13,12 @@ function envKey(name: string): string {
   return v;
 }
 
-function b64ToBytes(b64: string): Uint8Array {
+/* The `<ArrayBuffer>` parameter matters. Since TypeScript 5.7 `Uint8Array` is generic over its
+   backing buffer, and a bare `Uint8Array` widens to `Uint8Array<ArrayBufferLike>` — which is NOT
+   assignable to `BufferSource`, because ArrayBufferLike includes SharedArrayBuffer. Every Web
+   Crypto call below takes a BufferSource, so without this every function in the project fails to
+   type-check. Runtime behaviour is unchanged; these really are ArrayBuffer-backed. */
+function b64ToBytes(b64: string): Uint8Array<ArrayBuffer> {
   const bin = atob(b64);
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
@@ -24,13 +29,13 @@ function bytesToB64(bytes: Uint8Array): string {
   for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
   return btoa(bin);
 }
-function hexToBytes(hex: string): Uint8Array {
+function hexToBytes(hex: string): Uint8Array<ArrayBuffer> {
   const out = new Uint8Array(hex.length / 2);
   for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.substr(i * 2, 2), 16);
   return out;
 }
 
-function keyBytes(): Uint8Array {
+function keyBytes(): Uint8Array<ArrayBuffer> {
   const raw = envKey('OAUTH_CREDENTIAL_ENCRYPTION_KEY');
   const buf = /^[0-9a-fA-F]{64}$/.test(raw) ? hexToBytes(raw) : b64ToBytes(raw);
   if (buf.length !== 32) throw new Error('OAUTH_CREDENTIAL_ENCRYPTION_KEY must be 32 bytes (64 hex chars or base64)');
