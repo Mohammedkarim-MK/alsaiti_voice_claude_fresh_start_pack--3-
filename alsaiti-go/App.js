@@ -18,6 +18,12 @@ const C = {
   green: '#22E39A', amber: '#D9B45A', red: '#E58063',
   onPrimary: '#06231A',   // text drawn on top of the primary/emerald fills
 };
+/* Whether the Supabase project accepts public sign-ups.
+   MUST MATCH Supabase -> Authentication -> Providers -> "Allow new users to sign up", and the
+   SIGNUPS_OPEN flag in docs/index.html. It is false today, so offering a Create-account form
+   would be offering one that cannot succeed (handoff §6.1). Flip all three together. */
+const SIGNUPS_OPEN = false;
+
 const STATUSES = ['New', 'Contacted', 'Qualified', 'Booked', 'Won', 'Lost', 'Spam'];
 const SOURCES = ['Voice call', 'Website chat', 'Contact form', 'Manual import', 'API', 'CRM'];
 const URGENCIES = ['High', 'Medium', 'Low'];
@@ -616,7 +622,7 @@ function Landing({ onDemo, onGetStarted, onSignin }) {
         <Text style={s.heroTitle}>Never lose another enquiry.</Text>
         <Text style={s.heroSub}>Alsaiti Growth answers your calls and website chats, qualifies every enquiry, creates a lead, and alerts your team — so nothing slips through.</Text>
         <GradientBtn label="View live demo" icon="bolt" onPress={onDemo} style={{ marginTop: 24, alignSelf: 'stretch' }} />
-        <Pressable onPress={onGetStarted} style={[s.ghostBtn, { marginTop: 12, alignSelf: 'stretch', alignItems: 'center', paddingVertical: 14 }]}><Text style={s.ghostBtnText}>Start free</Text></Pressable>
+        <Pressable onPress={onGetStarted} style={[s.ghostBtn, { marginTop: 12, alignSelf: 'stretch', alignItems: 'center', paddingVertical: 14 }]}><Text style={s.ghostBtnText}>{SIGNUPS_OPEN ? 'Start free' : 'Request access'}</Text></Pressable>
       </View>
       {feats.map((f) => (
         <Card key={f[1]} style={{ marginBottom: 12 }}>
@@ -631,12 +637,14 @@ function Landing({ onDemo, onGetStarted, onSignin }) {
 }
 
 /* ---------- Auth ---------- */
-function AuthScreen({ mode, error, onSubmit, onSwitch, onBack }) {
+function AuthScreen({ mode, error, onSubmit, onSwitch, onBack, onDemo }) {
   const [name, setName] = useState('');
   const [biz, setBiz] = useState('');
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
-  const isSignup = mode === 'signup';
+  /* A form the server will reject is a dead end, so draw an explanation instead. */
+  const isSignup = mode === 'signup' && SIGNUPS_OPEN;
+  const inviteOnly = mode === 'signup' && !SIGNUPS_OPEN;
   return (
     <KeyboardAvoidingView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ padding: 24, paddingTop: 40 }} keyboardShouldPersistTaps="handled">
@@ -645,9 +653,17 @@ function AuthScreen({ mode, error, onSubmit, onSwitch, onBack }) {
         </Pressable>
         <View style={{ alignItems: 'center', marginBottom: 8 }}>
           <ALogo size={48} />
-          <Text style={{ color: C.text, fontSize: 22, fontWeight: '800', marginTop: 12 }}>{isSignup ? 'Create your account' : 'Welcome back'}</Text>
-          <Text style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>{isSignup ? 'Start capturing every enquiry.' : 'Sign in to your lead workspace.'}</Text>
+          <Text style={{ color: C.text, fontSize: 22, fontWeight: '800', marginTop: 12, textAlign: 'center' }}>{inviteOnly ? 'Access is by invitation' : isSignup ? 'Create your account' : 'Welcome back'}</Text>
+          <Text style={{ color: C.muted, fontSize: 13, marginTop: 4, textAlign: 'center', lineHeight: 20 }}>{inviteOnly ? 'Alsaiti Voice is running a controlled pilot, so accounts are created by invitation rather than public sign-up. Talk to us and we will set yours up.' : isSignup ? 'Start capturing every enquiry.' : 'Sign in to your lead workspace.'}</Text>
         </View>
+        {inviteOnly ? (
+          <Card style={{ marginTop: 14 }}>
+            <GradientBtn label="Try the live demo" icon="bolt" onPress={onDemo} />
+            <Pressable onPress={onSwitch} style={{ marginTop: 14, alignItems: 'center' }}>
+              <Text style={{ color: C.muted, fontSize: 13 }}>Already invited? <Text style={{ color: C.cyan, fontWeight: '700' }}>Sign in</Text></Text>
+            </Pressable>
+          </Card>
+        ) : (
         <Card style={{ marginTop: 14 }}>
           {isSignup ? <Field label="Your name" value={name} onChangeText={setName} placeholder="Alex Carter" /> : null}
           {isSignup ? <Field label="Business name" value={biz} onChangeText={setBiz} placeholder="Bright Smile Dental" /> : null}
@@ -656,9 +672,10 @@ function AuthScreen({ mode, error, onSubmit, onSwitch, onBack }) {
           {error ? <Text style={{ color: C.red, fontSize: 13, marginBottom: 8 }}>{error}</Text> : null}
           <GradientBtn label={isSignup ? 'Create account' : 'Sign in'} onPress={() => onSubmit({ name, biz, email, pass })} />
           <Pressable onPress={onSwitch} style={{ marginTop: 14, alignItems: 'center' }}>
-            <Text style={{ color: C.muted, fontSize: 13 }}>{isSignup ? 'Have an account? ' : 'New here? '}<Text style={{ color: C.cyan, fontWeight: '700' }}>{isSignup ? 'Sign in' : 'Create account'}</Text></Text>
+            <Text style={{ color: C.muted, fontSize: 13 }}>{isSignup ? 'Have an account? ' : 'New here? '}<Text style={{ color: C.cyan, fontWeight: '700' }}>{isSignup ? 'Sign in' : SIGNUPS_OPEN ? 'Create account' : 'Request access'}</Text></Text>
           </Pressable>
         </Card>
+        )}
         <Text style={{ color: C.muted, fontSize: 11, textAlign: 'center', marginTop: 16 }}>Your account is stored on this device.</Text>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -1800,7 +1817,7 @@ export default function App() {
   if (!booted) body = <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color={C.cyan} /></View>;
   else if (!session) {
     if (screen === 'landing') body = <Landing onDemo={doDemo} onGetStarted={() => { setAuthErr(''); setAuthMode('signup'); setScreen('auth'); }} onSignin={() => { setAuthErr(''); setAuthMode('login'); setScreen('auth'); }} />;
-    else body = <AuthScreen mode={authMode} error={authErr} onSubmit={authMode === 'signup' ? doSignup : doLogin} onSwitch={() => { setAuthErr(''); setAuthMode(authMode === 'signup' ? 'login' : 'signup'); }} onBack={() => { setAuthErr(''); setScreen('landing'); }} />;
+    else body = <AuthScreen mode={authMode} error={authErr} onDemo={doDemo} onSubmit={authMode === 'signup' ? doSignup : doLogin} onSwitch={() => { setAuthErr(''); setAuthMode(authMode === 'signup' ? 'login' : 'signup'); }} onBack={() => { setAuthErr(''); setScreen('landing'); }} />;
   } else {
     const user = usersRef.current[session];
     let screenEl;

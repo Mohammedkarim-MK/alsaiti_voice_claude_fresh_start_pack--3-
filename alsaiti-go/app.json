@@ -6,18 +6,18 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "backgroundColor": "#020B1F",
+    "backgroundColor": "#0C100E",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#020B1F"
+      "backgroundColor": "#0C100E"
     },
     "ios": { "supportsTablet": true },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#020B1F"
+        "backgroundColor": "#0C100E"
       },
       "edgeToEdgeEnabled": true
     },
