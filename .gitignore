@@ -45,3 +45,4 @@ supabase/.temp/
 *.sql.gz
 supabase/.branches/
 supabase/functions/.env
+voice-worker/node_modules/
