@@ -61,9 +61,14 @@ for (const f of files.filter((f) => /\.(js|mjs)$/.test(f) && !/alsaiti-go|alsait
     const used = new Set([...html.matchAll(/\bt\('([a-z0-9_]+)'\)/g)].map((m) => m[1]));
     const undef = [...used].filter((k) => !(k in TR.en));
     if (undef.length) F('HIGH', 'i18n', `${undef.length} key(s) used but never defined: ${undef.slice(0, 8).join(', ')}`);
-    // a key defined but never used is dead weight, not a bug
-    const unusedCount = en.filter((k) => !used.has(k) && !html.includes("'" + k + "'")).length;
-    if (unusedCount > 20) F('LOW', 'i18n', unusedCount + ' English keys appear unused');
+    /* Unused keys are dead weight rather than a defect — but only count the ones that really
+       are unreachable. The app builds keys by concatenation (t('hz_' + name), t('v_a_' + intent)),
+       so a purely static count reported 78 when the true figure was 30. A check that cries wolf
+       gets ignored, which is worse than not having it. */
+    const prefixes = [...new Set([...html.matchAll(/\bt\(\s*'([a-z0-9_]+)'\s*\+/g)].map((m) => m[1]))];
+    const reachable = (k) => used.has(k) || html.includes("'" + k + "'") || prefixes.some((p) => k.startsWith(p));
+    const orphan = en.filter((k) => !reachable(k));
+    if (orphan.length) F('LOW', 'i18n', orphan.length + ' English key(s) unreachable by any route: ' + orphan.slice(0, 10).join(', '));
   }
   dom.window.close();
 }

@@ -102,15 +102,36 @@ const vis = (w) => { const c = w.document.body.cloneNode(true); c.querySelectorA
     ok(before >= 0, 'TRUTH/click', 'sanity');
   }
 
-  /* ---- 6. the state→label mapping itself is honest ---- */
+  /* ---- 6. every canonical status in Appendix B maps to a real label ----
+     The map used to cover 8 of 17 and fall through to the RAW status string, so a revoked
+     HubSpot showed a chip reading "expired" and an unfunded Telnyx read "funding_required" —
+     lowercase snake_case, untranslated, in front of a customer. */
   {
     const w = boot(); await wait(340);
     ok(typeof w.crmStateMeta === 'function', 'TRUTH/mapping', 'no crmStateMeta mapping function exists');
-    ok(PROD.test(w.crmStateMeta('connected').l), 'TRUTH/mapping', 'the genuinely-connected state has no production label');
-    for (const st of ['demo', 'needs_setup', 'authorising', 'test_required', 'attention_required', 'error', 'disconnected']) {
+
+    // These are production states and SHOULD read as such — the backend has proved them.
+    for (const st of ['connected', 'healthy', 'live']) {
+      const m = w.crmStateMeta(st);
+      ok(m && PROD.test(m.l), 'TRUTH/mapping', st + ' does not read as a production state: ' + (m && m.l));
+    }
+
+    // Everything else must not borrow a production word.
+    const INCOMPLETE = ['demo', 'not_connected', 'disconnected', 'needs_setup', 'missing_credentials',
+      'funding_required', 'infrastructure_required', 'authorising', 'configuration_required',
+      'test_required', 'degraded', 'attention_required', 'expired', 'paused', 'error'];
+    for (const st of INCOMPLETE) {
       const m = w.crmStateMeta(st);
       ok(m && !PROD.test(m.l), 'TRUTH/mapping', st + ' maps to a production-sounding label: ' + (m && m.l));
+      ok(m && m.l && m.l !== st, 'TRUTH/mapping', st + ' renders as its raw key — no label is defined for it');
+      ok(m && !/_/.test(m.l), 'TRUTH/mapping', st + ' renders snake_case to the user: ' + (m && m.l));
     }
+
+    // A status nobody anticipated must still be presentable, and must not invent a claim.
+    const unknown = w.crmStateMeta('some_future_state');
+    ok(!/_/.test(unknown.l), 'TRUTH/mapping', 'an unknown status renders raw snake_case: ' + unknown.l);
+    ok(!PROD.test(unknown.l), 'TRUTH/mapping', 'an unknown status was given a production label: ' + unknown.l);
+    ok(w.crmStateMeta('').l && !/_/.test(w.crmStateMeta('').l), 'TRUTH/mapping', 'an empty status renders badly');
   }
 
   /* ---- 7. same, in every language ---- */
