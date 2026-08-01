@@ -131,6 +131,69 @@ const vis = (w) => { const c = w.document.body.cloneNode(true); c.querySelectorA
     ok(del.length === 1 && /id=eq\.44444444/.test(del[0].url), 'delete', 'delete did not target the removed row');
   }
 
+  /* ---- 4b. THE WAY THE APP ACTUALLY CALLS IT ----
+     moveStatus and saveNote do `var leads = getLeads()` and then mutate the lead objects in
+     place before calling setLeads. If the cache hands out its own array, the "before" and
+     "after" of the diff are the same objects and every comparison says unchanged — so nothing
+     is ever sent. The test above cloned first and sailed straight past this. */
+  {
+    const { w, reqs } = boot((r) => {
+      if (/workspaces/.test(r.url)) return { status: 200, json: [{ id: 'ws-1' }] };
+      if (isLeads(r) && r.method === 'GET') return { status: 200, json: [ROW()] };
+      return { status: 204, json: null };
+    });
+    await wait(340); signInReal(w);
+    w.getLeads(); await wait(80);
+
+    // exactly what moveStatus does
+    const leads = w.getLeads();
+    leads.forEach((l) => { if (l.id === '11111111-1111-4111-8111-111111111111') l.status = 'Won'; });
+    w.setLeads(leads);
+    await wait(90);
+    const patches = reqs.filter((r) => isLeads(r) && r.method === 'PATCH');
+    ok(patches.length === 1, 'in-place edit', 'mutating in place then saving sent ' + patches.length + ' PATCH requests — the change never reaches the server');
+    ok(patches[0] && patches[0].body.status === 'Won', 'in-place edit', 'PATCH did not carry the new status');
+
+    // and a second, different in-place edit must also go
+    const again = w.getLeads();
+    again.forEach((l) => { l.notes = 'called them back'; });
+    w.setLeads(again);
+    await wait(90);
+    const p2 = reqs.filter((r) => isLeads(r) && r.method === 'PATCH');
+    ok(p2.length === 2, 'in-place edit', 'a second in-place edit sent ' + (p2.length - 1) + ' PATCH — notes are being silently dropped');
+    ok(p2[1] && p2[1].body.notes === 'called them back', 'in-place edit', 'note not persisted');
+  }
+
+  /* ---- 4c. two edits in quick succession must not duplicate ----
+     Writes are async. If a second save reads the snapshot before the first has finished
+     updating it, it re-sends the first change — and for a new lead that means a second POST
+     and a duplicate row in the customer's CRM. */
+  {
+    let posted = 0;
+    const { w, reqs } = boot((r) => {
+      if (/workspaces/.test(r.url)) return { status: 200, json: [{ id: 'ws-1' }] };
+      if (isLeads(r) && r.method === 'GET') return { status: 200, json: [] };
+      if (isLeads(r) && r.method === 'POST') {
+        posted++;
+        return { status: 201, json: [ROW({ id: 'new-' + posted, name: r.body.name })] };
+      }
+      return { status: 204, json: null };
+    });
+    await wait(340); signInReal(w);
+    w.getLeads(); await wait(80);
+
+    const mk = (n) => ({ id: 'LD-' + n, name: n, service: 's', urgency: 'Low', source: 'Manual import', status: 'New', score: 50, at: Date.now(), phone: '', email: '', summary: '', notes: '', assignee: '' });
+    // back to back, with no await between — exactly what a fast user does
+    w.setLeads([mk('First')]);
+    w.setLeads([mk('Second'), mk('First')]);
+    await wait(250);
+
+    const posts = reqs.filter((r) => isLeads(r) && r.method === 'POST');
+    const names = posts.map((p) => p.body.name).sort();
+    ok(posts.length === 2, 'race', 'two quick creates sent ' + posts.length + ' POSTs — expected 2 (a duplicate row would reach the CRM)');
+    ok(JSON.stringify(names) === JSON.stringify(['First', 'Second']), 'race', 'POSTed ' + JSON.stringify(names) + ' — a lead was sent twice');
+  }
+
   /* ---- 5. a failed load must never read as "you have no leads" ---- */
   {
     const { w } = boot((r) => {

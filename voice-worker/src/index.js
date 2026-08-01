@@ -19,6 +19,8 @@ const state = {
   lastCallAt: null,
 };
 export function mark(patch) { Object.assign(state, patch); }
+/** Increment a counter. Separate from mark() so a counter can never be assigned by accident. */
+export function bump(key, by = 1) { state[key] = (state[key] || 0) + by; }
 
 const log = (level, event, fields) => console[level === 'error' ? 'error' : 'log'](
   JSON.stringify(Object.assign({ level, event, at: new Date().toISOString() }, fields || {})));
@@ -60,7 +62,7 @@ if (missing.length) {
   log('error', 'agent_not_started', { missing });
 } else {
   import('./agent.js')
-    .then((m) => m.start({ mark, log }))
+    .then((m) => m.start({ mark, bump, log }))
     .catch((e) => {
       state.agent = 'failed';
       state.lastError = String(e?.message || e);

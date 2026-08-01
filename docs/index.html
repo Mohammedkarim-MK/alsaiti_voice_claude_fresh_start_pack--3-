@@ -1756,7 +1756,13 @@ function profileKey(email){return 'ag_profile_'+email}
    from an in-memory cache that is hydrated in the background. The cache never pretends: while
    it is loading, or if loading failed, the UI is told so rather than being handed an empty
    array that would read as "you have no leads". */
-var LEADS={loaded:false,loading:false,err:null,rows:[],ws:null,syncing:0};
+/* `rows` is what the screen shows. `saved` is a detached copy of what the server last confirmed.
+   Both are needed. Callers like moveStatus() and saveNote() do `var l = getLeads()` and then
+   mutate the lead objects in place, so diffing the new list against the cached list would be
+   comparing an object with itself — every field equal, no write sent, the edit silently lost.
+   Diffing against `saved` is what makes an in-place edit detectable. */
+var LEADS={loaded:false,loading:false,err:null,rows:[],saved:[],ws:null,syncing:0};
+function leadsClone(list){try{return JSON.parse(JSON.stringify(list||[]))}catch(e){return []}}
 
 function leadsMode(){return (AUTH.isSecure()&&BK.hasProject())?'supabase':'local'}
 function leadsReady(){return leadsMode()==='local'||LEADS.loaded}
@@ -1794,6 +1800,7 @@ function leadsFetch(force){
   LEADS.loading=true;LEADS.err=null;
   BK.rest('leads?select=*&order=created_at.desc&limit=500').then(function(rows){
     LEADS.rows=(rows||[]).map(leadFromRow);
+    LEADS.saved=leadsClone(LEADS.rows);          /* the server's version, detached from the UI's */
     LEADS.loaded=true;LEADS.loading=false;LEADS.err=null;render();
   })['catch'](function(e){
     /* Honest failure: do NOT fall back to an empty list, which would read as "no leads yet". */
@@ -1815,15 +1822,29 @@ function getLeads(){
 function setLeads(list){
   var s=AUTH.session();if(!s)return;
   if(leadsMode()!=='supabase'){DB.set(leadsKey(s.email),list);return}
-  var before=LEADS.rows;
+  /* leadsSync diffs LEADS.rows against LEADS.saved — the server's last-confirmed version —
+     because the caller has very likely just mutated the objects inside LEADS.rows in place,
+     which would make both sides of a self-comparison identical and drop the edit. */
   LEADS.rows=(list||[]).slice();     /* optimistic — the screen updates immediately */
-  leadsSync(before,LEADS.rows);
+  leadsSync();                       /* reads LEADS.saved/rows when it runs, not now */
 }
 
 /* Work out the minimum set of writes between two versions of the list, so all the existing
    call sites can keep handing us a whole array. */
-function leadsSync(before,after){
-  leadsWorkspace().then(function(ws){
+/* Writes are serialised.
+
+   Two edits in quick succession used to race: the second read LEADS.saved before the first had
+   finished updating it, so it re-sent the first change — and for a newly created lead that meant
+   a second POST and a duplicate row. Chaining, and re-reading the snapshot at execution time
+   rather than at call time, means each sync sees the result of the one before it. */
+var LEADS_CHAIN=Promise.resolve();
+function leadsSync(){
+  LEADS_CHAIN=LEADS_CHAIN.then(function(){return leadsSyncOnce(LEADS.saved,LEADS.rows)})
+    ['catch'](function(){});   /* a failed sync must not wedge the queue for every later edit */
+  return LEADS_CHAIN;
+}
+function leadsSyncOnce(before,after){
+  return leadsWorkspace().then(function(ws){
     var byId={},seen={},jobs=[];
     before.forEach(function(l){byId[l.id]=l});
     after.forEach(function(l){
@@ -1845,7 +1866,14 @@ function leadsSync(before,after){
     });
     if(!jobs.length)return;
     LEADS.syncing++;
-    return Promise.all(jobs).then(function(){LEADS.syncing--;render()});
+    return Promise.all(jobs).then(function(){
+      LEADS.syncing--;
+      /* Everything landed, so this is now the server's version too. Without re-snapshotting
+         here, the next edit would be diffed against a stale `saved` and re-send writes that
+         already succeeded. */
+      LEADS.saved=leadsClone(LEADS.rows);
+      render();
+    });
   })['catch'](function(e){
     LEADS.syncing=0;
     /* A failed write must never leave the screen showing something the server does not have.
@@ -1856,7 +1884,7 @@ function leadsSync(before,after){
 }
 
 /* Signing out of one account must not leak its leads into the next one. */
-function leadsReset(){LEADS={loaded:false,loading:false,err:null,rows:[],ws:null,syncing:0}}
+function leadsReset(){LEADS={loaded:false,loading:false,err:null,rows:[],saved:[],ws:null,syncing:0}}
 function getProfile(){var u=AUTH.current();if(!u)return{};var s=AUTH.session();
   return DB.get(profileKey(s.email),{biz:u.biz,industry:'Dental clinic',tz:'Europe/London (GMT)',email:u.email})}
 function setProfile(p){var s=AUTH.session();if(s)DB.set(profileKey(s.email),p)}
@@ -2773,7 +2801,7 @@ function submitLead(e,editId){
   var nl={id:uid(),status:'New',score:score,at:Date.now(),notes:'',assignee:'Unassigned'};
   for(var k2 in fields)nl[k2]=fields[k2];
   leads.unshift(nl);
-  setLeads(leads);crmEmit('lead.created',nl);notifyLead(nl);notifyLead(nl);toast(t('lead_added'));go('leads');return false
+  setLeads(leads);crmEmit('lead.created',nl);notifyLead(nl);toast(t('lead_added'));go('leads');return false
 }
 /* open the same form prefilled from an existing lead */
 function editLead(id){

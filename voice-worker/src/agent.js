@@ -21,7 +21,7 @@ import { runCall } from './call.js';
  * Build the `io` object call.js expects from a LiveKit session.
  * Keeping this mapping in one function is what makes the rest of the worker SDK-agnostic.
  */
-function ioFromSession(session, ctx) {
+function ioFromSession(session) {
   const facts = {};
   let done = false;
 
@@ -88,7 +88,7 @@ function ioFromSession(session, ctx) {
   };
 }
 
-export async function start({ mark, log }) {
+export async function start({ mark, bump, log }) {
   const agents = await import('@livekit/agents');
   const openai = await import('@livekit/agents-plugin-openai');
 
@@ -116,11 +116,11 @@ export async function start({ mark, log }) {
       await session.start({ room });
 
       mark({ agent: 'connected' });
-      const result = await runCall(ioFromSession(session, ctx), ctx);
-      mark({
-        callsHandled: undefined,       // incremented below; kept explicit for readability
-        lastCallAt: new Date().toISOString(),
-      });
+      const result = await runCall(ioFromSession(session), ctx);
+      // Increment through the counters, never assign — passing `undefined` here would wipe
+      // the running total and report `calls_handled: undefined` on the health endpoint.
+      bump(result.status === 'error' ? 'callsFailed' : 'callsHandled');
+      mark({ lastCallAt: new Date().toISOString() });
       log('info', 'job_finished', { status: result.status, call: ctx.providerCallId });
       try { await session.close(); } catch { /* the room may already be gone */ }
     },

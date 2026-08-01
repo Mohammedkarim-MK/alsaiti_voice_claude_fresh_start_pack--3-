@@ -67,6 +67,10 @@ Deno.serve(async (req: Request) => {
       .from('contact_submissions')
       .select('id', { count: 'exact', head: true })
       .neq('notification_status', 'sent')
+      // Honeypot rows are stored with status 'pending' and deliberately never notified, so
+      // without this filter the first bot submission would mark the system degraded forever —
+      // a 503, a paged engineer, and nothing actually wrong. On a public form that is days away.
+      .eq('source', 'website_form')
       .gte('created_at', since);
     if (error) throw new Error(error.message);
     const n = count || 0;

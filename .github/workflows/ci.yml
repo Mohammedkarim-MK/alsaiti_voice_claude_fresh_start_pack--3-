@@ -62,11 +62,19 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: tests/package.json
+          # The LOCK file, not package.json — the cache key has to change when a resolved
+          # dependency changes, or CI keeps restoring a stale node_modules.
+          cache-dependency-path: tests/package-lock.json
 
       - name: Install
         working-directory: tests
         run: npm install --no-audit --no-fund
+
+      - name: Whole-repo audit
+        working-directory: tests
+        # Cross-file consistency: i18n completeness, RLS coverage, config drift, dead handlers.
+        # Cheap, and catches the class of defect a behavioural suite never sees.
+        run: node repo-audit.js
 
       - name: Run every suite
         working-directory: tests
