@@ -5,7 +5,8 @@ truthfully say Connected.
 
 **Project ref:** `jnxvwdcvnwigowafdxvl` (eu-west-2)
 **Functions base:** `https://jnxvwdcvnwigowafdxvl.supabase.co/functions/v1`
-**App URL:** `https://mohammedkarim-mk.github.io/alsaiti_voice_claude_fresh_start_pack--3-/`
+**App URL:** `https://alsaitigrowth.com` — set as `PUBLIC_APP_URL`. The HubSpot redirect URL is a
+Supabase function address and is **not** affected by the domain move.
 
 ## Deployment status — checked 27 July 2026
 
