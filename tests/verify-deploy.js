@@ -57,11 +57,37 @@ async function post(fn, body) {
 
   console.log('\nthe migrations landed');
   {
-    // A valid-looking submission that fails on a MISSING COLUMN means db push has not run.
-    const r = await post('contact-submit', { first: 'schema-probe', email: 'probe@example.invalid', company_website: 'bot-so-nothing-is-stored' });
-    const err = JSON.stringify(r.json || {});
-    ok(!/column|does not exist|schema cache/i.test(err), 'contact_submissions has the 0006 columns',
-      'the function is reporting a schema error — run `supabase db push`: ' + err.slice(0, 160));
+    /* Ask the database directly.
+       The previous version of this check posted to contact-submit with the honeypot field set
+       and looked for a schema error in the reply. That was a FALSE PASS: the honeypot makes the
+       function return early without ever touching the table, so the check reported the 0006
+       columns present while they demonstrably did not exist. Never infer schema state from an
+       endpoint that can short-circuit before it writes. */
+    const ANON = process.env.SUPABASE_ANON_KEY || 'sb_publishable_fTj566JdyWyCA58y2AU8rQ_l-SmkBXU';
+    const probe = async (path) => {
+      try {
+        const r = await fetch(`https://${REF}.supabase.co/rest/v1/${path}`, {
+          headers: { apikey: ANON }, signal: AbortSignal.timeout(15000),
+        });
+        const j = await r.json().catch(() => null);
+        // 42703 = column missing, PGRST205 = table missing. An array (even empty) means it exists.
+        if (Array.isArray(j)) return { exists: true };
+        return { exists: false, why: (j && (j.message || j.code)) || ('HTTP ' + r.status) };
+      } catch (e) { return { exists: false, why: String(e?.message || e) }; }
+    };
+
+    for (const [what, path, migration] of [
+      ['contact_submissions.reference', 'contact_submissions?select=reference&limit=1', '0006'],
+      ['contact_submissions.notification_status', 'contact_submissions?select=notification_status&limit=1', '0006'],
+      ['lead_activities table', 'lead_activities?select=id&limit=1', '0006'],
+      ['notifications table', 'notifications?select=id&limit=1', '0006'],
+      ['audit_logs table', 'audit_logs?select=id&limit=1', '0006'],
+      ['contact_submissions.correlation_id', 'contact_submissions?select=correlation_id&limit=1', '0007'],
+      ['conversations table', 'conversations?select=id&limit=1', '0007'],
+    ]) {
+      const r = await probe(path);
+      ok(r.exists, what, `missing — migration ${migration} has not been applied. Run \`supabase db push\`.`);
+    }
   }
 
   console.log('\nhealth reports honestly');
