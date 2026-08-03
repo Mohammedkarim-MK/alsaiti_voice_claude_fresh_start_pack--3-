@@ -6,10 +6,24 @@
 # GitHub Pages can't give you (most importantly frame-ancestors, the real clickjacking fix).
 
 /*
-  # Clickjacking: the real fix. The in-page frameGuard() JS is only a fallback for hosts
-  # that can't set headers — this stops the page being framed at all.
-  Content-Security-Policy: frame-ancestors 'none'
+  # The FULL policy as a real HTTP header, not only the <meta> tag.
+  #
+  # A header is enforced before the parser reaches any markup, so it still applies to content
+  # injected ahead of the meta tag — and frame-ancestors is ignored in a meta tag by design,
+  # which is why clickjacking protection can only live here.
+  #
+  # Keep this in step with the <meta> CSP in index.html. When both are present the browser
+  # enforces the INTERSECTION, so a directive missing here silently tightens the policy and a
+  # stray one silently loosens nothing — but drift will still cause confusing breakage.
+  #
+  # 'unsafe-inline' for scripts is unavoidable: the whole app is one file of inline script.
+  # Everything else is locked to 'none' or an explicit allowlist, so an injected <img>, <form>,
+  # <iframe> or fetch to a foreign host is refused.
+  Content-Security-Policy: default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src 'self' https://*.supabase.co; media-src data: blob:; base-uri 'none'; form-action 'self'; object-src 'none'; frame-src 'none'; frame-ancestors 'none'
   X-Frame-Options: DENY
+
+  # Nothing here is meant to be embedded by another origin.
+  Cross-Origin-Resource-Policy: same-origin
 
   # Stop browsers guessing a different content type than we sent.
   X-Content-Type-Options: nosniff
