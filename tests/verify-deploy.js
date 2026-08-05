@@ -84,6 +84,12 @@ async function post(fn, body) {
       ['audit_logs table', 'audit_logs?select=id&limit=1', '0006'],
       ['contact_submissions.correlation_id', 'contact_submissions?select=correlation_id&limit=1', '0007'],
       ['conversations table', 'conversations?select=id&limit=1', '0007'],
+      // Blueprint Phase 1 spine
+      ['business_locations table', 'business_locations?select=id&limit=1', '0008'],
+      ['contacts table', 'contacts?select=id&limit=1', '0008'],
+      ['call_events table', 'call_events?select=id&limit=1', '0008'],
+      ['consent_events table', 'consent_events?select=id&limit=1', '0008'],
+      ['platform_events outbox', 'platform_events?select=event_id&limit=1', '0008'],
     ]) {
       const r = await probe(path);
       ok(r.exists, what, `missing — migration ${migration} has not been applied. Run \`supabase db push\`.`);
