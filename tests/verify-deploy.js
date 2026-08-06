@@ -32,8 +32,8 @@ async function post(fn, body) {
   console.log('=== post-deploy verification ===');
   console.log('project: ' + REF + '\n');
 
-  console.log('all three functions are deployed');
-  for (const fn of ['contact-submit', 'lead-notify', 'health']) {
+  console.log('every function is deployed');
+  for (const fn of ['contact-submit', 'lead-notify', 'health', 'events-consume']) {
     const r = await post(fn);
     ok(r.status !== 404 && r.status !== 0, fn,
       r.status === 404 ? 'returns 404 — NOT DEPLOYED' : r.status === 0 ? 'unreachable: ' + r.error : '');
@@ -90,6 +90,10 @@ async function post(fn, body) {
       ['call_events table', 'call_events?select=id&limit=1', '0008'],
       ['consent_events table', 'consent_events?select=id&limit=1', '0008'],
       ['platform_events outbox', 'platform_events?select=event_id&limit=1', '0008'],
+      ['assistant_versions table', 'assistant_versions?select=id&limit=1', '0009'],
+      ['routing_rules table', 'routing_rules?select=id&limit=1', '0009'],
+      ['analytics_daily table', 'analytics_daily?select=id&limit=1', '0009'],
+      ['usage_ledger table', 'usage_ledger?select=id&limit=1', '0009'],
     ]) {
       const r = await probe(path);
       ok(r.exists, what, `missing — migration ${migration} has not been applied. Run \`supabase db push\`.`);
@@ -116,6 +120,16 @@ async function post(fn, body) {
     const r = await post('lead-notify', { lead: { name: 'probe' } });
     ok(r.status === 401 || r.status === 403, 'lead-notify requires auth',
       'HTTP ' + r.status + ' — an open relay would let anyone send mail from your domain');
+  }
+
+  console.log('\nthe outbox consumer refuses unauthenticated callers');
+  {
+    const r = await post('events-consume', {});
+    // 503 = deployed but EVENTS_CONSUMER_SECRET unset, which is failing CLOSED and correct.
+    // 401 = deployed and secured. Any 2xx would mean anyone can drain the queue or force sends.
+    ok(r.status === 401 || r.status === 503, 'events-consume is not open',
+      'HTTP ' + r.status + ' - a consumer anyone can trigger can drain the queue');
+    if (r.status === 503) warn('consumer secret', 'set EVENTS_CONSUMER_SECRET, then schedule it');
   }
 
   console.log('\n' + '-'.repeat(58));

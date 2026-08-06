@@ -84,6 +84,28 @@ Deno.serve(async (req: Request) => {
     checks.push({ name: 'notification_backlog', state: 'degraded', detail: String((e as Error)?.message || e).slice(0, 200) });
   }
 
+  /* ---- the outbox ----
+     A queue that stops draining is the failure mode that looks like nothing at all: leads keep
+     saving, the dashboard keeps working, and nobody is told about any of them. §14.2 asks
+     specifically for dead-letter depth and processing lag. */
+  try {
+    const { data, error } = await serviceClient().rpc('event_queue_stats');
+    if (error) throw new Error(error.message);
+    const q = (Array.isArray(data) ? data[0] : data) || {};
+    const dead = Number(q.dead || 0);
+    const lag = Number(q.oldest_pending_seconds || 0);
+    // Ten minutes of lag means the scheduler has stopped, not that the queue is busy.
+    const state: State = dead > 0 ? 'degraded' : lag > 600 ? 'degraded' : 'ok';
+    checks.push({
+      name: 'event_queue', state, count: Number(q.pending || 0),
+      detail: dead > 0 ? dead + ' event(s) dead-lettered and needing attention'
+            : lag > 600 ? 'oldest unprocessed event is ' + Math.round(lag / 60) + ' minutes old'
+            : undefined,
+    });
+  } catch (e) {
+    checks.push({ name: 'event_queue', state: 'degraded', detail: String((e as Error)?.message || e).slice(0, 200) });
+  }
+
   /* ---- providers: configured or not. Absence is honest, not a failure. ---- */
   for (const [name, keys] of [
     ['tts', ['ELEVENLABS_API_KEY', 'OPENAI_API_KEY']],

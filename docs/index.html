@@ -1895,20 +1895,15 @@ function uid(){return 'LD-'+Math.random().toString(36).slice(2,7).toUpperCase()}
    (the backend only ever mails the signed-in user's own address) and an email provider on the
    backend; without one it returns 501 once and we stop asking for the rest of the session. */
 var MAIL_UNAVAILABLE=false;
-function notifyLead(lead){
-  try{
-    if(MAIL_UNAVAILABLE||!lead)return;
-    if(!BK.configured()||!AUTH.isSecure())return;      /* demo accounts have nothing to mail */
-    var pr=getPrefs();
-    var urgent=String(lead.urgency||'').toLowerCase()==='high';
-    if(!(pr.lead_new||(urgent&&pr.lead_urgent)))return;
-    BK.fn('lead-notify',{body:{lead:{name:lead.name,service:lead.service,urgency:lead.urgency,
-      source:lead.source,phone:lead.phone,email:lead.email,summary:lead.summary,score:lead.score}}})
-      ['catch'](function(e){
-        if(String(e&&e.message||'').indexOf('no_email_provider')>=0)MAIL_UNAVAILABLE=true;
-      });
-  }catch(e){}
-}
+/* Lead alerts are sent by the SERVER now, not from here.
+
+   This used to POST to lead-notify from the browser, fire-and-forget. A saved lead whose tab
+   closed before the request completed was never announced — the enquiry existed and nobody knew.
+   A trigger on public.leads now emits lead.created inside the same transaction as the insert, and
+   the events-consume function delivers it with retry, backoff and a dead-letter state.
+
+   Kept as a no-op rather than deleted so an older cached page cannot throw. */
+function notifyLead(){ /* server-owned; see supabase/functions/events-consume */ }
 
 function seedIfNeeded(email){
   /* Sample data is for the demo only. Writing it into a real workspace would put fictional
@@ -2801,7 +2796,10 @@ function submitLead(e,editId){
   var nl={id:uid(),status:'New',score:score,at:Date.now(),notes:'',assignee:'Unassigned'};
   for(var k2 in fields)nl[k2]=fields[k2];
   leads.unshift(nl);
-  setLeads(leads);crmEmit('lead.created',nl);notifyLead(nl);toast(t('lead_added'));go('leads');return false
+  setLeads(leads);crmEmit('lead.created',nl);toast(t('lead_added'));go('leads');return false
+/* No notifyLead() here any more. A trigger on the leads table emits lead.created in the same
+   transaction as the insert, and the events-consume function sends the alert. Whether a business
+   hears about an enquiry is not a decision that should depend on this tab staying open. */
 }
 /* open the same form prefilled from an existing lead */
 function editLead(id){
