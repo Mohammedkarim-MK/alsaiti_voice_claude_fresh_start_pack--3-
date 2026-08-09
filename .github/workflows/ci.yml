@@ -76,6 +76,12 @@ jobs:
         # Cheap, and catches the class of defect a behavioural suite never sees.
         run: node repo-audit.js
 
+      - name: Parse every migration
+        working-directory: tests
+        # PostgreSQL's own grammar, via WASM. Catches a syntax error before `db push` leaves the
+        # database half-migrated, which is the worst moment to find a missing semicolon.
+        run: node sql-check.js
+
       - name: Run every suite
         working-directory: tests
         # ~4 minutes locally. The runner prints a per-suite summary and exits non-zero if any fail.

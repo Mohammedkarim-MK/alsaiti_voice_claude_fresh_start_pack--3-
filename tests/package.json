@@ -6,9 +6,11 @@
   "scripts": {
     "test": "node run.js",
     "scan": "node secret-scan.js",
-    "check": "node secret-scan.js && node run.js"
+    "check": "node secret-scan.js && node repo-audit.js && node sql-check.js && node run.js",
+    "sql": "node sql-check.js"
   },
   "devDependencies": {
-    "jsdom": "^25.0.1"
+    "jsdom": "^25.0.1",
+    "libpg-query": "^17.0.0"
   }
 }
