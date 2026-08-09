@@ -1,9 +1,16 @@
 // Shared HTTP helpers for every Edge Function: CORS, preflight, JSON + redirect responses.
 // The browser app is served from GitHub Pages (a different origin), so CORS is required.
 
+// x-correlation-id is not optional here. The website sends it on every call so a submission can
+// be traced from the browser through the function to the database row, and a header the browser
+// sends but the preflight does not list makes the browser block the ENTIRE request — not strip the
+// header. The live contact form failed with "Request header field x-correlation-id is not allowed
+// by Access-Control-Allow-Headers" for exactly this reason, and it was invisible to the test
+// suite because jsdom does not enforce CORS. Anything a client sends must appear in this list.
 export const corsHeaders: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, apikey, content-type, x-correlation-id',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
