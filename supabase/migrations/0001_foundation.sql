@@ -65,19 +65,33 @@ alter table public.workspaces         enable row level security;
 alter table public.workspace_members  enable row level security;
 alter table public.leads              enable row level security;
 
+-- Every policy is dropped before it is created. PostgreSQL has no `create policy if not exists`,
+-- so without this a second run of RUN_THIS_IN_SQL_EDITOR.sql aborts on the very first policy with
+-- "policy already exists" — and because it aborts, every later statement in the bundle is skipped
+-- too. That turned the bundle's "safe to re-run" header into a false promise, and it is the one
+-- promise someone recovering a broken schema is relying on. Later migrations already did this;
+-- 0001 and 0002 predate the convention.
+drop policy if exists "profiles self" on public.profiles;
 create policy "profiles self" on public.profiles
   for all using (id = auth.uid()) with check (id = auth.uid());
 
+drop policy if exists "workspaces read"   on public.workspaces;
+drop policy if exists "workspaces insert" on public.workspaces;
+drop policy if exists "workspaces update" on public.workspaces;
+drop policy if exists "workspaces delete" on public.workspaces;
 create policy "workspaces read"   on public.workspaces for select using (owner_id = auth.uid() or public.is_member(id));
 create policy "workspaces insert" on public.workspaces for insert with check (owner_id = auth.uid());
 create policy "workspaces update" on public.workspaces for update using (owner_id = auth.uid());
 create policy "workspaces delete" on public.workspaces for delete using (owner_id = auth.uid());
 
+drop policy if exists "members read"   on public.workspace_members;
+drop policy if exists "members manage" on public.workspace_members;
 create policy "members read"   on public.workspace_members for select using (public.is_member(workspace_id));
 create policy "members manage" on public.workspace_members for all
   using      (exists (select 1 from public.workspaces w where w.id = workspace_id and w.owner_id = auth.uid()))
   with check (exists (select 1 from public.workspaces w where w.id = workspace_id and w.owner_id = auth.uid()));
 
+drop policy if exists "leads member access" on public.leads;
 create policy "leads member access" on public.leads
   for all using (public.is_member(workspace_id)) with check (public.is_member(workspace_id));
 

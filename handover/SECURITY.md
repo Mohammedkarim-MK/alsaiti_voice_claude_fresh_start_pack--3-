@@ -20,7 +20,7 @@ Row Level Security, and it is meant to be public. It is not a leak.
 
 **SEC-01 — no server secret reaches a client.** Scanned `docs/index.html` and `alsaiti-go/App.js`
 for `sb_secret_`, `sbp_`, `service_role`, provider key names, PEM blocks and JWT-shaped literals.
-The only key-shaped literal in either file is `sb_publishable_fTj566JdyWy…`. Two JWT-shaped hits
+The only key-shaped literal in either file is `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZGFrbHZ1bWVpaGZzZ29rZHNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNzI5NzAsImV4cCI6MjA5ODg0ODk3MH0.NYC4lk-EWuEOZ5rZXt64hCAgpNUdhVFvsbRw8xfuY-Q…`. Two JWT-shaped hits
 turned out to be truncated placeholder text showing users what a GoHighLevel API key looks like.
 
 **Git history — clean.** All 72 commits scanned for `sb_secret_`, `sbp_`, SendGrid `SG.`, Resend

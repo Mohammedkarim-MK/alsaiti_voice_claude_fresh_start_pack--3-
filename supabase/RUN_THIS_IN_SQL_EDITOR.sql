@@ -3,13 +3,14 @@
 --  Supabase dashboard -> SQL Editor -> New query -> paste ALL of this -> Run.
 --
 --  This is every migration concatenated in order. It is safe to re-run: every
---  statement uses "if not exists" / "create or replace" / "drop policy if exists".
+--  statement uses "if not exists" / "create or replace" / "drop policy if exists",
+--  and 0000 drops a table only after checking at run time that it is empty.
 --
 --  GENERATED FILE - do not edit by hand. Edit the migration in
---  supabase/migrations/ and regenerate, or the two will drift apart and whoever
---  runs this will get a schema that does not match the code.
+--  supabase/migrations/ and run:  node tools/build-sql-bundle.js
 --
 --  Migrations included:
+--    0000_drop_lovable_scaffolding.sql
 --    0001_foundation.sql
 --    0002_integrations_telephony.sql
 --    0003_rate_limiting.sql
@@ -20,8 +21,78 @@
 --    0008_event_spine.sql
 --    0009_platform_entities.sql
 --    0010_lead_event_triggers.sql
+--    0011_restore_foreign_keys.sql
+--    0012_defer_event.sql
 -- ============================================================================
 
+
+-- ==========================================================================
+-- 0000_drop_lovable_scaffolding.sql
+-- ==========================================================================
+
+-- Remove the scaffolding the previous tool left behind.
+--
+-- The project was created on 5 July 2026 by an earlier build tool, which created thirteen tables
+-- and then never used them: every one held zero rows and had never been sequentially scanned.
+-- Four of them — leads, conversations, notifications, messages — share a name with tables this
+-- schema needs, so `create table if not exists` silently skipped ours and the following
+-- `alter`/`create index` statements failed against a table with entirely different columns.
+--
+-- Numbered 0000 so it runs before everything else. Dropping all thirteen rather than only the
+-- four that collide: the other nine are unreferenced by any code here, and leaving them would
+-- mislead the next person into thinking they mean something.
+--
+-- Verified empty before running (supabase inspect db table-stats, 9 August 2026):
+--   leads 0 · chat_widgets 0 · conversations 0 · activity_logs 0 · voice_settings 0
+--   business_members 0 · billing_plans 0 · businesses 0 · notifications 0 · messages 0
+--   integrations 0 · phone_connections 0 · assistant_settings 0
+--
+-- CASCADE is required because they reference each other. It is safe here only because they are
+-- empty; on a table with data this would be a destructive operation needing its own review.
+--
+-- Which is why the emptiness is re-checked at run time rather than trusted from the note above.
+-- Four of these names — leads, conversations, notifications, messages — are also OUR table names,
+-- created moments later by 0001 and 0007. An unguarded `drop table public.leads cascade` is
+-- therefore harmless exactly once, on a freshly-scaffolded project, and catastrophic every time
+-- after that: run it against a live database and every real lead is gone, with 0001 helpfully
+-- recreating the table empty so nothing even looks broken. RUN_THIS_IN_SQL_EDITOR.sql tells its
+-- reader the bundle is safe to re-run, and this file has to be able to keep that promise.
+--
+-- So: drop only what is genuinely still empty. On a live database every count is non-zero and
+-- this whole migration becomes a no-op, which is the correct behaviour.
+
+do $$
+declare
+  t text;
+  n bigint;
+begin
+  foreach t in array array[
+    'activity_logs', 'messages', 'conversations', 'chat_widgets', 'notifications',
+    'voice_settings', 'assistant_settings', 'phone_connections', 'integrations',
+    'leads', 'business_members', 'billing_plans', 'businesses'
+  ] loop
+    if to_regclass('public.' || t) is null then
+      continue;                                   -- never existed, or already dropped
+    end if;
+
+    execute format('select count(*) from public.%I', t) into n;
+
+    if n = 0 then
+      execute format('drop table public.%I cascade', t);
+      raise notice 'dropped empty scaffolding table public.%', t;
+    else
+      -- Deliberately not an exception: on a live database this is the expected path for all
+      -- thirteen, and the migration must still succeed.
+      raise notice 'KEPT public.% — it holds % row(s), so it is real data, not scaffolding', t, n;
+    end if;
+  end loop;
+end $$;
+
+-- Their helper functions and triggers go too, or they linger referencing tables that no longer
+-- exist and confuse the next schema dump.
+drop function if exists public.handle_new_user()      cascade;
+drop function if exists public.update_updated_at()    cascade;
+drop function if exists public.handle_updated_at()    cascade;
 
 
 -- ==========================================================================
@@ -95,19 +166,33 @@ alter table public.workspaces         enable row level security;
 alter table public.workspace_members  enable row level security;
 alter table public.leads              enable row level security;
 
+-- Every policy is dropped before it is created. PostgreSQL has no `create policy if not exists`,
+-- so without this a second run of RUN_THIS_IN_SQL_EDITOR.sql aborts on the very first policy with
+-- "policy already exists" — and because it aborts, every later statement in the bundle is skipped
+-- too. That turned the bundle's "safe to re-run" header into a false promise, and it is the one
+-- promise someone recovering a broken schema is relying on. Later migrations already did this;
+-- 0001 and 0002 predate the convention.
+drop policy if exists "profiles self" on public.profiles;
 create policy "profiles self" on public.profiles
   for all using (id = auth.uid()) with check (id = auth.uid());
 
+drop policy if exists "workspaces read"   on public.workspaces;
+drop policy if exists "workspaces insert" on public.workspaces;
+drop policy if exists "workspaces update" on public.workspaces;
+drop policy if exists "workspaces delete" on public.workspaces;
 create policy "workspaces read"   on public.workspaces for select using (owner_id = auth.uid() or public.is_member(id));
 create policy "workspaces insert" on public.workspaces for insert with check (owner_id = auth.uid());
 create policy "workspaces update" on public.workspaces for update using (owner_id = auth.uid());
 create policy "workspaces delete" on public.workspaces for delete using (owner_id = auth.uid());
 
+drop policy if exists "members read"   on public.workspace_members;
+drop policy if exists "members manage" on public.workspace_members;
 create policy "members read"   on public.workspace_members for select using (public.is_member(workspace_id));
 create policy "members manage" on public.workspace_members for all
   using      (exists (select 1 from public.workspaces w where w.id = workspace_id and w.owner_id = auth.uid()))
   with check (exists (select 1 from public.workspaces w where w.id = workspace_id and w.owner_id = auth.uid()));
 
+drop policy if exists "leads member access" on public.leads;
 create policy "leads member access" on public.leads
   for all using (public.is_member(workspace_id)) with check (public.is_member(workspace_id));
 
@@ -234,6 +319,7 @@ create table if not exists public.crm_connections (
 );
 create index if not exists crm_conn_ws_idx on public.crm_connections (workspace_id, created_at desc);
 alter table public.crm_connections enable row level security;
+drop policy if exists "crm_connections member read" on public.crm_connections;
 create policy "crm_connections member read" on public.crm_connections
   for select using (public.is_member(workspace_id));
 -- No insert/update/delete policy → only the service role (Edge Functions) may write.
@@ -249,6 +335,7 @@ create table if not exists public.provider_oauth_events (
 );
 create index if not exists oauth_events_ws_idx on public.provider_oauth_events (workspace_id, created_at desc);
 alter table public.provider_oauth_events enable row level security;
+drop policy if exists "oauth_events member read" on public.provider_oauth_events;
 create policy "oauth_events member read" on public.provider_oauth_events
   for select using (public.is_member(workspace_id));
 
@@ -268,6 +355,7 @@ create table if not exists public.crm_sync_records (
 );
 create index if not exists crm_sync_ws_idx on public.crm_sync_records (workspace_id, updated_at desc);
 alter table public.crm_sync_records enable row level security;
+drop policy if exists "crm_sync member read" on public.crm_sync_records;
 create policy "crm_sync member read" on public.crm_sync_records
   for select using (public.is_member(workspace_id));
 
@@ -292,6 +380,7 @@ create table if not exists public.telephony_connections (
   unique (workspace_id, provider)
 );
 alter table public.telephony_connections enable row level security;
+drop policy if exists "tele_conn member read" on public.telephony_connections;
 create policy "tele_conn member read" on public.telephony_connections
   for select using (public.is_member(workspace_id));
 
@@ -319,6 +408,7 @@ create table if not exists public.phone_numbers (
 );
 create index if not exists phone_numbers_ws_idx on public.phone_numbers (workspace_id, created_at desc);
 alter table public.phone_numbers enable row level security;
+drop policy if exists "phone_numbers member read" on public.phone_numbers;
 create policy "phone_numbers member read" on public.phone_numbers
   for select using (public.is_member(workspace_id));
 
@@ -342,6 +432,7 @@ create table if not exists public.call_sessions (
 );
 create index if not exists call_sessions_ws_idx on public.call_sessions (workspace_id, created_at desc);
 alter table public.call_sessions enable row level security;
+drop policy if exists "call_sessions member read" on public.call_sessions;
 create policy "call_sessions member read" on public.call_sessions
   for select using (public.is_member(workspace_id));
 
@@ -588,12 +679,16 @@ do $$ begin
 exception when duplicate_object then null; end $$;
 
 -- Backfill references for any row captured before this migration, so every submission is quotable.
+-- Built from gen_random_uuid(), which is core PostgreSQL since 13, rather than pgcrypto's
+-- gen_random_bytes(). On Supabase pgcrypto installs into the `extensions` schema and is not on
+-- the default search_path, so the pgcrypto version fails with "function does not exist" even
+-- though the extension is enabled. Same 8 hex characters, no extension dependency.
 update public.contact_submissions
-   set reference = 'AG-' || upper(encode(gen_random_bytes(4), 'hex'))
+   set reference = 'AG-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8))
  where reference is null;
 
 alter table public.contact_submissions
-  alter column reference set default 'AG-' || upper(encode(gen_random_bytes(4), 'hex'));
+  alter column reference set default 'AG-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8));
 
 create unique index if not exists contact_submissions_reference_key
   on public.contact_submissions (reference);
@@ -1908,8 +2003,135 @@ language sql security definer set search_path = public as $$
     count(*) filter (where status = 'pending'),
     count(*) filter (where status = 'processing'),
     count(*) filter (where status = 'dead'),
-    coalesce(extract(epoch from now() - min(occurred_at))
-             filter (where status = 'pending' and next_attempt_at <= now()), 0)::numeric
+    -- FILTER attaches to an AGGREGATE, so it belongs on min(), not on the extract() wrapping it.
+    -- Written the other way round it is a syntax error, not a subtle one.
+    coalesce(extract(epoch from now() -
+             min(occurred_at) filter (where status = 'pending' and next_attempt_at <= now())), 0)::numeric
   from public.platform_events;
 $$;
 revoke all on function public.event_queue_stats() from anon;
+
+
+-- ==========================================================================
+-- 0011_restore_foreign_keys.sql
+-- ==========================================================================
+
+-- Re-assert the foreign keys that point at public.leads and public.conversations.
+--
+-- Why this is needed at all, and why it is not redundant with the CREATE TABLE statements that
+-- declare the same constraints:
+--
+-- `drop table public.leads cascade` does not only drop leads. It silently drops every foreign key
+-- on OTHER tables that referenced it — lead_activities.lead_id, appointments.lead_id, and six more
+-- — while leaving those tables themselves perfectly intact. Re-running the schema afterwards does
+-- not put them back, because every table here is created with `create table if not exists`: the
+-- surviving table already exists, so the whole statement is skipped, and the constraint declared
+-- inside it never runs. The tables come back looking correct and the referential integrity does
+-- not, which is the worst combination — nothing errors, and orphaned rows quietly become possible.
+--
+-- So the bundle could restore a dropped table but not a schema that had ever had a table dropped
+-- out from under it. This migration closes that gap: it compares the foreign keys that SHOULD
+-- exist against pg_constraint and adds only the ones that are actually missing. Safe to run on a
+-- healthy database, where it does nothing at all.
+
+do $$
+declare
+  r record;
+begin
+  for r in
+    select * from (values
+      -- child table,        column,    parent table,     on delete
+      ('crm_sync_records',   'lead_id', 'leads',          'cascade'),
+      ('call_sessions',      'lead_id', 'leads',          'set null'),
+      ('lead_activities',    'lead_id', 'leads',          'cascade'),
+      ('conversations',      'lead_id', 'leads',          'set null'),
+      ('consent_events',     'lead_id', 'leads',          'set null'),
+      ('lead_fields',        'lead_id', 'leads',          'cascade'),
+      ('appointments',       'lead_id', 'leads',          'set null'),
+      ('usage_ledger',       'lead_id', 'leads',          'set null'),
+      ('messages',           'conversation_id', 'conversations', 'cascade')
+    ) as t(child, col, parent, on_delete)
+  loop
+    -- Skip anything not present on this database rather than failing: a partially-built schema
+    -- should still get whatever repairs it can.
+    if to_regclass('public.' || r.child) is null or to_regclass('public.' || r.parent) is null then
+      continue;
+    end if;
+
+    -- Match on the referencing column and the referenced table, not on a constraint name.
+    -- PostgreSQL generates these names, and a name-based check would re-add a duplicate
+    -- constraint whenever the generated name differed.
+    if exists (
+      select 1
+        from pg_constraint c
+        join pg_attribute a on a.attrelid = c.conrelid and a.attnum = c.conkey[1]
+       where c.contype   = 'f'
+         and c.conrelid  = ('public.' || r.child)::regclass
+         and c.confrelid = ('public.' || r.parent)::regclass
+         and a.attname   = r.col
+    ) then
+      continue;
+    end if;
+
+    execute format(
+      'alter table public.%I add constraint %I foreign key (%I) references public.%I(id) on delete %s',
+      r.child, r.child || '_' || r.col || '_fkey', r.col, r.parent, r.on_delete
+    );
+    raise notice 'restored missing foreign key public.%.% -> public.%', r.child, r.col, r.parent;
+  end loop;
+end $$;
+
+
+-- ==========================================================================
+-- 0012_defer_event.sql
+-- ==========================================================================
+
+-- Distinguish "this event can never succeed" from "nothing can succeed until someone finishes
+-- configuring the system". The outbox already had the first; it was treating the second as the
+-- first, and that quietly destroys leads.
+--
+-- What went wrong: events-consume classified a missing RESEND_API_KEY, and a missing
+-- LEAD_NOTIFICATION_TO, as Permanent. Permanent means dead-letter on attempt one, no retry. So
+-- every lead that arrived between going live and the email provider being finished was marked
+-- dead and never announced — and it looked deliberate in the logs, which is worse than a crash.
+-- Verified against the live queue: two probe events, attempts = 1, status = dead, error
+-- 'no_email_provider', with the API key simply not set yet.
+--
+-- Retryable was not the fix either. claim_events increments attempts on every claim, and
+-- fail_event dead-letters once attempts reaches max_attempts, so a config fault would still
+-- exhaust its budget and dead-letter within a few hours — before DNS verification typically
+-- completes. Same data loss, slower.
+--
+-- Hence a third outcome: defer. The event returns to pending, keeps its full attempt budget, and
+-- waits. It cannot be lost by the clock. The risk of deferring forever is that a genuine
+-- misconfiguration hides in the queue, and that is already covered — event_queue_stats() reports
+-- oldest_pending_seconds and the health endpoint degrades past ten minutes, so a stuck queue
+-- surfaces as a visible alert instead of a silent backlog.
+
+create or replace function public.defer_event(
+  p_event       uuid,
+  p_reason      text,
+  p_retry_after interval default interval '5 minutes'
+) returns void language plpgsql security definer set search_path = public as $$
+begin
+  update public.platform_events
+     set status          = 'pending',
+         -- Give back the attempt that claim_events took. The event was never really tried:
+         -- the handler could not start, so charging it an attempt is charging it for our
+         -- own missing configuration.
+         attempts        = greatest(0, attempts - 1),
+         last_error      = left('deferred: ' || p_reason, 1000),
+         next_attempt_at = now() + p_retry_after,
+         claimed_by      = null,
+         claimed_at      = null
+   where event_id = p_event
+     and status = 'processing';
+end; $$;
+
+revoke all on function public.defer_event(uuid, text, interval) from anon, authenticated;
+
+comment on function public.defer_event(uuid, text, interval) is
+  'Return an event to the queue without consuming an attempt, for failures caused by incomplete '
+  'configuration rather than by the event itself. Use Permanent for events that can never '
+  'succeed, retryable for transient provider faults, and this for "not set up yet".';
+

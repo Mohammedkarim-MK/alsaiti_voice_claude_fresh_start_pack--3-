@@ -3,8 +3,8 @@
 Handoff §9–§13. Exact callbacks, exact variable names, and what each provider needs before it may
 truthfully say Connected.
 
-**Project ref:** `jnxvwdcvnwigowafdxvl` (eu-west-2)
-**Functions base:** `https://jnxvwdcvnwigowafdxvl.supabase.co/functions/v1`
+**Project ref:** `hedaklvumeihfsgokdsi` (eu-west-2)
+**Functions base:** `https://hedaklvumeihfsgokdsi.supabase.co/functions/v1`
 **App URL:** `https://alsaitigrowth.com` — set as `PUBLIC_APP_URL`. The HubSpot redirect URL is a
 Supabase function address and is **not** affected by the domain move.
 
@@ -40,7 +40,7 @@ to anyone):
 **Redirect URL to register — must match exactly, character for character:**
 
 ```
-https://jnxvwdcvnwigowafdxvl.supabase.co/functions/v1/crm-callback
+https://hedaklvumeihfsgokdsi.supabase.co/functions/v1/crm-callback
 ```
 
 **Scopes:** `crm.objects.contacts.read`, `crm.objects.contacts.write`,
@@ -65,7 +65,7 @@ Deployed and idle. Shows Demo until a funded account responds.
 
 **Webhook URL:**
 ```
-https://jnxvwdcvnwigowafdxvl.supabase.co/functions/v1/telnyx-webhook
+https://hedaklvumeihfsgokdsi.supabase.co/functions/v1/telnyx-webhook
 ```
 
 State machine (§10.3) — the UI must show exactly these, and never skip ahead:

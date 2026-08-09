@@ -3580,8 +3580,8 @@ var BK={
   /* Default Supabase project (publishable/anon key — safe for the browser, protected by RLS).
      The app targets this project out of the box; it stays in Demo mode until a user signs in.
      Deploy the migrations + Edge Functions to this project for the real CRM/phone to work. */
-  DEFAULT_URL:'https://jnxvwdcvnwigowafdxvl.supabase.co',
-  DEFAULT_ANON:'sb_publishable_fTj566JdyWyCA58y2AU8rQ_l-SmkBXU',
+  DEFAULT_URL:'https://hedaklvumeihfsgokdsi.supabase.co',
+  DEFAULT_ANON:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZGFrbHZ1bWVpaGZzZ29rZHNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNzI5NzAsImV4cCI6MjA5ODg0ODk3MH0.NYC4lk-EWuEOZ5rZXt64hCAgpNUdhVFvsbRw8xfuY-Q',
   cfg:function(){var c=DB.get('ag_backend',null);if(!isObj(c))c={};if(!c.url)c.url=BK.DEFAULT_URL;if(!c.anon)c.anon=BK.DEFAULT_ANON;return c},
   save:function(c){DB.set('ag_backend',c)},
   clear:function(){DB.del('ag_backend');CRM_REAL={loading:false,loaded:false,conns:[],err:null}},

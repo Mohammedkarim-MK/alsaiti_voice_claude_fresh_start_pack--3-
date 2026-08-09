@@ -161,8 +161,13 @@ for (const f of files.filter((f) => /\.(js|mjs)$/.test(f) && !/alsaiti-go|alsait
   const migs = fs.readdirSync(dir).filter((f) => f.endsWith('.sql')).sort();
   const nums = migs.map((m) => m.slice(0, 4));
   if (new Set(nums).size !== nums.length) F('HIGH', 'migrations', 'duplicate migration numbers: ' + nums.join(', '));
+  /* Contiguous, but allowed to start at either 0000 or 0001. 0000 is reserved for work that must
+     precede the schema rather than extend it — dropping another tool's leftovers, for instance —
+     and numbering it 0000 is the only way to make it sort first. Insisting the sequence begins at
+     0001 flagged that as a gap, which is the check misreading a deliberate convention. */
+  const start = Number(nums[0]) === 0 ? 0 : 1;
   for (let i = 0; i < nums.length; i++) {
-    if (Number(nums[i]) !== i + 1) { F('MED', 'migrations', `numbering gap at ${migs[i]}`); break; }
+    if (Number(nums[i]) !== i + start) { F('MED', 'migrations', `numbering gap at ${migs[i]}`); break; }
   }
   // every table exposed through the API must have RLS
   const all = migs.map((m) => fs.readFileSync(path.join(dir, m), 'utf8')).join('\n');

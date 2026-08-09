@@ -7,7 +7,7 @@ Handoff §17, §20. How this is deployed, how to roll it back, and what is not y
 | Piece | Where | Deploy |
 |---|---|---|
 | Marketing site + dashboard | GitHub Pages, `/docs` on `main` | `git push` — Actions publishes |
-| Edge Functions | Supabase `jnxvwdcvnwigowafdxvl` (eu-west-2) | `supabase functions deploy <name>` |
+| Edge Functions | Supabase `hedaklvumeihfsgokdsi` (eu-west-2) | `supabase functions deploy <name>` |
 | Database | Same project | `supabase db push` |
 | Native app | Expo SDK 54 | Expo Go / EAS |
 | Voice worker | **does not exist** | — |
@@ -69,7 +69,7 @@ an owner action and takes about two minutes.
 ### The endpoint
 
 ```
-POST https://jnxvwdcvnwigowafdxvl.supabase.co/functions/v1/health
+POST https://hedaklvumeihfsgokdsi.supabase.co/functions/v1/health
 ```
 
 Public, so an uptime service can watch it without a credential — the check that tells you the
@@ -129,7 +129,7 @@ Not in source control: function secrets, and the data itself.
 for f in contact-submit lead-notify tts crm-status telnyx-verify; do
   printf "%-16s " "$f"
   curl -s -o /dev/null -w "%{http_code}\n" -X POST \
-    "https://jnxvwdcvnwigowafdxvl.supabase.co/functions/v1/$f" \
+    "https://hedaklvumeihfsgokdsi.supabase.co/functions/v1/$f" \
     -H "Content-Type: application/json" -d '{}'
 done
 ```

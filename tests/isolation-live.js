@@ -6,7 +6,7 @@
  *
  * Run it once after deploying, with two accounts you created in the Supabase dashboard:
  *
- *   SUPABASE_URL=https://jnxvwdcvnwigowafdxvl.supabase.co \
+ *   SUPABASE_URL=https://hedaklvumeihfsgokdsi.supabase.co \
  *   SUPABASE_ANON_KEY=sb_publishable_... \
  *   A_EMAIL=owner-a@example.com A_PASS=... \
  *   B_EMAIL=owner-b@example.com B_PASS=... \

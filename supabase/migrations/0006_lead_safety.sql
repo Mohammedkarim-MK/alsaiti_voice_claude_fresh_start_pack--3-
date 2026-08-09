@@ -40,12 +40,16 @@ do $$ begin
 exception when duplicate_object then null; end $$;
 
 -- Backfill references for any row captured before this migration, so every submission is quotable.
+-- Built from gen_random_uuid(), which is core PostgreSQL since 13, rather than pgcrypto's
+-- gen_random_bytes(). On Supabase pgcrypto installs into the `extensions` schema and is not on
+-- the default search_path, so the pgcrypto version fails with "function does not exist" even
+-- though the extension is enabled. Same 8 hex characters, no extension dependency.
 update public.contact_submissions
-   set reference = 'AG-' || upper(encode(gen_random_bytes(4), 'hex'))
+   set reference = 'AG-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8))
  where reference is null;
 
 alter table public.contact_submissions
-  alter column reference set default 'AG-' || upper(encode(gen_random_bytes(4), 'hex'));
+  alter column reference set default 'AG-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8));
 
 create unique index if not exists contact_submissions_reference_key
   on public.contact_submissions (reference);

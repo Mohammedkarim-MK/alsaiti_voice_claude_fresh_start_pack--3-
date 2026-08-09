@@ -16,7 +16,8 @@ const cp = require('child_process');
 
 const REPO = path.join(__dirname, '..');
 const REF_RE = /\b[a-z]{20}\b(?=\.supabase\.co)|(?<=project-ref )\b[a-z]{20}\b/g;
-const KEY_RE = /\bsb_publishable_[A-Za-z0-9_-]{10,}/g;
+// Both key formats: the modern publishable prefix, and a legacy anon JWT.
+const KEY_RE = /\bsb_publishable_[A-Za-z0-9_-]{10,}|\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}/g;
 
 const tracked = () => cp.execSync('git ls-files', { cwd: REPO, encoding: 'utf8' })
   .split('\n').map((s) => s.trim())
@@ -51,11 +52,38 @@ if (!/^[a-z]{20}$/.test(newRef)) {
   console.error('A Supabase project ref is 20 lowercase letters. Got: ' + newRef);
   process.exit(2);
 }
-if (newKey && !/^sb_publishable_/.test(newKey)) {
-  console.error('That is not a publishable key. It must start with sb_publishable_ — never pass a\n' +
-                'secret or service-role key here: this file is committed to git.');
+/* Only a PUBLIC key may be written into files that are committed and served to browsers.
+ *
+ * Two formats are valid. The modern one announces itself: sb_publishable_… . The legacy one is a
+ * JWT, and a legacy service_role key is byte-for-byte indistinguishable at a glance — same
+ * prefix, same length, same shape. The only difference is the `role` claim in the payload, so
+ * that is what gets checked. Getting this wrong publishes a key that bypasses every row-level
+ * security policy in the database. */
+function assertPublicKey(k) {
+  if (/^sb_publishable_/.test(k)) return 'publishable';
+  if (/^sb_secret_/.test(k)) {
+    console.error('That is a SECRET key. It must never be committed or sent to a browser.');
+    process.exit(2);
+  }
+  const parts = k.split('.');
+  if (parts.length === 3) {
+    let claims;
+    try {
+      claims = JSON.parse(Buffer.from(parts[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8'));
+    } catch {
+      console.error('That looks like a JWT but its payload could not be read.');
+      process.exit(2);
+    }
+    if (claims.role === 'anon') return 'legacy anon (role=anon, verified)';
+    console.error('REFUSED: that JWT has role="' + claims.role + '".');
+    console.error('Only role="anon" may be published. A service_role key bypasses every RLS policy.');
+    process.exit(2);
+  }
+  console.error('Unrecognised key format. Expected sb_publishable_… or a legacy anon JWT.');
   process.exit(2);
 }
+let keyKind = null;
+if (newKey) keyKind = assertPublicKey(newKey);
 
 const { refs, keys } = scan();
 const oldRefs = [...refs.keys()].filter((r) => r !== newRef);

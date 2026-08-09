@@ -138,8 +138,10 @@ language sql security definer set search_path = public as $$
     count(*) filter (where status = 'pending'),
     count(*) filter (where status = 'processing'),
     count(*) filter (where status = 'dead'),
-    coalesce(extract(epoch from now() - min(occurred_at))
-             filter (where status = 'pending' and next_attempt_at <= now()), 0)::numeric
+    -- FILTER attaches to an AGGREGATE, so it belongs on min(), not on the extract() wrapping it.
+    -- Written the other way round it is a syntax error, not a subtle one.
+    coalesce(extract(epoch from now() -
+             min(occurred_at) filter (where status = 'pending' and next_attempt_at <= now())), 0)::numeric
   from public.platform_events;
 $$;
 revoke all on function public.event_queue_stats() from anon;

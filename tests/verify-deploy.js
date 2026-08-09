@@ -7,7 +7,7 @@
  * business; do that by hand through the website once this passes.
  */
 
-const REF = process.env.SUPABASE_REF || 'jnxvwdcvnwigowafdxvl';
+const REF = process.env.SUPABASE_REF || 'hedaklvumeihfsgokdsi';
 const BASE = `https://${REF}.supabase.co/functions/v1`;
 
 let pass = 0; const bad = [];
@@ -41,8 +41,11 @@ async function post(fn, body) {
 
   console.log('\nthe contact form runs the NEW code');
   {
-    // The old version accepted anything with an @-less string. The new one rejects it.
-    const r = await post('contact-submit', { first: 'deploy-probe', email: 'not-an-email', company_website: 'honeypot' });
+    /* The old version accepted anything with an @-less string. The new one rejects it.
+       Deliberately NO honeypot field here: setting it makes the function skip validation and
+       store the row quietly, which is correct behaviour and made this check contradict itself —
+       it asked for a rejection while telling the function to treat the caller as a bot. */
+    const r = await post('contact-submit', { first: 'deploy-probe', email: 'not-an-email' });
     if (r.status === 404) ok(false, 'new validation', 'function not deployed');
     else if (r.json && r.json.ok === true) ok(false, 'new validation',
       'accepted an invalid email — this is still the OLD version. Redeploy contact-submit.');
@@ -63,7 +66,7 @@ async function post(fn, body) {
        function return early without ever touching the table, so the check reported the 0006
        columns present while they demonstrably did not exist. Never infer schema state from an
        endpoint that can short-circuit before it writes. */
-    const ANON = process.env.SUPABASE_ANON_KEY || 'sb_publishable_fTj566JdyWyCA58y2AU8rQ_l-SmkBXU';
+    const ANON = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZGFrbHZ1bWVpaGZzZ29rZHNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNzI5NzAsImV4cCI6MjA5ODg0ODk3MH0.NYC4lk-EWuEOZ5rZXt64hCAgpNUdhVFvsbRw8xfuY-Q';
     const probe = async (path) => {
       try {
         const r = await fetch(`https://${REF}.supabase.co/rest/v1/${path}`, {

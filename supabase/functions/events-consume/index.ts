@@ -33,8 +33,24 @@ interface PlatformEvent {
   attempts: number;
 }
 
-/** Thrown for a failure that retrying cannot fix — a missing recipient, a malformed payload. */
+/** Thrown for a failure that retrying cannot fix — a malformed payload, an unusable address. */
 class Permanent extends Error {}
+
+/**
+ * Thrown when the handler cannot even start because the system is not finished being set up —
+ * an email provider with no API key, an alert recipient nobody has chosen yet.
+ *
+ * This is deliberately NOT Permanent. A missing environment variable says nothing about the event;
+ * it says something about the deployment, and it stops being true the moment an operator pastes a
+ * key in. Treating it as permanent dead-lettered real leads on their first attempt, so the business
+ * was never told about enquiries that had been saved perfectly well.
+ *
+ * It is not retryable either: claim_events charges an attempt per claim, so the event would run out
+ * of attempts and dead-letter within hours — usually before DNS verification even completes.
+ * defer_event puts it back with its attempt budget intact, and the queue-age alarm in the health
+ * endpoint is what stops a deferral lasting for ever unnoticed.
+ */
+class NotConfigured extends Error {}
 
 /* ---------------------------------------------------------------- handlers ---- */
 
@@ -47,8 +63,8 @@ class Permanent extends Error {}
  */
 async function handleLeadCreated(ev: PlatformEvent, log: Log): Promise<void> {
   const to = env('LEAD_NOTIFICATION_TO');
-  if (!to) throw new Permanent('no_recipient: LEAD_NOTIFICATION_TO is not set');
-  if (!emailProvider()) throw new Permanent('no_email_provider');
+  if (!to) throw new NotConfigured('no_recipient: LEAD_NOTIFICATION_TO is not set');
+  if (!emailProvider()) throw new NotConfigured('no_email_provider: set RESEND_API_KEY');
 
   const p = ev.payload as Record<string, string | number | undefined>;
   const mail = leadAlert({
@@ -124,7 +140,7 @@ Deno.serve(async (req: Request) => {
     if (error) throw new Error('claim_failed: ' + error.message);
 
     const events: PlatformEvent[] = claimed || [];
-    let done = 0, failed = 0, dead = 0, unhandled = 0;
+    let done = 0, failed = 0, dead = 0, unhandled = 0, deferred = 0;
 
     for (const ev of events) {
       const evLog = logger('events-consume', ev.correlation_id || cid);
@@ -144,8 +160,18 @@ Deno.serve(async (req: Request) => {
         await sb.rpc('ack_event', { p_event: ev.event_id });
         done++;
       } catch (e) {
-        const permanent = e instanceof Permanent;
         const msg = String((e as Error)?.message || e).slice(0, 500);
+
+        if (e instanceof NotConfigured) {
+          // Hold the event, do not spend an attempt on it, and say so loudly — this is an
+          // operator's to-do item, not an application error.
+          await sb.rpc('defer_event', { p_event: ev.event_id, p_reason: msg });
+          deferred++;
+          evLog.warn('handler_not_configured', { event_type: ev.event_type, error_code: msg });
+          continue;
+        }
+
+        const permanent = e instanceof Permanent;
         await sb.rpc('fail_event', {
           p_event: ev.event_id, p_error: msg, p_retryable: !permanent,
         });
@@ -157,9 +183,9 @@ Deno.serve(async (req: Request) => {
     const { data: stats } = await sb.rpc('event_queue_stats');
     const q = Array.isArray(stats) ? stats[0] : stats;
 
-    log.info('batch_complete', { claimed: events.length, done, failed, dead, unhandled });
+    log.info('batch_complete', { claimed: events.length, done, failed, dead, unhandled, deferred });
     return json({
-      ok: true, claimed: events.length, done, failed, dead, unhandled,
+      ok: true, claimed: events.length, done, failed, dead, unhandled, deferred,
       queue: q || null, correlation_id: cid,
     });
   } catch (e) {

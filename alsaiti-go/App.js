@@ -153,8 +153,8 @@ const store = {
    JWT. The publishable/anon key below is safe to ship (it is protected by RLS); the
    secret/service-role key must never appear in app code. */
 const SUPA = {
-  url: 'https://jnxvwdcvnwigowafdxvl.supabase.co',
-  anon: 'sb_publishable_fTj566JdyWyCA58y2AU8rQ_l-SmkBXU',
+  url: 'https://hedaklvumeihfsgokdsi.supabase.co',
+  anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZGFrbHZ1bWVpaGZzZ29rZHNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNzI5NzAsImV4cCI6MjA5ODg0ODk3MH0.NYC4lk-EWuEOZ5rZXt64hCAgpNUdhVFvsbRw8xfuY-Q',
 };
 const supaAuth = {
   configured: () => !!(SUPA.url && SUPA.anon),

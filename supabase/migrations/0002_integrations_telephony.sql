@@ -91,6 +91,7 @@ create table if not exists public.crm_connections (
 );
 create index if not exists crm_conn_ws_idx on public.crm_connections (workspace_id, created_at desc);
 alter table public.crm_connections enable row level security;
+drop policy if exists "crm_connections member read" on public.crm_connections;
 create policy "crm_connections member read" on public.crm_connections
   for select using (public.is_member(workspace_id));
 -- No insert/update/delete policy → only the service role (Edge Functions) may write.
@@ -106,6 +107,7 @@ create table if not exists public.provider_oauth_events (
 );
 create index if not exists oauth_events_ws_idx on public.provider_oauth_events (workspace_id, created_at desc);
 alter table public.provider_oauth_events enable row level security;
+drop policy if exists "oauth_events member read" on public.provider_oauth_events;
 create policy "oauth_events member read" on public.provider_oauth_events
   for select using (public.is_member(workspace_id));
 
@@ -125,6 +127,7 @@ create table if not exists public.crm_sync_records (
 );
 create index if not exists crm_sync_ws_idx on public.crm_sync_records (workspace_id, updated_at desc);
 alter table public.crm_sync_records enable row level security;
+drop policy if exists "crm_sync member read" on public.crm_sync_records;
 create policy "crm_sync member read" on public.crm_sync_records
   for select using (public.is_member(workspace_id));
 
@@ -149,6 +152,7 @@ create table if not exists public.telephony_connections (
   unique (workspace_id, provider)
 );
 alter table public.telephony_connections enable row level security;
+drop policy if exists "tele_conn member read" on public.telephony_connections;
 create policy "tele_conn member read" on public.telephony_connections
   for select using (public.is_member(workspace_id));
 
@@ -176,6 +180,7 @@ create table if not exists public.phone_numbers (
 );
 create index if not exists phone_numbers_ws_idx on public.phone_numbers (workspace_id, created_at desc);
 alter table public.phone_numbers enable row level security;
+drop policy if exists "phone_numbers member read" on public.phone_numbers;
 create policy "phone_numbers member read" on public.phone_numbers
   for select using (public.is_member(workspace_id));
 
@@ -199,6 +204,7 @@ create table if not exists public.call_sessions (
 );
 create index if not exists call_sessions_ws_idx on public.call_sessions (workspace_id, created_at desc);
 alter table public.call_sessions enable row level security;
+drop policy if exists "call_sessions member read" on public.call_sessions;
 create policy "call_sessions member read" on public.call_sessions
   for select using (public.is_member(workspace_id));
 
