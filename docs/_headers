@@ -19,7 +19,14 @@
   # 'unsafe-inline' for scripts is unavoidable: the whole app is one file of inline script.
   # Everything else is locked to 'none' or an explicit allowlist, so an injected <img>, <form>,
   # <iframe> or fetch to a foreign host is refused.
-  Content-Security-Policy: default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src 'self' https://*.supabase.co; media-src data: blob:; base-uri 'none'; form-action 'self'; object-src 'none'; frame-src 'none'; frame-ancestors 'none'
+  #
+  # 'self' is here for Cloudflare's own bot detection, which it injects from
+  # /cdn-cgi/challenge-platform/ on this origin. Without it the browser refused that script and
+  # Bot Fight Mode / JS challenges silently did nothing — the policy was quietly disabling a
+  # protection we were paying for. It costs nothing to allow: 'unsafe-inline' already permits
+  # arbitrary inline script, which is a far broader capability than loading a same-origin file,
+  # so 'self' adds no attack surface that was not already open.
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src 'self' https://*.supabase.co; media-src data: blob:; base-uri 'none'; form-action 'self'; object-src 'none'; frame-src 'none'; frame-ancestors 'none'
   X-Frame-Options: DENY
 
   # Nothing here is meant to be embedded by another origin.
