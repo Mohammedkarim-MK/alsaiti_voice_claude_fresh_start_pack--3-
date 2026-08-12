@@ -2841,8 +2841,27 @@ function chipsHtml(){
 }
 function leadResults(){
   var q=UI.q.toLowerCase().trim();
+  /* Digits only, so a search for a phone number matches however either side wrote it: a caller
+     saved as +447365331141 is found by typing "07365 331141". Without this the single most
+     common lookup in a phone-led business — someone rings back and you need their record before
+     you answer — silently returns nothing. */
+  var qDigits=q.replace(/\D+/g,'');
   var list=getLeads().filter(function(l){return UI.filter==='All'||l.status===UI.filter})
-    .filter(function(l){return !q||((l.name+' '+l.service+' '+(l.email||'')).toLowerCase().indexOf(q)>=0)})
+    .filter(function(l){
+      if(!q)return true;
+      /* Each field defaulted: `l.name+' '+l.service` put the literal text "undefined" into the
+         haystack whenever a lead had no service, so searching "undefined" matched them all. */
+      var hay=[l.name,l.service,l.email,l.phone,l.summary,l.notes,l.source,l.urgency]
+        .map(function(v){return v==null?'':String(v)}).join(' ').toLowerCase();
+      if(hay.indexOf(q)>=0)return true;
+      if(qDigits.length>=4){
+        var phone=String(l.phone||'').replace(/\D+/g,'');
+        /* Compare on the last 9 digits so a national and an international form of the same
+           number match: 07365331141 and +447365331141 share 7365331141. */
+        if(phone&&(phone.indexOf(qDigits)>=0||phone.slice(-9)===qDigits.slice(-9)))return true;
+      }
+      return false;
+    })
     .sort(function(a,b){return b.at-a.at});
   if(list.length)return leadList(list);
   /* "No leads" is a claim about the business, so only make it when we actually know. A list
