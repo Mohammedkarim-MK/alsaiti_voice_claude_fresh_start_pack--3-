@@ -98,5 +98,59 @@ console.log('\npaid features are described as locked, not hidden');
     'an unmetered item would render as an empty bar, which reads as zero usage');
 }
 
+console.log('\nthe usage card says what it actually measures');
+{
+  /* Payload captured verbatim from the live database for a demo-tier workspace. Every bug below
+     was found by rendering this and reading it, not by reading the code. */
+  const live = {
+    plan: 'demo', status: 'demo', period_start: '2026-08-01T00:00:00+00:00',
+    leads:        { used: 0, limit: 25, percent: 0 },
+    members:      { used: 1, limit: 1,  percent: 100 },
+    call_minutes: { used: 0, limit: 0,  percent: null },
+  };
+  const el = (id) => { const e = w.document.createElement('div'); e.id = id; w.document.body.appendChild(e); return e; };
+  el('acct-usage'); el('acct-plan');
+  w.ACCT.usage = live; w.ACCT.ent = { plan: 'demo', status: 'demo', subscribed: false, features: {} };
+  w.acctPaintUsage(); w.acctPaintPlan();
+  const usage = new JSDOM('<div>' + w.document.getElementById('acct-usage').innerHTML + '</div>')
+    .window.document.body.textContent.replace(/\s+/g, ' ');
+  const plan = new JSDOM('<div>' + w.document.getElementById('acct-plan').innerHTML + '</div>')
+    .window.document.body.textContent.replace(/\s+/g, ' ');
+
+  /* Assert against the card TITLE, not the painted rows. The title lives in accountPanels() and
+     was the thing that said "Usage this month" over three metrics, only one of which is monthly.
+     The first version of this checked the painted content, which never contained that phrase —
+     so it passed on the broken build and proved nothing. */
+  const titles = JSON.stringify(w.TR || {});
+  ok(!/"Usage this month"/.test(titles), 'the card is not titled "Usage this month"',
+    'leads and seats are live totals, not monthly — a customer at their lead allowance would '
+    + 'read that title as a cap that resets on the 1st, and be wrong about the number that '
+    + 'decides whether they can keep taking enquiries');
+
+  /* And check the minutes ROW specifically. Checking the whole panel for "this month" passed
+     pre-fix because the old warning read "close to your limit for this month" — a coincidence,
+     not the label being right. */
+  const minutesRow = usage.split('Voice minutes')[1] || '';
+  ok(/Voice minutes this month/i.test(usage), 'voice minutes ARE labelled monthly',
+    'call_minutes is the one genuinely monthly figure and is the only one that may say so');
+  ok(!/Leads stored this month|seats used this month/i.test(usage), 'leads and seats are not',
+    'a live total was labelled as a monthly figure');
+
+  ok(!/0 \/ 0/.test(usage), 'no "0 / 0" for something not on the plan',
+    'showing a 0 of 0 quota beside "not included" says two contradictory things at once');
+  ok(/Not included on this plan/i.test(usage), 'unavailable metrics say so', '');
+
+  ok(/full allowance/i.test(usage), 'at the limit says the allowance is used up',
+    'at 1 of 1 seats it said "close to your limit", which is both wrong and not actionable');
+  ok(!/close to your limit/i.test(usage), 'and does not also say "close to"', 'both messages rendered');
+
+  ok(!/Counting from|counted from/i.test(usage), 'no billing-period line when nothing is metered monthly',
+    'a period line appeared for a plan with no monthly metric at all');
+
+  ok(!/DemoDemo/i.test(plan), 'the plan name is not printed twice',
+    'plan "demo" and status "demo" both rendered, giving "DemoDemo"');
+  ok(/Demo/.test(plan), 'the tier is still shown', 'the fix removed the label entirely');
+}
+
 console.log('\npassed: ' + pass);
 if (bad.length) { console.log('FAILED: ' + bad.length); bad.forEach((b) => console.log('   ' + b)); process.exit(1); }

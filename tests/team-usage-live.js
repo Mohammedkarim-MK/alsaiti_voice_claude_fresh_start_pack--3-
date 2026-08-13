@@ -116,6 +116,34 @@ const rpc = (token, fn, args) => rest(token, 'rpc/' + fn, { method: 'POST', body
       'another customer can read this workspace\'s usage');
   }
 
+  console.log('\nthe team list identifies actual people');
+  {
+    /* The panel used to select workspace_members directly, which returns user_ids and nothing
+       else — `profiles` is readable only by its owner, so a workspace owner could not see the
+       name of anyone on their own team. It rendered truncated UUIDs with a Remove button beside
+       each: a destructive action next to an identifier nobody can resolve to a person. */
+    /* rpc() here returns {status, ok, json} like rest() does, not the bare payload. */
+    const team = (await rpc(tB, 'workspace_team', { ws: wsB })).json;
+    ok(Array.isArray(team) && team.length >= 1, 'workspace_team returns the team', JSON.stringify(team).slice(0, 120));
+    ok((team || []).every((m) => m.email && m.full_name), 'every member is identifiable by name and email',
+      'the team list shows ids a human cannot resolve');
+
+    // Scoped to the workspace: being platform admin does not make you a member of it.
+    const outsider = (await rpc(tA, 'workspace_team', { ws: wsB })).json;
+    ok(Array.isArray(outsider) && outsider.length === 0, 'a non-member sees nobody',
+      'workspace_team leaked a customer\'s team to someone outside it');
+  }
+
+  console.log('\nthe activity log names who did it');
+  {
+    await rpc(tA, 'set_subscription', { p_workspace: wsB, p_status: 'demo', p_plan: 'demo', p_note: 'actor check' });
+    const rows = await rest(tB, 'audit_logs?select=action,actor_email&workspace_id=eq.' + wsB + '&order=created_at.desc&limit=5');
+    const withActor = (rows.json || []).filter((r) => r.actor_email);
+    ok(withActor.length >= 1, 'audit entries carry an actor email',
+      'actor_email was declared but never written, so every entry read as "system" — the log '
+      + 'could not answer the one question it exists for');
+  }
+
   console.log('\ninviting a colleague');
   let token = null;
   {
