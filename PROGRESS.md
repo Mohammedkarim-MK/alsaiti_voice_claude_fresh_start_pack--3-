@@ -28,23 +28,35 @@ secrets, rate limiting on every public user-facing endpoint, AA contrast, zero w
 
 ---
 
-## Phase 2 — CRAWLABILITY PLAN — **AWAITING CHECKPOINT 2**
+## Phase 2 — CRAWLABILITY — **DONE** (Option A, chosen by MK)
 
-Two options costed below. Recommendation: **A**.
+Shipped in `ffa08ae`. Live and verified:
 
-Feasibility of A was verified, not assumed — the existing `landing()` render function was
-run under jsdom for each locale and produced real HTML:
-
-| Locale | HTML | Visible text | Headings | `dir` |
+| URL | HTTP | `<html>` | Crawlable text | Headings |
 |---|---|---|---|---|
-| EN | 26,477 B | 3,870 chars | 10 | ltr |
-| ES | 27,391 B | 4,787 chars | 10 | ltr |
-| AR | 26,397 B | 3,843 chars | 10 | **rtl** |
+| `/` | 200 | `lang="en" dir="ltr"` | 3,870 chars | 10 |
+| `/es/` | 200 | `lang="es" dir="ltr"` | 4,787 chars | 10 |
+| `/ar/` | 200 | `lang="ar" dir="rtl"` | 3,843 chars | 10 |
 
-That is the load-bearing assumption of Option A and it holds.
+**How it works:** `tools/prerender.js` runs the app's own `landing()` under jsdom per locale
+and injects the result between `<!--PRERENDER:START-->` / `<!--PRERENDER:END-->` in `#root`
+(`docs/index.html:1343`). Output is committed, so Cloudflare Pages needs **no build command
+and no config change**, and a broken generator leaves the last good HTML live.
 
-### Next action
-Waiting on MK to pick A or B. Nothing will be written until then.
+**To regenerate after ANY edit to `docs/index.html`:**
+```
+node tools/prerender.js
+```
+`tests/prerender.test.js` (56 assertions) and a CI step fail if you forget.
+
+**Source changes:** `docs/index.html` — locale-meta markers (`:13`), prerender markers
+(`:1343`), locale read from path (`:1365`), `setLang()` updates the URL via `replaceState`
+(`:1601`).
+
+**Bug caught during build, worth remembering:** the generator worked exactly once.
+`docs/index.html` is both source and English output, so run two reads back run one's output;
+the literal match for `<html lang="en">` no longer existed and Arabic silently inherited
+`lang="en" dir="ltr"`. Now matches the whole tag, verified idempotent over three runs.
 
 ---
 
