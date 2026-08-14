@@ -87,6 +87,10 @@ jobs:
         # ~4 minutes locally. The runner prints a per-suite summary and exits non-zero if any fail.
         run: node run.js
 
+      - name: Prerendered locale pages are current
+        working-directory: tools
+        run: node prerender.js --check
+
   functions:
     name: Edge Functions type-check
     runs-on: ubuntu-latest

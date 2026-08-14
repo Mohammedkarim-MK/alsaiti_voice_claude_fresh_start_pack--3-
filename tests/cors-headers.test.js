@@ -40,7 +40,14 @@ const sent = new Map();          // header -> [files]
 for (const rel of CLIENTS) {
   const p = path.join(ROOT, rel);
   if (!fs.existsSync(p)) continue;
-  const src = fs.readFileSync(p, 'utf8');
+  let src = fs.readFileSync(p, 'utf8');
+  /* Strip hreflang values before scanning. This check matches any quoted x- token, which is the
+     right trade for finding headers set by bracket assignment or headers.set() — but hreflang
+     ships a legitimate `x-default`, and the check reported it as an HTTP header the browser
+     would block. Removing the attribute is more precise than a deny-list: it targets the one
+     construct that produces false positives, rather than the one value that happens to exist
+     today. */
+  src = src.replace(/hreflang="[^"]*"/g, '');
   /* Any quoted x- token, not just `'x-foo':` in an object literal. The first version of this
      matched only the colon form and found nothing at all, because the site actually sets the
      header as h['x-correlation-id'] = … — so the check reported a clean bill of health on the

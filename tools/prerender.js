@@ -1,0 +1,178 @@
+/* Build the per-locale HTML that crawlers and link-preview bots actually read.
+ *
+ *   node tools/prerender.js            regenerate
+ *   node tools/prerender.js --check    exit 1 if the output is stale (used by CI)
+ *
+ * The problem this solves: docs/index.html served an empty <div id="root"> and built every
+ * screen from one inline script. Google can run JS, slowly and unreliably; WhatsApp, LinkedIn,
+ * Slack and iMessage cannot run it at all. And Spanish and Arabic had no URL of their own — a
+ * runtime language switch is invisible to a search engine and impossible to share, which for a
+ * product sold on being trilingual meant two thirds of the positioning did not exist online.
+ *
+ * How: run the app's own landing() under jsdom once per locale and write the result into the
+ * marked region of #root. No second copy of the markup, no template to keep in step — the
+ * prerendered HTML is by construction the same markup the app renders, because it IS the app
+ * rendering it. When the script boots, render() replaces the region with identical output, so
+ * there is no flash and nothing to hydrate.
+ *
+ * Output is COMMITTED rather than built on the host. That means Cloudflare Pages needs no build
+ * command and no configuration change, and if this script ever breaks, the last good HTML stays
+ * live. The cost is that the output can drift from the source, which is what --check is for.
+ *
+ * No new dependency: jsdom is already in tests/ for the suite.
+ */
+const fs = require('fs');
+const path = require('path');
+
+const ROOT = path.join(__dirname, '..');
+const SRC = path.join(ROOT, 'docs', 'index.html');
+const ORIGIN = 'https://alsaitigrowth.com';
+const CHECK = process.argv.includes('--check');
+
+let JSDOM;
+try {
+  ({ JSDOM } = require(path.join(ROOT, 'tests', 'node_modules', 'jsdom')));
+} catch {
+  console.error('jsdom not found. Run:  cd tests && npm install');
+  process.exit(2);
+}
+
+/* Locale copy. Translated per locale rather than reused — a shared Arabic link that previews in
+   English is a broken first impression, and it is the exact thing the product claims to fix. */
+const LOCALES = {
+  en: {
+    dir: 'ltr', ogLocale: 'en_GB', out: 'docs/index.html', url: ORIGIN + '/',
+    title: 'Alsaiti Growth — AI receptionist & lead dashboard',
+    description: 'Alsaiti Growth — AI receptionists & lead systems that turn enquiries into booked clients. Live trilingual demo (EN / ES / AR).',
+    ogDescription: 'AI systems that answer calls, capture leads, follow up automatically, and show everything in a live dashboard.',
+  },
+  es: {
+    dir: 'ltr', ogLocale: 'es_ES', out: 'docs/es/index.html', url: ORIGIN + '/es/',
+    title: 'Alsaiti Growth — recepcionista con IA y panel de clientes potenciales',
+    description: 'Alsaiti Growth — recepcionistas con IA y sistemas de captación que convierten consultas en clientes con cita. Demo trilingüe en directo (EN / ES / AR).',
+    ogDescription: 'Sistemas de IA que atienden llamadas, captan clientes potenciales, hacen el seguimiento automáticamente y lo muestran todo en un panel en directo.',
+  },
+  ar: {
+    dir: 'rtl', ogLocale: 'ar_AE', out: 'docs/ar/index.html', url: ORIGIN + '/ar/',
+    title: 'Alsaiti Growth — موظف استقبال بالذكاء الاصطناعي ولوحة العملاء المحتملين',
+    description: 'Alsaiti Growth — موظفو استقبال بالذكاء الاصطناعي وأنظمة التقاط العملاء تحوّل الاستفسارات إلى مواعيد مؤكدة. عرض حي بثلاث لغات (إنجليزي / إسباني / عربي).',
+    ogDescription: 'أنظمة ذكاء اصطناعي تردّ على المكالمات وتلتقط العملاء المحتملين وتتابعهم تلقائيًا وتعرض كل شيء في لوحة تحكم مباشرة.',
+  },
+};
+
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/* og:image is emitted only when the file exists. A tag pointing at a 404 is worse than no tag:
+   the bot fetches it, fails, and some caches remember the failure. Phase 4 creates the file. */
+function ogImage() {
+  const rel = 'og-image.png';
+  return fs.existsSync(path.join(ROOT, 'docs', rel))
+    ? `\n<meta property="og:image" content="${ORIGIN}/${rel}"/>` +
+      `\n<meta property="og:image:width" content="1200"/>` +
+      `\n<meta property="og:image:height" content="630"/>` +
+      `\n<meta name="twitter:image" content="${ORIGIN}/${rel}"/>`
+    : '\n<!-- og:image omitted: docs/og-image.png does not exist yet (Phase 4). A tag pointing\n     at a 404 is worse than no tag, because some preview caches remember the failure. -->';
+}
+
+function metaBlock(code) {
+  const L = LOCALES[code];
+  /* x-default points at the English root: it is what an unmatched language should be served,
+     and omitting it makes Google pick one itself. */
+  const alternates = Object.keys(LOCALES)
+    .map((c) => `<link rel="alternate" hreflang="${c}" href="${LOCALES[c].url}"/>`)
+    .concat([`<link rel="alternate" hreflang="x-default" href="${LOCALES.en.url}"/>`])
+    .join('\n');
+  const otherLocales = Object.keys(LOCALES).filter((c) => c !== code)
+    .map((c) => `<meta property="og:locale:alternate" content="${LOCALES[c].ogLocale}"/>`).join('\n');
+
+  return [
+    `<meta name="description" content="${esc(L.description)}"/>`,
+    `<link rel="canonical" href="${L.url}"/>`,
+    alternates,
+    `<meta property="og:type" content="website"/>`,
+    `<meta property="og:url" content="${L.url}"/>`,
+    `<meta property="og:site_name" content="Alsaiti Growth"/>`,
+    `<meta property="og:locale" content="${L.ogLocale}"/>`,
+    otherLocales,
+    `<meta property="og:title" content="${esc(L.title)}"/>`,
+    `<meta property="og:description" content="${esc(L.ogDescription)}"/>`,
+    `<meta name="twitter:card" content="summary_large_image"/>`,
+    `<meta name="twitter:title" content="${esc(L.title)}"/>`,
+    `<meta name="twitter:description" content="${esc(L.ogDescription)}"/>`,
+  ].join('\n') + ogImage();
+}
+
+function replaceBetween(html, startMark, endMark, body) {
+  const i = html.indexOf(startMark), j = html.indexOf(endMark);
+  if (i < 0 || j < 0) throw new Error('markers not found: ' + startMark);
+  return html.slice(0, i + startMark.length) + body + html.slice(j);
+}
+
+function build(code, source) {
+  const L = LOCALES[code];
+
+  // Render the app's own landing page for this locale.
+  const dom = new JSDOM(source, { runScripts: 'dangerously', url: L.url });
+  const w = dom.window;
+  w.LANG = code;
+  if (typeof w.applyDir === 'function') w.applyDir();
+  const landing = w.landing();
+  if (!landing || landing.length < 5000) {
+    throw new Error(`landing() returned ${landing ? landing.length : 0} bytes for ${code} — refusing to write a near-empty page`);
+  }
+
+  let out = source;
+  /* Match the whole tag, not the literal '<html lang="en">'. docs/index.html is both the source
+     AND the English output, so the first run rewrites it to '<html lang="en" dir="ltr">' — and a
+     literal match then finds nothing on every subsequent run, silently leaving Arabic as
+     lang="en" dir="ltr". It worked exactly once. An idempotent generator has to survive reading
+     back its own output. */
+  const htmlTag = /<html\b[^>]*>/;
+  if (!htmlTag.test(out)) throw new Error('no <html> tag found in the source');
+  out = out.replace(htmlTag, `<html lang="${code}" dir="${L.dir}">`);
+  out = out.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(L.title)}</title>`);
+  out = replaceBetween(out, '<!-- LOCALE-META:START -->', '<!-- LOCALE-META:END -->',
+                       '\n' + metaBlock(code) + '\n');
+  out = replaceBetween(out, '<!--PRERENDER:START-->', '<!--PRERENDER:END-->', landing);
+
+  /* Sub-locale files sit one directory down, so root-relative asset paths still resolve — but
+     _headers and 404.html are served from the root by Cloudflare regardless of directory. */
+  return out;
+}
+
+// The English file is both source and output, so read it once before writing anything.
+const source = fs.readFileSync(SRC, 'utf8');
+if (!source.includes('<!--PRERENDER:START-->')) {
+  console.error('docs/index.html has no PRERENDER markers. Was it reverted?');
+  process.exit(2);
+}
+
+let stale = 0;
+for (const code of Object.keys(LOCALES)) {
+  const target = path.join(ROOT, LOCALES[code].out);
+  const built = build(code, source);
+  const existing = fs.existsSync(target) ? fs.readFileSync(target, 'utf8') : null;
+
+  if (CHECK) {
+    if (existing !== built) { stale++; console.log('  STALE  ' + LOCALES[code].out); }
+    else console.log('  ok     ' + LOCALES[code].out);
+    continue;
+  }
+
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, built);
+  const text = new JSDOM('<div>' + built.slice(built.indexOf('<!--PRERENDER:START-->'),
+    built.indexOf('<!--PRERENDER:END-->')) + '</div>').window.document.body.textContent
+    .replace(/\s+/g, ' ').trim();
+  console.log(`  wrote  ${LOCALES[code].out.padEnd(22)} ${String(Math.round(built.length / 1024)).padStart(4)} KB   ${String(text.length).padStart(5)} chars of crawlable text`);
+}
+
+if (CHECK) {
+  if (stale) {
+    console.log(`\n${stale} file(s) stale. docs/index.html changed without regenerating.`);
+    console.log('Run:  node tools/prerender.js');
+    process.exit(1);
+  }
+  console.log('\nPrerendered output matches the source.');
+}
