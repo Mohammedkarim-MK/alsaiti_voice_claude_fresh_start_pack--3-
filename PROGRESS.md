@@ -103,11 +103,43 @@ reader, on the one image whose job is to advertise Arabic support. Native names 
 
 ---
 
-## Phases 5–8 — not started
+## Phase 5 — RTL AND ACCESSIBILITY — **PART 1 DONE** (`47b76dd`)
+
+**Done:**
+- 26 base rules converted to logical properties; the 19 now-redundant `[dir="rtl"]` overrides
+  deleted in the same commit (leaving them would double-flip and break Arabic).
+- **Fixed a live bug:** `.lnav .links` (`docs/index.html:337`) had `margin-left:10px` in both
+  directions — no RTL override existed, so the nav gap sat on the wrong side in Arabic.
+- Every `icon()` SVG now `aria-hidden="true" focusable="false"`. 42/42 verified in a browser.
+
+**Deliberately not converted:** line ~650 forces `direction:ltr` on code/monospace so it stays
+LTR inside Arabic — not a mirroring rule. The three padding shorthands became
+`padding-block` + `padding-inline`.
+
+**How it was verified:** computed styles for five selectors captured from the LIVE site in both
+directions before the change, compared against `http://localhost:8788` after. Use
+`preview_start {name:"docs"}` — `.claude/launch.json` now defines a static server for `docs/`.
+
+### Still open in Phase 5
+| Item | Effort |
+|---|---|
+| Absolute-positioning `left:`/`right:` pairs → `inset-inline-*` (~19 rules, same pattern) | 1–2 h |
+| Directional icon mirroring (arrows/chevrons under RTL) — **still unverified** | 1 h |
+| One `h2`→`h4` heading jump on the landing page | 10 min |
+| Visible focus states (`:focus-visible`) — needs a real browser to measure | 1 h |
+
+### Manual RTL check for MK
+1. Open `https://alsaitigrowth.com/ar/` — page must be right-to-left with no horizontal scrollbar.
+2. Nav links: the 10px gap should sit on the **right** of the links, not the left.
+3. Switch language with the EN/ES/عربي switcher — the URL must change to `/es/` or `/ar/`.
+4. Any code or phone-number block should still read left-to-right.
+
+---
+
+## Phases 6–8 — not started
 
 | Phase | Status | Note |
 |---|---|---|
-| 5 — RTL & a11y | **next** | Physical→logical CSS ~3–4 h; SVG `aria-hidden` 30 min; focus states need a real browser. |
 | 6 — New pages | not started | **Checkpoint 3** before building. Each new page needs a `tools/prerender.js` route entry. |
 | 7 — Stripe | partly done | Webhook + entitlements shipped (`db73e21`, `0015`–`0018`). Checkout session + Customer Portal NOT built. **Checkpoint 4** before implementing. |
 | 8 — Analytics | not started | Plausible adds an external script — **will need a CSP `script-src` + `connect-src` entry**, which the current `default-src 'none'` blocks. |
