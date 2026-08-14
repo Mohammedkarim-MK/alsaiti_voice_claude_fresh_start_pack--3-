@@ -14,6 +14,7 @@ import { preflight, json } from '../_shared/http.ts';
 import { serviceClient, userClient } from '../_shared/store.ts';
 import { emailProvider } from '../_shared/email.ts';
 import { correlationId, logger } from '../_shared/log.ts';
+import { enforceLimit, ipBucket } from '../_shared/ratelimit.ts';
 
 function env(k: string): string | undefined {
   // deno-lint-ignore no-explicit-any
@@ -30,8 +31,18 @@ function overall(checks: Check[]): State {
   return 'ok';
 }
 
+/* Generous, because this endpoint exists to be polled: an uptime monitor at 30-second intervals
+   uses 2 of these, and a status page a few more. It is not here to stop legitimate monitoring —
+   it is here because every health check runs a real database query and counts rows, so an
+   unmetered public endpoint is a cheap way to make someone else's database do work. */
+const LIMIT = { limit: 60, windowSeconds: 60 };  // per IP
+
 Deno.serve(async (req: Request) => {
   const pre = preflight(req); if (pre) return pre;
+
+  const limited = await enforceLimit(ipBucket(req, 'health'), LIMIT);
+  if (limited) return limited;
+
   const cid = correlationId(req);
   const log = logger('health', cid);
   const checks: Check[] = [];

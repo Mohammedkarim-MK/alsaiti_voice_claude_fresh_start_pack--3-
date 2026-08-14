@@ -168,6 +168,49 @@ for (const code of Object.keys(LOCALES)) {
   console.log(`  wrote  ${LOCALES[code].out.padEnd(22)} ${String(Math.round(built.length / 1024)).padStart(4)} KB   ${String(text.length).padStart(5)} chars of crawlable text`);
 }
 
+/* sitemap.xml and robots.txt are generated here rather than hand-written, so they cannot drift
+   from the locale list above. Adding a fourth language should mean editing LOCALES and nothing
+   else. */
+function sitemap() {
+  const urls = Object.keys(LOCALES).map((code) => {
+    /* xhtml:link alternates inside each <url> is the form Google documents for multilingual
+       sitemaps: every entry lists every language INCLUDING itself, so each is a complete
+       statement of the set rather than a fragment that has to be joined up. */
+    const alts = Object.keys(LOCALES)
+      .map((c) => `    <xhtml:link rel="alternate" hreflang="${c}" href="${LOCALES[c].url}"/>`)
+      .concat([`    <xhtml:link rel="alternate" hreflang="x-default" href="${LOCALES.en.url}"/>`])
+      .join('\n');
+    return `  <url>\n    <loc>${LOCALES[code].url}</loc>\n${alts}\n    <changefreq>weekly</changefreq>\n    <priority>${code === 'en' ? '1.0' : '0.9'}</priority>\n  </url>`;
+  }).join('\n');
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`;
+}
+
+/* Without our own file, Cloudflare serves a default content-signals robots.txt as text/html,
+   with no Sitemap: line. Ours replaces it. Nothing is disallowed: the app screens live behind
+   hash routes, which crawlers do not fetch as separate URLs anyway, so a Disallow would buy
+   nothing and risks blocking something we later want indexed. */
+function robots() {
+  return [
+    'User-agent: *',
+    'Allow: /',
+    '',
+    'Sitemap: ' + ORIGIN + '/sitemap.xml',
+    '',
+  ].join('\n');
+}
+
+for (const [rel, body] of [['docs/sitemap.xml', sitemap()], ['docs/robots.txt', robots()]]) {
+  const target = path.join(ROOT, rel);
+  const existing = fs.existsSync(target) ? fs.readFileSync(target, 'utf8') : null;
+  if (CHECK) {
+    if (existing !== body) { stale++; console.log('  STALE  ' + rel); }
+    else console.log('  ok     ' + rel);
+  } else {
+    fs.writeFileSync(target, body);
+    console.log('  wrote  ' + rel);
+  }
+}
+
 if (CHECK) {
   if (stale) {
     console.log(`\n${stale} file(s) stale. docs/index.html changed without regenerating.`);
