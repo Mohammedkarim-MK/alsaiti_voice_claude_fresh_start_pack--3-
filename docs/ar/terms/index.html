@@ -3588,7 +3588,18 @@ function ttsFetch(spoken,lang,gender,key){
       if(r&&r.ok&&r.audio){TTS_CACHE[key]='data:'+(r.mime||'audio/mpeg')+';base64,'+r.audio;return TTS_CACHE[key]}
       if(r&&r.error==='no_tts_provider')TTS_UNAVAILABLE=true;
       return null;
-    })['catch'](function(){delete TTS_CACHE['@'+key];return null});
+    })['catch'](function(err){
+      delete TTS_CACHE['@'+key];
+      /* Any failure here means neural audio is not coming back, so stop asking. Only the
+         explicit no_tts_provider reply used to set this flag — a 404 (the function is not
+         deployed on this project) or a network error fell through to a bare `return null`, so
+         EVERY line paid for a doomed round trip before falling back to the device voice. In a
+         live demo that is a visible pause before each sentence, which reads as the assistant
+         hesitating. One failure is enough to know; after it, the device voice speaks instantly. */
+      TTS_UNAVAILABLE=true;
+      try{console.warn('tts unavailable, using the device voice:',String(err&&err.message||err))}catch(e){}
+      return null;
+    });
   }catch(e){return Promise.resolve(null)}
   TTS_CACHE['@'+key]=p;
   return p;
