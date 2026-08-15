@@ -420,6 +420,13 @@
   .faqitem summary::after{content:"+";margin-inline-start:auto;font-size:20px;color:var(--muted);line-height:1}
   .faqitem[open] summary::after{content:"\2212"}
   .faqitem p{padding:0 0 17px;margin:0;color:var(--text);font-size:14.5px;line-height:1.7;max-width:66ch}
+  /* A commitment we have NOT made must not look like prose we have written. Amber, boxed and
+     labelled, so nobody skim-reads it as a promise. */
+  .tbcblock{border-inline-start:3px solid var(--amber);background:rgba(251,191,90,.07);
+    padding:11px 14px;border-radius:0 10px 10px 0;margin:2px 0 4px}
+  .tbcblock b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--amber);margin-bottom:4px}
+  .tbcblock p{margin:0;font-size:13.5px;line-height:1.6;color:var(--text)}
+  [dir="rtl"] .tbcblock{border-radius:10px 0 0 10px}
   /* RTL mirroring for icons that indicate direction. scaleX(-1) rather than separate artwork:
      one rule, and it cannot fall out of step with the icon set. */
   [dir="rtl"] .ic-dir{transform:scaleX(-1)}
@@ -2144,10 +2151,11 @@ function renderView(){
   var hash=location.hash.replace(/^#\/?/,'')||(s?'dashboard':'landing');
   try{if(VOICE&&(VOICE.active||VOICE.timer)&&hash!=='voice')voiceEnd()}catch(e){}
   if(hash!=='new')UI.edit=null;   /* leaving the form ends the edit */
-  var pub=['landing','login','signup','confirm','privacy','terms','legal','pricing','faq'];
+  var pub=['landing','login','signup','confirm','privacy','terms','legal','pricing','faq','data-processing'];
   if(!s && pub.indexOf(hash)<0){location.hash='#/landing';return}
   if(s && pub.indexOf(hash)>=0){location.hash='#/dashboard';return}
   var root=document.getElementById('root');
+  if(hash==='data-processing'){root.innerHTML=dpaPage();try{window.scrollTo(0,0)}catch(e){}return}
   if(hash==='pricing'){track('Pageview: pricing',{lang:LANG});root.innerHTML=pricingPage();try{window.scrollTo(0,0)}catch(e){}return}
   if(hash==='faq'){track('Pageview: faq',{lang:LANG});root.innerHTML=faqPage();try{window.scrollTo(0,0)}catch(e){}return}
   if(hash==='privacy'||hash==='terms'||hash==='legal'){root.innerHTML=legalPage(hash);try{window.scrollTo(0,0)}catch(e){}return}
@@ -3523,6 +3531,191 @@ function track(name, props){
   try{ if(typeof window.plausible==='function')window.plausible(name, props?{props:props}:undefined); }catch(e){}
 }
 
+/* ============================ Data processing ============================
+   The page a buyer's DPO reads before they will sign.
+
+   Sections 1-4, 6 and 8 state what the system demonstrably does and can be evidenced from the
+   code. Sections 5, 7, 9 and 10 are CONTRACTUAL PROMISES with legal consequence — a breach
+   notification window, an audit right, a sub-processor notice period. Those are not a developer's
+   to choose, so they render as a clearly-marked "being confirmed" block with the normal market
+   position noted, for a solicitor to settle. Publishing an invented breach window would be worse
+   than publishing nothing: it is a commitment a customer can hold you to.
+
+   NO CERTIFICATION IS CLAIMED. There is no ISO 27001, no SOC 2, no "GDPR compliant" badge here,
+   because none has been confirmed. What is claimed is what the tests prove. */
+
+var DPA_CONFIRMED = false;   /* flip to true once a solicitor has settled the [TBC] sections */
+
+var DPA_TR = {
+ en: {
+  title:'Data Processing', h1:'How your data is processed',
+  sub:'What we hold, where it lives, who else touches it, and how long we keep it. Written for the person who has to sign this off.',
+  tbc_label:'Being confirmed',
+  tbc_note:'This section states a contractual commitment and is with our solicitor. Ask us and we will confirm the current position for your account in writing.',
+  sections:[
+   ['Who is the controller, who is the processor',
+    'For the personal data of your callers and enquirers, you are the data controller and we are the processor: we act on your instructions. For our own marketing enquiries — the contact form on this website — we are the controller. Both relationships are covered separately in the Privacy Policy.'],
+   ['Where the data lives',
+    'Lead records, transcripts, account data and backups are held in a Supabase project in the EU region. The exact region for your account is stated in your proposal.'],
+   ['Sub-processors',
+    'Supabase (database, authentication and file storage), our transactional email provider (lead alerts and account email), our telephony provider (call handling), and our speech and language providers (voice synthesis and understanding). Each is engaged under its own data-processing terms. The current named list, with the region each operates in, is provided on request and before signature.'],
+   ['How long we keep it',
+    'Retention runs automatically, nightly, rather than depending on anyone remembering. Marketing enquiries: up to 24 months from last contact. Lead records inside a customer dashboard: for as long as that customer is active, then per the deletion terms below. Processed platform events are cleared on the same schedule.'],
+   ['Transfers outside the UK and EU', 'TBC'],
+   ['Security measures',
+    'Tenant isolation is enforced by the database, not by the application: every table carries row-level security, and separation between customers is verified by an automated test that signs in as two real accounts and confirms neither can reach the other. Data is encrypted in transit. Credentials are held in server-side secret storage, never in the browser. Administrative and billing actions are written to an append-only audit log with the acting user recorded.'],
+   ['Changes to sub-processors', 'TBC'],
+   ['Deletion and return on termination',
+    'On termination you can export every lead record. Account data is deleted on request, and otherwise on the retention schedule above. Backups age out on their own cycle rather than being retained indefinitely.'],
+   ['Breach notification', 'TBC'],
+   ['Audit rights', 'TBC']
+  ]
+ },
+ es: {
+  title:'Tratamiento de Datos', h1:'Cómo se tratan sus datos',
+  sub:'Qué conservamos, dónde reside, quién más lo trata y cuánto tiempo lo guardamos. Redactado para quien tiene que aprobarlo.',
+  tbc_label:'En proceso de confirmación',
+  tbc_note:'Esta sección recoge un compromiso contractual y está en manos de nuestro asesor jurídico. Pídanoslo y le confirmaremos por escrito la posición actual para su cuenta.',
+  sections:[
+   ['Quién es responsable y quién encargado',
+    'Respecto de los datos personales de quienes le llaman o le consultan, usted es el responsable del tratamiento y nosotros el encargado: actuamos siguiendo sus instrucciones. Respecto de nuestras propias consultas comerciales — el formulario de contacto de este sitio — el responsable somos nosotros. Ambas relaciones se detallan por separado en la Política de Privacidad.'],
+   ['Dónde residen los datos',
+    'Los registros de clientes potenciales, las transcripciones, los datos de cuenta y las copias de seguridad se alojan en un proyecto de Supabase en la región de la UE. La región exacta de su cuenta consta en su propuesta.'],
+   ['Subencargados',
+    'Supabase (base de datos, autenticación y almacenamiento), nuestro proveedor de correo transaccional (avisos de clientes potenciales y correo de cuenta), nuestro proveedor de telefonía (gestión de llamadas) y nuestros proveedores de voz y lenguaje (síntesis y comprensión). Cada uno actúa bajo sus propias condiciones de tratamiento. La lista nominal actual, con la región de cada uno, se facilita a petición y antes de la firma.'],
+   ['Cuánto tiempo lo conservamos',
+    'La conservación se aplica automáticamente cada noche, sin depender de que nadie se acuerde. Consultas comerciales: hasta 24 meses desde el último contacto. Registros de clientes potenciales dentro del panel de un cliente: mientras ese cliente esté activo y, después, conforme a las condiciones de supresión indicadas más abajo. Los eventos de plataforma ya procesados se depuran en el mismo ciclo.'],
+   ['Transferencias fuera del Reino Unido y la UE', 'TBC'],
+   ['Medidas de seguridad',
+    'El aislamiento entre clientes lo impone la base de datos, no la aplicación: todas las tablas tienen seguridad a nivel de fila, y la separación entre clientes se verifica mediante una prueba automatizada que inicia sesión con dos cuentas reales y comprueba que ninguna alcanza los datos de la otra. Los datos se cifran en tránsito. Las credenciales se guardan en almacenamiento de secretos del servidor, nunca en el navegador. Las acciones administrativas y de facturación se registran en un log de auditoría de solo adición, con el usuario que las realizó.'],
+   ['Cambios de subencargados', 'TBC'],
+   ['Supresión y devolución al finalizar',
+    'Al finalizar puede exportar todos los registros de clientes potenciales. Los datos de cuenta se suprimen a petición y, en su defecto, conforme al calendario anterior. Las copias de seguridad caducan en su propio ciclo, sin conservarse indefinidamente.'],
+   ['Notificación de brechas', 'TBC'],
+   ['Derechos de auditoría', 'TBC']
+  ]
+ },
+ ar: {
+  title:'معالجة البيانات', h1:'كيف تُعالَج بياناتك',
+  sub:'ما نحتفظ به، وأين يُخزَّن، ومن غيرنا يطّلع عليه، وكم نبقيه. مكتوب لمن سيوقّع على ذلك.',
+  tbc_label:'قيد الاعتماد',
+  tbc_note:'يتضمّن هذا البند التزامًا تعاقديًا وهو لدى مستشارنا القانوني. اطلب منّا وسنؤكد لك الوضع الحالي لحسابك كتابةً.',
+  sections:[
+   ['من المتحكّم ومن المعالِج',
+    'بالنسبة للبيانات الشخصية لمن يتصلون بك أو يستفسرون منك، أنت المتحكّم في البيانات ونحن المعالِج: نتصرّف وفق تعليماتك. أما استفساراتنا التسويقية نحن — نموذج التواصل في هذا الموقع — فنحن المتحكّم فيها. وكلتا العلاقتين موضّحتان بشكل منفصل في سياسة الخصوصية.'],
+   ['أين تُخزَّن البيانات',
+    'تُحفظ سجلات العملاء المحتملين والنصوص وبيانات الحساب والنسخ الاحتياطية في مشروع Supabase في منطقة الاتحاد الأوروبي. والمنطقة الدقيقة لحسابك مذكورة في عرضك.'],
+   ['المعالِجون الفرعيون',
+    'Supabase (قاعدة البيانات والمصادقة والتخزين)، ومزوّد البريد التشغيلي (تنبيهات العملاء وبريد الحساب)، ومزوّد الاتصالات الهاتفية (إدارة المكالمات)، ومزوّدو الصوت واللغة (توليد الصوت والفهم). ويعمل كل منهم وفق شروط معالجة بيانات خاصة به. وتُقدَّم القائمة الاسمية الحالية، مع منطقة عمل كل جهة، عند الطلب وقبل التوقيع.'],
+   ['كم نحتفظ بها',
+    'تعمل سياسة الاحتفاظ تلقائيًا كل ليلة، دون الاعتماد على تذكّر أحد. الاستفسارات التسويقية: حتى 24 شهرًا من آخر تواصل. سجلات العملاء المحتملين داخل لوحة عميل: طوال نشاط ذلك العميل، ثم وفق شروط الحذف أدناه. وتُمسح أحداث المنصة المعالَجة في الدورة نفسها.'],
+   ['النقل خارج المملكة المتحدة والاتحاد الأوروبي', 'TBC'],
+   ['التدابير الأمنية',
+    'العزل بين العملاء تفرضه قاعدة البيانات لا التطبيق: فكل جدول محمي بأمان على مستوى الصف، ويُتحقَّق من الفصل بين العملاء باختبار آلي يسجّل الدخول بحسابين حقيقيين ويؤكد أن أيًّا منهما لا يصل إلى بيانات الآخر. وتُشفَّر البيانات أثناء النقل. وتُحفظ بيانات الاعتماد في تخزين أسرار على الخادم، لا في المتصفح. وتُسجَّل الإجراءات الإدارية وإجراءات الفوترة في سجل تدقيق لا يقبل التعديل مع تحديد منفّذها.'],
+   ['تغيير المعالِجين الفرعيين', 'TBC'],
+   ['الحذف والإعادة عند الإنهاء',
+    'عند الإنهاء يمكنك تصدير جميع سجلات العملاء المحتملين. وتُحذف بيانات الحساب عند الطلب، وإلا فوفق جدول الاحتفاظ أعلاه. وتنتهي صلاحية النسخ الاحتياطية ضمن دورتها الخاصة دون الاحتفاظ بها إلى ما لا نهاية.'],
+   ['الإبلاغ عن الاختراقات', 'TBC'],
+   ['حقوق التدقيق', 'TBC']
+  ]
+ }
+};
+
+function dtr(){return DPA_TR[LANG]||DPA_TR.en}
+
+/* ============================ Booking and "hear it live" ============================
+   Both are OFF until MK supplies the real details, and both fail closed rather than open.
+
+   CAL_LINK: the Cal.com embed is loaded ON CLICK, never on page load. The site otherwise makes
+   zero external requests, and a visitor who never books should not pay ~100 KB of third-party
+   JavaScript for a button they did not press. It also means the CSP entry for app.cal.com is
+   only exercised when someone actually books.
+
+   DEMO_PHONE: a "hear it live" box that rings out is worse than no box at all — the visitor
+   concludes the product does not work, which is the opposite of the section's purpose. So the
+   section does not render until a number exists. */
+var CAL_LINK   = '';   /* e.g. 'https://cal.com/alsaiti/30min' */
+var DEMO_PHONE = '';   /* E.164, e.g. '+441234567890' */
+var DEMO_HOURS = '';   /* e.g. 'Mon-Fri, 9am-6pm UK' — leave empty if answered 24/7 */
+
+var BOOK_TR = {
+ en:{h:'Book a 20-minute call', p:'We will look at where calls are being missed and what the assistant would answer. No slides.',
+     cta:'Choose a time', soon:'Online booking opens shortly. In the meantime, email us and we will find a time.'},
+ es:{h:'Reserve una llamada de 20 minutos', p:'Veremos dónde se están perdiendo llamadas y qué respondería el asistente. Sin presentaciones.',
+     cta:'Elegir una hora', soon:'La reserva online estará disponible en breve. Mientras tanto, escríbanos y buscamos un hueco.'},
+ ar:{h:'احجز مكالمة مدتها 20 دقيقة', p:'سننظر في المكالمات التي تفوتك وفيما سيردّ به المساعد. دون عروض تقديمية.',
+     cta:'اختر وقتًا', soon:'سيُتاح الحجز عبر الإنترنت قريبًا. وحتى ذلك الحين راسلنا وسنجد وقتًا مناسبًا.'}
+};
+var LIVE_TR2 = {
+ en:{h:'Hear it live', p:'Call the number below and speak to the assistant as a customer would.',
+     hours:'Answered', tap:'Tap to call'},
+ es:{h:'Escúchelo en directo', p:'Llame al número siguiente y hable con el asistente como lo haría un cliente.',
+     hours:'Atendido', tap:'Pulse para llamar'},
+ ar:{h:'استمع إليه مباشرة', p:'اتصل بالرقم أدناه وتحدّث إلى المساعد كما يفعل أي عميل.',
+     hours:'أوقات الرد', tap:'اضغط للاتصال'}
+};
+
+/* Load the Cal.com embed only when someone asks for it. */
+function calOpen(){
+  track('Booking widget open',{lang:LANG});
+  if(!CAL_LINK)return;
+  var host=document.getElementById('cal-embed');
+  if(!host||host.dataset.loaded)return;
+  host.dataset.loaded='1';
+  host.innerHTML='<iframe src="'+esc(CAL_LINK)+'" style="width:100%;height:640px;border:0" '+
+    'title="'+esc((BOOK_TR[LANG]||BOOK_TR.en).h)+'" loading="lazy"></iframe>';
+}
+
+function bookingSection(){
+  var T=BOOK_TR[LANG]||BOOK_TR.en;
+  return '<section class="card" id="sec-book" style="margin-top:26px">'+
+    '<h2 style="font-size:19px;margin:0 0 6px">'+esc(T.h)+'</h2>'+
+    '<p class="sethint" style="margin:0 0 14px">'+esc(T.p)+'</p>'+
+    (CAL_LINK
+      ? '<button class="btn btn-primary" onclick="calOpen()">'+esc(T.cta)+'</button>'+
+        '<div id="cal-embed" style="margin-top:16px"></div>'
+      /* No link yet: say so, and point at a channel that does work. */
+      : '<p class="sethint"><b>'+esc(T.soon)+'</b></p>'+
+        '<a class="btn" href="mailto:'+esc(COMPANY.email)+'">'+esc(COMPANY.email)+'</a>')+
+  '</section>';
+}
+
+function liveCallSection(){
+  /* Renders nothing at all without a number. Deliberate: see the note above. */
+  if(!DEMO_PHONE)return '';
+  var T=LIVE_TR2[LANG]||LIVE_TR2.en;
+  return '<section class="card" id="sec-hear" style="margin-top:26px">'+
+    '<h2 style="font-size:19px;margin:0 0 6px">'+esc(T.h)+'</h2>'+
+    '<p class="sethint" style="margin:0 0 14px">'+esc(T.p)+'</p>'+
+    '<a class="btn btn-primary" href="tel:'+esc(DEMO_PHONE)+'" '+
+      'onclick="track(\'Demo phone click\',{lang:LANG})">'+esc(T.tap)+' '+esc(DEMO_PHONE)+'</a>'+
+    (DEMO_HOURS?'<p class="sethint" style="margin-top:10px">'+esc(T.hours)+': '+esc(DEMO_HOURS)+'</p>':'')+
+  '</section>';
+}
+
+function dpaPage(){
+  var T=dtr();
+  return '<div class="legalwrap"><div class="legalcard">'+
+    '<a class="link" style="font-size:13px" href="#/landing">&larr; '+esc(t('legal_back'))+'</a>'+
+    '<h1>'+esc(T.h1)+'</h1>'+
+    '<p class="pagesub" style="text-align:start;margin:0 0 8px">'+esc(T.sub)+'</p>'+
+    '<p class="muted" style="font-size:12.5px;margin:0 0 22px">'+esc(t('legal_updated'))+': '+esc(LEGAL_UPDATED)+'</p>'+
+    T.sections.map(function(sec,i){
+      /* A section whose body is the TBC sentinel renders as an explicit "being confirmed" block
+         rather than as prose. It must be impossible to mistake for a commitment we have made. */
+      if(sec[1]==='TBC'&&!DPA_CONFIRMED){
+        return '<h2>'+(i+1)+'. '+esc(sec[0])+'</h2>'+
+          '<div class="tbcblock"><b>'+esc(T.tbc_label)+'</b><p>'+esc(T.tbc_note)+'</p></div>';
+      }
+      return '<h2>'+(i+1)+'. '+esc(sec[0])+'</h2><p>'+esc(sec[1])+'</p>';
+    }).join('')+
+    '<p class="muted" style="font-size:12.5px;margin-top:26px">'+
+      '<a class="link" href="#/privacy">'+esc((LEGAL[LANG]||LEGAL.en).privacy.title)+'</a> &middot; '+
+      '<a class="link" href="#/terms">'+esc((LEGAL[LANG]||LEGAL.en).terms.title)+'</a> &middot; '+
+      '<a class="link" href="#/legal">'+esc((LEGAL_NOTICE[LANG]||LEGAL_NOTICE.en).title)+'</a></p>'+
+  '</div></div>';
+}
+
 function pricingPage(){
   var T=ptr(), annual=BILLING==='annual';
   return '<div class="legalwrap"><div class="pagehead">'+
@@ -3555,6 +3748,7 @@ function pricingPage(){
         '<p class="sethint" style="text-align:center;margin-top:8px">'+esc(T.cta_note)+'</p>'+
       '</section>';
     }).join('')+'</div>'+
+    bookingSection()+liveCallSection()+
     '<section class="card" style="margin-top:26px"><h2 style="font-size:15px">'+esc(T.incl)+'</h2>'+
       '<ul class="planfeats">'+T.included.map(function(f){return '<li>'+esc(f)+'</li>'}).join('')+'</ul>'+
       '<p class="sethint">'+esc(T.vat)+'</p>'+

@@ -72,6 +72,7 @@ const ROUTES = [
   { seg: 'legal/',   render: (w) => w.legalPage('legal'),   title: (w) => (w.LEGAL_NOTICE[w.LANG] || w.LEGAL_NOTICE.en).title },
   { seg: 'pricing/', render: (w) => w.pricingPage(),        title: (w) => (w.PRICING_TR[w.LANG] || w.PRICING_TR.en).h1 },
   { seg: 'faq/',     render: (w) => w.faqPage(),            title: (w) => (w.FAQ_TR[w.LANG] || w.FAQ_TR.en).h1 },
+  { seg: 'data-processing/', render: (w) => w.dpaPage(), title: (w) => (w.DPA_TR[w.LANG] || w.DPA_TR.en).h1 },
 ];
 
 /* Per-route, per-locale descriptions. Written out rather than derived: a description is sales
@@ -96,6 +97,11 @@ const ROUTE_DESC = {
     en: 'Alsaiti Growth pricing: three plans, monthly or annual with 20% off, each including the trilingual AI receptionist and the lead dashboard. Voice minutes are metered.',
     es: 'Precios de Alsaiti Growth: tres planes, mensual o anual con un 20% de descuento, todos con el recepcionista con IA trilingüe y el panel de clientes potenciales. Los minutos de voz son medidos.',
     ar: 'أسعار Alsaiti Growth: ثلاث خطط، شهرية أو سنوية بخصم 20%، وكلها تشمل موظف الاستقبال الذكي بثلاث لغات ولوحة العملاء المحتملين. ودقائق الصوت محتسبة.',
+  },
+  'data-processing/': {
+    en: 'Where UK and EU call data is stored, which sub-processors touch it, how long it is kept, and the security measures behind it — for the person who signs off your DPA.',
+    es: 'Dónde se almacenan los datos de llamadas del Reino Unido y la UE, qué subencargados los tratan, cuánto tiempo se conservan y qué medidas de seguridad los protegen: para quien aprueba su contrato de tratamiento.',
+    ar: 'أين تُخزَّن بيانات المكالمات في المملكة المتحدة والاتحاد الأوروبي، ومن المعالِجون الفرعيون، وكم مدة الاحتفاظ، وما التدابير الأمنية — لمن يعتمد اتفاقية معالجة بياناتك.',
   },
   'faq/': {
     en: 'Answers on call recordings, where your data is stored, the languages supported, setup time and cancellation — the questions buyers ask before signing.',

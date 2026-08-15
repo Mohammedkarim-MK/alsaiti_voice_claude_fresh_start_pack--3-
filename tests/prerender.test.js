@@ -26,7 +26,7 @@ console.log('=== prerendered locale pages ===\n');
 
 /* Every route in every locale. privacy/terms/legal existed only as hash routes before Phase 6 —
    real content, no URL, so nothing a crawler could index or a customer could link to. */
-const SEGMENTS = ['', 'privacy/', 'terms/', 'legal/', 'pricing/', 'faq/'];
+const SEGMENTS = ['', 'privacy/', 'terms/', 'legal/', 'pricing/', 'faq/', 'data-processing/'];
 const CODES = { en: { dir: 'ltr', ogLocale: 'en_GB' }, es: { dir: 'ltr', ogLocale: 'es_ES' }, ar: { dir: 'rtl', ogLocale: 'ar_AE' } };
 const LOCALES = [];
 for (const seg of SEGMENTS) {
