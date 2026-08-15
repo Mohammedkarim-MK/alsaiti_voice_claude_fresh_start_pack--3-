@@ -26,7 +26,7 @@
   # protection we were paying for. It costs nothing to allow: 'unsafe-inline' already permits
   # arbitrary inline script, which is a far broader capability than loading a same-origin file,
   # so 'self' adds no attack surface that was not already open.
-  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src 'self' https://*.supabase.co; media-src data: blob:; base-uri 'none'; form-action 'self'; object-src 'none'; frame-src 'none'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline' https://plausible.io; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src 'self' https://*.supabase.co https://plausible.io; media-src data: blob:; base-uri 'none'; form-action 'self'; object-src 'none'; frame-src 'none'; frame-ancestors 'none'
   X-Frame-Options: DENY
 
   # Nothing here is meant to be embedded by another origin.

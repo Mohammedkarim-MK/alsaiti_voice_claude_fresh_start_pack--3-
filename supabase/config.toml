@@ -59,3 +59,9 @@ verify_jwt = false
 # function refuses to run at all without STRIPE_WEBHOOK_SECRET.
 [functions.stripe-webhook]
 verify_jwt = false
+
+# Only a signed-in user may start checkout, and can_admin_as() then restricts it to a workspace
+# they administer. Without that, anyone could open a Checkout Session that provisions somebody
+# else's account once paid.
+[functions.stripe-billing]
+verify_jwt = true
