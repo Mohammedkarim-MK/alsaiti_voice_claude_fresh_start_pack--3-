@@ -70,6 +70,8 @@ const ROUTES = [
   { seg: 'privacy/', render: (w) => w.legalPage('privacy'), title: (w) => (w.LEGAL[w.LANG] || w.LEGAL.en).privacy.title },
   { seg: 'terms/',   render: (w) => w.legalPage('terms'),   title: (w) => (w.LEGAL[w.LANG] || w.LEGAL.en).terms.title },
   { seg: 'legal/',   render: (w) => w.legalPage('legal'),   title: (w) => (w.LEGAL_NOTICE[w.LANG] || w.LEGAL_NOTICE.en).title },
+  { seg: 'pricing/', render: (w) => w.pricingPage(),        title: (w) => (w.PRICING_TR[w.LANG] || w.PRICING_TR.en).h1 },
+  { seg: 'faq/',     render: (w) => w.faqPage(),            title: (w) => (w.FAQ_TR[w.LANG] || w.FAQ_TR.en).h1 },
 ];
 
 /* Per-route, per-locale descriptions. Written out rather than derived: a description is sales
@@ -89,6 +91,16 @@ const ROUTE_DESC = {
     en: 'Company information for Alsaiti Growth: registered details, data protection registration, complaints and governing law.',
     es: 'Información de la empresa Alsaiti Growth: datos registrales, registro de protección de datos, reclamaciones y legislación aplicable.',
     ar: 'معلومات شركة Alsaiti Growth: بيانات التسجيل، وتسجيل حماية البيانات، والشكاوى، والقانون الواجب التطبيق.',
+  },
+  'pricing/': {
+    en: 'Alsaiti Growth pricing: three plans, monthly or annual with 20% off, each including the trilingual AI receptionist and the lead dashboard. Voice minutes are metered.',
+    es: 'Precios de Alsaiti Growth: tres planes, mensual o anual con un 20% de descuento, todos con el recepcionista con IA trilingüe y el panel de clientes potenciales. Los minutos de voz son medidos.',
+    ar: 'أسعار Alsaiti Growth: ثلاث خطط، شهرية أو سنوية بخصم 20%، وكلها تشمل موظف الاستقبال الذكي بثلاث لغات ولوحة العملاء المحتملين. ودقائق الصوت محتسبة.',
+  },
+  'faq/': {
+    en: 'Answers on call recordings, where your data is stored, the languages supported, setup time and cancellation — the questions buyers ask before signing.',
+    es: 'Respuestas sobre grabaciones de llamadas, dónde se almacenan sus datos, los idiomas admitidos, el tiempo de puesta en marcha y la cancelación: lo que preguntan los clientes antes de firmar.',
+    ar: 'إجابات عن تسجيلات المكالمات، وأين تُخزَّن بياناتك، واللغات المدعومة، ومدة الإعداد، والإلغاء — الأسئلة التي يطرحها المشترون قبل التوقيع.',
   },
 };
 

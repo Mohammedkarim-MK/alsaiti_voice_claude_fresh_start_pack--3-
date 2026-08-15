@@ -386,6 +386,35 @@
   .legalcard h1{font-family:var(--serif);font-size:clamp(26px,4vw,36px);line-height:1.15;margin:14px 0 6px;color:var(--heading)}
   .legalcard h2{font-size:15px;margin:26px 0 6px;color:var(--heading)}
   .legalcard p{margin:0;line-height:1.7;color:var(--text);font-size:14.5px}
+  /* Pricing + FAQ. Logical properties throughout, so Arabic needs no override. */
+  .pagehead{max-width:860px;margin:0 auto 26px;text-align:center}
+  .pagehead h1{font-family:var(--serif);font-size:clamp(26px,4vw,38px);line-height:1.15;margin:14px 0 8px;color:var(--heading)}
+  .pagesub{color:var(--muted);font-size:15px;line-height:1.65;margin:0 auto;max-width:640px}
+  .billtoggle{display:inline-flex;gap:8px;margin-top:20px;padding:5px;border:1px solid var(--border);border-radius:99px;background:var(--card2)}
+  .savepill{font-size:10px;font-weight:800;padding:2px 6px;border-radius:99px;background:rgba(89,187,132,.18);color:var(--green);margin-inline-start:6px}
+  .pricegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:18px;align-items:start}
+  .plan{position:relative;padding:26px 22px}
+  .plan.pop{border-color:var(--green)}
+  .plan h2{font-size:19px;margin:0 0 4px;color:var(--heading)}
+  .planblurb{color:var(--muted);font-size:13.5px;line-height:1.55;margin:0 0 16px;min-height:42px}
+  .planprice{display:flex;align-items:baseline;gap:3px;margin-bottom:2px}
+  .planprice .cur{font-size:20px;color:var(--muted)}
+  .planprice .amt{font-size:40px;font-weight:800;color:var(--heading);letter-spacing:-.02em}
+  .planprice .per{font-size:13px;color:var(--muted);margin-inline-start:5px}
+  .planbill{font-size:12.5px;color:var(--muted);margin:0 0 4px}
+  /* Deliberately styled as a note, not as a price. It must not be mistaken for a number. */
+  .pricetbc{font-size:12px;color:var(--amber);margin:0 0 16px;line-height:1.5}
+  .planfeats{list-style:none;padding:0;margin:0 0 18px;display:grid;gap:9px}
+  .planfeats li{position:relative;padding-inline-start:22px;font-size:13.5px;line-height:1.5;color:var(--text)}
+  .planfeats li::before{content:"";position:absolute;inset-inline-start:2px;top:7px;width:8px;height:8px;
+    border-radius:50%;background:var(--green);opacity:.85}
+  .faqitem{border-bottom:1px solid var(--border);padding:4px 0}
+  .faqitem summary{cursor:pointer;padding:15px 0;list-style:none;display:flex;align-items:center;gap:10px}
+  .faqitem summary::-webkit-details-marker{display:none}
+  .faqitem summary h2{font-size:15.5px;margin:0;color:var(--heading);font-weight:650}
+  .faqitem summary::after{content:"+";margin-inline-start:auto;font-size:20px;color:var(--muted);line-height:1}
+  .faqitem[open] summary::after{content:"\2212"}
+  .faqitem p{padding:0 0 17px;margin:0;color:var(--text);font-size:14.5px;line-height:1.7;max-width:66ch}
   /* RTL mirroring for icons that indicate direction. scaleX(-1) rather than separate artwork:
      one rule, and it cannot fall out of step with the icon set. */
   [dir="rtl"] .ic-dir{transform:scaleX(-1)}
@@ -2109,10 +2138,12 @@ function renderView(){
   var hash=location.hash.replace(/^#\/?/,'')||(s?'dashboard':'landing');
   try{if(VOICE&&(VOICE.active||VOICE.timer)&&hash!=='voice')voiceEnd()}catch(e){}
   if(hash!=='new')UI.edit=null;   /* leaving the form ends the edit */
-  var pub=['landing','login','signup','confirm','privacy','terms','legal'];
+  var pub=['landing','login','signup','confirm','privacy','terms','legal','pricing','faq'];
   if(!s && pub.indexOf(hash)<0){location.hash='#/landing';return}
   if(s && pub.indexOf(hash)>=0){location.hash='#/dashboard';return}
   var root=document.getElementById('root');
+  if(hash==='pricing'){root.innerHTML=pricingPage();try{window.scrollTo(0,0)}catch(e){}return}
+  if(hash==='faq'){root.innerHTML=faqPage();try{window.scrollTo(0,0)}catch(e){}return}
   if(hash==='privacy'||hash==='terms'||hash==='legal'){root.innerHTML=legalPage(hash);try{window.scrollTo(0,0)}catch(e){}return}
   if(hash==='landing'){root.innerHTML=landing();try{animateStats();revealInit()}catch(e){}return}
   if(pub.indexOf(hash)>=0){root.innerHTML=authPage(hash);return}
@@ -2218,7 +2249,7 @@ function landing(){
       '<div><h4>'+esc(t('footer_navigate'))+'</h4>'+
         '<a onclick="scrollToId(\'sec-demos\')">'+esc(t('fn_services'))+'</a>'+
         '<a onclick="scrollToId(\'sec-ind\')">'+esc(t('fn_systems'))+'</a>'+
-        '<a onclick="scrollToId(\'sec-price\')">'+esc(t('fn_process'))+'</a>'+
+        '<a href="#/pricing">'+esc(t('fn_process'))+'</a>'+
         '<a onclick="scrollToId(\'sec-contact\')">'+esc(t('nav_contact'))+'</a>'+
         '<a href="#/privacy">'+esc(t('fn_privacy'))+'</a>'+
         '<a href="#/terms">'+esc(t('fn_terms'))+'</a>'+
@@ -3363,6 +3394,167 @@ function accountPanels(){
     '<section class="card setcard" id="acct-admin-card" style="display:none;grid-column:1/-1">'+
       '<h3>'+icon('shield')+' '+esc(t('admin_title'))+'</h3>'+
       '<div id="acct-admin"></div></section>';
+}
+
+/* ============================ Pricing and FAQ ============================
+   Both are prerendered per locale (tools/prerender.js), so the copy below is what a crawler and
+   a link-preview bot read — not something that appears after JS runs.
+
+   Prices are PLACEHOLDERS and say so on the page. Writing a plausible-looking number would be
+   the worst outcome here: it reads as real, it gets screenshotted into a proposal, and nobody
+   discovers it was invented until a customer quotes it back. */
+
+var PRICE_PLACEHOLDER = '—';        /* em dash: unmistakably "not a number yet" */
+var ANNUAL_DISCOUNT = 0.20;
+
+var PRICING_TR = {
+ en: {
+  title:'Pricing', h1:'Pricing that scales with the calls you answer',
+  sub:'Every plan includes the trilingual receptionist and the lead dashboard. Voice minutes are metered, and you can always see what you have used.',
+  monthly:'Monthly', annual:'Annual', save:'Save 20%',
+  permo:'per month', billed_annual:'billed annually', billed_monthly:'billed monthly',
+  popular:'Most popular', cta:'Book a call', cta_note:'No card required.',
+  tbc:'Price not yet published — ask us for a quote.',
+  incl:'Included in every plan',
+  tiers:[
+   {k:'starter', name:'Starter', blurb:'For a single location testing AI reception.',
+    feats:['Trilingual AI receptionist (EN / ES / AR)','Lead dashboard and enquiry timeline','Website contact form capture','Email alerts on every lead','1 team seat']},
+   {k:'growth', name:'Growth', blurb:'For a busy practice that misses calls at peak times.',
+    feats:['Everything in Starter','Higher voice-minute allowance','CRM integration','Call and chat transcripts','Up to 10 team seats']},
+   {k:'business', name:'Business', blurb:'For multi-site operators who need routing and reporting.',
+    feats:['Everything in Growth','Multiple locations and call routing','Usage and conversion reporting','Priority support','Up to 25 team seats']}
+  ],
+  included:['Data held in the EU','Cancel after your minimum term','No per-seat charge on Business','Every lead kept, even past your plan limit'],
+  vat:'Prices exclude VAT. A minimum four-month agreement applies unless your proposal says otherwise.'
+ },
+ es: {
+  title:'Precios', h1:'Precios que crecen con las llamadas que atiende',
+  sub:'Todos los planes incluyen el recepcionista trilingüe y el panel de clientes potenciales. Los minutos de voz son medidos y siempre puede ver cuántos ha consumido.',
+  monthly:'Mensual', annual:'Anual', save:'Ahorre un 20%',
+  permo:'al mes', billed_annual:'facturado anualmente', billed_monthly:'facturado mensualmente',
+  popular:'El más elegido', cta:'Reservar una llamada', cta_note:'Sin tarjeta.',
+  tbc:'Precio aún no publicado — pídanos un presupuesto.',
+  incl:'Incluido en todos los planes',
+  tiers:[
+   {k:'starter', name:'Starter', blurb:'Para un único centro que quiere probar la recepción con IA.',
+    feats:['Recepcionista con IA trilingüe (EN / ES / AR)','Panel de clientes e historial de consultas','Captación desde el formulario web','Avisos por correo en cada cliente potencial','1 plaza de equipo']},
+   {k:'growth', name:'Growth', blurb:'Para una consulta con mucha actividad que pierde llamadas en las horas punta.',
+    feats:['Todo lo de Starter','Más minutos de voz incluidos','Integración con CRM','Transcripciones de llamadas y chats','Hasta 10 plazas de equipo']},
+   {k:'business', name:'Business', blurb:'Para operadores con varias sedes que necesitan enrutamiento e informes.',
+    feats:['Todo lo de Growth','Varias sedes y enrutamiento de llamadas','Informes de consumo y conversión','Soporte prioritario','Hasta 25 plazas de equipo']}
+  ],
+  included:['Datos alojados en la UE','Cancele al terminar su periodo mínimo','Sin coste por plaza en Business','Todos los clientes potenciales se conservan, incluso al superar el límite'],
+  vat:'Precios sin IVA. Se aplica un compromiso mínimo de cuatro meses salvo que su propuesta indique otra cosa.'
+ },
+ ar: {
+  title:'الأسعار', h1:'أسعار تنمو مع عدد المكالمات التي تردّ عليها',
+  sub:'تشمل كل الخطط موظف الاستقبال بثلاث لغات ولوحة العملاء المحتملين. ودقائق الصوت محتسبة، ويمكنك دائمًا معرفة ما استهلكته.',
+  monthly:'شهريًا', annual:'سنويًا', save:'وفّر 20%',
+  permo:'شهريًا', billed_annual:'تُدفع سنويًا', billed_monthly:'تُدفع شهريًا',
+  popular:'الأكثر اختيارًا', cta:'احجز مكالمة', cta_note:'دون الحاجة إلى بطاقة.',
+  tbc:'لم يُنشر السعر بعد — اطلب منّا عرض سعر.',
+  incl:'مشمول في كل الخطط',
+  tiers:[
+   {k:'starter', name:'Starter', blurb:'لموقع واحد يجرّب الاستقبال بالذكاء الاصطناعي.',
+    feats:['موظف استقبال ذكي بثلاث لغات (إنجليزي / إسباني / عربي)','لوحة العملاء المحتملين وسجل الاستفسارات','التقاط الاستفسارات من نموذج الموقع','تنبيهات بالبريد عند كل عميل محتمل','مقعد واحد للفريق']},
+   {k:'growth', name:'Growth', blurb:'لعيادة مزدحمة تفوتها المكالمات في أوقات الذروة.',
+    feats:['كل ما في Starter','دقائق صوت أكثر','ربط مع نظام CRM','نصوص المكالمات والمحادثات','حتى 10 مقاعد للفريق']},
+   {k:'business', name:'Business', blurb:'لمن يدير عدة فروع ويحتاج توجيه المكالمات والتقارير.',
+    feats:['كل ما في Growth','عدة فروع وتوجيه للمكالمات','تقارير الاستهلاك والتحويل','دعم ذو أولوية','حتى 25 مقعدًا للفريق']}
+  ],
+  included:['البيانات محفوظة داخل الاتحاد الأوروبي','يمكنك الإلغاء بعد انتهاء الحد الأدنى للمدة','لا رسوم لكل مقعد في خطة Business','يُحتفظ بكل عميل محتمل حتى بعد تجاوز حد خطتك'],
+  vat:'الأسعار غير شاملة ضريبة القيمة المضافة. ويسري حد أدنى للاتفاق مدته أربعة أشهر ما لم ينص عرضك على خلاف ذلك.'
+ }
+};
+
+var FAQ_TR = {
+ en: { title:'FAQ', h1:'Questions we get asked before signing',
+  sub:'If something you need is not here, email us and we will answer it plainly.',
+  items:[
+   ['What happens to call recordings?','Recording behaviour is set per account and is confirmed with you before go-live. Callers hear an AI disclosure at the start of every call, and that consent is recorded against the call. We are finalising the published retention period; ask us and we will confirm it in writing for your account.'],
+   ['Where is my data stored?','In the EU. Leads, transcripts and account data are held in a Supabase project in the EU region. The full picture, including every sub-processor, is on the Data Processing page.'],
+   ['Which languages are supported?','English, Spanish and Arabic — for the receptionist, the website chat and the dashboard itself. A caller is answered in the language they speak, not the language your site defaults to.'],
+   ['How long does setup take?','Setup is a guided process covering your services, hours and qualifying questions. We confirm a realistic date with you on the first call rather than promising a number that suits us.'],
+   ['Can I cancel?','A minimum four-month agreement applies unless your proposal says otherwise. After that you can cancel at any time, and you keep an export of every lead.'],
+   ['What happens if the AI cannot answer?','It stops guessing. The caller is told a person will follow up, the enquiry is captured with everything gathered so far, and your team is alerted. A lead is never lost because the assistant did not know something.'],
+   ['Do callers know they are talking to AI?','Yes. An AI disclosure is played at the start of the call and stored against that call, so you can evidence it later.']
+  ]},
+ es: { title:'Preguntas frecuentes', h1:'Lo que nos preguntan antes de firmar',
+  sub:'Si falta algo que necesita saber, escríbanos y se lo responderemos con claridad.',
+  items:[
+   ['¿Qué ocurre con las grabaciones de llamadas?','El comportamiento de grabación se configura por cuenta y se confirma con usted antes de la puesta en marcha. Quien llama escucha un aviso de IA al inicio de cada llamada y ese consentimiento queda registrado. Estamos ultimando el periodo de conservación publicado; pídanoslo y se lo confirmaremos por escrito para su cuenta.'],
+   ['¿Dónde se almacenan mis datos?','En la UE. Los clientes potenciales, las transcripciones y los datos de la cuenta se alojan en un proyecto de Supabase en la región de la UE. El detalle completo, con todos los subencargados, está en la página de Tratamiento de Datos.'],
+   ['¿Qué idiomas admite?','Inglés, español y árabe: en el recepcionista, en el chat del sitio web y en el propio panel. A quien llama se le atiende en su idioma, no en el idioma por defecto de su web.'],
+   ['¿Cuánto tarda la puesta en marcha?','Es un proceso guiado que cubre sus servicios, su horario y sus preguntas de cualificación. Acordamos una fecha realista con usted en la primera llamada en lugar de prometer una cifra que nos convenga.'],
+   ['¿Puedo cancelar?','Se aplica un compromiso mínimo de cuatro meses salvo que su propuesta indique otra cosa. Después puede cancelar cuando quiera y conserva una exportación de todos sus clientes potenciales.'],
+   ['¿Qué pasa si la IA no sabe responder?','Deja de improvisar. Se informa a quien llama de que una persona le contactará, la consulta se guarda con todo lo recogido hasta ese momento y se avisa a su equipo. Nunca se pierde un cliente potencial porque el asistente no supiera algo.'],
+   ['¿Sabe quien llama que habla con una IA?','Sí. Se reproduce un aviso de IA al inicio de la llamada y queda registrado en esa llamada, de modo que puede acreditarlo después.']
+  ]},
+ ar: { title:'الأسئلة الشائعة', h1:'أسئلة تُطرح علينا قبل التوقيع',
+  sub:'إن لم تجد ما تحتاجه هنا، راسلنا وسنجيبك بوضوح.',
+  items:[
+   ['ماذا يحدث لتسجيلات المكالمات؟','تُضبط سياسة التسجيل لكل حساب على حدة وتُعتمد معك قبل الإطلاق. ويسمع المتصل إشعارًا بأنه يتحدث إلى ذكاء اصطناعي في بداية كل مكالمة، ويُسجَّل هذا الإقرار مع المكالمة. ونحن بصدد اعتماد مدة الاحتفاظ المنشورة؛ اطلبها وسنؤكدها لك كتابةً لحسابك.'],
+   ['أين تُخزَّن بياناتي؟','داخل الاتحاد الأوروبي. تُحفظ بيانات العملاء المحتملين والنصوص وبيانات الحساب في مشروع Supabase في منطقة الاتحاد الأوروبي. والتفاصيل الكاملة، بما فيها كل معالج فرعي، في صفحة معالجة البيانات.'],
+   ['ما اللغات المدعومة؟','الإنجليزية والإسبانية والعربية — في موظف الاستقبال، وفي محادثة الموقع، وفي لوحة التحكم نفسها. ويُرد على المتصل بلغته هو، لا بلغة موقعك الافتراضية.'],
+   ['كم يستغرق الإعداد؟','الإعداد عملية موجَّهة تشمل خدماتك وساعات عملك وأسئلة التأهيل. ونتفق معك على موعد واقعي في المكالمة الأولى بدل الوعد برقم يناسبنا نحن.'],
+   ['هل يمكنني الإلغاء؟','يسري حد أدنى للاتفاق مدته أربعة أشهر ما لم ينص عرضك على خلاف ذلك. وبعدها يمكنك الإلغاء في أي وقت، وتحتفظ بنسخة مُصدَّرة من كل عملائك المحتملين.'],
+   ['ماذا لو لم يستطع الذكاء الاصطناعي الإجابة؟','يتوقف عن التخمين. يُبلَّغ المتصل بأن أحد الموظفين سيتواصل معه، ويُحفظ الاستفسار بكل ما جُمع حتى تلك اللحظة، ويُنبَّه فريقك. ولا يضيع عميل محتمل لأن المساعد لم يعرف شيئًا.'],
+   ['هل يعرف المتصل أنه يتحدث إلى ذكاء اصطناعي؟','نعم. يُشغَّل إشعار بذلك في بداية المكالمة ويُحفظ مع تلك المكالمة، فيمكنك إثباته لاحقًا.']
+  ]}
+};
+
+function ptr(){return PRICING_TR[LANG]||PRICING_TR.en}
+function ftr(){return FAQ_TR[LANG]||FAQ_TR.en}
+
+var BILLING = 'annual';
+function setBilling(v){BILLING=(v==='monthly'?'monthly':'annual');render()}
+
+function pricingPage(){
+  var T=ptr(), annual=BILLING==='annual';
+  return '<div class="legalwrap"><div class="pagehead">'+
+      '<a class="link" style="font-size:13px" href="#/landing">&larr; '+esc(t('legal_back'))+'</a>'+
+      '<h1>'+esc(T.h1)+'</h1><p class="pagesub">'+esc(T.sub)+'</p>'+
+      '<div class="billtoggle" role="group" aria-label="'+esc(T.monthly)+' / '+esc(T.annual)+'">'+
+        '<button type="button" class="btn btn-sm'+(annual?'':' btn-primary')+'" aria-pressed="'+(!annual)+'" onclick="setBilling(\'monthly\')">'+esc(T.monthly)+'</button>'+
+        '<button type="button" class="btn btn-sm'+(annual?' btn-primary':'')+'" aria-pressed="'+annual+'" onclick="setBilling(\'annual\')">'+esc(T.annual)+' <span class="savepill">'+esc(T.save)+'</span></button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="pricegrid">'+T.tiers.map(function(tier,i){
+      var pop=i===1;
+      return '<section class="card plan'+(pop?' pop':'')+'">'+
+        (pop?'<div class="poptag">'+esc(T.popular)+'</div>':'')+
+        '<h2>'+esc(tier.name)+'</h2>'+
+        '<p class="planblurb">'+esc(tier.blurb)+'</p>'+
+        /* The price is not known yet and the page says so rather than showing a number that
+           would be screenshotted into somebody's proposal and quoted back at us. */
+        '<div class="planprice"><span class="cur">£</span><span class="amt">'+PRICE_PLACEHOLDER+'</span>'+
+          '<span class="per">'+esc(T.permo)+'</span></div>'+
+        '<p class="planbill">'+esc(annual?T.billed_annual:T.billed_monthly)+'</p>'+
+        '<p class="pricetbc">'+esc(T.tbc)+'</p>'+
+        '<ul class="planfeats">'+tier.feats.map(function(f){return '<li>'+esc(f)+'</li>'}).join('')+'</ul>'+
+        '<button class="btn '+(pop?'btn-primary':'')+'" style="width:100%;justify-content:center" onclick="scrollToId(\'sec-contact\')">'+esc(T.cta)+'</button>'+
+        '<p class="sethint" style="text-align:center;margin-top:8px">'+esc(T.cta_note)+'</p>'+
+      '</section>';
+    }).join('')+'</div>'+
+    '<section class="card" style="margin-top:26px"><h2 style="font-size:15px">'+esc(T.incl)+'</h2>'+
+      '<ul class="planfeats">'+T.included.map(function(f){return '<li>'+esc(f)+'</li>'}).join('')+'</ul>'+
+      '<p class="sethint">'+esc(T.vat)+'</p>'+
+    '</section></div>';
+}
+
+function faqPage(){
+  var T=ftr();
+  return '<div class="legalwrap"><div class="legalcard">'+
+    '<a class="link" style="font-size:13px" href="#/landing">&larr; '+esc(t('legal_back'))+'</a>'+
+    '<h1>'+esc(T.h1)+'</h1><p class="pagesub">'+esc(T.sub)+'</p>'+
+    /* <details> rather than a JS accordion: it works in the prerendered HTML before any script
+       runs, which is the whole point of the page being crawlable, and it is keyboard-accessible
+       and screen-reader-announced without any ARIA of our own. */
+    T.items.map(function(it){
+      return '<details class="faqitem"><summary><h2>'+esc(it[0])+'</h2></summary>'+
+             '<p>'+esc(it[1])+'</p></details>';
+    }).join('')+
+  '</div></div>';
 }
 
 function settingsPage(){
