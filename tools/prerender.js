@@ -60,6 +60,44 @@ const LOCALES = {
   },
 };
 
+/* Routes, not just locales. Everything below is generated as <locale>/<segment>/index.html.
+   privacy/terms/legal already existed with real, translated content — but only as hash routes,
+   which have no URL, so a crawler could not index them and nobody could link to one. Their
+   titles come from the app's own LEGAL tables, which are already translated, rather than being
+   restated here where they would drift. */
+const ROUTES = [
+  { seg: '',         render: (w) => w.landing(),            title: null },
+  { seg: 'privacy/', render: (w) => w.legalPage('privacy'), title: (w) => (w.LEGAL[w.LANG] || w.LEGAL.en).privacy.title },
+  { seg: 'terms/',   render: (w) => w.legalPage('terms'),   title: (w) => (w.LEGAL[w.LANG] || w.LEGAL.en).terms.title },
+  { seg: 'legal/',   render: (w) => w.legalPage('legal'),   title: (w) => (w.LEGAL_NOTICE[w.LANG] || w.LEGAL_NOTICE.en).title },
+];
+
+/* Per-route, per-locale descriptions. Written out rather than derived: a description is sales
+   copy, and truncating the first paragraph of a privacy policy makes a bad search result. */
+const ROUTE_DESC = {
+  'privacy/': {
+    en: 'How Alsaiti Growth collects, uses and stores personal data from enquiries, calls and the lead dashboard, and the rights you have over it.',
+    es: 'Cómo Alsaiti Growth recopila, utiliza y almacena los datos personales de consultas, llamadas y el panel de clientes potenciales, y qué derechos tiene usted sobre ellos.',
+    ar: 'كيف يجمع Alsaiti Growth البيانات الشخصية من الاستفسارات والمكالمات ولوحة العملاء المحتملين ويستخدمها ويخزّنها، وما حقوقك تجاهها.',
+  },
+  'terms/': {
+    en: 'The terms that apply when you use Alsaiti Growth: plans and fees, what is included, what a Demo label means, and how to cancel.',
+    es: 'Las condiciones aplicables al uso de Alsaiti Growth: planes y tarifas, qué se incluye, qué significa la etiqueta Demo y cómo cancelar.',
+    ar: 'الشروط التي تسري عند استخدام Alsaiti Growth: الخطط والرسوم، وما هو مشمول، ومعنى وسم Demo، وكيفية الإلغاء.',
+  },
+  'legal/': {
+    en: 'Company information for Alsaiti Growth: registered details, data protection registration, complaints and governing law.',
+    es: 'Información de la empresa Alsaiti Growth: datos registrales, registro de protección de datos, reclamaciones y legislación aplicable.',
+    ar: 'معلومات شركة Alsaiti Growth: بيانات التسجيل، وتسجيل حماية البيانات، والشكاوى، والقانون الواجب التطبيق.',
+  },
+};
+
+/* One place that knows how a (locale, route) pair becomes a URL and a file. English lives at the
+   root with no locale segment, so /privacy/ and /es/privacy/ are siblings rather than /en/ being
+   a fourth copy of everything — a duplicate that would then need its own canonical. */
+const urlFor  = (code, seg) => ORIGIN + '/' + (code === 'en' ? '' : code + '/') + seg;
+const fileFor = (code, seg) => 'docs/' + (code === 'en' ? '' : code + '/') + seg + 'index.html';
+
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
   .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -75,23 +113,29 @@ function ogImage() {
     : '\n<!-- og:image omitted: docs/og-image.png does not exist yet (Phase 4). A tag pointing\n     at a 404 is worse than no tag, because some preview caches remember the failure. -->';
 }
 
-function metaBlock(code) {
+function metaBlock(code, route) {
   const L = LOCALES[code];
-  /* x-default points at the English root: it is what an unmatched language should be served,
-     and omitting it makes Google pick one itself. */
+  const seg = route.seg;
+  const url = urlFor(code, seg);
+  /* Route-specific where one exists, falling back to the locale's own. A description is sales
+     copy; truncating the first paragraph of a privacy policy makes a poor search result. */
+  const desc = (ROUTE_DESC[seg] && ROUTE_DESC[seg][code]) || L.description;
+  /* Alternates point at the SAME route in each language, not at each language's home page.
+     hreflang is a statement that two URLs are translations of each other — pointing /es/privacy/
+     at the Spanish landing page would be false, and Google drops the whole cluster when it is. */
   const alternates = Object.keys(LOCALES)
-    .map((c) => `<link rel="alternate" hreflang="${c}" href="${LOCALES[c].url}"/>`)
-    .concat([`<link rel="alternate" hreflang="x-default" href="${LOCALES.en.url}"/>`])
+    .map((c) => `<link rel="alternate" hreflang="${c}" href="${urlFor(c, seg)}"/>`)
+    .concat([`<link rel="alternate" hreflang="x-default" href="${urlFor('en', seg)}"/>`])
     .join('\n');
   const otherLocales = Object.keys(LOCALES).filter((c) => c !== code)
     .map((c) => `<meta property="og:locale:alternate" content="${LOCALES[c].ogLocale}"/>`).join('\n');
 
   return [
-    `<meta name="description" content="${esc(L.description)}"/>`,
-    `<link rel="canonical" href="${L.url}"/>`,
+    `<meta name="description" content="${esc(desc)}"/>`,
+    `<link rel="canonical" href="${url}"/>`,
     alternates,
     `<meta property="og:type" content="website"/>`,
-    `<meta property="og:url" content="${L.url}"/>`,
+    `<meta property="og:url" content="${url}"/>`,
     `<meta property="og:site_name" content="Alsaiti Growth"/>`,
     `<meta property="og:locale" content="${L.ogLocale}"/>`,
     otherLocales,
@@ -109,18 +153,33 @@ function replaceBetween(html, startMark, endMark, body) {
   return html.slice(0, i + startMark.length) + body + html.slice(j);
 }
 
-function build(code, source) {
+function build(code, route, source) {
   const L = LOCALES[code];
+  const url = urlFor(code, route.seg);
 
-  // Render the app's own landing page for this locale.
-  const dom = new JSDOM(source, { runScripts: 'dangerously', url: L.url });
+  /* Swallow jsdom's "Not implemented" notices. Setting location.hash on boot fires a hashchange,
+     which calls window.scrollTo — real in a browser, absent in jsdom. Left alone it prints a
+     stack trace per page, and a build that emits thirty stack traces is one where nobody notices
+     the thirty-first that actually matters. Genuine exceptions still propagate and fail the run. */
+  const { VirtualConsole } = require(path.join(ROOT, 'tests', 'node_modules', 'jsdom'));
+  const vc = new VirtualConsole();
+  vc.on('jsdomError', (e) => {
+    if (!/Not implemented/.test(String(e && e.message))) throw e;
+  });
+
+  // Render this route, in this locale, using the app's own render functions.
+  const dom = new JSDOM(source, { runScripts: 'dangerously', url, virtualConsole: vc });
   const w = dom.window;
   w.LANG = code;
   if (typeof w.applyDir === 'function') w.applyDir();
-  const landing = w.landing();
-  if (!landing || landing.length < 5000) {
-    throw new Error(`landing() returned ${landing ? landing.length : 0} bytes for ${code} — refusing to write a near-empty page`);
+  const body = route.render(w);
+  /* A legal page is far shorter than the landing page, so the floor is low. It exists only to
+     catch a render that returned nothing — the failure that would otherwise publish a blank page
+     and still report a successful build. */
+  if (!body || body.length < 1200) {
+    throw new Error(`${route.seg || '/'} returned ${body ? body.length : 0} bytes for ${code} — refusing to write a near-empty page`);
   }
+  const title = route.title ? route.title(w) : L.title;
 
   let out = source;
   /* Match the whole tag, not the literal '<html lang="en">'. docs/index.html is both the source
@@ -131,10 +190,10 @@ function build(code, source) {
   const htmlTag = /<html\b[^>]*>/;
   if (!htmlTag.test(out)) throw new Error('no <html> tag found in the source');
   out = out.replace(htmlTag, `<html lang="${code}" dir="${L.dir}">`);
-  out = out.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(L.title)}</title>`);
+  out = out.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(title)}</title>`);
   out = replaceBetween(out, '<!-- LOCALE-META:START -->', '<!-- LOCALE-META:END -->',
-                       '\n' + metaBlock(code) + '\n');
-  out = replaceBetween(out, '<!--PRERENDER:START-->', '<!--PRERENDER:END-->', landing);
+                       '\n' + metaBlock(code, route) + '\n');
+  out = replaceBetween(out, '<!--PRERENDER:START-->', '<!--PRERENDER:END-->', body);
 
   /* Sub-locale files sit one directory down, so root-relative asset paths still resolve — but
      _headers and 404.html are served from the root by Cloudflare regardless of directory. */
@@ -149,39 +208,49 @@ if (!source.includes('<!--PRERENDER:START-->')) {
 }
 
 let stale = 0;
-for (const code of Object.keys(LOCALES)) {
-  const target = path.join(ROOT, LOCALES[code].out);
-  const built = build(code, source);
-  const existing = fs.existsSync(target) ? fs.readFileSync(target, 'utf8') : null;
+for (const route of ROUTES) {
+  for (const code of Object.keys(LOCALES)) {
+    const rel = fileFor(code, route.seg);
+    const target = path.join(ROOT, rel);
+    const built = build(code, route, source);
+    const existing = fs.existsSync(target) ? fs.readFileSync(target, 'utf8') : null;
 
-  if (CHECK) {
-    if (existing !== built) { stale++; console.log('  STALE  ' + LOCALES[code].out); }
-    else console.log('  ok     ' + LOCALES[code].out);
-    continue;
+    if (CHECK) {
+      if (existing !== built) { stale++; console.log('  STALE  ' + rel); }
+      else console.log('  ok     ' + rel);
+      continue;
+    }
+
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, built);
+    const text = new JSDOM('<div>' + built.slice(built.indexOf('<!--PRERENDER:START-->'),
+      built.indexOf('<!--PRERENDER:END-->')) + '</div>').window.document.body.textContent
+      .replace(/\s+/g, ' ').trim();
+    console.log(`  wrote  ${rel.padEnd(30)} ${String(Math.round(built.length / 1024)).padStart(4)} KB   ${String(text.length).padStart(5)} chars crawlable`);
   }
-
-  fs.mkdirSync(path.dirname(target), { recursive: true });
-  fs.writeFileSync(target, built);
-  const text = new JSDOM('<div>' + built.slice(built.indexOf('<!--PRERENDER:START-->'),
-    built.indexOf('<!--PRERENDER:END-->')) + '</div>').window.document.body.textContent
-    .replace(/\s+/g, ' ').trim();
-  console.log(`  wrote  ${LOCALES[code].out.padEnd(22)} ${String(Math.round(built.length / 1024)).padStart(4)} KB   ${String(text.length).padStart(5)} chars of crawlable text`);
 }
 
 /* sitemap.xml and robots.txt are generated here rather than hand-written, so they cannot drift
    from the locale list above. Adding a fourth language should mean editing LOCALES and nothing
    else. */
 function sitemap() {
-  const urls = Object.keys(LOCALES).map((code) => {
-    /* xhtml:link alternates inside each <url> is the form Google documents for multilingual
-       sitemaps: every entry lists every language INCLUDING itself, so each is a complete
-       statement of the set rather than a fragment that has to be joined up. */
-    const alts = Object.keys(LOCALES)
-      .map((c) => `    <xhtml:link rel="alternate" hreflang="${c}" href="${LOCALES[c].url}"/>`)
-      .concat([`    <xhtml:link rel="alternate" hreflang="x-default" href="${LOCALES.en.url}"/>`])
-      .join('\n');
-    return `  <url>\n    <loc>${LOCALES[code].url}</loc>\n${alts}\n    <changefreq>weekly</changefreq>\n    <priority>${code === 'en' ? '1.0' : '0.9'}</priority>\n  </url>`;
-  }).join('\n');
+  const entries = [];
+  for (const route of ROUTES) {
+    for (const code of Object.keys(LOCALES)) {
+      /* xhtml:link alternates inside each <url> is the form Google documents for multilingual
+         sitemaps: every entry lists every language INCLUDING itself, so each is a complete
+         statement of the set rather than a fragment that has to be joined up. */
+      const alts = Object.keys(LOCALES)
+        .map((c) => `    <xhtml:link rel="alternate" hreflang="${c}" href="${urlFor(c, route.seg)}"/>`)
+        .concat([`    <xhtml:link rel="alternate" hreflang="x-default" href="${urlFor('en', route.seg)}"/>`])
+        .join('\n');
+      /* The home page outranks the legal pages, and English outranks the translations only
+         because it is the default — not because the others matter less. */
+      const priority = route.seg === '' ? (code === 'en' ? '1.0' : '0.9') : '0.5';
+      entries.push(`  <url>\n    <loc>${urlFor(code, route.seg)}</loc>\n${alts}\n    <changefreq>${route.seg === '' ? 'weekly' : 'monthly'}</changefreq>\n    <priority>${priority}</priority>\n  </url>`);
+    }
+  }
+  const urls = entries.join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`;
 }
 

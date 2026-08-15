@@ -24,18 +24,28 @@ const ok = (c, name, detail) => {
 
 console.log('=== prerendered locale pages ===\n');
 
-const LOCALES = [
-  { code: 'en', file: 'docs/index.html',    dir: 'ltr', url: 'https://alsaitigrowth.com/',    ogLocale: 'en_GB' },
-  { code: 'es', file: 'docs/es/index.html', dir: 'ltr', url: 'https://alsaitigrowth.com/es/', ogLocale: 'es_ES' },
-  { code: 'ar', file: 'docs/ar/index.html', dir: 'rtl', url: 'https://alsaitigrowth.com/ar/', ogLocale: 'ar_AE' },
-];
+/* Every route in every locale. privacy/terms/legal existed only as hash routes before Phase 6 —
+   real content, no URL, so nothing a crawler could index or a customer could link to. */
+const SEGMENTS = ['', 'privacy/', 'terms/', 'legal/'];
+const CODES = { en: { dir: 'ltr', ogLocale: 'en_GB' }, es: { dir: 'ltr', ogLocale: 'es_ES' }, ar: { dir: 'rtl', ogLocale: 'ar_AE' } };
+const LOCALES = [];
+for (const seg of SEGMENTS) {
+  for (const code of Object.keys(CODES)) {
+    LOCALES.push({
+      code, seg,
+      file: 'docs/' + (code === 'en' ? '' : code + '/') + seg + 'index.html',
+      dir: CODES[code].dir, ogLocale: CODES[code].ogLocale,
+      url: 'https://alsaitigrowth.com/' + (code === 'en' ? '' : code + '/') + seg,
+    });
+  }
+}
 
 /* A word that must appear in that locale and cannot appear in the others. This is what proves
    the page is genuinely translated rather than English markup under a Spanish URL. */
 const MARKER = { en: 'Live demos', es: 'Demos en directo', ar: 'العروض المباشرة' };
 
 for (const L of LOCALES) {
-  console.log(L.code.toUpperCase() + ' — ' + L.file);
+  console.log(L.code.toUpperCase() + ' ' + (L.seg || '/') + ' — ' + L.file);
   const p = path.join(ROOT, L.file);
   if (!fs.existsSync(p)) { ok(false, L.file + ' exists', 'run: node tools/prerender.js'); continue; }
   const html = fs.readFileSync(p, 'utf8');
@@ -49,15 +59,24 @@ for (const L of LOCALES) {
   // The whole point: content in the served HTML.
   const root = doc.getElementById('root');
   const text = root ? root.textContent.replace(/\s+/g, ' ').trim() : '';
-  ok(text.length > 2000, 'crawlable text in #root (' + text.length + ' chars)',
+  const floor = L.seg === '' ? 2000 : 1000;
+  ok(text.length > floor, 'crawlable text in #root (' + text.length + ' chars)',
     'the served HTML is empty — a link-preview bot sees nothing');
   ok(root && root.querySelectorAll('h1,h2,h3').length >= 3, 'real headings present',
     'no headings in the served HTML');
 
-  ok(text.includes(MARKER[L.code]), 'content is actually in ' + L.code.toUpperCase(),
-    'expected to find ' + JSON.stringify(MARKER[L.code]) + ' — this page is not in the language its URL claims');
-  for (const other of Object.keys(MARKER).filter((c) => c !== L.code)) {
-    ok(!text.includes(MARKER[other]), 'no ' + other.toUpperCase() + ' copy leaked in', 'mixed languages on one page');
+  if (L.seg === '') {
+    ok(text.includes(MARKER[L.code]), 'content is actually in ' + L.code.toUpperCase(),
+      'expected ' + JSON.stringify(MARKER[L.code]) + ' — this page is not in the language its URL claims');
+    for (const other of Object.keys(MARKER).filter((c) => c !== L.code)) {
+      ok(!text.includes(MARKER[other]), 'no ' + other.toUpperCase() + ' copy leaked in', 'mixed languages on one page');
+    }
+  } else {
+    /* A legal page must NOT contain the landing page's nav copy — that is what it would look
+       like if the app replaced the prerendered content with the home page on boot, which is
+       exactly what happens without the path->hash mapping. */
+    ok(!text.includes(MARKER[L.code]), 'the route rendered itself, not the landing page',
+      'this file contains landing-page copy — prerendering wrote the wrong route');
   }
 
   const meta = (sel, attr) => { const e = doc.querySelector(sel); return e && e.getAttribute(attr || 'content'); };
