@@ -120,13 +120,29 @@ LTR inside Arabic — not a mirroring rule. The three padding shorthands became
 directions before the change, compared against `http://localhost:8788` after. Use
 `preview_start {name:"docs"}` — `.claude/launch.json` now defines a static server for `docs/`.
 
+## Phase 5 — PART 2 DONE (`d927841`)
+
+- **Directional icons now mirror in RTL.** They did not before — the arrow path
+  `M5 12h14M13 6l6 6-6 6` rendered `transform:none` at `dir=rtl`, pointing backwards to an
+  Arabic reader. `icon()` tags 8 directional names with `.ic-dir`; object icons (phone, mail,
+  clock) are deliberately excluded. Verified in-browser: 1 mirrored, 37 untouched.
+- **Positioning sweep finished.** My "~19 rules" estimate was wrong — most `left:`/`right:` are
+  centering or symmetric and carry no direction. Only 4 were directional. 2 overrides deleted,
+  2 reduced to what logic cannot express (`translateX`, `border-radius`).
+- **`.field` inputs got a focus ring** to match `.form2`.
+
+### Correction worth keeping
+I reported "9 of 12 focusable elements have no visible focus indicator". **That was wrong.**
+The probe called `.focus()` and read `outline` — but `:focus-visible` does not match
+programmatic focus, and the page was not the active document, so it measured nothing. Re-tested
+with a real Tab keypress: buttons already had an outline, `.form2` inputs already had a ring.
+Focus was never broken. Outline is not the only way to draw focus, and a browser is not a DOM.
+
 ### Still open in Phase 5
 | Item | Effort |
 |---|---|
-| Absolute-positioning `left:`/`right:` pairs → `inset-inline-*` (~19 rules, same pattern) | 1–2 h |
-| Directional icon mirroring (arrows/chevrons under RTL) — **still unverified** | 1 h |
 | One `h2`→`h4` heading jump on the landing page | 10 min |
-| Visible focus states (`:focus-visible`) — needs a real browser to measure | 1 h |
+| Contrast of the focus ring itself against adjacent colours (WCAG 2.2 2.4.11, beyond the 2.1 AA target) | 30 min |
 
 ### Manual RTL check for MK
 1. Open `https://alsaitigrowth.com/ar/` — page must be right-to-left with no horizontal scrollbar.
