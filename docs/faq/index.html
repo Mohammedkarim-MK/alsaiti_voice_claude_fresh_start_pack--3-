@@ -3750,42 +3750,22 @@ function dpaPage(){
 }
 
 function pricingPage(){
-  var T=ptr(), annual=BILLING==='annual';
-  return '<div class="legalwrap"><div class="pagehead">'+
+  var T=ptr();
+  /* Renders the SAME pricingSection() the landing page uses, rather than a second set of tiers.
+     Phase 6 built this page from the brief — Starter/Growth/Business at a placeholder price —
+     without checking whether prices already existed. They did: Starter/Growth/Full Automation at
+     GBP 499/799/1,200, already translated, already carrying setup fees. The site therefore had two
+     pricing pages that disagreed on both the names and the numbers, which is worse than having
+     one that is merely incomplete. One source of truth now; change a price in pricingSection()
+     and this page changes with it. */
+  return '<div class="legalwrap">'+
+    '<div class="pagehead">'+
       '<a class="link" style="font-size:13px" href="#/landing">&larr; '+esc(t('legal_back'))+'</a>'+
       '<h1>'+esc(T.h1)+'</h1><p class="pagesub">'+esc(T.sub)+'</p>'+
-      '<div class="billtoggle" role="group" aria-label="'+esc(T.monthly)+' / '+esc(T.annual)+'">'+
-        '<button type="button" class="btn btn-sm'+(annual?'':' btn-primary')+'" aria-pressed="'+(!annual)+'" onclick="setBilling(\'monthly\')">'+esc(T.monthly)+'</button>'+
-        '<button type="button" class="btn btn-sm'+(annual?' btn-primary':'')+'" aria-pressed="'+annual+'" onclick="setBilling(\'annual\')">'+esc(T.annual)+' <span class="savepill">'+esc(T.save)+'</span></button>'+
-      '</div>'+
     '</div>'+
-    '<div class="pricegrid">'+T.tiers.map(function(tier,i){
-      var pop=i===1;
-      return '<section class="card plan'+(pop?' pop':'')+'">'+
-        (pop?'<div class="poptag">'+esc(T.popular)+'</div>':'')+
-        '<h2>'+esc(tier.name)+'</h2>'+
-        '<p class="planblurb">'+esc(tier.blurb)+'</p>'+
-        /* The price is not known yet and the page says so rather than showing a number that
-           would be screenshotted into somebody's proposal and quoted back at us. */
-        '<div class="planprice"><span class="cur">£</span><span class="amt">'+PRICE_PLACEHOLDER+'</span>'+
-          '<span class="per">'+esc(T.permo)+'</span></div>'+
-        '<p class="planbill">'+esc(annual?T.billed_annual:T.billed_monthly)+'</p>'+
-        '<p class="pricetbc">'+esc(T.tbc)+'</p>'+
-        '<ul class="planfeats">'+tier.feats.map(function(f){return '<li>'+esc(f)+'</li>'}).join('')+'</ul>'+
-        /* Plan, period and language on the event: the whole point of Phase 8 is knowing which
-           of the three languages actually converts, and a plan click with no language attached
-           cannot answer that. */
-        '<button class="btn '+(pop?'btn-primary':'')+'" style="width:100%;justify-content:center" '+
-          'onclick="track(\'Plan click\',{plan:\''+jsq(tier.name)+'\',period:BILLING,lang:LANG});scrollToId(\'sec-contact\')">'+
-          esc(T.cta)+'</button>'+
-        '<p class="sethint" style="text-align:center;margin-top:8px">'+esc(T.cta_note)+'</p>'+
-      '</section>';
-    }).join('')+'</div>'+
-    bookingSection()+liveCallSection()+
-    '<section class="card" style="margin-top:26px"><h2 style="font-size:15px">'+esc(T.incl)+'</h2>'+
-      '<ul class="planfeats">'+T.included.map(function(f){return '<li>'+esc(f)+'</li>'}).join('')+'</ul>'+
-      '<p class="sethint">'+esc(T.vat)+'</p>'+
-    '</section></div>';
+    pricingSection()+
+    '<section class="section" id="sec-book">'+bookingSection()+liveCallSection()+'</section>'+
+  '</div>';
 }
 
 function faqPage(){
