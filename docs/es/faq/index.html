@@ -331,6 +331,14 @@
 
   /* landing */
   .landing{max-width:1120px;margin:0 auto;padding:20px 20px 60px}
+  /* The bar is a full pill (999px) but its button was only softly rounded, so the CTA read as a
+     rectangle dropped into a capsule. Matching the radius makes them one component. */
+  .lnav .navcta{border-radius:999px;padding:9px 20px;font-weight:650;letter-spacing:.01em;
+    box-shadow:0 8px 20px -10px var(--shadow)}
+  .lnav .navcta:hover{transform:translateY(-1px)}
+  /* The sticky bar sat over the top of every anchored section — the pricing subtitle arrived
+     sliced in half, which is visible in the screenshots. scroll-margin reserves its height. */
+  .section[id]{scroll-margin-top:86px}
   .lnav{display:flex;align-items:center;gap:14px;padding:9px 10px 9px 18px;position:sticky;top:12px;z-index:30;margin-bottom:6px;
     border-radius:999px;border:1px solid rgba(255,255,255,.16);isolation:isolate;
     background:linear-gradient(155deg,rgba(255,255,255,.11),rgba(255,255,255,.035));
@@ -375,7 +383,7 @@
   .plan li{display:flex;gap:9px;font-size:14px;line-height:1.4;align-items:flex-start}
   .plan li svg{width:16px;height:16px;color:var(--green);flex-shrink:0;margin-top:2px}
   .plan .btn{margin-top:auto}
-  .poptag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--primary),var(--glow));color:#fff;font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;white-space:nowrap}
+  .poptag{position:absolute;top:-13px;inset-inline-start:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--primary),var(--glow));color:#fff;font-size:11.5px;font-weight:700;letter-spacing:.04em;white-space:nowrap;box-shadow:0 6px 16px -6px var(--shadow);padding:5px 12px;border-radius:999px;white-space:nowrap}
   .terms{text-align:center;color:var(--muted);font-size:13px;margin-top:16px}
   /* contact */
   /* Submission status: never colour alone — the leading glyph carries the same meaning (§14.3). */
@@ -397,9 +405,10 @@
   .pagesub{color:var(--muted);font-size:15px;line-height:1.65;margin:0 auto;max-width:640px}
   .billtoggle{display:inline-flex;gap:8px;margin-top:20px;padding:5px;border:1px solid var(--border);border-radius:99px;background:var(--card2)}
   .savepill{font-size:10px;font-weight:800;padding:2px 6px;border-radius:99px;background:rgba(89,187,132,.18);color:var(--green);margin-inline-start:6px}
-  .pricegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:18px;align-items:start}
-  .plan{position:relative;padding:26px 22px}
-  .plan.pop{border-color:var(--green)}
+  /* Deliberately NOT restyling .pricegrid, .plan or .plan.pop here. Phase 6 did, and because
+     these rules load after the originals they silently overrode them — .plan.pop lost its
+     box-shadow, so the featured card sat flat against the other two. Reusing an existing class
+     name in a single-file app is how you break a component you never opened. */
   .plan h2{font-size:19px;margin:0 0 4px;color:var(--heading)}
   .planblurb{color:var(--muted);font-size:13.5px;line-height:1.55;margin:0 0 16px;min-height:42px}
   .planprice{display:flex;align-items:baseline;gap:3px;margin-bottom:2px}
@@ -1003,6 +1012,15 @@
   .herolive .hl-live i{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(28,107,78,.5);animation:vpulse2 1.7s infinite}
   .herolive .hl-sep{width:1px;height:18px;background:var(--border)}
   .herolive .hl-feed{position:relative;height:1.5em;overflow:hidden;min-width:min(58vw,340px);text-align:start}
+  /* Thin devices: the pill was wider than the screen because hl-feed had a 340px floor that
+     could not shrink. Below 560px it becomes a two-line stack that is allowed to be narrow,
+     which keeps it inside the container instead of scrolling the whole page sideways. */
+  @media (max-width:560px){
+    .herolive{flex-wrap:wrap;justify-content:center;row-gap:6px;border-radius:18px;
+      padding:10px 14px;max-width:100%}
+    .herolive .hl-feed{min-width:0;flex:1 1 100%;text-align:center}
+    .herolive .hl-sep{display:none}
+  }
   .herolive .hl-feed ul{margin:0;padding:0;list-style:none}
   .herolive .hl-feed li{height:1.5em;line-height:1.5em;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .herolive .hl-feed li b{color:var(--heading)}
@@ -1324,8 +1342,10 @@
   /* ============================================================
      DASHBOARD — a warm greeting and stat cards that show their shape
      ============================================================ */
-  .greet{display:flex;align-items:baseline;gap:7px;font-size:14px;color:var(--muted);margin:0 0 6px}
-  .greet b{color:var(--heading);font-weight:700}
+  .greet{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:13.5px;
+    color:var(--muted);margin:0 0 4px;letter-spacing:.01em}
+  .greet b{color:var(--heading);font-weight:650}
+  .greet .greet-date{margin-inline-start:auto;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
   .stat.sx{position:relative;overflow:hidden;isolation:isolate;padding-bottom:14px}
   .stat.sx::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.55;
     background:radial-gradient(120% 90% at 100% 0%,var(--sxtint),transparent 62%)}
@@ -2199,7 +2219,10 @@ function landing(){
         '<a onclick="scrollToId(\'sec-contact\')">'+esc(t('nav_contact'))+'</a>'+
       '</div>'+
       '<div class="spacer"></div>'+
-      '<button class="btn btn-sm btn-primary" onclick="scrollToId(\'sec-contact\')">'+esc(t('book_call'))+'</button>'+
+      /* Books a time. The Contact link beside it goes to the form. Before this both landed on
+         #sec-contact, so the bar offered two controls for one outcome and a visitor had to
+         guess which was which — the commonest way a nav quietly loses clicks. */
+      '<button class="btn btn-sm btn-primary navcta" onclick="scrollToId(\'sec-book\')">'+esc(t('book_call'))+'</button>'+
     '</header>'+
     '<section class="hero" id="sec-top">'+
       logoLockup()+
@@ -2230,6 +2253,9 @@ function landing(){
     '<section class="section"><div class="kicker">'+esc(t('how_kicker2'))+'</div><h2 class="stitle">'+esc(t('how_title2'))+'</h2>'+
       '<div class="steps">'+steps.map(function(k,i){return '<div class="step"><div class="n">0'+(i+1)+'</div><p>'+esc(t(k))+'</p></div>'}).join('')+'</div></section>'+
     pricingSection()+
+    /* The booking block now sits between pricing and the form, so 'Book a call' and
+       'Contact' lead to genuinely different things instead of the same anchor. */
+    '<section class="section" id="sec-book">'+bookingSection()+liveCallSection()+'</section>'+
     '<section class="section" id="sec-contact"><div class="contactcard">'+
       '<div class="kicker">'+esc(t('form_kicker'))+'</div><h2 class="stitle">'+esc(t('form_title'))+'</h2><p class="ssub">'+esc(t('form_sub'))+'</p>'+
       '<form class="form2" onsubmit="return submitContactForm(event)">'+
@@ -2365,7 +2391,7 @@ function pricingSection(){
         '<div class="amt">'+p.price+'<small>'+esc(t('per_month'))+'</small></div>'+
         '<div class="setup">'+esc(t('setup_prefix'))+' '+p.setup+'</div>'+
         '<ul>'+feats.map(function(f){return '<li>'+icon('check')+'<span>'+esc(f)+'</span></li>'}).join('')+'</ul>'+
-        '<button class="btn '+(p.pop?'btn-primary':'')+'" onclick="scrollToId(\'sec-contact\')">'+esc(t('book_call'))+'</button>'+
+        '<button class="btn '+(p.pop?'btn-primary':'')+'" onclick="track(\'Plan click\',{plan:\''+p.k+'\',lang:LANG});scrollToId(\'sec-book\')">'+esc(t('book_call'))+'</button>'+
       '</div>'}).join('')+'</div>'+
     '<p class="terms">'+esc(t('pricing_terms'))+'</p></section>'
 }
@@ -2906,7 +2932,14 @@ function dashboard(){
   var srcTotal=leads.length||1;
   var attention=leads.filter(function(l){return ['New','Qualified'].indexOf(l.status)>=0}).sort(function(a,b){return b.at-a.at}).slice(0,5);
   var u=AUTH.current()||{};
-  return '<div class="greet"><span class="gwave">'+esc(greetWord())+'</span><b>'+esc(String(u.name||'').split(' ')[0]||'')+'</b></div>'+
+  /* Name the BUSINESS, not the account label. "Good afternoon, Demo" greeted a placeholder and
+     read as unfinished software to anyone being shown the product. The date earns its place:
+     it tells you which day the figures below belong to, which the numbers alone do not. */
+  var who=esc(String(getProfile().biz||u.biz||'').trim()||String(u.name||'').split(' ')[0]||'');
+  var today=new Date().toLocaleDateString(LANG==='ar'?'ar':(LANG==='es'?'es-ES':'en-GB'),
+    {weekday:'long',day:'numeric',month:'long'});
+  return '<div class="greet"><span class="gwave">'+esc(greetWord())+'</span>'+
+    (who?'<b>'+who+'</b>':'')+'<span class="greet-date">'+esc(today)+'</span></div>'+
     head(t('dash_title'),t('dash_sub'),
       '<button class="btn btn-primary" onclick="go(\'new\')">'+icon('plus')+' '+esc(t('new_lead'))+'</button>')+
     (onboardComplete()?'':'<div class="setupbanner"><span class="sbi">'+icon('bolt')+'</span><div style="flex:1"><div style="font-weight:800">'+esc(t('ob_banner_t'))+'</div><div class="muted" style="font-size:13px">'+esc(t('ob_banner_s'))+'</div></div><button class="btn btn-primary btn-sm" onclick="obLaunch()">'+esc(t('ob_continue_setup'))+'</button></div>')+
