@@ -4175,14 +4175,62 @@ function vAsk(){vSetStatus(vTurnMsg());vBotSay(vAskText(),vArmMic)}
 /* ---- smart validation: reject gibberish and re-ask politely ---- */
 function vHasLetter(s){return /[A-Za-zÀ-ɏ؀-ۿ]/.test(String(s||''))}
 function vDigits(s){return (normDigits(String(s||'')).match(/\d/g)||[]).length}
-function vValidName(s){s=String(s||'').trim();return s.length>=1&&s.length<=60&&vHasLetter(s)}
+/* ---------------------------------------------------------------------------
+   CONTENT SCREEN for anything the caller says that we would REPEAT BACK.
+
+   The assistant greeted callers with "Lovely to meet you, {name}" using whatever they typed,
+   because vValidName() only asked "1-60 characters, contains a letter". A slur satisfies both.
+   So the receptionist read a racial slur back to the caller in a warm tone, and on a real call
+   that reaches a real customer of a real client — screenshotted, and damaging to everyone in
+   the chain.
+
+   Normalise before matching, or the filter is decoration: leetspeak (n1gg3r), spacing (b i t c h)
+   and padding (niiiiigger) all defeat a plain word list. We fold digits to letters, drop
+   everything that is not a letter, and collapse repeated runs, then test both the collapsed and
+   semi-collapsed forms.
+
+   This list exists to be matched against, not read. It covers the high-severity slurs plus
+   common abuse; it is not exhaustive and does not need to be, because the DEFAULT behaviour is
+   what protects us: a name is only ever echoed if it looks like a name AND is not blocked. */
+var VBLOCK=/(n[i]g+(er|a|uh)|f[a]g+(ot)?|k[i]ke|sp[i]c|ch[i]nk|w[e]tback|tr[a]nny|r[e]tard|c[u]nt|b[i]tch|wh[o]re|sl[u]t|f[u]ck|sh[i]t|b[a]stard|d[i]ck|c[o]ck|p[u]ssy|a[s]shole|tw[a]t|w[a]nker|p[a]ki|c[o]on|n[o]nce|r[a]pe|k[i]ll ?y[o]u)/;
+
+function vNormAbuse(s){
+  var x=String(s||'').toLowerCase()
+    .replace(/[4@]/g,'a').replace(/[3€]/g,'e').replace(/[1!|]/g,'i')
+    .replace(/0/g,'o').replace(/[5$]/g,'s').replace(/7/g,'t')
+    .replace(/[^a-z]+/g,'');
+  return {full:x, squashed:x.replace(/(.)\1+/g,'$1'), pairs:x.replace(/(.)\1{2,}/g,'$1$1')};
+}
+/* True when the text contains something we must never say out loud or store. */
+function vAbusive(s){
+  var f=vNormAbuse(s);
+  return VBLOCK.test(f.full)||VBLOCK.test(f.squashed)||VBLOCK.test(f.pairs);
+}
+
+/* A name we are willing to REPEAT must look like a name: letters, spaces, hyphens and
+   apostrophes only. Digits and symbols are not names, and "1-60 chars containing a letter"
+   was never a test of anything. */
+function vLooksLikeName(s){
+  s=String(s||'').trim();
+  return s.length>=2&&s.length<=40&&vHasLetter(s)&&
+    !/[0-9<>{}\[\]()@#$%^*_=+\\\/|~`]/.test(s)&&
+    (s.match(/\s/g)||[]).length<=3;
+}
+function vValidName(s){return vLooksLikeName(s)&&!vAbusive(s)}
 function vValidService(s){s=String(s||'').trim();return s.length>=2&&vHasLetter(s)}
 function vValidPhone(s){return vDigits(s)>=7}
 function vRefusal(s){s=' '+String(s||'').toLowerCase()+' ';return /\b(no|nope|nah|skip|later|luego|لا)\b/.test(s)||/rather not|prefer not|don'?t have|no thanks|no gracias|prefiero no|call me|email me|لا شكرا|لاحقا|تخطي/.test(s)}
 function vClearUrgency(s){s=' '+String(s||'').toLowerCase()+' ';
   return /(urgent|asap|emergency|today|right now|straight away|leak|no hot water|broken|soon|plan|ahead|no rush|whenever|browsing|quote|enquiry|urgente|hoy|emergencia|prisa|luego|más tarde|planific|عاجل|طارئ|اليوم|لاحق|لا يوجد|ليس|تخطيط)/.test(s)||/\b(yes|no|yeah|yep|nope|sí|si|نعم|لا)\b/.test(s)}
 function vValidate(key,v){
-  if(key==='name')return {ok:vValidName(v),msg:'v_retry_name',max:1};
+  if(key==='name'){
+    /* Abuse is handled differently from a name we simply could not parse. "Sorry, I didn't
+       quite catch that" invites them to say it again, and after the retry limit the old code
+       accepted it anyway. So: do not re-ask, do not store it, do not repeat it — drop the name
+       and carry on politely. The caller gets service; the slur goes nowhere. */
+    if(vAbusive(v))return {ok:false,drop:true,msg:null,max:0};
+    return {ok:vValidName(v),msg:'v_retry_name',max:1};
+  }
   if(key==='service')return {ok:vValidService(v),msg:'v_retry_service',max:1};
   if(key==='urgency')return {ok:vClearUrgency(v),msg:'v_retry_urgency',max:1};
   if(key==='phone')return {ok:vValidPhone(v)||vRefusal(v),msg:'v_retry_phone',max:1};
@@ -4344,9 +4392,16 @@ function voiceSend(text){
     /* they answered a different question than the one we asked — keep what they DID give us
        (a phone number offered early is still a phone number) before asking again */
     vKeepExtras(got,key);
+    /* Blocked content: drop the value and fall through to the normal advance below, which is
+       the same path an exhausted retry already takes. An empty name makes every later line
+       fall back to v_default_name — already translated in all three languages — so nothing
+       needs a new string, nothing is stored, and nothing is repeated back. */
+    if(vd.drop){primary='';}
+    else{
     VOICE.retry[key]=(VOICE.retry[key]||0)+1;
     if(VOICE.retry[key]<=vd.max){vSetStatus(vTurnMsg());vBotSay(t(vd.msg),vArmMic);if(i&&!VOICE.hands)i.focus();return}
     if(key==='name'||key==='service')primary='';
+    }
   }
   VOICE.data[key]=primary;
   vKeepExtras(got,key);
