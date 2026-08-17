@@ -1475,9 +1475,9 @@ var CRM_TR={
 (function(){for(var l in CRM_TR){if(!TR[l])TR[l]={};for(var k in CRM_TR[l]){if(TR[l][k]==null)TR[l][k]=CRM_TR[l][k]}}})();
 /* ---- Smart-receptionist re-prompts (validation) ---- */
 var VOICE_TR={
- en:{v_retry_name:"Sorry, I didn't quite catch your name — could you tell me your name, please?",v_retry_service:"I want to note this down correctly — how can we help you today?",v_retry_urgency:"Just so I prioritise this correctly — is it urgent, or are you planning ahead?",v_retry_phone:"Hmm, that doesn't look like a phone number. What's the best number to reach you on, including the area code?"},
- es:{v_retry_name:"Perdone, no he captado bien su nombre. ¿Me podría decir su nombre, por favor?",v_retry_service:"Quiero anotarlo correctamente. ¿En qué podemos ayudarle hoy?",v_retry_urgency:"Solo para priorizarlo bien: ¿es urgente o lo está planificando con antelación?",v_retry_phone:"Mmm, eso no parece un número de teléfono. ¿Cuál es el mejor número para localizarle, con el prefijo incluido?"},
- ar:{v_retry_name:"عذرًا، لم ألتقط اسمك جيدًا — هل لي أن أعرف اسمك، من فضلك؟",v_retry_service:"أريد تدوين ذلك بدقة — كيف يمكننا مساعدتك اليوم؟",v_retry_urgency:"فقط لأرتّب الأولوية بشكل صحيح: هل الأمر عاجل أم أنك تخطّط له مسبقًا؟",v_retry_phone:"يبدو أن هذا ليس رقم هاتف. ما أفضل رقم يمكننا التواصل معك عليه، مع رمز المنطقة؟"}
+ en:{v_retry_polite:"Could I take your name for the record, please?",v_retry_service:"Just so I note it correctly — what do you need help with?",v_retry_name:"Sorry, I didn't quite catch your name — could you tell me your name, please?",v_retry_service:"I want to note this down correctly — how can we help you today?",v_retry_urgency:"Just so I prioritise this correctly — is it urgent, or are you planning ahead?",v_retry_phone:"Hmm, that doesn't look like a phone number. What's the best number to reach you on, including the area code?"},
+ es:{v_retry_polite:"¿Me puede indicar su nombre para el registro, por favor?",v_retry_service:"Solo para anotarlo bien: ¿en qué necesita ayuda?",v_retry_name:"Perdone, no he captado bien su nombre. ¿Me podría decir su nombre, por favor?",v_retry_service:"Quiero anotarlo correctamente. ¿En qué podemos ayudarle hoy?",v_retry_urgency:"Solo para priorizarlo bien: ¿es urgente o lo está planificando con antelación?",v_retry_phone:"Mmm, eso no parece un número de teléfono. ¿Cuál es el mejor número para localizarle, con el prefijo incluido?"},
+ ar:{v_retry_polite:"هل يمكنك تزويدي باسمك للتسجيل، من فضلك؟",v_retry_service:"فقط لأدوّنها بدقة: بماذا تحتاج المساعدة؟",v_retry_name:"عذرًا، لم ألتقط اسمك جيدًا — هل لي أن أعرف اسمك، من فضلك؟",v_retry_service:"أريد تدوين ذلك بدقة — كيف يمكننا مساعدتك اليوم؟",v_retry_urgency:"فقط لأرتّب الأولوية بشكل صحيح: هل الأمر عاجل أم أنك تخطّط له مسبقًا؟",v_retry_phone:"يبدو أن هذا ليس رقم هاتف. ما أفضل رقم يمكننا التواصل معك عليه، مع رمز المنطقة؟"}
 };
 (function(){for(var l in VOICE_TR){if(!TR[l])TR[l]={};for(var k in VOICE_TR[l]){if(TR[l][k]==null)TR[l][k]=VOICE_TR[l][k]}}})();
 /* ---- Onboarding / business setup i18n (framework + step titles + CRM choice + test lead) ---- */
@@ -4217,7 +4217,19 @@ function vLooksLikeName(s){
     (s.match(/\s/g)||[]).length<=3;
 }
 function vValidName(s){return vLooksLikeName(s)&&!vAbusive(s)}
-function vValidService(s){s=String(s||'').trim();return s.length>=2&&vHasLetter(s)}
+/* Filler is not an answer. The demo accepted "yes" as the service and replied "Great choice —
+   that's exactly what we do", which is the single most obviously dumb thing it did: it confirms
+   enthusiastically that it provides "yes". A real receptionist asks again. This is the same list
+   of one-word acknowledgements in all three languages, matched whole-string only, so "yes please,
+   a filling" still counts as a real answer. */
+var VFILLER=/^(y(es|eah|ep|up)?|no(pe)?|ok(ay)?|sure|fine|right|alright|hi|hey|hello|thanks?|thank ?you|cheers|dunno|maybe|nothing|na|hmm+|uh+|erm+|um+|s[ií]|vale|claro|gracias|hola|bueno|nada|quiz[áa]s?|نعم|لا|حسنا|حسنًا|أوك|شكرا|شكرًا|مرحبا|مرحبًا|طيب|ربما)$/i;
+function vFiller(s){return VFILLER.test(String(s||'').trim().replace(/[.!?]+$/,''))}
+function vValidService(s){
+  s=String(s||'').trim();
+  /* Abuse is screened here too. It is never spoken back, but it WOULD be written to the lead
+     record and shown in the client's dashboard, which is its own kind of bad day. */
+  return s.length>=2&&vHasLetter(s)&&!vFiller(s)&&!vAbusive(s);
+}
 function vValidPhone(s){return vDigits(s)>=7}
 function vRefusal(s){s=' '+String(s||'').toLowerCase()+' ';return /\b(no|nope|nah|skip|later|luego|لا)\b/.test(s)||/rather not|prefer not|don'?t have|no thanks|no gracias|prefiero no|call me|email me|لا شكرا|لاحقا|تخطي/.test(s)}
 function vClearUrgency(s){s=' '+String(s||'').toLowerCase()+' ';
@@ -4228,10 +4240,16 @@ function vValidate(key,v){
        quite catch that" invites them to say it again, and after the retry limit the old code
        accepted it anyway. So: do not re-ask, do not store it, do not repeat it — drop the name
        and carry on politely. The caller gets service; the slur goes nowhere. */
-    if(vAbusive(v))return {ok:false,drop:true,msg:null,max:0};
+    /* Ask again rather than skipping. MK's call, and it is the more natural behaviour on a real
+       call — but capped at two attempts, because re-asking is also an invitation to repeat it.
+       After the cap the flow falls through to the existing empty-name path and carries on, so a
+       caller who keeps swearing still gets served and nothing is ever stored or echoed.
+       v_retry_polite deliberately does NOT say "I didn't catch that" — we heard it perfectly,
+       and pretending otherwise reads as a machine that can be played with. */
+    if(vAbusive(v))return {ok:false,msg:'v_retry_polite',max:2};
     return {ok:vValidName(v),msg:'v_retry_name',max:1};
   }
-  if(key==='service')return {ok:vValidService(v),msg:'v_retry_service',max:1};
+  if(key==='service')return {ok:vValidService(v),msg:'v_retry_service',max:2};
   if(key==='urgency')return {ok:vClearUrgency(v),msg:'v_retry_urgency',max:1};
   if(key==='phone')return {ok:vValidPhone(v)||vRefusal(v),msg:'v_retry_phone',max:1};
   return {ok:true};
