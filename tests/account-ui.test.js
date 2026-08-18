@@ -152,5 +152,47 @@ console.log('\nthe usage card says what it actually measures');
   ok(/Demo/.test(plan), 'the tier is still shown', 'the fix removed the label entirely');
 }
 
+console.log('\nrole names are labels, not database codes');
+{
+  /* The team panel shipped printing the raw code: a Spanish or Arabic admin saw "readonly" and
+     "staff" in English, and even in English "readonly" is not a word anyone writes. The roles
+     live in a CHECK constraint in SQL, so this reads that constraint rather than a hand-copied
+     list — a role added to the database but never given a label is exactly the drift to catch. */
+  const sql = fs.readFileSync(
+    path.join(__dirname, '..', 'supabase', 'migrations', '0007_retention_roles_conversations.sql'), 'utf8');
+  const m = /workspace_members_role_check[\s\S]*?check \(role in \(([^)]*)\)\)/.exec(sql);
+  ok(!!m, 'found the role constraint in SQL', 'the migration moved — this test is now blind');
+  const roles = (m ? m[1] : '').split(',').map((x) => x.trim().replace(/^'|'$/g, '')).filter(Boolean);
+  ok(roles.length >= 5, 'read ' + roles.length + ' roles from the constraint', 'parsed nothing useful');
+
+  ok(typeof w.roleLabel === 'function', 'roleLabel exists', 'raw codes would reach the screen');
+  for (const r of roles) {
+    for (const lang of ['en', 'es', 'ar']) {
+      w.LANG = lang;
+      const label = w.roleLabel(r);
+      ok(label && label !== r, r + ' has a ' + lang.toUpperCase() + ' label ("' + label + '")',
+        'English-only or missing — a ' + lang.toUpperCase() + ' admin sees the database code');
+    }
+  }
+  w.LANG = 'en';
+
+  // An unknown code must degrade to the code, never to an empty cell that looks like no role.
+  ok(w.roleLabel('supervisor') === 'supervisor', 'an unknown role falls back to its code',
+    'a role added server-side would render as a blank cell');
+  ok(w.roleLabel('') === '' && w.roleLabel(null) === '', 'empty stays empty', '');
+
+  // The invite form must not carry hardcoded English either.
+  for (const k of ['acct_invite_email_l', 'acct_invite_role_l', 'acct_invite_email_ph']) {
+    for (const lang of ['en', 'es', 'ar']) {
+      w.LANG = lang;
+      ok(w.t(k) !== k, k + ' exists in ' + lang.toUpperCase(), 'untranslated string in the invite form');
+    }
+  }
+  w.LANG = 'en';
+  ok(!/<option value="(staff|manager|agent|readonly|admin)">\1<\/option>/.test(SRC),
+    'no hardcoded English <option> labels remain',
+    'the role picker is still printing database codes at the user');
+}
+
 console.log('\npassed: ' + pass);
 if (bad.length) { console.log('FAILED: ' + bad.length); bad.forEach((b) => console.log('   ' + b)); process.exit(1); }
