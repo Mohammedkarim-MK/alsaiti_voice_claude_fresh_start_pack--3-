@@ -124,7 +124,7 @@ Deno.serve(async (req: Request) => {
     // ---- checkout ----
     const plan = String(body.plan || '');
     const period = String(body.period || 'monthly');
-    if (!['starter', 'growth', 'business'].includes(plan)) return fail('unknown_plan', 400);
+    if (!['starter', 'growth', 'full'].includes(plan)) return fail('unknown_plan', 400);
     if (!['monthly', 'annual'].includes(period)) return fail('unknown_period', 400);
 
     const price = priceId(plan, period);

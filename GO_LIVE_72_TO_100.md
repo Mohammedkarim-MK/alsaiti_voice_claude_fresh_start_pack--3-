@@ -71,12 +71,14 @@ supabase secrets set STRIPE_SECRET_KEY=sk_test_xxx
 ```
 
 ```bash
-supabase secrets set STRIPE_PRICE_STARTER_MONTHLY=price_xxx STRIPE_PRICE_STARTER_ANNUAL=price_xxx STRIPE_PRICE_GROWTH_MONTHLY=price_xxx STRIPE_PRICE_GROWTH_ANNUAL=price_xxx STRIPE_PRICE_BUSINESS_MONTHLY=price_xxx STRIPE_PRICE_BUSINESS_ANNUAL=price_xxx
+supabase secrets set STRIPE_PRICE_STARTER_MONTHLY=price_xxx STRIPE_PRICE_STARTER_ANNUAL=price_xxx STRIPE_PRICE_GROWTH_MONTHLY=price_xxx STRIPE_PRICE_GROWTH_ANNUAL=price_xxx STRIPE_PRICE_FULL_MONTHLY=price_xxx STRIPE_PRICE_FULL_ANNUAL=price_xxx
 ```
 
-> The env vars say `BUSINESS` because the checkout function was written before I saw your live
-> tier names. Your third tier is **Full Automation**. The name in the env var does not appear
-> anywhere a customer sees — but tell me and I will rename it so nothing reads oddly later.
+> The third tier is `FULL`, matching **Full Automation** on your pricing page. It used to be
+> three different words in three places — `scale` in the database, `business` in the checkout,
+> `plan_full` on the page — which meant a paying top-tier customer would have landed on a plan
+> the database could not price, and silently received unlimited seats. Fixed in migration 0021,
+> and `tests/plan-codes.test.js` now fails the build if the three ever disagree again.
 
 ### 2d. Point Stripe at the webhook
 
