@@ -15,7 +15,7 @@
 import { preflight, json, fail } from '../_shared/http.ts';
 import { serviceClient } from '../_shared/store.ts';
 import { correlationId, logger, type Log } from '../_shared/log.ts';
-import { sendEmail, leadAlert, emailProvider, replyToAddress } from '../_shared/email.ts';
+import { sendEmail, leadAlert, contactAlert, emailProvider, replyToAddress } from '../_shared/email.ts';
 
 function env(k: string): string | undefined {
   // deno-lint-ignore no-explicit-any
@@ -102,12 +102,79 @@ async function handleLeadStatus(ev: PlatformEvent, log: Log): Promise<void> {
 }
 
 /**
+ * Tell the business about a website enquiry.
+ *
+ * contact-submit sends this email synchronously, so on a configured deployment this handler
+ * almost never does the sending — it re-reads the row, sees notification_status 'sent', and
+ * acknowledges. It exists for the case that was silently broken: an enquiry captured while no
+ * email provider was configured was stored with a reference and then forgotten. Nothing retried
+ * it, so pasting in an API key later did not deliver it. The visitor was thanked, the row looked
+ * perfect, and the owner was never told.
+ *
+ * Re-reading rather than trusting the payload is what makes the two paths safe together: the
+ * event carries only an id, so whichever path gets there second sees the first one's result.
+ */
+async function handleContactSubmitted(ev: PlatformEvent, log: Log): Promise<void> {
+  const sb = serviceClient();
+  const id = (ev.payload as Record<string, unknown>).submission_id as string;
+  if (!id) throw new Permanent('contact.submitted with no submission_id');
+
+  const { data: row } = await sb.from('contact_submissions')
+    .select('id,reference,first_name,last_name,business,email,phone,whatsapp,industry,' +
+            'system,message,created_at,notification_status,notification_attempts')
+    .eq('id', id).maybeSingle();
+
+  // Retention removed it. That is a completed lifecycle, not a failure to retry.
+  if (!row) { log.info('submission_gone', { submission_id: id }); return; }
+
+  if (row.notification_status === 'sent') {
+    log.info('already_notified', { reference: row.reference });
+    return;
+  }
+
+  const to = env('LEAD_NOTIFICATION_TO');
+  if (!to) throw new NotConfigured('LEAD_NOTIFICATION_TO is not set');
+  if (!emailProvider()) throw new NotConfigured('no email provider configured');
+
+  const mail = contactAlert({
+    reference: row.reference as string,
+    first: row.first_name as string, last: row.last_name as string, biz: row.business as string,
+    email: row.email as string, phone: row.phone as string, wa: row.whatsapp as string,
+    industry: row.industry as string, system: row.system as string,
+    message: row.message as string,
+    receivedAt: new Date(row.created_at as string).toUTCString(),
+  }, env('PUBLIC_APP_URL') || '');
+
+  const sent = await sendEmail(to, mail.subject, mail.html, mail.text,
+                               replyToAddress(row.email as string));
+
+  await sb.from('contact_submissions').update({
+    notification_status: 'sent',
+    notified_at: new Date().toISOString(),
+    notification_provider_id: sent.id ?? null,
+    notification_attempts: ((row.notification_attempts as number) ?? 0) + 1,
+    notification_error: null,
+  }).eq('id', row.id);
+
+  await sb.from('notifications').insert({
+    workspace_id: ev.workspace_id,
+    channel: 'email', category: 'contact_form',
+    recipient: to, subject: mail.subject, status: 'sent',
+    provider: sent.provider, provider_id: sent.id ?? null, attempts: ev.attempts,
+    related_table: 'contact_submissions', related_id: row.id,
+    correlation_id: ev.correlation_id,
+  });
+  log.info('contact_alert_sent', { reference: row.reference, provider: sent.provider });
+}
+
+/**
  * Dispatch table. An event type absent from here is NOT an error — it means the feature that
  * consumes it has not been built yet. Those are acknowledged and counted separately, so the queue
  * does not silently fill with work nobody will ever do, and the count stays visible.
  */
 const HANDLERS: Record<string, (ev: PlatformEvent, log: Log) => Promise<void>> = {
   'lead.created': handleLeadCreated,
+  'contact.submitted': handleContactSubmitted,
   'lead.qualified': handleLeadCreated,
   'lead.status_changed': handleLeadStatus,
 };

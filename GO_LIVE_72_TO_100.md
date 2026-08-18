@@ -45,6 +45,13 @@ form and confirm the email arrives — check spam the first time.
 **Enquiries that arrived before you finish are not lost.** They queue and send themselves
 within a minute of the key landing.
 
+> That was not true when I first wrote it. Contact-form alerts were sent synchronously and never
+> queued, so an enquiry captured with no provider configured was stored, given a reference, and
+> forgotten — adding the key later delivered nothing. Migration 0022 puts them on the same
+> durable queue the leads use, and `tests/contact-alert-durability.test.js` holds it there. One
+> test enquiry is sitting in the queue now, deferred with its full retry budget, waiting for
+> your key.
+
 ---
 
 ## Step 2 — Stripe · 45 min · **+12 points**
